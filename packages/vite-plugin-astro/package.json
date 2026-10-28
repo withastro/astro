@@ -35,6 +35,7 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/runtime": "workspace:*",
     "common-ancestor-path": "^2.0.0",
+    "devalue": "^6.0.2",
     "magic-string": "^1.4.2",
     "rolldown": "^1.2.11",
     "smol-toml": "^1.9.0",

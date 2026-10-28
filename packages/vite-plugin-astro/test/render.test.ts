@@ -47,6 +47,11 @@ describe('render API in dev', () => {
 		assert.match(html, /<style[^>]*>body \{ margin: 0; \}/);
 	});
 
+	it('adds the devHeadScript of renderers to the head, with the base', async () => {
+		const html = await render();
+		assert.match(html, /<script type="module">window\.__devHead = "\/";<\/script>[\s\S]*<\/head>/);
+	});
+
 	it('server-renders islands and points them at URLs the dev server serves', async () => {
 		const html = await render();
 		assert.match(html, /<astro-island[^>]*><button>count: <!-- -->2<\/button>/);
@@ -119,5 +124,9 @@ describe('render API in a build', () => {
 		}
 		const script = await fs.readFile(new URL(`.${getScriptSrc(html)}`, clientDir), 'utf-8');
 		assert.match(script, /card script/);
+	});
+
+	it('leaves the devHeadScript of renderers out', () => {
+		assert.equal(html.includes('__devHead'), false);
 	});
 });

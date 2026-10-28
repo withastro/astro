@@ -52,8 +52,9 @@ const html = await renderToString(Page, { props });
 | `site`                     | `undefined`             | `Astro.site`.                                                                                                                                                |
 | `compressHTML`             | `'jsx'`                 |                                                                                                                                                              |
 | `base`                     | `'/'`                   |                                                                                                                                                              |
+| `headScripts`              | `[]`                    | Inline module scripts added to the `<head>` of documents (not with `partial`). `astro()` passes the `devHeadScript` of its renderers in dev.                 |
 
-It returns `{ renderToString(Component, options?), renderToResponse(Component, options?) }` with the signatures above. `test/render.test.ts` compiles a component with `@astrojs/compiler-rs` and renders it in plain Node.
+It returns `{ renderToString(Component, options?), renderToResponse(Component, options?) }` with the signatures above. The runtime calls `check()` and `renderToStaticMarkup()` of a renderer with `this` set to `{ result, options }`, where `options` is the renderer's `options`. `test/render.test.ts` compiles a component with `@astrojs/compiler-rs` and renders it in plain Node.
 
 ## Types
 

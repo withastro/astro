@@ -131,7 +131,15 @@ async function renderFrameworkComponent(
 			let error;
 			for (const r of renderers) {
 				try {
-					if (await r.ssr.check.call({ result }, Component, props, children, metadata)) {
+					if (
+						await r.ssr.check.call(
+							{ result, options: r.options },
+							Component,
+							props,
+							children,
+							metadata,
+						)
+					) {
 						renderer = r;
 						break;
 					}
@@ -246,7 +254,7 @@ async function renderFrameworkComponent(
 				// but this will throw a much more descriptive error!
 				renderer = matchingRenderers[0];
 				({ html, attrs } = await renderer.ssr.renderToStaticMarkup.call(
-					{ result },
+					{ result, options: renderer.options },
 					Component,
 					propsWithoutTransitionAttributes,
 					children,
@@ -273,7 +281,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		} else {
 			const componentRenderStartTime = performance.now();
 			({ html, attrs } = await renderer.ssr.renderToStaticMarkup.call(
-				{ result },
+				{ result, options: renderer.options },
 				Component,
 				propsWithoutTransitionAttributes,
 				children,

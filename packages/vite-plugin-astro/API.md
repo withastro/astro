@@ -71,7 +71,20 @@ Standalone settings that have no option yet: `scopedStyleStrategy` is `'attribut
 
 ### Renderers
 
-Pass renderers in `options.renderers`; there are no integrations in plugin mode. A renderer package that reads a virtual module its integration normally provides needs that module from another plugin. For `@astrojs/react`, provide `astro:react:opts` and add `@astrojs/react` to `ssr.noExternal` (see `test/fixtures/standalone/vite.config.js`). The framework's own Vite plugin (for example `@vitejs/plugin-react`) is optional.
+Pass renderers in `options.renderers`; there are no integrations in plugin mode. A renderer is plain data (`AstroRenderer`), with no Vite plugins: compiling the framework's files is the job of its own Vite plugin (for example `@vitejs/plugin-react`), added next to `astro()`. The order of `renderers` is the order in which they are tried.
+
+| `AstroRenderer` field                          | What `astro()` does with it                                                                                                                                                                                                            |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`, `serverEntrypoint`, `clientEntrypoint` | Serves them in `virtual:astro:renderers`.                                                                                                                                                                                              |
+| `options`                                      | Serves them in `virtual:astro:renderers`, serialized with `devalue` (plain data, `RegExp`, `Date`, `URL`, `Map`, `Set`). The runtime passes them to `check()` and `renderToStaticMarkup()` of the server entrypoint as `this.options`. |
+| `optimizeDeps`                                 | `{ client?, server? }`, each `{ include?, exclude? }`: added to `optimizeDeps` of client environments, and of server environments that run the dependency optimizer (`optimizeDeps.noDiscovery: false`).                               |
+| `dedupe`                                       | Added to `resolve.dedupe` of every environment.                                                                                                                                                                                        |
+| `noExternal`                                   | Added to `resolve.noExternal` of every server environment (unless it is `true`).                                                                                                                                                       |
+| `devHeadScript`                                | Dev only: an inline module script that must run before any component module (React's Fast Refresh preamble), with `__BASE__` replaced by Vite's `base`. The render API adds it to the `<head>` of documents (not with `partial`).      |
+
+The dependency fields are applied in a `configEnvironment` hook with `order: 'post'`, so they see the `optimizeDeps.noDiscovery` that other plugins set.
+
+`@vitejs/plugin-react` gives Vite's OXC plugin a JSX refresh filter that matches the ids of `.astro` scripts (`Foo.astro?astro&type=script&index=0&lang.ts`) and makes OXC parse them as JavaScript. When a framework plugin sets such a filter, `astro()` adds `.astro` ids to its exclude, so `<script lang="ts">` works with a bare `viteReact()`.
 
 Compiled components import `@astrojs/runtime/compiler-runtime`. `astro()` resolves every `@astrojs/runtime` import from its own location and adds `@astrojs/runtime` and `@astrojs/vite-plugin-astro` to `resolve.noExternal` in server environments: compiled components, `virtual:astro:render-setup`, the render API and this package's re-exports of the runtime must share one copy of it, and a build bundles it.
 

@@ -64,6 +64,79 @@ describe('astro()', () => {
 		assert.deepEqual(plugin.api.astro.clientDirectives, [directive]);
 	});
 
+	it('applies the dependency fields of renderers to each environment', async () => {
+		const renderer = {
+			name: 'test',
+			serverEntrypoint: 'test/server.js',
+			optimizeDeps: {
+				client: { include: ['test-client'], exclude: ['test/server.js'] },
+				server: { include: ['test-server'] },
+			},
+			dedupe: ['test-dedupe'],
+			noExternal: ['test-no-external'],
+		};
+		const config = await resolveConfig(
+			{
+				configFile: false,
+				logLevel: 'silent',
+				root: rootPath,
+				plugins: [astro({ renderers: [renderer] })],
+				environments: { workerd: { consumer: 'server', optimizeDeps: { noDiscovery: false } } },
+			},
+			'serve',
+		);
+		const { client, ssr, workerd } = config.environments;
+		assert.ok(client.optimizeDeps.include?.includes('test-client'));
+		assert.ok(client.optimizeDeps.exclude?.includes('test/server.js'));
+		assert.ok(client.resolve.dedupe.includes('test-dedupe'));
+		assert.equal((client.resolve.noExternal as string[]).includes('test-no-external'), false);
+		// `ssr` does not run the dependency optimizer by default.
+		assert.equal(ssr.optimizeDeps.include?.includes('test-server'), false);
+		assert.ok((ssr.resolve.noExternal as string[]).includes('test-no-external'));
+		assert.ok(ssr.resolve.dedupe.includes('test-dedupe'));
+		assert.ok(workerd.optimizeDeps.include?.includes('test-server'));
+		assert.ok((workerd.resolve.noExternal as string[]).includes('test-no-external'));
+	});
+
+	it('serves renderers with their options, without the fields astro() applies itself', async () => {
+		const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'vite-plugin-astro-'));
+		await fs.writeFile(path.join(projectRoot, 'server.js'), 'export default { name: "test" };\n');
+		const server = await createServer({
+			configFile: false,
+			logLevel: 'silent',
+			root: projectRoot,
+			server: { middlewareMode: true, ws: false },
+			plugins: [
+				astro({
+					renderers: [
+						{
+							name: 'test',
+							serverEntrypoint: path.join(projectRoot, 'server.js'),
+							options: { include: [/\.test\.jsx$/], streaming: false },
+							dedupe: ['test-dedupe'],
+							devHeadScript: 'window.test = true;',
+						},
+					],
+				}),
+			],
+		});
+		try {
+			const { renderers } = await server.ssrLoadModule('virtual:astro:renderers');
+			assert.equal(renderers.length, 1);
+			const [renderer] = renderers;
+			assert.equal(renderer.name, 'test');
+			assert.deepEqual(renderer.ssr, { name: 'test' });
+			assert.ok(renderer.options.include[0] instanceof RegExp);
+			assert.equal(renderer.options.include[0].source, '\\.test\\.jsx$');
+			assert.equal(renderer.options.streaming, false);
+			assert.equal('dedupe' in renderer, false);
+			assert.equal('devHeadScript' in renderer, false);
+		} finally {
+			await server.close();
+			await fs.rm(projectRoot, { recursive: true, force: true });
+		}
+	});
+
 	it('resolves the runtime for components in a project that does not depend on it', async () => {
 		// Outside this package, so the project's own module resolution cannot find `@astrojs/runtime`.
 		const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'vite-plugin-astro-'));

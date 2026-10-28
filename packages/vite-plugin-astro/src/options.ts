@@ -3,6 +3,10 @@ import { ASTRO_PLUGIN_DEFAULTS } from './defaults.js';
 import type { AstroRenderer, ClientDirectiveConfig } from '@astrojs/runtime/types';
 
 const EntrypointSchema = z.union([z.string(), z.instanceof(URL)]);
+const OptimizeDepsSchema = z.object({
+	include: z.array(z.string()).optional(),
+	exclude: z.array(z.string()).optional(),
+});
 
 /**
  * Validates `AstroPluginOptions` and applies defaults. The `astro` CLI config schema reuses the
@@ -27,6 +31,13 @@ export const AstroPluginOptionsSchema = z.object({
 				name: z.string(),
 				clientEntrypoint: EntrypointSchema.optional(),
 				serverEntrypoint: EntrypointSchema,
+				options: z.unknown().optional(),
+				optimizeDeps: z
+					.object({ client: OptimizeDepsSchema.optional(), server: OptimizeDepsSchema.optional() })
+					.optional(),
+				dedupe: z.array(z.string()).optional(),
+				noExternal: z.array(z.string()).optional(),
+				devHeadScript: z.string().optional(),
 			}),
 		)
 		.optional()

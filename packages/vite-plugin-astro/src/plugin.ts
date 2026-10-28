@@ -139,7 +139,7 @@ export default function astro(options: AstroPluginOptions = {}): Plugin[] {
 		headPlugin(),
 		fileUrlPlugin(),
 		hmrReloadPlugin(),
-		renderSetupPlugin(),
+		renderSetupPlugin({ renderers: parsed.renderers }),
 	];
 	// Vite resolves the config again for each build environment, which re-runs a config file and
 	// creates new plugin instances. The client build reads state collected by the server build

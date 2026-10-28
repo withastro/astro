@@ -1,10 +1,16 @@
 import { getContainerRenderer } from '@astrojs/react/container-renderer';
 import astro from '@astrojs/vite-plugin-astro';
+import viteReact from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [
-		astro({ renderers: [getContainerRenderer()] }),
+		astro({
+			renderers: [{ ...getContainerRenderer(), devHeadScript: 'window.__devHead = "__BASE__";' }],
+		}),
+		// Without options: `astro()` keeps the JSX refresh filter of `viteReact()` away from `.astro`
+		// script modules.
+		viteReact(),
 		// `@astrojs/react/server.js` reads its options from a virtual module that the `@astrojs/react`
 		// integration normally provides.
 		{
