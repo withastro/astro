@@ -15,6 +15,8 @@ test.describe('React 19 SSR integration', () => {
 		const island = match ? match[1] : '';
 
 		assert.ok(!island.includes('rel="preload"'), 'React 19: preloads should be stripped');
+		assert.ok(island.includes('rel="stylesheet"'), 'Component stylesheet link should be preserved');
+		assert.ok(island.includes('rel="preconnect"'), 'Component preconnect link should be preserved');
 		assert.ok(island.includes('<img'), 'Component content should be preserved');
 	});
 });
