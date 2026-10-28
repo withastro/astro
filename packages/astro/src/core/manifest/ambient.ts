@@ -1,5 +1,5 @@
-import { NoManifestAvailable } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
-import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { NoManifestAvailable } from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { SSRManifest } from '../app/types.js';
 // Static import; the binding is READ LAZILY inside the functions below so this
 // module stays TDZ-safe under any future accidental import cycle. In every

@@ -42,9 +42,7 @@ export default function vitePluginClientDirectives({
 				);
 				const custom = await customDirectives;
 				return {
-					code: `import { getDefaultClientDirectives } from ${JSON.stringify(
-						new URL('../core/client-directive/default.js', import.meta.url).pathname,
-					)};
+					code: `import { getDefaultClientDirectives } from '@astrojs/runtime/internal/core/client-directive/default.js';
 const clientDirectives = getDefaultClientDirectives();
 for (const [name, code] of ${JSON.stringify(custom)}) clientDirectives.set(name, code);
 export { clientDirectives };`,

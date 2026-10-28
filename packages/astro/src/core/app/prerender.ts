@@ -6,7 +6,7 @@ import { getEnvironment, setEnvironment } from '../environment/index.js';
 import {
 	collectPrerenderMetadata,
 	type CollectPrerenderMetadataOptions,
-} from '@astrojs/vite-plugin-astro/internal/core/render-scope/collect.js';
+} from '@astrojs/runtime/internal/core/render-scope/collect.js';
 import type { SSRManifest } from './types.js';
 
 export interface PrerenderableApp {

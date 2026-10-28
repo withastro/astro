@@ -10,8 +10,8 @@ import { getFetchStateFromAPIContext } from '../core/fetch/fetch-state.js';
 import {
 	i18nNoLocaleFoundInPath,
 	MissingLocale,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
-import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+} from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
 import { createI18nMiddleware } from './middleware.js';

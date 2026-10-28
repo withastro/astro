@@ -7,7 +7,7 @@ import {
 	markHTMLString,
 	stringifyForScript,
 	unescapeHTML,
-} from '@astrojs/vite-plugin-astro/internal/runtime/server/escape.js';
+} from '@astrojs/runtime/internal/server/escape.js';
 
 describe('markHTMLString', () => {
 	it('wraps a string in an HTMLString instance', () => {

@@ -1,1 +1,1 @@
-export * from '@astrojs/vite-plugin-astro/internal/core/errors/userError.js';
+export * from '@astrojs/runtime/internal/core/errors/userError.js';

@@ -1,4 +1,4 @@
-import { PROPAGATED_ASSET_FLAG } from '@astrojs/vite-plugin-astro/internal/core/head-propagation/boundary.js';
+import { PROPAGATED_ASSET_FLAG } from '@astrojs/runtime/internal/core/head-propagation/boundary.js';
 
 export { PROPAGATED_ASSET_FLAG };
 export const PROPAGATED_ASSET_QUERY_PARAM = `?${PROPAGATED_ASSET_FLAG}`;

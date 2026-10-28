@@ -9,10 +9,7 @@ import type {
 	WebpOptions,
 	SharpConstructor,
 } from 'sharp';
-import {
-	AstroError,
-	AstroErrorData,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import { resolveDefaultOutputFormat } from '../utils/inferSourceFormat.js';
 import { detector } from '../utils/vendor/image-size/detector.js';

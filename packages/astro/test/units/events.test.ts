@@ -4,8 +4,8 @@ import type { $ZodError } from 'zod/v4/core';
 import {
 	AstroError,
 	type ErrorWithMetadata,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
-import { ClientAddressNotAvailable } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
+} from '@astrojs/runtime/internal/core/errors/errors.js';
+import { ClientAddressNotAvailable } from '@astrojs/runtime/internal/core/errors/errors-data.js';
 import * as events from '../../dist/events/index.js';
 import type { AstroUserConfig } from '../../dist/types/public/config.js';
 

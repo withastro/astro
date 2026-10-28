@@ -9,7 +9,7 @@ import {
 	type CspHashEntry,
 	type CspKind,
 	type CspResourceEntry,
-} from '@astrojs/vite-plugin-astro/internal/core/csp/sources.js';
+} from '@astrojs/runtime/internal/core/csp/sources.js';
 import * as z from 'zod/v4';
 
 export {

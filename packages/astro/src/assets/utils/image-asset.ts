@@ -1,5 +1,5 @@
 // Imported by generated image modules in every runtime: keep it free of `node:` and server imports.
-import { recordReferencedImage } from '@astrojs/vite-plugin-astro/internal/core/render-scope/record.js';
+import { recordReferencedImage } from '@astrojs/runtime/internal/core/render-scope/record.js';
 import type { ImageMetadata } from '../types.js';
 
 const RAW_SRC = Symbol.for('astro:image-asset:raw-src');

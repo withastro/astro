@@ -1,7 +1,5 @@
 import type { $ZodError } from 'zod/v4/core';
 
-export * from '@astrojs/runtime/internal/core/errors/errors.js';
-
 const astroConfigZodErrors = new WeakSet<$ZodError>();
 
 /**

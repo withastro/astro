@@ -3,8 +3,8 @@ import { describe, it } from 'node:test';
 import type { AstroConfig } from '../../../dist/types/public/config.js';
 import { toRoutingStrategy } from '../../../dist/core/app/common.js';
 import { validateConfig } from '../../../dist/core/config/validate.js';
-import { MissingLocale } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
-import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { MissingLocale } from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/index.js';
 import {
 	getLocaleAbsoluteUrl,
 	getLocaleAbsoluteUrlList,

@@ -23,13 +23,10 @@ import type {
 	RouteToHeaders,
 } from '../../types/public/index.js';
 import type { RouteData, SSRError } from '../../types/public/internal.js';
-import { hashCryptoKey } from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
-import { ensureAsyncRenderScope } from '@astrojs/vite-plugin-astro/internal/core/render-scope/node-scope.js';
-import type { RenderCollectors } from '@astrojs/vite-plugin-astro/internal/core/render-scope/scope.js';
-import {
-	AstroError,
-	AstroErrorData,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { hashCryptoKey } from '@astrojs/runtime/internal/core/encryption.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/internal/core/render-scope/node-scope.js';
+import type { RenderCollectors } from '@astrojs/runtime/internal/core/render-scope/scope.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
 import { hasMetaRefreshTo, redirectTemplate } from '../routing/3xx.js';

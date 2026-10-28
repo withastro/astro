@@ -2,8 +2,8 @@ import picomatch from 'picomatch';
 import type { AstroCookies } from '../cookies/cookies.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 import { REROUTABLE_STATUS_CODES } from '../constants.js';
-import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
-import { CacheQueryConfigConflict } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/errors.js';
+import { CacheQueryConfigConflict } from '@astrojs/runtime/internal/core/errors/errors-data.js';
 import type { CacheProvider, CacheProviderFactory, InvalidateOptions } from './types.js';
 import type { AstroRuntimeLogger } from '../../types/public/context.js';
 

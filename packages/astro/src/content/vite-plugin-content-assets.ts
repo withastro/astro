@@ -7,10 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } from 'vite';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { ExtractedChunk } from '../core/build/static-build.js';
-import {
-	AstroError,
-	AstroErrorData,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import { isMarkdownFile, wrapId } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';

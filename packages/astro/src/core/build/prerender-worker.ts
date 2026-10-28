@@ -6,8 +6,8 @@ import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '@astrojs/vite-plugin-astro/internal/vite-plugin-scripts/index.js';
 import { deserializeRouteData, serializeRouteData } from '../app/manifest.js';
 import { renderForPrerender } from '../app/prerender.js';
-import { ensureAsyncRenderScope } from '@astrojs/vite-plugin-astro/internal/core/render-scope/node-scope.js';
-import type { RenderCollectors } from '@astrojs/vite-plugin-astro/internal/core/render-scope/scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/internal/core/render-scope/node-scope.js';
+import type { RenderCollectors } from '@astrojs/runtime/internal/core/render-scope/scope.js';
 import { createRequest } from '../request.js';
 import type { BuildApp } from './app.js';
 import type {

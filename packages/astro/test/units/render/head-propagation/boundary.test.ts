@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { isPropagatedAssetBoundary } from '@astrojs/vite-plugin-astro/internal/core/head-propagation/boundary.js';
+import { isPropagatedAssetBoundary } from '@astrojs/runtime/internal/core/head-propagation/boundary.js';
 
 describe('head propagation boundary detection', () => {
 	it('detects propagated asset flag in query params', () => {

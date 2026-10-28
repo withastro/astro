@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { ImporterGraph } from '@astrojs/vite-plugin-astro/internal/core/head-propagation/graph.js';
+import type { ImporterGraph } from '@astrojs/runtime/internal/core/head-propagation/graph.js';
 import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
-} from '@astrojs/vite-plugin-astro/internal/core/head-propagation/graph.js';
+} from '@astrojs/runtime/internal/core/head-propagation/graph.js';
 
 describe('head propagation graph', () => {
 	it('computes in-tree ancestors for a linear chain', () => {

@@ -4,7 +4,7 @@ import {
 	getPropagationHint,
 	isPropagatingHint,
 	resolvePropagationHint,
-} from '@astrojs/vite-plugin-astro/internal/core/head-propagation/resolver.js';
+} from '@astrojs/runtime/internal/core/head-propagation/resolver.js';
 
 describe('head propagation resolver', () => {
 	it('defaults to none', () => {

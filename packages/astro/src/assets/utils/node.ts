@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Rolldown } from 'vite';
-import { generateContentHash } from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
+import { generateContentHash } from '@astrojs/runtime/internal/core/encryption.js';
 import { prependForwardSlash, slash } from '../../core/path.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';

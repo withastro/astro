@@ -8,12 +8,12 @@ import type { ModuleLoader } from '../../module-loader/index.js';
 import {
 	AstroError,
 	type ErrorWithMetadata,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
+} from '@astrojs/runtime/internal/core/errors/errors.js';
 import {
 	FailedToLoadModuleSSR,
 	MdxIntegrationMissingError,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
-import { createSafeError } from '@astrojs/vite-plugin-astro/internal/core/errors/utils.js';
+} from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { createSafeError } from '@astrojs/runtime/internal/core/errors/utils.js';
 import { getDocsForError, renderErrorMarkdown } from './runtime.js';
 
 export function enhanceViteSSRError({

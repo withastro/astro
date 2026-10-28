@@ -8,8 +8,8 @@ import {
 	uninstallRenderScope,
 	type RenderCollectors,
 	type RenderCollectorScope,
-} from '@astrojs/vite-plugin-astro/internal/core/render-scope/scope.js';
-import { ensureAsyncRenderScope } from '@astrojs/vite-plugin-astro/internal/core/render-scope/node-scope.js';
+} from '@astrojs/runtime/internal/core/render-scope/scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/internal/core/render-scope/node-scope.js';
 
 function fakeScope(): RenderCollectorScope {
 	return {
@@ -80,10 +80,10 @@ describe('render scope channel', () => {
 		// The prerender runtime is bundled, so the orchestrator and the runtime hold
 		// different compiled copies of scope.ts. Simulate the second instance with a
 		// query-string cache-buster and assert both copies resolve one channel.
-		const copyBSpecifier = `${import.meta.resolve('@astrojs/vite-plugin-astro/internal/core/render-scope/scope.js')}?render-scope-copy-b`;
+		const copyBSpecifier = `${import.meta.resolve('@astrojs/runtime/internal/core/render-scope/scope.js')}?render-scope-copy-b`;
 		const copyB = (await import(
 			copyBSpecifier
-		)) as typeof import('@astrojs/vite-plugin-astro/internal/core/render-scope/scope.js');
+		)) as typeof import('@astrojs/runtime/internal/core/render-scope/scope.js');
 
 		const scope = ensureAsyncRenderScope();
 		assert.equal(copyB.getInstalledRenderScope(), scope);

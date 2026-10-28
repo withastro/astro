@@ -4,12 +4,12 @@ import type { SerializedStaticImage } from '../../../dist/assets/types.js';
 import {
 	uninstallRenderScope,
 	type RenderCollectors,
-} from '@astrojs/vite-plugin-astro/internal/core/render-scope/scope.js';
-import { ensureAsyncRenderScope } from '@astrojs/vite-plugin-astro/internal/core/render-scope/node-scope.js';
+} from '@astrojs/runtime/internal/core/render-scope/scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/internal/core/render-scope/node-scope.js';
 import {
 	recordContentEntryRender,
 	recordStaticImage,
-} from '@astrojs/vite-plugin-astro/internal/core/render-scope/record.js';
+} from '@astrojs/runtime/internal/core/render-scope/record.js';
 
 function image(hash: string): SerializedStaticImage {
 	return {

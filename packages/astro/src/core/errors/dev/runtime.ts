@@ -3,7 +3,7 @@ import colors from 'piccolore';
 import {
 	AstroErrorData,
 	type ErrorWithMetadata,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+} from '@astrojs/runtime/internal/core/errors/index.js';
 
 /**
  * The docs has kebab-case urls for errors, so we need to convert the error name

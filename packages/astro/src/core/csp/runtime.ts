@@ -6,7 +6,7 @@ export {
 	normalizeCspHashEntry,
 	normalizeCspResourceEntry,
 	partitionByKind,
-} from '@astrojs/vite-plugin-astro/internal/core/csp/sources.js';
+} from '@astrojs/runtime/internal/core/csp/sources.js';
 
 /**
  * `existingDirective` is something like `img-src 'self'`. Same as `newDirective`.

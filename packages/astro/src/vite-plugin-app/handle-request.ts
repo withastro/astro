@@ -4,7 +4,7 @@ import type { DevFacadeApp } from '../core/app/dev-facade.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { clientLocalsSymbol } from '../core/constants.js';
 import { getEnvironment, setEnvironment } from '../core/environment/index.js';
-import { createSafeError } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { createSafeError } from '@astrojs/runtime/internal/core/errors/index.js';
 import { setLogger } from '../core/logger/manifest-logger.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { createRequest } from '../core/request.js';

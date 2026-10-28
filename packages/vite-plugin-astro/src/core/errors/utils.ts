@@ -2,9 +2,6 @@ import type { YAMLParseError } from '@astrojs/internal-helpers/yaml';
 import type { TomlError } from 'smol-toml';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 
-export { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
-export * from '@astrojs/runtime/internal/core/errors/utils.js';
-
 /** Format YAML exceptions as Vite errors */
 export function formatYAMLParseError(e: YAMLParseError): ViteErrorPayload['err'] {
 	const position = e.linePos?.[0];

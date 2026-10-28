@@ -4,7 +4,7 @@ import { SERVER_ISLAND_COMPONENT } from '../server-islands/endpoint.js';
 import {
 	isRoute404,
 	isRoute500,
-} from '@astrojs/vite-plugin-astro/internal/core/routing/internal/route-errors.js';
+} from '@astrojs/runtime/internal/core/routing/internal/route-errors.js';
 
 /** Find matching route from pathname */
 export function matchRoute(pathname: string, manifest: RoutesList): RouteData | undefined {

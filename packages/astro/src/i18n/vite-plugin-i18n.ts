@@ -1,6 +1,6 @@
 import type * as vite from 'vite';
-import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
-import { AstroErrorData } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/errors.js';
+import { AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { AstroSettings } from '../types/astro.js';
 
 const VIRTUAL_MODULE_ID = 'astro:i18n';

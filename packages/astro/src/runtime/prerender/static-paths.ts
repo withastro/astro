@@ -11,7 +11,7 @@ import { callGetStaticPaths, getRouteCache } from '../../core/render/route-cache
 import {
 	collectPrerenderMetadata,
 	type CollectPrerenderMetadataOptions,
-} from '@astrojs/vite-plugin-astro/internal/core/render-scope/collect.js';
+} from '@astrojs/runtime/internal/core/render-scope/collect.js';
 
 export type { PathWithRoute } from '../../types/public/integrations.js';
 

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { executeRewrite, applyRewriteToState } from '../../../dist/core/rewrites/handler.js';
-import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/errors.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createBasicPipeline } from '../test-utils.ts';
 import { createPage, createRouteData, createTestApp } from '../mocks.ts';

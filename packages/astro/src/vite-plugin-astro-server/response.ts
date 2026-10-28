@@ -3,7 +3,7 @@ import { Http2ServerResponse } from 'node:http2';
 import { Readable } from 'node:stream';
 import { getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
-import type { ErrorWithMetadata } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import type { ErrorWithMetadata } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 
