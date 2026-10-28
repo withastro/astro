@@ -187,6 +187,98 @@ describe('astro()', () => {
 		}
 	});
 
+	it('resolves a renderer entrypoint given as a file URL to the module that components import', async () => {
+		const projectRoot = await fs.realpath(
+			await fs.mkdtemp(path.join(os.tmpdir(), 'vite-plugin-astro-')),
+		);
+		await fs.mkdir(path.join(projectRoot, 'node_modules/@astrojs'), { recursive: true });
+		await fs.symlink(
+			fileURLToPath(new URL('../../runtime/', import.meta.url)),
+			path.join(projectRoot, 'node_modules/@astrojs/runtime'),
+			'dir',
+		);
+		// The renderer reports whether the page has set its module state, which it sees only when the
+		// file URL, which goes through a symlink, resolves to the same module as the page's import.
+		await fs.writeFile(
+			path.join(projectRoot, 'renderer.js'),
+			"export const state = { fromPage: false };\nexport default { name: 'test', check: () => true, renderToStaticMarkup: () => ({ html: `<p>${state.fromPage}</p>` }) };\n",
+		);
+		await fs.writeFile(
+			path.join(projectRoot, 'Widget.js'),
+			'export default function Widget() {}\n',
+		);
+		await fs.writeFile(
+			path.join(projectRoot, 'Page.astro'),
+			"---\nimport { state } from './renderer.js';\nimport Widget from './Widget.js';\nstate.fromPage = true;\n---\n<Widget />",
+		);
+		await fs.writeFile(
+			path.join(projectRoot, 'render.js'),
+			"import { renderToString } from '@astrojs/runtime';\nimport Page from './Page.astro';\nexport const render = () => renderToString(Page, { partial: true });\n",
+		);
+		const link = `${projectRoot}-link`;
+		await fs.symlink(projectRoot, link, 'dir');
+		const server = await createServer({
+			configFile: false,
+			logLevel: 'silent',
+			root: projectRoot,
+			server: { middlewareMode: true, ws: false },
+			plugins: [
+				astro({
+					renderers: [
+						{ name: 'test', serverEntrypoint: pathToFileURL(path.join(link, 'renderer.js')) },
+					],
+				}),
+			],
+		});
+		try {
+			const mod = await server.ssrLoadModule('/render.js');
+			assert.equal(await mod.render(), '<p>true</p>');
+		} finally {
+			await server.close();
+			await fs.rm(link);
+			await fs.rm(projectRoot, { recursive: true, force: true });
+		}
+	});
+
+	it('serves the before-hydration scripts of the astro CLI and leaves out the render API modules', async () => {
+		const plugins = astro(
+			{},
+			{
+				compileConfig: {} as any,
+				logger: { debug() {} },
+				toolbarEnabled: () => false,
+				scripts: [
+					{ stage: 'before-hydration', content: 'globalThis.before = 1;' },
+					{ stage: 'page', content: 'globalThis.page = 1;' },
+				],
+			},
+		);
+		const names = plugins.map((plugin) => plugin.name);
+		for (const name of [
+			'astro:render-setup',
+			'astro:client-directives',
+			'astro:component-assets',
+		]) {
+			assert.equal(names.includes(name), false, name);
+		}
+		const server = await createServer({
+			configFile: false,
+			logLevel: 'silent',
+			root: rootPath,
+			server: { middlewareMode: true, ws: false },
+			plugins,
+		});
+		try {
+			const result = await server.environments.client.transformRequest(
+				'astro:scripts/before-hydration.js',
+			);
+			assert.match(result!.code, /globalThis\.before = 1/);
+			assert.doesNotMatch(result!.code, /globalThis\.page/);
+		} finally {
+			await server.close();
+		}
+	});
+
 	it('throws when the config is read before Vite resolves it', () => {
 		const [plugin] = astro();
 		assert.throws(() => plugin.api.astro.config, /configResolved/);

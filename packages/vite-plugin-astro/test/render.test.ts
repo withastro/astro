@@ -20,6 +20,45 @@ function getScriptSrc(html: string): string {
 	return match[1];
 }
 
+/** Polls `condition` until it holds, throwing after 5 seconds. */
+async function waitFor(condition: () => boolean | Promise<boolean>, description: string) {
+	const deadline = Date.now() + 5000;
+	while (!(await condition())) {
+		if (Date.now() > deadline) throw new Error(`Timed out waiting for ${description}`);
+		await new Promise((resolve) => setTimeout(resolve, 50));
+	}
+}
+
+type HmrPayload = { type: string; updates?: Array<{ path: string }> };
+
+/** Records the HMR payloads that `server` sends to the browser until `stop()` is called. */
+function recordHmrPayloads(server: ViteDevServer) {
+	const payloads: HmrPayload[] = [];
+	const client = server.environments.client.hot;
+	const send = client.send;
+	client.send = (payload: any, ...rest: any[]) => {
+		payloads.push(payload);
+		return (send as any).call(client, payload, ...rest);
+	};
+	return {
+		payloads,
+		stop() {
+			client.send = send;
+		},
+	};
+}
+
+/**
+ * Restores `file` and waits for its HMR update, so that it does not reach the next test. A missing
+ * update is not an error: the file is unchanged when a test fails before editing it.
+ */
+async function restore(file: URL, original: string, hmr: ReturnType<typeof recordHmrPayloads>) {
+	hmr.payloads.length = 0;
+	await fs.writeFile(file, original);
+	await waitFor(() => hmr.payloads.length > 0, 'the restored file').catch(() => {});
+	hmr.stop();
+}
+
 describe('render API in dev', () => {
 	let server: ViteDevServer;
 	let origin: string;
@@ -65,6 +104,51 @@ describe('render API in dev', () => {
 			const response = await fetch(origin + url);
 			assert.equal(response.status, 200, url);
 			assert.match(response.headers.get('content-type') ?? '', /javascript/, url);
+		}
+	});
+
+	it('updates the styles of a component in the browser without a full reload', async () => {
+		const file = new URL('./fixtures/standalone/src/components/Card.astro', import.meta.url);
+		const original = await fs.readFile(file, 'utf-8');
+		await render();
+		await server.environments.client.transformRequest(
+			'/src/components/Card.astro?astro&type=style&index=0&lang.css',
+		);
+		const hmr = recordHmrPayloads(server);
+		try {
+			await fs.writeFile(file, original.replace('rebeccapurple', 'tomato'));
+			await waitFor(() => hmr.payloads.length > 0, 'an HMR payload');
+			assert.deepEqual(
+				hmr.payloads.map((payload) => payload.type),
+				['update'],
+			);
+			assert.match(hmr.payloads[0].updates![0].path, /Card\.astro\?astro&type=style/);
+			assert.match(await render(), /color: tomato/);
+		} finally {
+			await restore(file, original, hmr);
+		}
+	});
+
+	it('reloads the page in the browser when the markup of a component changes', async () => {
+		const file = new URL('./fixtures/standalone/src/components/Card.astro', import.meta.url);
+		const original = await fs.readFile(file, 'utf-8');
+		await render();
+		const hmr = recordHmrPayloads(server);
+		try {
+			await fs.writeFile(
+				file,
+				original.replace('<section class="card">', '<section class="card edited">'),
+			);
+			await waitFor(
+				() => hmr.payloads.some((payload) => payload.type === 'full-reload'),
+				'a full-reload',
+			);
+			await waitFor(
+				async () => (await render()).includes('class="card edited"'),
+				'the edited markup',
+			);
+		} finally {
+			await restore(file, original, hmr);
 		}
 	});
 
