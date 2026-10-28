@@ -6804,6 +6804,9 @@ importers:
         specifier: ^8.2.1
         version: 8.2.1(supports-color@10.2.2)(vite@8.3.5)(vue@3.5.43)
     devDependencies:
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../vite-plugin-astro
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6927,6 +6930,27 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+      vue:
+        specifier: ^3.5.43
+        version: 3.5.43(typescript@6.0.3)
+
+  packages/integrations/vue/test/fixtures/renderer:
+    dependencies:
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../../runtime
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../../../../vite-plugin-astro
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../..
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.10
+        version: 6.0.10(vite@8.3.5)(vue@3.5.43)
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
       vue:
         specifier: ^3.5.43
         version: 3.5.43(typescript@6.0.3)

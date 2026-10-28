@@ -1,28 +1,17 @@
-import path from 'node:path';
 import type { Options as VueOptions } from '@vitejs/plugin-vue';
 import vue from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
-import { MagicString } from '@vue/compiler-sfc';
 import type { AstroIntegration, AstroRenderer, HookParameters } from 'astro';
-import type { EnvironmentOptions, Plugin, PluginOption } from 'vite';
+import type { Plugin, PluginOption } from 'vite';
 import type { VitePluginVueDevToolsOptions } from 'vite-plugin-vue-devtools';
+import { APP_ENTRYPOINT_MODULE_ID } from './app-entrypoint-id.js';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
-
-const VIRTUAL_MODULE_ID = 'virtual:astro:vue-app';
-const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
+import vueRenderer, { vueJsxRenderer } from './renderer.js';
 
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;
 	appEntrypoint?: string;
 	devtools?: boolean | Omit<VitePluginVueDevToolsOptions, 'appendTo'>;
-}
-
-function getJsxRenderer(): AstroRenderer {
-	return {
-		name: '@astrojs/vue (jsx)',
-		clientEntrypoint: '@astrojs/vue/client.js',
-		serverEntrypoint: '@astrojs/vue/server.js',
-	};
 }
 
 /**
@@ -33,78 +22,6 @@ export function getContainerRenderer(): AstroRenderer {
 		'[@astrojs/vue] Importing `getContainerRenderer` from `@astrojs/vue` is deprecated. Import it from `@astrojs/vue/container-renderer` instead.',
 	);
 	return getContainerRendererImpl();
-}
-
-function virtualAppEntrypoint(options?: Options): Plugin {
-	let isBuild: boolean;
-	let root: string;
-	let appEntrypoint: string | undefined;
-
-	return {
-		name: VIRTUAL_MODULE_ID,
-		config(_, { command }) {
-			isBuild = command === 'build';
-		},
-		configResolved(config) {
-			root = config.root;
-			if (options?.appEntrypoint) {
-				appEntrypoint = options.appEntrypoint.startsWith('.')
-					? path.resolve(root, options.appEntrypoint)
-					: options.appEntrypoint;
-			}
-		},
-		resolveId: {
-			filter: {
-				id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
-			},
-			handler() {
-				return RESOLVED_VIRTUAL_MODULE_ID;
-			},
-		},
-		load: {
-			filter: {
-				id: new RegExp(`^${RESOLVED_VIRTUAL_MODULE_ID}$`),
-			},
-			handler() {
-				if (appEntrypoint) {
-					return `\
-export const setup = async (app) => {
-	const mod = await import(${JSON.stringify(appEntrypoint)});
-
-	if ('default' in mod) {
-		await mod.default(app);
-	} else {
-		${
-			!isBuild
-				? `console.warn("[@astrojs/vue] appEntrypoint \`" + ${JSON.stringify(
-						appEntrypoint,
-					)} + "\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.");`
-				: ''
-		}
-	}
-}`;
-				}
-				return `export const setup = () => {};`;
-			},
-		},
-		// Ensure that Vue components reference appEntrypoint directly
-		// This allows Astro to associate global styles imported in this file
-		// with the pages they should be injected to
-		transform: {
-			filter: {
-				id: /\.vue$/,
-			},
-			handler(code) {
-				if (!appEntrypoint) return;
-				const s = new MagicString(code);
-				s.prepend(`import ${JSON.stringify(appEntrypoint)};\n`);
-				return {
-					code: s.toString(),
-					map: s.generateMap({ hires: 'boundary' }),
-				};
-			},
-		},
-	};
 }
 
 async function getViteConfiguration(
@@ -122,11 +39,7 @@ async function getViteConfiguration(
 	// The vue vite plugin may not manage to resolve it automatically
 	vueOptions.compiler ??= await import('vue/compiler-sfc');
 
-	const plugins: PluginOption[] = [
-		vue(vueOptions),
-		virtualAppEntrypoint(vueOptions),
-		configEnvironmentPlugin(),
-	];
+	const plugins: PluginOption[] = [vue(vueOptions), configEnvironmentPlugin()];
 
 	if (options?.jsx) {
 		const vueJsx = (await import('@vitejs/plugin-vue-jsx')).default;
@@ -141,7 +54,7 @@ async function getViteConfiguration(
 		const devToolsPlugins = (
 			vueDevTools({
 				...devToolsOptions,
-				appendTo: VIRTUAL_MODULE_ID,
+				appendTo: APP_ENTRYPOINT_MODULE_ID,
 			}) as Plugin[] | Plugin[][]
 		).flat();
 		plugins.push(
@@ -162,48 +75,32 @@ function configEnvironmentPlugin(): Plugin {
 	return {
 		name: '@astrojs/vue:config-environment',
 		configEnvironment(environmentName, _options) {
-			const environmentOptions: EnvironmentOptions = {
-				optimizeDeps: {},
-			};
-
-			if (
-				environmentName === 'client' ||
-				((environmentName === 'ssr' || environmentName === 'prerender') &&
-					_options.optimizeDeps?.noDiscovery === false)
-			) {
-				environmentOptions.optimizeDeps!.include = ['vue'];
-				environmentOptions.optimizeDeps!.exclude = [
-					'@astrojs/vue/server.js',
-					'vue/server-renderer',
-					VIRTUAL_MODULE_ID,
-				];
-			}
-
-			if (environmentName === 'client') {
-				environmentOptions.optimizeDeps!.include = ['@astrojs/vue/client.js', 'vue'];
-			}
-
 			if (
 				(environmentName === 'ssr' || environmentName === 'prerender') &&
 				_options.resolve?.noExternal !== true
 			) {
-				environmentOptions.resolve = {
-					external: ['vuetify', 'vueperslides', 'primevue'],
+				return {
+					resolve: {
+						external: ['vuetify', 'vueperslides', 'primevue'],
+					},
 				};
 			}
-			return environmentOptions;
 		},
 	};
 }
 
+/**
+ * The Vue integration: `@vitejs/plugin-vue` (and `@vitejs/plugin-vue-jsx` with `jsx`) plus the
+ * renderers from `@astrojs/vue/renderer`.
+ */
 export default function (options?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/vue',
 		hooks: {
 			'astro:config:setup': async ({ addRenderer, updateConfig, command }) => {
-				addRenderer(getContainerRendererImpl());
+				addRenderer(vueRenderer({ appEntrypoint: options?.appEntrypoint }));
 				if (options?.jsx) {
-					addRenderer(getJsxRenderer());
+					addRenderer(vueJsxRenderer());
 				}
 				updateConfig({ vite: await getViteConfiguration(command, options) });
 			},
