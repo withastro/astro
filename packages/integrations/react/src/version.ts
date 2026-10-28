@@ -37,3 +37,16 @@ export const versionsConfig = {
 		client: '@astrojs/react/client.js',
 	},
 };
+
+/**
+ * Returns the entrypoints of the installed React version.
+ *
+ * @throws {Error} When the installed React version is not supported.
+ */
+export function getReactVersionConfig(): ReactVersionConfig {
+	const majorVersion = getReactMajorVersion();
+	if (!isSupportedReactVersion(majorVersion)) {
+		throw new Error(`Unsupported React version: ${majorVersion}.`);
+	}
+	return versionsConfig[majorVersion];
+}

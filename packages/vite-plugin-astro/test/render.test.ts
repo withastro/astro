@@ -88,7 +88,10 @@ describe('render API in dev', () => {
 
 	it('adds the devHeadScript of renderers to the head, with the base', async () => {
 		const html = await render();
-		assert.match(html, /<script type="module">window\.__devHead = "\/";<\/script>[\s\S]*<\/head>/);
+		assert.match(
+			html,
+			/<script type="module">[^<]*from "\/@react-refresh"[^<]*<\/script>[\s\S]*<\/head>/,
+		);
 	});
 
 	it('server-renders islands and points them at URLs the dev server serves', async () => {
@@ -211,6 +214,6 @@ describe('render API in a build', () => {
 	});
 
 	it('leaves the devHeadScript of renderers out', () => {
-		assert.equal(html.includes('__devHead'), false);
+		assert.equal(html.includes('@react-refresh'), false);
 	});
 });

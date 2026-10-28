@@ -6059,9 +6059,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^6.1.2
         version: 6.1.2(@rolldown/plugin-babel@0.2.4)(oxc-transform-react@0.153.0)(vite@8.3.5)
-      devalue:
-        specifier: ^6.0.2
-        version: 6.0.3
       ultrahtml:
         specifier: ^1.7.0
         version: 1.7.0
@@ -6069,6 +6066,9 @@ importers:
         specifier: ^8.3.4
         version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
     devDependencies:
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../vite-plugin-astro
       '@babel/core':
         specifier: ^8.0.7
         version: 8.0.7
@@ -6195,6 +6195,30 @@ importers:
       react-dom:
         specifier: ^19.3.0
         version: 19.3.0(react@19.3.0)
+
+  packages/integrations/react/test/fixtures/renderer:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../../runtime
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../../../../vite-plugin-astro
+      '@vitejs/plugin-react':
+        specifier: ^6.1.2
+        version: 6.1.2(@rolldown/plugin-babel@0.2.4)(oxc-transform-react@0.153.0)(vite@8.3.5)
+      react:
+        specifier: ^19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.3.0
+        version: 19.3.0(react@19.3.0)
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
 
   packages/integrations/sitemap:
     dependencies:
