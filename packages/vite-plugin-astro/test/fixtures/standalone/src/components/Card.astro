@@ -8,5 +8,7 @@ import Counter from './Counter.jsx';
 	.card { color: rebeccapurple; }
 </style>
 <script>
-	console.log('card script');
+	// TypeScript, which the JSX refresh filter of `viteReact()` must not hand to OXC as JavaScript.
+	const message: string = 'card script';
+	console.log(message);
 </script>

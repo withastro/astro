@@ -1,4 +1,5 @@
-import type { Environment, Plugin as VitePlugin } from 'vite';
+import * as devalue from 'devalue';
+import type { Environment, EnvironmentOptions, Plugin as VitePlugin } from 'vite';
 import type { AstroRenderer } from '@astrojs/runtime/types';
 import { ASTRO_RENDERERS_MODULE_ID, RESOLVED_ASTRO_RENDERERS_MODULE_ID } from './const.js';
 
@@ -14,7 +15,9 @@ export interface RenderersPluginOptions {
 }
 
 /**
- * Serves `virtual:astro:renderers`, which exports the loaded renderers as `renderers`.
+ * Serves `virtual:astro:renderers`, which exports the loaded renderers as `renderers`, and applies
+ * the dependency fields of the renderers (`optimizeDeps`, `dedupe`, `noExternal`) to each
+ * environment.
  */
 export default function vitePluginRenderers({
 	renderers,
@@ -27,6 +30,16 @@ export default function vitePluginRenderers({
 		// registered renderers from the plugin chain to pre-bundle their server
 		// entrypoints (see https://github.com/withastro/astro/issues/17921).
 		renderers,
+
+		configEnvironment: {
+			// After other plugins, so that `optimizeDeps.noDiscovery` set by them (adapters for
+			// non-Node runtimes) decides whether a server environment pre-bundles.
+			order: 'post',
+			handler(name, environmentOptions) {
+				const consumer = environmentOptions.consumer ?? (name === 'client' ? 'client' : 'server');
+				return getRendererEnvironmentOptions(renderers, consumer, environmentOptions);
+			},
+		},
 
 		resolveId: {
 			filter: {
@@ -55,7 +68,7 @@ export default function vitePluginRenderers({
 					for (const renderer of renderers) {
 						const variable = `_renderer${i}`;
 						imports.push(`import ${variable} from ${JSON.stringify(renderer.serverEntrypoint)};`);
-						rendererItems += `Object.assign(${JSON.stringify(renderer)}, { ssr: ${variable} }),`;
+						rendererItems += `Object.assign(${serializeRenderer(renderer)}, { ssr: ${variable} }),`;
 						i++;
 					}
 
@@ -67,4 +80,42 @@ export default function vitePluginRenderers({
 			},
 		},
 	} as VitePlugin & { renderers: typeof renderers };
+}
+
+/** The fields of a renderer that `astro()` applies itself, left out of `virtual:astro:renderers`. */
+const BUILD_FIELDS = ['optimizeDeps', 'dedupe', 'noExternal', 'devHeadScript'] as const;
+
+function serializeRenderer(renderer: AstroRenderer): string {
+	const { options, ...rest } = renderer;
+	for (const field of BUILD_FIELDS) delete rest[field];
+	const json = JSON.stringify(rest);
+	if (options === undefined) return json;
+	return `Object.assign(${json}, { options: ${devalue.uneval(options)} })`;
+}
+
+function getRendererEnvironmentOptions(
+	renderers: readonly AstroRenderer[],
+	consumer: 'client' | 'server',
+	environmentOptions: EnvironmentOptions,
+): EnvironmentOptions | undefined {
+	const dedupe = renderers.flatMap((renderer) => renderer.dedupe ?? []);
+	const noExternal =
+		consumer === 'server' ? renderers.flatMap((renderer) => renderer.noExternal ?? []) : [];
+	// Server environments pre-bundle only when they run the dependency optimizer.
+	const optimizes = consumer === 'client' || environmentOptions.optimizeDeps?.noDiscovery === false;
+	const include = optimizes
+		? renderers.flatMap((renderer) => renderer.optimizeDeps?.[consumer]?.include ?? [])
+		: [];
+	const exclude = optimizes
+		? renderers.flatMap((renderer) => renderer.optimizeDeps?.[consumer]?.exclude ?? [])
+		: [];
+	if (!dedupe.length && !noExternal.length && !include.length && !exclude.length) return;
+	return {
+		resolve: {
+			dedupe,
+			// `true` already bundles every dependency.
+			noExternal: environmentOptions.resolve?.noExternal === true ? undefined : noExternal,
+		},
+		optimizeDeps: { include, exclude },
+	};
 }

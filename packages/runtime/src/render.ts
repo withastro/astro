@@ -75,6 +75,13 @@ export interface RendererOptions {
 	 * @default no assets
 	 */
 	componentAssets?: (moduleId: string) => Promise<ComponentAssets>;
+	/**
+	 * Inline module scripts added to the `<head>` of every document (not with `partial`), such as
+	 * the `devHeadScript` of a renderer.
+	 *
+	 * @default []
+	 */
+	headScripts?: string[];
 }
 
 export interface Renderer {
@@ -107,6 +114,7 @@ export function createRenderer(options: RendererOptions = {}): Renderer {
 		compressHTML: options.compressHTML ?? 'jsx',
 		base: options.base ?? '/',
 		componentAssets: options.componentAssets ?? (async () => NO_ASSETS),
+		headScripts: options.headScripts ?? [],
 	};
 	async function renderToResponse(
 		Component: AstroComponentFactory,
@@ -163,7 +171,9 @@ async function createResult(
 			return assets.resolve[specifier] ?? config.resolve(specifier);
 		},
 		response: { status: 200, statusText: 'OK', headers: new Headers() },
-		scripts: new Set(),
+		scripts: new Set(
+			config.headScripts.map((children) => ({ props: { type: 'module' }, children })),
+		),
 		styles: new Set(assets.styles.map(createStyleElement)),
 		async getServerIslandNameMap() {
 			return new Map();

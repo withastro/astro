@@ -109,6 +109,19 @@ export default function astro({
 		{
 			name: 'astro:build',
 			enforce: 'pre', // run transforms before other plugins can
+			config: {
+				// After the `config` hooks of framework plugins, which set the filters read here.
+				order: 'post',
+				handler(userConfig) {
+					const oxc = userConfig.oxc;
+					// A JSX refresh filter (set by `@vitejs/plugin-react` to its `include`/`exclude`) matches
+					// `Foo.astro?astro&type=script&index=0&lang.ts` by its `.ts` ending, and Vite's OXC plugin
+					// then parses every id it matches whose path is not a JS file as JavaScript, which fails on
+					// TypeScript. Without a filter, adding an exclude would create one that matches every id.
+					if (!oxc || (!oxc.jsxRefreshInclude && !oxc.jsxRefreshExclude)) return;
+					return { oxc: { jsxRefreshExclude: [/\.astro(?:\?|$)/] } };
+				},
+			},
 			async configEnvironment(name, viteConfig, opts) {
 				viteConfig.resolve ??= {};
 				// Emulate Vite default fallback for `resolve.conditions` if not set

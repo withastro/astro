@@ -74,6 +74,35 @@ export interface AstroRenderer {
 	clientEntrypoint?: string | URL;
 	/** Import entrypoint for the server/build/ssr renderer. */
 	serverEntrypoint: string | URL;
+	/**
+	 * Options of the renderer, passed to the `check()` and `renderToStaticMarkup()` functions of
+	 * its server entrypoint as `this.options`. They are serialized into the server code with
+	 * `devalue`: plain data, plus `RegExp`, `Date`, `URL`, `Map` and `Set`.
+	 */
+	options?: unknown;
+	/**
+	 * Dependencies to pre-bundle with Vite's dependency optimizer. `server` applies only to server
+	 * environments that run the optimizer (`optimizeDeps.noDiscovery: false`).
+	 */
+	optimizeDeps?: {
+		client?: AstroRendererOptimizeDeps;
+		server?: AstroRendererOptimizeDeps;
+	};
+	/** Packages added to `resolve.dedupe` in every environment. */
+	dedupe?: string[];
+	/** Packages added to `resolve.noExternal` in every server environment. */
+	noExternal?: string[];
+	/**
+	 * Inline module script that must run in the browser before any component module, added to the
+	 * `<head>` of every page in dev only (React's Fast Refresh preamble). `__BASE__` is replaced
+	 * with Vite's `base`.
+	 */
+	devHeadScript?: string;
+}
+
+export interface AstroRendererOptimizeDeps {
+	include?: string[];
+	exclude?: string[];
 }
 
 export interface AstroComponentMetadata {
@@ -118,7 +147,8 @@ export interface SSRLoadedRendererValue {
 	renderHydrationScript?: () => string;
 }
 
-export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientEntrypoint'> {
+export interface SSRLoadedRenderer
+	extends Pick<AstroRenderer, 'name' | 'clientEntrypoint' | 'options'> {
 	ssr: SSRLoadedRendererValue;
 }
 

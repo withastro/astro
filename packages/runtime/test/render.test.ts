@@ -92,6 +92,40 @@ describe('createRenderer() in plain Node', () => {
 		assert.match(html, /\(self\.Astro\|\|\(self\.Astro=\{\}\)\)\.load=/);
 	});
 
+	it('passes the options of a renderer to its server functions as this.options', async () => {
+		const renderer = createRenderer({
+			renderers: [
+				{
+					...widgetRenderer,
+					options: { tag: 'i' },
+					ssr: {
+						async check(this: { options: { tag: string } }) {
+							return this.options.tag === 'i';
+						},
+						async renderToStaticMarkup(this: { options: { tag: string } }) {
+							return { html: `<${this.options.tag}>options</${this.options.tag}>` };
+						},
+					},
+				},
+			],
+			resolve: async (specifier) => `/assets/${specifier.replace(/^\W+/, '')}`,
+		});
+		const html = await renderer.renderToString(Page, { props: { name: 'Node' } });
+		assert.match(html, /<i>options<\/i>/);
+	});
+
+	it('adds headScripts to the head of documents only', async () => {
+		const renderer = createRenderer({
+			renderers: [widgetRenderer],
+			headScripts: ['window.ready = true;'],
+			resolve: async (specifier) => `/assets/${specifier.replace(/^\W+/, '')}`,
+		});
+		const html = await renderer.renderToString(Page, { props: { name: 'Node' } });
+		assert.match(html, /<script type="module">window\.ready = true;<\/script>[\s\S]*<\/head>/);
+		const partial = await renderer.renderToString(Page, { props: { name: 'Node' }, partial: true });
+		assert.equal(partial.includes('window.ready'), false);
+	});
+
 	it('throws for client specifiers it cannot resolve', async () => {
 		const renderer = createRenderer({ renderers: [widgetRenderer] });
 		await assert.rejects(

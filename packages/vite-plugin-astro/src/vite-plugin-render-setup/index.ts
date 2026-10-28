@@ -1,5 +1,6 @@
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
+import type { AstroRenderer } from '@astrojs/runtime/types';
 import { CLIENT_DIRECTIVES_MODULE_ID } from '../vite-plugin-client-directives/index.js';
 import { COMPONENT_ASSETS_MODULE_ID } from '../vite-plugin-component-assets/index.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/const.js';
@@ -12,11 +13,20 @@ const RESOLVED_RENDER_SETUP_MODULE_ID = `\0${RENDER_SETUP_MODULE_ID}`;
  * Serves `virtual:astro:render-setup`, which registers the renderers, client directives and
  * component assets of `astro()` with the runtime, and imports it from every `.astro` module
  * compiled for a server environment. `renderToString()` and `renderToResponse()` from
- * `@astrojs/runtime` render with what it registers.
+ * `@astrojs/runtime` render with what it registers. In dev, the `devHeadScript` of every renderer is
+ * added to the `<head>` of rendered documents.
  */
-export default function vitePluginRenderSetup(): Plugin {
+export default function vitePluginRenderSetup({
+	renderers,
+}: {
+	renderers: readonly AstroRenderer[];
+}): Plugin {
+	let dev = false;
 	return {
 		name: 'astro:render-setup',
+		configResolved(config) {
+			dev = config.command === 'serve';
+		},
 		resolveId: {
 			filter: { id: new RegExp(`^${RENDER_SETUP_MODULE_ID}$`) },
 			handler() {
@@ -26,6 +36,11 @@ export default function vitePluginRenderSetup(): Plugin {
 		load: {
 			filter: { id: new RegExp(`^${RESOLVED_RENDER_SETUP_MODULE_ID}$`) },
 			handler() {
+				const headScripts = dev
+					? renderers.flatMap((renderer) =>
+							renderer.devHeadScript ? [renderer.devHeadScript] : [],
+						)
+					: [];
 				return {
 					code: `import { setRenderConfig } from '@astrojs/runtime/internal/render-setup.js';
 import { clientDirectives } from ${JSON.stringify(CLIENT_DIRECTIVES_MODULE_ID)};
@@ -38,6 +53,7 @@ setRenderConfig({
 	compressHTML: renderConfig.compressHTML,
 	base: import.meta.env.BASE_URL,
 	componentAssets: getComponentAssets,
+	headScripts: ${JSON.stringify(headScripts)}.map((script) => script.replaceAll('__BASE__', import.meta.env.BASE_URL)),
 });`,
 				};
 			},
