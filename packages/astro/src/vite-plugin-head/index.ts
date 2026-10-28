@@ -207,6 +207,18 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
+			const propagation = info && getAstroMetadata(info)?.propagation;
+			if (propagation === 'self' || propagation === 'in-tree') {
+				// Importers usually resolve this module before its metadata exists, so the
+				// `resolveId` walk misses them. Seed from the importers so this module keeps `self`.
+				// https://github.com/withastro/astro/issues/18509
+				for (const importer of findModule(id)?.importers ?? []) {
+					if (importer.id) {
+						propagateMetadata.call(this, importer.id, 'propagation', 'in-tree');
+					}
+				}
+			}
+
 			if (id.includes(PROPAGATED_ASSET_FLAG)) {
 				// Content render entries with ?astroPropagatedAssets need head propagation.
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
