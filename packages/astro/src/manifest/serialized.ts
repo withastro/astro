@@ -29,7 +29,7 @@ import { VIRTUAL_SESSION_DRIVER_ID } from '../core/session/vite-plugin.js';
 import { VIRTUAL_LOGGER_ID } from '../core/logger/vite-plugin.js';
 import type { AstroSettings } from '../types/astro.js';
 import { VIRTUAL_PAGES_MODULE_ID } from '../vite-plugin-pages/index.js';
-import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
+import { ASTRO_RENDERERS_MODULE_ID } from '@astrojs/vite-plugin-astro/internal/vite-plugin-renderers/index.js';
 import { ASTRO_ROUTES_MODULE_ID } from '../vite-plugin-routes/index.js';
 import { cacheConfigToManifest } from '../core/cache/utils.js';
 import { sessionConfigToManifest } from '../core/session/utils.js';

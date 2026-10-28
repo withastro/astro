@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type * as z from 'zod/v4';
+import type { AstroPluginCli } from './cli.js';
 import { type AstroPluginOptions, AstroPluginOptionsSchema } from './options.js';
 import type { AstroRenderer, ClientDirectiveConfig } from '@astrojs/runtime/types';
 import compilePlugins, { type AstroCompileConfig } from './vite-plugin-astro/index.js';
@@ -12,6 +13,7 @@ import headPlugin from './vite-plugin-head/index.js';
 import hmrReloadPlugin from './vite-plugin-hmr-reload/index.js';
 import renderSetupPlugin from './vite-plugin-render-setup/index.js';
 import renderersPlugin from './vite-plugin-renderers/index.js';
+import scriptsPlugin from './vite-plugin-scripts/index.js';
 
 /**
  * Project configuration owned by `astro()` and shared with every plugin built on it.
@@ -55,14 +57,19 @@ const RUNTIME_NAME = '@astrojs/runtime';
 /**
  * Compiles `.astro` components and registers what `renderToString()` from `@astrojs/runtime` needs to
  * render them: renderers, client directives, and each component tree's stylesheets and island URLs.
+ *
+ * @param cli Set by the `astro` CLI only.
  */
-export default function astro(options: AstroPluginOptions = {}): Plugin[] {
+export default function astro(options: AstroPluginOptions = {}, cli?: AstroPluginCli): Plugin[] {
 	const parsed = AstroPluginOptionsSchema.parse(
 		options satisfies z.input<typeof AstroPluginOptionsSchema>,
 	);
 	let config: ResolvedSharedConfig | undefined;
 	// Filled in once Vite's config is resolved; the compiler reads it on use.
 	const compileConfig = {} as AstroCompileConfig;
+	// The objects passed in, not the parsed copies: renderers of integrations may carry more fields,
+	// which reach the renderers module.
+	const renderers = options.renderers ?? [];
 
 	const api: AstroPluginApi = {
 		get config() {
@@ -73,7 +80,7 @@ export default function astro(options: AstroPluginOptions = {}): Plugin[] {
 			}
 			return config;
 		},
-		renderers: parsed.renderers,
+		renderers,
 		clientDirectives: parsed.clientDirectives,
 	};
 
@@ -122,24 +129,35 @@ export default function astro(options: AstroPluginOptions = {}): Plugin[] {
 			},
 		},
 		...compilePlugins({
-			config: compileConfig,
+			config: cli?.compileConfig ?? compileConfig,
 			// Vite's logger has no debug level.
-			logger: { debug() {} },
-			toolbarEnabled: () => false,
+			logger: cli?.logger ?? { debug() {} },
+			toolbarEnabled: cli?.toolbarEnabled ?? (() => false),
+			internalURL: cli?.internalURL,
+			transitionsAnimationURL: cli?.transitionsAnimationURL,
 		}),
-		renderersPlugin({ renderers: parsed.renderers }),
-		clientDirectivesPlugin({
-			clientDirectives: parsed.clientDirectives,
-			getRoot: () => api.config.root,
-		}),
-		componentAssetsPlugin({
-			renderers: parsed.renderers,
-			getRenderConfig: () => ({ compressHTML: api.config.compressHTML, site: api.config.site }),
-		}),
-		headPlugin(),
+		renderersPlugin({ renderers, skipRenderers: cli?.skipRenderers }),
+		// The modules of the render API. The `astro` CLI renders pages itself.
+		...(cli
+			? []
+			: [
+					clientDirectivesPlugin({
+						clientDirectives: parsed.clientDirectives,
+						getRoot: () => api.config.root,
+					}),
+					componentAssetsPlugin({
+						renderers,
+						getRenderConfig: () => ({
+							compressHTML: api.config.compressHTML,
+							site: api.config.site,
+						}),
+					}),
+					renderSetupPlugin({ renderers }),
+				]),
+		scriptsPlugin({ scripts: cli?.scripts ?? [] }),
+		headPlugin({ environments: cli?.headEnvironments }),
 		fileUrlPlugin(),
-		hmrReloadPlugin(),
-		renderSetupPlugin({ renderers: parsed.renderers }),
+		hmrReloadPlugin({ getDevCssModuleId: cli?.getDevCssModuleId }),
 	];
 	// Vite resolves the config again for each build environment, which re-runs a config file and
 	// creates new plugin instances. The client build reads state collected by the server build
