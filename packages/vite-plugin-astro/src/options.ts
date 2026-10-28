@@ -37,8 +37,17 @@ export const AstroPluginOptionsSchema = z.object({
 					.object({ client: OptimizeDepsSchema.optional(), server: OptimizeDepsSchema.optional() })
 					.optional(),
 				dedupe: z.array(z.string()).optional(),
-				noExternal: z.array(z.string()).optional(),
+				noExternal: z
+					.union([
+						z.array(z.string()),
+						z.custom<Exclude<AstroRenderer['noExternal'], string[] | undefined>>(
+							(value) => typeof value === 'function',
+						),
+					])
+					.optional(),
 				devHeadScript: z.string().optional(),
+				appEntrypoint: z.string().optional(),
+				appEntrypointImporters: z.instanceof(RegExp).optional(),
 			}),
 		)
 		.optional()
