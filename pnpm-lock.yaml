@@ -6373,6 +6373,18 @@ importers:
         specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
 
+  packages/integrations/svelte/test/fixtures/slot-names:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      svelte:
+        specifier: ^5.57.2
+        version: 5.57.2(@typescript-eslint/types@8.71.0)
+
   packages/integrations/vercel:
     dependencies:
       '@astrojs/internal-helpers':

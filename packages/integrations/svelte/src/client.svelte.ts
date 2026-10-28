@@ -1,4 +1,5 @@
 import { createRawSnippet, hydrate, mount, unmount } from 'svelte';
+import { escapeSlotName } from './escape.js';
 
 const existingApplications = new WeakMap<HTMLElement, ReturnType<typeof createComponent>>();
 
@@ -25,7 +26,7 @@ export default (element: HTMLElement) => {
 				}));
 			} else {
 				_$$slots[key] = createRawSnippet(() => ({
-					render: () => `<astro-slot name="${key}">${value}</astro-slot>`,
+					render: () => `<astro-slot name="${escapeSlotName(key)}">${value}</astro-slot>`,
 				}));
 			}
 			// @render support for Svelte ^5.0
@@ -35,7 +36,7 @@ export default (element: HTMLElement) => {
 				}));
 			} else {
 				renderFns[key] = createRawSnippet(() => ({
-					render: () => `<astro-slot name="${key}">${value}</astro-slot>`,
+					render: () => `<astro-slot name="${escapeSlotName(key)}">${value}</astro-slot>`,
 				}));
 			}
 		}
