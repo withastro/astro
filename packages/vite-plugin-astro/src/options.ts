@@ -29,7 +29,8 @@ export const AstroPluginOptionsSchema = z.object({
 		.array(
 			z.object({
 				name: z.string(),
-				clientEntrypoint: EntrypointSchema.optional(),
+				// Renderers of integrations may set `null`.
+				clientEntrypoint: EntrypointSchema.nullish(),
 				serverEntrypoint: EntrypointSchema,
 				options: z.unknown().optional(),
 				optimizeDeps: z
