@@ -1,0 +1,5 @@
+---
+const { class: className, ...rest } = Astro.props;
+---
+
+<pre data-custom-pre="rendered" class={className} {...rest}><slot /></pre>

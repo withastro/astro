@@ -1,0 +1,16 @@
+---
+import Island from '../../components/Island.astro';
+
+export async function getStaticPaths() {
+	return [{ params: { slug: 'a' }, props: { title: 'Island A' }, cacheKey: 'v1' }];
+}
+
+const { title } = Astro.props;
+---
+<html lang="en">
+<head><title>{title}</title></head>
+<body>
+	<h1>{title}</h1>
+	<Island server:defer />
+</body>
+</html>

@@ -1,0 +1,26 @@
+---
+export const prerender = false;
+
+interface Props {
+	dynamic: string
+}
+
+export async function getStaticPaths() {
+	return [
+		{ params: { dynamic: 'foo' } },
+		{ params: { dynamic: 'bar' } }
+	];
+}
+
+const { dynamic } = Astro.params;
+
+---
+
+<html lang="en">
+<head><title>node-middleware</title></head>
+<style>
+</style>
+<body>
+<div>{dynamic}</div>
+</body>
+</html>

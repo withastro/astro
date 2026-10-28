@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24">
+  <!-- This is a comment that should be removed -->
+  <title>Test Icon</title>
+  <desc>An icon for testing SVGO optimization</desc>
+  <defs>
+    <style type="text/css">
+      .test-class { fill: #000000; }
+    </style>
+  </defs>
+  <g class="test-class">
+    <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" fill="#000000"/>
+    <path d="M7,13L10,16L17,9L15.59,7.58L10,13.17L8.41,11.59L7,13Z"/>
+  </g>
+</svg>

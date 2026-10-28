@@ -1,0 +1,56 @@
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
+import { type Fixture, loadFixture } from './test-utils.ts';
+
+describe('imports using ?url suffix', () => {
+	let fixture: Fixture;
+	const assetName = 'index.DqQksVyv.css';
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/url-import-suffix/',
+			outDir: './dist/url-import-suffix-imports-using-url-suffix/',
+		});
+		await fixture.build();
+	});
+
+	it('includes the built asset in the output', async () => {
+		const assets = await fixture.readdir('/_astro');
+		assert.ok(assets.some((f) => f === assetName));
+	});
+
+	it('links the asset in the html', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+
+		const linkHref = $('link[rel="stylesheet"]').attr('href');
+		assert.ok(linkHref, `/_astro/${assetName}`);
+	});
+});
+
+describe('imports using ?url&no-inline suffix', () => {
+	let fixture: Fixture;
+	const assetName = 'style.3WhucSPm.css';
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/url-import-suffix/',
+			outDir: './dist/url-import-suffix-imports-using-url-no-inline-suffix/',
+		});
+		await fixture.build();
+	});
+
+	it('includes the built asset in the output', async () => {
+		const assets = await fixture.readdir('/_astro');
+		assert.ok(assets.some((f) => f === assetName));
+	});
+
+	it('links the asset in the html', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+
+		const linkHref = $('link[rel="stylesheet"]').attr('href');
+		assert.ok(linkHref, `/_astro/${assetName}`);
+	});
+});

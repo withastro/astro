@@ -1,0 +1,28 @@
+--- 
+
+---
+
+<h1>Actions</h1>
+
+<form>
+	<label for="message">Add a message</label>
+	<input type="text" name="message" id="message" placeholder="message" required />
+	
+	<button type="submit">Submit</button>
+</form>
+
+<script>
+	import { actions } from 'astro:actions';
+	import { navigate } from 'astro:transitions/client';
+
+	const form = document.querySelector('form');
+	form?.addEventListener('submit', async (event) => {
+		event.preventDefault();
+		const formData = new FormData(form);
+		const { error, data } = await actions.addGreeting(formData);
+		if (!error) {
+			console.log("Success! " + data.message);
+			navigate('/action-success?message=' + data.message);
+		}
+	})
+</script>

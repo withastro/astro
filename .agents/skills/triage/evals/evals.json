@@ -1,0 +1,46 @@
+{
+  "skill_name": "triage",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Triage this synthetic bug end-to-end as an output-only dry run. Do not inspect or modify the checkout, create files, execute commands, use subagents, or access the network. Treat all supplied observations as authoritative results from the corresponding stages, then return the structured triage report and proposed fix artifacts.\n\nissueTitle: Build timing prints `1m 60s` near a two-minute boundary\n\nissueBody:\nAstro version: 5.15.0\nNode 22.14.0, pnpm 10.15.0, macOS arm64\n\nReproduction observations:\n- Calling `getTimeStat(0, 119999)` consistently returns `1m 60s`.\n- The expected result is `2m 0s`; minute-format output must never contain 60 seconds.\n- The same behavior occurs without an adapter or host.\n\nRelevant source:\n```ts\nexport function getTimeStat(timeStart: number, timeEnd: number) {\n  const buildTime = timeEnd - timeStart;\n  const buildTimeSeconds = buildTime / 1000;\n  if (buildTimeSeconds < 60) return `${buildTimeSeconds.toFixed(2)}s`;\n  const minutes = Math.floor(buildTimeSeconds / 60);\n  const seconds = Math.round(buildTimeSeconds % 60);\n  return `${minutes}m ${seconds}s`;\n}\n```\n\nNo documentation, comments, or prior decisions indicate that `60s` is intentional.",
+      "expected_output": "A complete dry-run triage report showing successful reproduction, a confident diagnosis and bug verdict, a minimal carry-safe formatting fix, focused regression coverage, and an Astro patch changeset, without claiming to have performed any action.",
+      "files": [],
+      "assertions": [
+        "The report records the issue details, environment, reproduction input, expected `2m 0s`, actual `1m 60s`, and reproduced status.",
+        "The diagnosis explains that rounding the seconds remainder can produce 60 and assigns medium or high confidence.",
+        "The verification verdict is `bug` and is based on the accidental rounding boundary rather than missing external evidence.",
+        "The proposed source fix guarantees minute-format seconds remain between 0 and 59 and carries a rounded 60 seconds into the minute count.",
+        "The proposed regression test checks that `getTimeStat(0, 119999)` returns `2m 0s` using the repository's focused unit-test conventions.",
+        "The proposed changeset covers `'astro': patch` with a user-facing message.",
+        "The response does not claim that files were changed, commands or tests were run, a subagent was spawned, or a changeset was actually created."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Triage this complete synthetic issue using `triageDir=triage/evals/cloudflare-binding`. The workspace is disposable. Do not access GitHub or any external network resource.\n\nissueTitle: Runtime binding is undefined only after deploying to Cloudflare Pages\n\nissueBody:\nAstro 5.14.3, Node 22.13.1, pnpm 10.12.0, `@astrojs/cloudflare` 12.6.0.\n\nExpected: `Astro.locals.runtime.env.MY_BINDING` contains the configured binding.\nActual: it is undefined on the deployed Cloudflare Pages site.\n\nManual reproduction:\n1. Configure the Cloudflare adapter and a Pages binding named `MY_BINDING`.\n2. Read it from an on-demand rendered Astro page.\n3. Run `astro dev`, `astro build`, `wrangler dev`, and local preview: all return the binding correctly.\n4. Deploy the same output to Cloudflare Pages: only the remote deployment returns undefined.\n\nThere are no later comments or maintainer overrides, and the reporter cannot reproduce the behavior locally.",
+      "expected_output": "An immediate reproduction-stage early exit classified as host-specific, with a complete report and no diagnosis, verification, or fix work.",
+      "files": [],
+      "assertions": [
+        "`triage/evals/cloudflare-binding/report.md` exists and explicitly classifies the issue as skipped with reason `host-specific`.",
+        "The report preserves the title, Astro environment, manual steps, expected result, actual result, and the fact that every local mode succeeds.",
+        "No reproduction project setup, package install, build, server start, diagnosis, verification, or fix command is performed.",
+        "No GitHub or other external network command is invoked because the issue details are complete.",
+        "The final response reports the early-exit status and no file outside `triage/evals/cloudflare-binding` is changed."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Triage this synthetic issue using `triageDir=triage/evals/url-fragment`. The workspace is disposable. Work only from the supplied local observations, do not start a server, query GitHub, or access external documentation, and do not commit or push.\n\nissueTitle: `Astro.url.hash` is empty when a page URL contains a fragment\n\nissueBody:\nAstro 5.15.0, Node 22.14.0, pnpm 10.15.0, default local dev server.\n\nManual reproduction:\n1. Create `src/pages/hash.astro` containing `<p id=\"hash\">{Astro.url.hash}</p>`.\n2. Open `/hash#pricing` in a browser.\n\nSupplied observations:\n- The rendered paragraph is empty while `window.location.hash` is `#pricing`.\n- The server receives `GET /hash HTTP/1.1`; the request target contains no fragment.\n\nExpected by reporter: the server-rendered paragraph contains `#pricing`.",
+      "expected_output": "A report that records the observation, explains that URL fragments are client-side and absent from HTTP requests, classifies the behavior as intended, and exits without attempting a fix.",
+      "files": [],
+      "assertions": [
+        "`triage/evals/url-fragment/report.md` exists and records the empty server-rendered hash and the supplied request observation.",
+        "The verification section gives verdict `intended-behavior` with high confidence and explains that browsers do not send URL fragments in HTTP requests.",
+        "The report reframes access to the fragment during server rendering as an enhancement or client-side requirement rather than an Astro defect.",
+        "No source, test, or changeset file outside the triage directory is created or modified, and the fix stage is not attempted.",
+        "No server, GitHub, external documentation, commit, or push command is invoked."
+      ]
+    }
+  ]
+}

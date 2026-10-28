@@ -1,0 +1,16 @@
+---
+import { getCollection, render } from 'astro:content';
+
+const posts = await getCollection('blog');
+const post = posts[0];
+const { Content } = await render(post);
+---
+
+<html>
+  <head>
+    <title>Test</title>
+  </head>
+  <body>
+    <Content />
+  </body>
+</html>

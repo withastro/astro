@@ -1,0 +1,27 @@
+---
+import { promises as fs } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const loadFile = Astro.url.searchParams.get('file');
+
+const file = await fs.readFile(join(__dirname, `../../../files/${loadFile}`), 'utf-8');
+
+async function moo() {
+	const cow = await import('cowsay');
+	return cow.say({ text: 'Moo!' });
+}
+
+if (Astro.url.searchParams.get('moo')) {
+	await moo();
+}
+---
+<html>
+<head><title>Testing</title></head>
+<body>
+ {loadFile && <h1>{file}</h1>}
+</body>
+</html>
