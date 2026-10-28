@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 11.0.17
+
+### Patch Changes
+
+- [#18085](https://github.com/withastro/astro/pull/18085) [`785473b`](https://github.com/withastro/astro/commit/785473bc2e18a3dff3f278f812024f1b1ac19411) Thanks [@nikolas-sapa](https://github.com/nikolas-sapa)! - Fix redirects never matching on Vercel when `trailingSlash: 'always'` is set. Redirect sources now include the trailing slash so they match the normalized request path. Sources whose last segment contains a dot are left unslashed, and dynamic or spread sources emit both the slashed and unslashed form, because Vercel only normalizes paths without a dot.
+
 ## 11.0.16
 
 ### Patch Changes
