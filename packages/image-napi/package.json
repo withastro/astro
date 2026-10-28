@@ -23,7 +23,8 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.ts\""
+    "test": "astro-scripts test \"test/**/*.test.ts\"",
+    "bench": "node bench/compare.mjs"
   },
   "dependencies": {
     "@napi-rs/image": "^1.15.0"
