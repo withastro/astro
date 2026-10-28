@@ -1,7 +1,7 @@
 import nodeFs from 'node:fs';
 import npath from 'node:path';
 import type * as vite from 'vite';
-import { slash } from '@astrojs/internal-helpers/path';
+import { slash } from '../core/path.js';
 import { cleanUrl } from '../vite-plugin-utils/index.js';
 
 type NodeFileSystemModule = typeof nodeFs;

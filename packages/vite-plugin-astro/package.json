@@ -38,7 +38,6 @@
     "magic-string": "^1.4.2",
     "rolldown": "^1.2.11",
     "smol-toml": "^1.9.0",
-    "ultrahtml": "^1.7.0",
     "zod": "^4.6.5"
   },
   "peerDependencies": {

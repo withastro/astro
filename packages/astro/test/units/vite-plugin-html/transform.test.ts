@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { transform } from '@astrojs/vite-plugin-astro/internal/vite-plugin-html/transform/index.js';
+import { transform } from '../../../dist/vite-plugin-html/transform/index.js';
 
 describe('vite-plugin-html: transform integration', () => {
 	it('transforms basic HTML file', async () => {
