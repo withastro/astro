@@ -84,6 +84,36 @@ describe('astro()', () => {
 		}
 	});
 
+	it('renders with renderToString() from @astrojs/runtime in a project outside the workspace', async () => {
+		const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'vite-plugin-astro-'));
+		// The project depends on `@astrojs/runtime`, the package it imports the render API from.
+		await fs.mkdir(path.join(projectRoot, 'node_modules/@astrojs'), { recursive: true });
+		await fs.symlink(
+			fileURLToPath(new URL('../../runtime/', import.meta.url)),
+			path.join(projectRoot, 'node_modules/@astrojs/runtime'),
+			'dir',
+		);
+		await fs.writeFile(path.join(projectRoot, 'Page.astro'), '<h1>Hello {Astro.props.name}</h1>');
+		await fs.writeFile(
+			path.join(projectRoot, 'render.js'),
+			"import { renderToString } from '@astrojs/runtime';\nimport Page from './Page.astro';\nexport const render = () => renderToString(Page, { props: { name: 'Vite' }, partial: true });\n",
+		);
+		const server = await createServer({
+			configFile: false,
+			logLevel: 'silent',
+			root: projectRoot,
+			server: { middlewareMode: true, ws: false },
+			plugins: [astro()],
+		});
+		try {
+			const mod = await server.ssrLoadModule('/render.js');
+			assert.equal(await mod.render(), '<h1>Hello Vite</h1>');
+		} finally {
+			await server.close();
+			await fs.rm(projectRoot, { recursive: true, force: true });
+		}
+	});
+
 	it('throws when the config is read before Vite resolves it', () => {
 		const [plugin] = astro();
 		assert.throws(() => plugin.api.astro.config, /configResolved/);

@@ -17,8 +17,6 @@
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
     "./components/*": "./components/*",
     "./defaults": "./dist/defaults.js",
-    "./render": "./dist/render/index.js",
-    "./render/core": "./dist/render/core.js",
     "./internal/*": "./dist/*"
   },
   "files": [

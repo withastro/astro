@@ -480,6 +480,20 @@ export const InvalidComponentArgs = {
 } satisfies ErrorData;
 /**
  * @docs
+ * @description
+ * `renderToString()` and `renderToResponse()` from `@astrojs/runtime` render components compiled by the `astro()` Vite plugin from `@astrojs/vite-plugin-astro`, which registers the renderers, client directives and component assets they need. No component compiled by `astro()` has been loaded in this environment, so there is nothing to render with.
+ *
+ * To render components compiled without `astro()`, create a renderer with `createRenderer()` from `@astrojs/runtime` and use its `renderToString()` and `renderToResponse()`.
+ */
+export const RenderNotConfigured = {
+	name: 'RenderNotConfigured',
+	title: 'No component compiled by `astro()` has been loaded.',
+	message:
+		'`renderToString()` and `renderToResponse()` render components compiled by the `astro()` Vite plugin, and none has been loaded.',
+	hint: 'Render a component compiled by `astro()` from `@astrojs/vite-plugin-astro`, or use `createRenderer()` from `@astrojs/runtime`.',
+} satisfies ErrorData;
+/**
+ * @docs
  * @see
  * - [Pagination](https://docs.astro.build/en/guides/routing/#pagination)
  * @description

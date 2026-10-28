@@ -7354,6 +7354,9 @@ importers:
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../runtime
       '@astrojs/vite-plugin-astro':
         specifier: workspace:*
         version: link:../../..

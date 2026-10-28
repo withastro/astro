@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@astrojs/react": "workspace:*",
+    "@astrojs/runtime": "workspace:*",
     "@astrojs/vite-plugin-astro": "workspace:*",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
