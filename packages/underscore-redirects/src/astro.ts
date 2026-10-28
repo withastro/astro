@@ -180,18 +180,22 @@ function generateDynamicPattern(route: IntegrationResolvedRoute) {
 	return (
 		'/' +
 		route.segments
-			.map(([part]) => {
-				//(part.dynamic ? '*' : part.content)
-				if (part.dynamic) {
-					if (part.spread) {
-						return '*';
-					} else {
-						return ':' + part.content;
-					}
-				} else {
-					return part.content;
-				}
-			})
+			.map((segment) =>
+				segment
+					.map((part) => {
+						//(part.dynamic ? '*' : part.content)
+						if (part.dynamic) {
+							if (part.spread) {
+								return '*';
+							} else {
+								return ':' + part.content;
+							}
+						} else {
+							return part.content;
+						}
+					})
+					.join(''),
+			)
 			.join('/')
 	);
 }
