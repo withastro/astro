@@ -40,10 +40,10 @@ export const render = (props) => renderToString(Page, { props });
 
 The render API is exported from `@astrojs/runtime`, which the project adds as a dependency next to `@astrojs/vite-plugin-astro`. (`astro()` resolves every `@astrojs/runtime` import to its own copy of the runtime, so compiled components work without that dependency, and they and the render API share one copy.)
 
-| Function                                | Returns             |
-| --------------------------------------- | ------------------- |
-| `renderToString(Component, options?)`   | `Promise<string>`   |
-| `renderToResponse(Component, options?)` | `Promise<Response>` |
+| Function                                | Returns                                         |
+| --------------------------------------- | ----------------------------------------------- |
+| `renderToString(Component, options?)`   | `Promise<string>`                               |
+| `renderToResponse(Component, options?)` | `Promise<Response>` (`Content-Type: text/html`) |
 
 `RenderOptions`:
 

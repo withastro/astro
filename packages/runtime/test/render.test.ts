@@ -126,6 +126,15 @@ describe('createRenderer() in plain Node', () => {
 		assert.equal(partial.includes('window.ready'), false);
 	});
 
+	it('responds with HTML', async () => {
+		const renderer = createRenderer({
+			renderers: [widgetRenderer],
+			resolve: async (specifier) => `/assets/${specifier.replace(/^\W+/, '')}`,
+		});
+		const response = await renderer.renderToResponse(Page, { props: { name: 'Node' } });
+		assert.equal(response.headers.get('content-type'), 'text/html');
+	});
+
 	it('throws for client specifiers it cannot resolve', async () => {
 		const renderer = createRenderer({ renderers: [widgetRenderer] });
 		await assert.rejects(
