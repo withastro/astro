@@ -1,5 +1,11 @@
 # astro
 
+## 7.4.4
+
+### Patch Changes
+
+- [#18344](https://github.com/withastro/astro/pull/18344) [`df838da`](https://github.com/withastro/astro/commit/df838da6c6d965504fae0d89e12d3e67bdd0f4c6) Thanks [@edmundhung](https://github.com/edmundhung)! - Allows `astro add` to configure tagged versions of official adapters
+
 ## 7.4.3
 
 ### Patch Changes
