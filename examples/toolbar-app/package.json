@@ -16,10 +16,10 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
-    "astro": "^7.4.1"
+    "astro": "^7.4.3"
   },
   "engines": {
-    "node": ">=22.22.0"
+    "node": ">=22.23.4"
   },
   "allowScripts": {
     "esbuild": true

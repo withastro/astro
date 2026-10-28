@@ -143,9 +143,13 @@ export async function resolveTargetVersion(
 	if (packageMetadata.status >= 400) {
 		throw new Error(`Unable to resolve "${packageInfo.name}"`);
 	}
-	const { 'dist-tags': distTags } = await packageMetadata.json();
+	const { 'dist-tags': distTags, versions = {} } = await packageMetadata.json();
 	let version = distTags[packageInfo.targetVersion];
-	if (version) {
+	if (!version && packageInfo.name === 'astro' && versions[packageInfo.targetVersion]) {
+		// An exact version refers to an Astro release and is installed as-is, without a `^` prefix.
+		// Integrations are versioned independently, so a matching version string for them is unrelated.
+		version = packageInfo.targetVersion;
+	} else if (version) {
 		const currentCoerced = coerce(packageInfo.currentVersion);
 		const targetParsed = tryParse(version);
 		// If the dist-tag points to a version older than the installed one, fall back to latest.

@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -271,16 +271,61 @@ describe('isLockFileProcessAlive', () => {
 		assert.equal(await isLockFileProcessAlive(data, findProcess), false);
 	});
 
-	it('keeps the PID-only result when the command cannot be inspected', async () => {
+	it('returns false when a successful process lookup finds no matching PID', async () => {
 		const data = { ...validData, pid: childPid };
 
-		assert.equal(await isLockFileProcessAlive(data, async () => undefined), true);
+		assert.equal(
+			await isLockFileProcessAlive(data, async (pid) => {
+				assert.equal(pid, childPid);
+				return undefined;
+			}),
+			false,
+		);
+	});
+
+	it('keeps the PID-only result when the process command is unavailable', async () => {
+		const data = { ...validData, pid: childPid };
+
+		assert.equal(await isLockFileProcessAlive(data, async () => ({ pid: childPid })), true);
+	});
+
+	it('keeps the PID-only result when process inspection fails', async () => {
+		const data = { ...validData, pid: childPid };
+
 		assert.equal(
 			await isLockFileProcessAlive(data, async () => {
-				throw new Error('Process lookup failed');
+				throw Object.assign(new Error('spawn ps ENOENT'), { code: 'ENOENT' });
 			}),
 			true,
 		);
+	});
+
+	it('treats a Linux thread ID as stale without killing its owning process', {
+		skip: process.platform !== 'linux',
+	}, async () => {
+		// Wait for Node to initialize at least one non-main thread in the child.
+		let threadId: string | undefined;
+		for (let attempt = 0; attempt < 100 && threadId === undefined; attempt++) {
+			threadId = readdirSync(`/proc/${childPid}/task`).find((id) => id !== String(childPid));
+			if (threadId === undefined) await new Promise((resolve) => setTimeout(resolve, 20));
+		}
+		assert.ok(threadId, 'expected the child process to have a non-main thread');
+		const data = { ...validData, pid: Number(threadId) };
+		assert.equal(isProcessAlive(data.pid), true);
+
+		// Exercise the real tinyps lookup, not a stub returning undefined.
+		assert.equal(await isLockFileProcessAlive(data), false);
+
+		const tempDir = mkdtempSync(join(tmpdir(), 'astro-thread-lockfile-'));
+		const root = pathToFileURL(tempDir + '/');
+		try {
+			writeLockFile(root, data);
+			assert.equal(await checkExistingServer(root), null);
+			assert.equal(readLockFile(root), null);
+			assert.equal(isProcessAlive(childPid), true);
+		} finally {
+			rmSync(tempDir, { recursive: true, force: true });
+		}
 	});
 });
 

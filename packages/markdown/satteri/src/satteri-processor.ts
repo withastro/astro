@@ -270,7 +270,8 @@ export async function createHighlightFn(
 		const { htmlToHast } = await loadSatteri();
 		return async (code, lang) => {
 			const { html, classLanguage } = await runHighlighterWithAstro(lang, code);
-			const pre = `<pre class="${classLanguage}" data-language="${lang}"><code class="${classLanguage}">${html}</code></pre>`;
+			const className = escapeAttribute(classLanguage);
+			const pre = `<pre class="${className}" data-language="${escapeAttribute(lang)}"><code class="${className}">${html}</code></pre>`;
 			const tree = htmlToHast(pre, { fragment: true });
 			return ('children' in tree ? tree.children[0] : undefined) as HastNode;
 		};
@@ -353,4 +354,8 @@ export async function createSatteriMarkdownProcessor(
 			};
 		},
 	};
+}
+
+function escapeAttribute(value: string) {
+	return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }

@@ -1,5 +1,23 @@
 # @astrojs/markdoc
 
+## 2.1.2
+
+### Patch Changes
+
+- [`edfbf4a`](https://github.com/withastro/astro/commit/edfbf4ab34ff007ae8f7188af76a023a15c9443d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Prism code blocks for languages Prism doesn't support, such as `vue` or `svelte`. Their code is now displayed as plain text instead of being rendered as HTML. Also correctly escapes the code block language in the generated `class` and `data-language` attributes.
+- Updated dependencies [[`edfbf4a`](https://github.com/withastro/astro/commit/edfbf4ab34ff007ae8f7188af76a023a15c9443d)]:
+  - @astrojs/prism@4.1.2
+
+## 2.1.1
+
+### Patch Changes
+
+- [#18475](https://github.com/withastro/astro/pull/18475) [`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab) Thanks [@ematipico](https://github.com/ematipico)! - Bumps the minimum supported Node.js version to 22.23.4, which includes the fixes from the [October 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+  
+  This is a patch release because the [Node.js support and upgrade policy](https://docs.astro.build/en/upgrade-astro/#nodejs-support-and-upgrade-policies) allows the Core team to raise the minimum Maintenance LTS version in a patch release when a disclosed and fixed Node.js security flaw affects Astro.
+- Updated dependencies [[`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab)]:
+  - @astrojs/prism@4.1.1
+
 ## 2.1.0
 
 ### Minor Changes

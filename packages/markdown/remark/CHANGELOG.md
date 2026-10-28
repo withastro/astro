@@ -1,5 +1,20 @@
 # @astrojs/markdown-remark
 
+## 7.3.5
+
+### Patch Changes
+
+- [`edfbf4a`](https://github.com/withastro/astro/commit/edfbf4ab34ff007ae8f7188af76a023a15c9443d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Prism code blocks for languages Prism doesn't support, such as `vue` or `svelte`. Their code is now displayed as plain text instead of being rendered as HTML. Also correctly escapes the code block language in the generated `class` and `data-language` attributes.
+- Updated dependencies [[`edfbf4a`](https://github.com/withastro/astro/commit/edfbf4ab34ff007ae8f7188af76a023a15c9443d)]:
+  - @astrojs/prism@4.1.2
+
+## 7.3.4
+
+### Patch Changes
+
+- Updated dependencies [[`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab)]:
+  - @astrojs/prism@4.1.1
+
 ## 7.3.3
 
 ### Patch Changes

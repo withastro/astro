@@ -183,7 +183,9 @@ describe('CompileImageService build-time image generation', () => {
 	 * @param mode    `'compile'` or `'custom'`.
 	 * @param service `'default'` removes the user `image.service` (Astro's default
 	 *                Sharp service applies), `'sharp'` swaps in a Sharp-backed user
-	 *                service, and `'user'` keeps the fixture's Sharp-free service.
+	 *                service and makes the on-demand `api.ts` route call `getImage()`
+	 *                so the worker uses the service at runtime, and `'user'` keeps the
+	 *                fixture's Sharp-free service.
 	 */
 	async function buildFixture(
 		mode: 'compile' | 'custom',
@@ -213,6 +215,24 @@ describe('CompileImageService build-time image generation', () => {
 			},
 			false,
 		);
+		// Unused components are tree-shaken from the worker, so the Sharp chain is only
+		// bundled when an on-demand route actually uses the image service.
+		const resetApi =
+			service === 'sharp'
+				? await fixture.editFile(
+						'src/pages/api.ts',
+						[
+							"import { getImage } from 'astro:assets';",
+							"import testImage from '../assets/test.jpg';",
+							'',
+							'export const prerender = false;',
+							'',
+							'export const GET = async () => new Response((await getImage({ src: testImage, width: 50 })).src);',
+							'',
+						].join('\n'),
+						false,
+					)
+				: undefined;
 
 		try {
 			await fixture.build();
@@ -222,6 +242,7 @@ describe('CompileImageService build-time image generation', () => {
 			};
 		} finally {
 			resetConfig();
+			resetApi?.();
 		}
 	}
 
