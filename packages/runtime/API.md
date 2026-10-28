@@ -11,11 +11,11 @@ Nothing in this package imports Vite, the Astro compiler, Rolldown or zod, so it
 | `@astrojs/runtime`                  | `renderToString()` and `renderToResponse()` (see [Rendering components compiled by `astro()`](#rendering-components-compiled-by-astro)), `createRenderer()` and its types, and every type of `./types`. |
 | `@astrojs/runtime/render`           | `createRenderer()` (see [Rendering without Vite](#rendering-without-vite)).                                                                                                                             |
 | `@astrojs/runtime/server`           | The render runtime: `renderComponent`, `renderPage`, `renderTemplate`, `renderSlot`, escape helpers, `createAstro`, server island rendering. `astro/runtime/server` re-exports it.                      |
-| `@astrojs/runtime/compiler-runtime` | What compiled components import (`internalURL` of the compiler). `astro/compiler-runtime` and `@astrojs/vite-plugin-astro/compiler-runtime` re-export it.                                               |
+| `@astrojs/runtime/compiler-runtime` | What compiled components import (`internalURL` of the compiler). `astro/compiler-runtime` re-exports it.                                                                                                |
 | `@astrojs/runtime/jsx-runtime`      | The JSX runtime. `astro/jsx-runtime` re-exports it.                                                                                                                                                     |
 | `@astrojs/runtime/client/*`         | The built-in client directive scripts, as strings: `{idle,load,media,only,visible}.prebuilt.js`.                                                                                                        |
 | `@astrojs/runtime/types`            | The base render types (see [Types](#types)).                                                                                                                                                            |
-| `@astrojs/runtime/internal/*`       | Every module under `src/`, by the `.js` path of its source file. For `@astrojs/vite-plugin-astro`, `@astrojs/vite-plugin-pages` and `astro` only: no stability guarantee.                               |
+| `@astrojs/runtime/internal/*`       | Every module under `src/`, by the `.js` path of its source file. For Astro's own packages only: no stability guarantee.                                                                                 |
 
 ## Rendering components compiled by `astro()`
 
@@ -86,7 +86,7 @@ The [type seam](../vite-plugin-astro/API.md#type-seam) is documented with `@astr
 | `render-setup.js`                                                                 | `setRenderConfig()` (called by `virtual:astro:render-setup`), `renderToString()`, `renderToResponse()`.                                                                             |
 | `transitions/*.js`, `types/public/view-transitions.js`                            | View transition animations, events, swap functions and their types.                                                                                                                 |
 
-The errors helpers that need zod, Vite or a YAML/TOML parser (`errorMap`, `isAstroConfigZodError`, `trackAstroConfigZodError`, `formatYAMLParseError`, `formatTOMLError`, `isTOMLError`, `isYAMLParseError`) live in `@astrojs/vite-plugin-astro/internal/core/errors/*`, which re-exports everything above.
+The errors helpers that need zod, Vite or a TOML parser (`errorMap`, `isAstroConfigZodError`, `trackAstroConfigZodError`, `formatYAMLParseError`, `formatTOMLError`, `isTOMLError`) live in `@astrojs/vite-plugin-astro/internal/core/errors/*`. `isYAMLParseError` is in `@astrojs/internal-helpers/yaml-error`.
 
 ## Versioning
 

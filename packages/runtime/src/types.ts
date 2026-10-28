@@ -295,8 +295,8 @@ export interface SSRResult extends SSRResultExtensions {
 	partial: boolean;
 	_metadata: SSRMetadata;
 
-	// Request-level values read by the render runtime. The host that creates the result (such as
-	// `@astrojs/vite-plugin-pages`) supplies them.
+	// Request-level values read by the render runtime. The host that creates the result supplies
+	// them.
 
 	/**
 	 * Only used for logging
