@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 14.4.3
+
+### Patch Changes
+
+- [#18526](https://github.com/withastro/astro/pull/18526) [`d0504c2`](https://github.com/withastro/astro/commit/d0504c272deadc02a97a1078504f9a4698c09553) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `process is not defined` errors in client-side scripts and islands that reference `process.env`. The adapter's `process.env` define now applies only to the server output, so browser builds get Vite's default replacement.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.4.2
 
 ### Patch Changes

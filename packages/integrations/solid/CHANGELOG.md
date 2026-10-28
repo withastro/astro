@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 7.1.2
+
+### Patch Changes
+
+- [`290b196`](https://github.com/withastro/astro/commit/290b196ddb48de11783ff128e2b7272c61490a20) Thanks [@matthewp](https://github.com/matthewp)! - Escapes slot names when rendering the slot wrapper elements for Solid components
+
 ## 7.1.1
 
 ### Patch Changes

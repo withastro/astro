@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 7.1.2
+
+### Patch Changes
+
+- [#18482](https://github.com/withastro/astro/pull/18482) [`9c88994`](https://github.com/withastro/astro/commit/9c889945820781a336217aa84a507e320445aabd) Thanks [@wrostomMM](https://github.com/wrostomMM)! - Fixes duplicate `React.useId()` values across components when `experimentalDisableStreaming` is enabled
+
 ## 7.1.1
 
 ### Patch Changes
