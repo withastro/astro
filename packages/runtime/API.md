@@ -6,20 +6,32 @@ Nothing in this package imports Vite, the Astro compiler, Rolldown or zod, so it
 
 ## Entry points
 
-| Export                              | Contents                                                                                                                                                                           |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@astrojs/runtime`                  | `createRenderer()` and its types, and every type of `./types`.                                                                                                                     |
-| `@astrojs/runtime/render`           | `createRenderer()` (see [Rendering without Vite](#rendering-without-vite)).                                                                                                        |
-| `@astrojs/runtime/server`           | The render runtime: `renderComponent`, `renderPage`, `renderTemplate`, `renderSlot`, escape helpers, `createAstro`, server island rendering. `astro/runtime/server` re-exports it. |
-| `@astrojs/runtime/compiler-runtime` | What compiled components import (`internalURL` of the compiler). `astro/compiler-runtime` and `@astrojs/vite-plugin-astro/compiler-runtime` re-export it.                          |
-| `@astrojs/runtime/jsx-runtime`      | The JSX runtime. `astro/jsx-runtime` re-exports it.                                                                                                                                |
-| `@astrojs/runtime/client/*`         | The built-in client directive scripts, as strings: `{idle,load,media,only,visible}.prebuilt.js`.                                                                                   |
-| `@astrojs/runtime/types`            | The base render types (see [Types](#types)).                                                                                                                                       |
-| `@astrojs/runtime/internal/*`       | Every module under `src/`, by the `.js` path of its source file. For `@astrojs/vite-plugin-astro`, `@astrojs/vite-plugin-pages` and `astro` only: no stability guarantee.          |
+| Export                              | Contents                                                                                                                                                                                                |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@astrojs/runtime`                  | `renderToString()` and `renderToResponse()` (see [Rendering components compiled by `astro()`](#rendering-components-compiled-by-astro)), `createRenderer()` and its types, and every type of `./types`. |
+| `@astrojs/runtime/render`           | `createRenderer()` (see [Rendering without Vite](#rendering-without-vite)).                                                                                                                             |
+| `@astrojs/runtime/server`           | The render runtime: `renderComponent`, `renderPage`, `renderTemplate`, `renderSlot`, escape helpers, `createAstro`, server island rendering. `astro/runtime/server` re-exports it.                      |
+| `@astrojs/runtime/compiler-runtime` | What compiled components import (`internalURL` of the compiler). `astro/compiler-runtime` and `@astrojs/vite-plugin-astro/compiler-runtime` re-export it.                                               |
+| `@astrojs/runtime/jsx-runtime`      | The JSX runtime. `astro/jsx-runtime` re-exports it.                                                                                                                                                     |
+| `@astrojs/runtime/client/*`         | The built-in client directive scripts, as strings: `{idle,load,media,only,visible}.prebuilt.js`.                                                                                                        |
+| `@astrojs/runtime/types`            | The base render types (see [Types](#types)).                                                                                                                                                            |
+| `@astrojs/runtime/internal/*`       | Every module under `src/`, by the `.js` path of its source file. For `@astrojs/vite-plugin-astro`, `@astrojs/vite-plugin-pages` and `astro` only: no stability guarantee.                               |
+
+## Rendering components compiled by `astro()`
+
+```js
+import { renderToString, renderToResponse } from '@astrojs/runtime';
+
+const html = await renderToString(Page, { props, slots, request });
+```
+
+`renderToString(Component, options?)` and `renderToResponse(Component, options?)` render with the config that `astro()` from `@astrojs/vite-plugin-astro` registers: every component it compiles for a server environment imports `virtual:astro:render-setup`, which passes its renderers, client directives and component assets to `setRenderConfig()` (`internal/render-setup.js`, not public). `RenderOptions` (`props`, `slots`, `request`, `partial`) and the assets are documented in [`@astrojs/vite-plugin-astro`'s API.md](../vite-plugin-astro/API.md#rendering).
+
+The config is module state: one per copy of the runtime, so one per Vite server environment, and each registration replaces the previous one. When nothing has been registered (no component compiled by `astro()` has been loaded), both functions reject with `AstroError` `RenderNotConfigured`. This package does not import any virtual module.
 
 ## Rendering without Vite
 
-`createRenderer()` renders components compiled ahead of time, without virtual modules. `@astrojs/vite-plugin-astro/render` is `createRenderer()` bound to the virtual modules of `astro()`.
+`createRenderer()` renders components compiled ahead of time, without virtual modules: the config `astro()` registers is passed as options.
 
 ```js
 import { createRenderer } from '@astrojs/runtime';
@@ -41,7 +53,7 @@ const html = await renderToString(Page, { props });
 | `compressHTML`             | `'jsx'`                 |                                                                                                                                                              |
 | `base`                     | `'/'`                   |                                                                                                                                                              |
 
-It returns `{ renderToString(Component, options?), renderToResponse(Component, options?) }`. `RenderOptions` (`props`, `slots`, `request`, `partial`) are documented in [`@astrojs/vite-plugin-astro`'s API.md](../vite-plugin-astro/API.md#rendering). `test/render.test.ts` compiles a component with `@astrojs/compiler-rs` and renders it in plain Node.
+It returns `{ renderToString(Component, options?), renderToResponse(Component, options?) }` with the signatures above. `test/render.test.ts` compiles a component with `@astrojs/compiler-rs` and renders it in plain Node.
 
 ## Types
 
@@ -70,6 +82,7 @@ The [type seam](../vite-plugin-astro/API.md#type-seam) is documented with `@astr
 | `core/csp/sources.js`                                                             | CSP algorithms, kinds, `CspDirective`, `partitionByKind`.                                                                                                                           |
 | `core/encryption.js`                                                              | Server island key and string encryption, `generateCspDigest`.                                                                                                                       |
 | `core/routing/internal/route-errors.js`                                           | `isRoute404`, `isRoute500`.                                                                                                                                                         |
+| `render-setup.js`                                                                 | `setRenderConfig()` (called by `virtual:astro:render-setup`), `renderToString()`, `renderToResponse()`.                                                                             |
 | `transitions/*.js`, `types/public/view-transitions.js`                            | View transition animations, events, swap functions and their types.                                                                                                                 |
 
 The errors helpers that need zod, Vite or a YAML/TOML parser (`errorMap`, `isAstroConfigZodError`, `trackAstroConfigZodError`, `formatYAMLParseError`, `formatTOMLError`, `isTOMLError`, `isYAMLParseError`) live in `@astrojs/vite-plugin-astro/internal/core/errors/*`, which re-exports everything above.

@@ -10,6 +10,7 @@ import componentAssetsPlugin from './vite-plugin-component-assets/index.js';
 import fileUrlPlugin from './vite-plugin-fileurl/index.js';
 import headPlugin from './vite-plugin-head/index.js';
 import hmrReloadPlugin from './vite-plugin-hmr-reload/index.js';
+import renderSetupPlugin from './vite-plugin-render-setup/index.js';
 import renderersPlugin from './vite-plugin-renderers/index.js';
 
 /**
@@ -52,8 +53,8 @@ const PLUGIN_NAME = '@astrojs/vite-plugin-astro';
 const RUNTIME_NAME = '@astrojs/runtime';
 
 /**
- * Compiles `.astro` components and serves what `@astrojs/vite-plugin-astro/render` needs to render
- * them: renderers, client directives, and each component tree's stylesheets and island URLs.
+ * Compiles `.astro` components and registers what `renderToString()` from `@astrojs/runtime` needs to
+ * render them: renderers, client directives, and each component tree's stylesheets and island URLs.
  */
 export default function astro(options: AstroPluginOptions = {}): Plugin[] {
 	const parsed = AstroPluginOptionsSchema.parse(
@@ -101,16 +102,18 @@ export default function astro(options: AstroPluginOptions = {}): Plugin[] {
 			configEnvironment(name, environmentOptions) {
 				const consumer = environmentOptions.consumer ?? (name === 'client' ? 'client' : 'server');
 				if (consumer !== 'server') return;
-				// The render API imports virtual modules, so Vite must process the package rather than
-				// externalize it. The runtime is processed too, so that compiled components and the
-				// render API share one copy of it, resolved by the hook below.
+				// Vite processes the runtime rather than externalizing it, so that compiled components,
+				// `virtual:astro:render-setup` and `renderToString()` share one copy of it (resolved by
+				// the hook below), and a build bundles it. This package is processed too, so that its
+				// re-exports of the runtime resolve to that copy.
 				return { resolve: { noExternal: [PLUGIN_NAME, RUNTIME_NAME] } };
 			},
 			resolveId: {
 				filter: { id: /^@astrojs\/runtime(?:\/|$)/ },
 				handler(id, _importer, resolveOptions) {
-					// Compiled components import `@astrojs/runtime`, which a project that depends only on
-					// this package cannot resolve itself.
+					// Every importer gets this package's copy of the runtime, which holds the render config
+					// that `virtual:astro:render-setup` registers. Compiled components import it too, and a
+					// project that does not depend on `@astrojs/runtime` cannot resolve it itself.
 					return this.resolve(id, fileURLToPath(import.meta.url), {
 						...resolveOptions,
 						skipSelf: true,
@@ -136,6 +139,7 @@ export default function astro(options: AstroPluginOptions = {}): Plugin[] {
 		headPlugin(),
 		fileUrlPlugin(),
 		hmrReloadPlugin(),
+		renderSetupPlugin(),
 	];
 	// Vite resolves the config again for each build environment, which re-runs a config file and
 	// creates new plugin instances. The client build reads state collected by the server build
