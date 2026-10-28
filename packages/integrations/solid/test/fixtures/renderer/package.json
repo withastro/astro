@@ -1,0 +1,15 @@
+{
+  "name": "@test/solid-renderer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astrojs/runtime": "workspace:*",
+    "@astrojs/solid-js": "workspace:*",
+    "@astrojs/vite-plugin-astro": "workspace:*",
+    "@test/solid-renderer-lib": "workspace:*",
+    "solid-js": "^1.9.17",
+    "vite": "^8.3.4",
+    "vite-plugin-solid": "^2.11.14"
+  }
+}
