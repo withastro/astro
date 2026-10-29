@@ -9,7 +9,7 @@ import type { APIContext } from '../../types/public/context.js';
 import { DisabledAstroCache } from '../cache/runtime/noop.js';
 import { ASTRO_GENERATOR } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { getLogger } from '../logger/manifest-logger.js';
 import { tryGetAmbientManifest } from '../manifest/ambient.js';

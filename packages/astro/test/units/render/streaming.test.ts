@@ -11,7 +11,7 @@ import { createTestApp, createPage, createRouteData } from '../mocks.ts';
 import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
 
 import type { SSRManifest, RouteInfo } from '../../../dist/core/app/types.js';
-import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
+import type { AstroComponentFactory } from '@astrojs/runtime/internal/server/render/index.js';
 
 // #region Helpers
 

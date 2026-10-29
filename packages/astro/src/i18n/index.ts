@@ -7,8 +7,11 @@ import type { RoutingStrategies } from '../core/app/common.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { getFetchStateFromAPIContext } from '../core/fetch/fetch-state.js';
-import { i18nNoLocaleFoundInPath, MissingLocale } from '../core/errors/errors-data.js';
-import { AstroError } from '../core/errors/index.js';
+import {
+	i18nNoLocaleFoundInPath,
+	MissingLocale,
+} from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
 import { createI18nMiddleware } from './middleware.js';

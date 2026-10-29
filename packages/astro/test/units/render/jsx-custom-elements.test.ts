@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { renderJSX } from '../../../dist/runtime/server/jsx.js';
-import { getDefaultClientDirectives } from '../../../dist/core/client-directive/index.js';
+import { renderJSX } from '@astrojs/runtime/internal/server/jsx.js';
+import { getDefaultClientDirectives } from '@astrojs/runtime/internal/core/client-directive/default.js';
 import type { SSRResult } from '../../../dist/types/public/internal.js';
 
 /**

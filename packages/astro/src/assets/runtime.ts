@@ -1,4 +1,4 @@
-import { generateCspDigest } from '../core/encryption.js';
+import { generateCspDigest } from '@astrojs/runtime/internal/core/encryption.js';
 import {
 	createComponent,
 	render,

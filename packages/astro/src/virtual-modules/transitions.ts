@@ -1,1 +1,1 @@
-export * from '../transitions/index.js';
+export * from '@astrojs/runtime/internal/transitions/index.js';

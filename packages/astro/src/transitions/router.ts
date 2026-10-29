@@ -1,9 +1,15 @@
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
-import type { TransitionBeforePreparationEvent } from './events.js';
+import type { TransitionBeforePreparationEvent } from '@astrojs/runtime/internal/transitions/events.js';
 
-import { doPreparation, doSwap, onPageLoad, triggerEvent, updateScrollPosition } from './events.js';
-import { detectScriptExecuted } from './swap-functions.js';
-import type { Direction, Fallback, Options } from './types.js';
+import {
+	doPreparation,
+	doSwap,
+	onPageLoad,
+	triggerEvent,
+	updateScrollPosition,
+} from '@astrojs/runtime/internal/transitions/events.js';
+import { detectScriptExecuted } from '@astrojs/runtime/internal/transitions/swap-functions.js';
+import type { Direction, Fallback, Options } from '@astrojs/runtime/internal/transitions/types.js';
 
 type State = {
 	index: number;

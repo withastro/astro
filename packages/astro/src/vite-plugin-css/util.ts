@@ -1,6 +1,9 @@
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { getVirtualModulePageName } from '../vite-plugin-pages/util.js';
-import { MODULE_DEV_CSS_PREFIX, RESOLVED_MODULE_DEV_CSS_PREFIX } from './const.js';
+import {
+	MODULE_DEV_CSS_PREFIX,
+	RESOLVED_MODULE_DEV_CSS_PREFIX,
+} from '@astrojs/vite-plugin-astro/internal/vite-plugin-css/const.js';
 
 /**
  * Get the virtual module name for a dev CSS import.
@@ -18,4 +21,11 @@ export function getDevCssModuleNameFromPageVirtualModuleName(
 		VIRTUAL_PAGE_RESOLVED_MODULE_ID,
 		RESOLVED_MODULE_DEV_CSS_PREFIX,
 	);
+}
+
+/** The dev CSS module of a page virtual module, or `undefined` for other modules. */
+export function getDevCssModuleIdForInvalidatedModule(moduleId: string): string | undefined {
+	return moduleId.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)
+		? getDevCssModuleNameFromPageVirtualModuleName(moduleId)
+		: undefined;
 }

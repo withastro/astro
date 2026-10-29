@@ -1,7 +1,7 @@
 import type { SerializedRouteData } from '../../types/astro.js';
 import type { AstroConfig, RouteData } from '../../types/public/index.js';
 import type { RoutesList } from '../../types/astro.js';
-import { decodeKey } from '../encryption.js';
+import { decodeKey } from '@astrojs/runtime/internal/core/encryption.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import type {
 	RouteInfo,

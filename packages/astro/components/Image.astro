@@ -1,7 +1,7 @@
 ---
 import { getImage, imageConfig, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
 import type { UnresolvedImageTransform } from '../dist/assets/types.js';
-import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { HTMLAttributes } from '../types.js';
 
 // The TypeScript diagnostic for JSX props uses the last member of the union to suggest props, so it would be better for

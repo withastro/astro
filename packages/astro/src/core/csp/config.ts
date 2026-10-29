@@ -1,4 +1,27 @@
+import {
+	ALGORITHMS,
+	ALLOWED_DIRECTIVES,
+	CSP_KINDS,
+	type CspAlgorithm,
+	type CspAlgorithmValue,
+	type CspDirective,
+	type CspHash,
+	type CspHashEntry,
+	type CspKind,
+	type CspResourceEntry,
+} from '@astrojs/runtime/internal/core/csp/sources.js';
 import * as z from 'zod/v4';
+
+export {
+	ALGORITHMS,
+	CSP_KINDS,
+	type CspAlgorithm,
+	type CspDirective,
+	type CspHash,
+	type CspHashEntry,
+	type CspKind,
+	type CspResourceEntry,
+};
 
 type UnionToIntersection<U> = (U extends never ? never : (arg: U) => never) extends (
 	arg: infer I,
@@ -11,17 +34,6 @@ type UnionToTuple<T> =
 		? [...UnionToTuple<Exclude<T, W>>, W]
 		: [];
 
-export const ALGORITHMS = {
-	'SHA-256': 'sha256-',
-	'SHA-384': 'sha384-',
-	'SHA-512': 'sha512-',
-} as const;
-
-type Algorithms = typeof ALGORITHMS;
-
-export type CspAlgorithm = keyof Algorithms;
-type CspAlgorithmValue = Algorithms[keyof Algorithms];
-
 const ALGORITHM_VALUES = Object.values(ALGORITHMS) as UnionToTuple<CspAlgorithmValue>;
 
 export const cspAlgorithmSchema = z
@@ -29,7 +41,7 @@ export const cspAlgorithmSchema = z
 	.optional()
 	.default('SHA-256');
 
-export const cspHashSchema = z.custom<`${CspAlgorithmValue}${string}`>((value) => {
+export const cspHashSchema = z.custom<CspHash>((value) => {
 	if (typeof value !== 'string') {
 		return false;
 	}
@@ -38,30 +50,7 @@ export const cspHashSchema = z.custom<`${CspAlgorithmValue}${string}`>((value) =
 	});
 });
 
-export type CspHash = z.infer<typeof cspHashSchema>;
-
-/**
- * The scope a resource or hash applies to:
- * - `default`: the generic `script-src`/`style-src` directive (default behavior).
- * - `element`: the `script-src-elem`/`style-src-elem` directive (`<script>`, `<style>`, `<link rel="stylesheet">`).
- * - `attribute`: the `script-src-attr`/`style-src-attr` directive (inline event handlers and inline `style` attributes).
- */
-export const CSP_KINDS = ['element', 'attribute', 'default'] as const;
-export type CspKind = (typeof CSP_KINDS)[number];
-
 export const cspKindSchema = z.enum(CSP_KINDS);
-
-/**
- * A `script-src`/`style-src` resource. A bare string targets `script-src`/`style-src` (the same as
- * `kind: 'default'`). Use the object form with an explicit `kind` to target a more specific directive.
- */
-export type CspResourceEntry = string | { resource: string; kind: CspKind };
-
-/**
- * A `script-src`/`style-src` hash. A bare hash (a string) targets `script-src`/`style-src` (the same as
- * `kind: 'default'`). Use the object form with an explicit `kind` to target a more specific directive.
- */
-export type CspHashEntry = CspHash | { hash: CspHash; kind: CspKind };
 
 // Per MDN, `script-src-attr`/`style-src-attr` only accept these keyword sources.
 const ATTRIBUTE_ALLOWED_RESOURCES = [
@@ -109,32 +98,6 @@ export const cspHashEntrySchema = z.union([
 		kind: cspKindSchema,
 	}),
 ]);
-
-const ALLOWED_DIRECTIVES = [
-	'base-uri',
-	'child-src',
-	'connect-src',
-	'default-src',
-	'fenced-frame-src',
-	'font-src',
-	'form-action',
-	'frame-ancestors',
-	'frame-src',
-	'img-src',
-	'manifest-src',
-	'media-src',
-	'object-src',
-	'referrer',
-	'report-to',
-	'report-uri',
-	'require-trusted-types-for',
-	'sandbox',
-	'trusted-types',
-	'upgrade-insecure-requests',
-	'worker-src',
-] as const;
-type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
-export type CspDirective = `${AllowedDirectives}${string | undefined}`;
 
 export const allowedDirectivesSchema = z
 	.custom<CspDirective>((v) => typeof v === 'string')

@@ -6,8 +6,8 @@ import type { SSRManifest } from '../core/app/types.js';
 import {
 	IncorrectStrategyForI18n,
 	InvalidI18nMiddlewareConfiguration,
-} from '../core/errors/errors-data.js';
-import { AstroError } from '../core/errors/index.js';
+} from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { RedirectToFallback } from '../i18n/index.js';
 import * as I18nInternals from '../i18n/index.js';
 import {

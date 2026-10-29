@@ -4,7 +4,7 @@ import MagicString from 'magic-string';
 import picomatch from 'picomatch';
 import type * as vite from 'vite';
 import { pathToDirectoryURL } from '../core/build/common.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash, removeQueryString } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';

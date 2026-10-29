@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import hmrReload from '../../../dist/vite-plugin-hmr-reload/index.js';
+import hmrReload from '@astrojs/vite-plugin-astro/internal/vite-plugin-hmr-reload/index.js';
 
 /**
  * Tests for CSS HMR invalidation of SSR dev-css virtual modules.
@@ -60,6 +60,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 
 		const environment = {
 			name: 'ssr',
+			config: { consumer: 'server' },
 			moduleGraph: {
 				idToModuleMap: moduleGraphEntries,
 				getModuleById: (id: string) => moduleGraphEntries.get(id) ?? null,

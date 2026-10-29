@@ -20,7 +20,7 @@ import type { RedirectConfig } from '../../dist/types/public/config.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
 import type { SSRManifest, RouteInfo } from '../../dist/core/app/types.js';
-import type { AstroComponentFactory } from '../../dist/runtime/server/render/index.js';
+import type { AstroComponentFactory } from '@astrojs/runtime/internal/server/render/index.js';
 import type { ImageTransform } from '../../dist/assets/types.js';
 import type { AstroRuntimeLogger } from '../../dist/types/public/context.js';
 

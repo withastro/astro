@@ -1,5 +1,5 @@
-import { AstroError } from '../core/errors/errors.js';
-import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/errors.js';
+import { ActionsWithoutServerOutputError } from '@astrojs/runtime/internal/core/errors/errors-data.js';
 import { hasNonPrerenderedRoute } from '../core/routing/helpers.js';
 import { viteID } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';

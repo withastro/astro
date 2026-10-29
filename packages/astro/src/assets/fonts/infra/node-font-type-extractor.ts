@@ -1,5 +1,5 @@
 import { extname } from 'node:path';
-import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { FontTypeExtractor } from '../definitions.js';
 import type { FontType } from '../types.js';
 import { isFontType } from '../utils.js';

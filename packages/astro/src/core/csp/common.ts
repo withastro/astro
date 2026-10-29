@@ -1,12 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import astroIslandPrebuilt from '../../runtime/server/astro-island.prebuilt.js';
-import astroIslandPrebuiltDev from '../../runtime/server/astro-island.prebuilt-dev.js';
-import { ISLAND_STYLES } from '../../runtime/server/astro-island-styles.js';
+import astroIslandPrebuilt from '@astrojs/runtime/internal/server/astro-island.prebuilt.js';
+import astroIslandPrebuiltDev from '@astrojs/runtime/internal/server/astro-island.prebuilt-dev.js';
+import { ISLAND_STYLES } from '@astrojs/runtime/internal/server/astro-island-styles.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
 import type { BuildInternals } from '../build/internal.js';
-import { generateCspDigest } from '../encryption.js';
+import { generateCspDigest } from '@astrojs/runtime/internal/core/encryption.js';
 import type { CspDirective, CspHash, CspHashEntry, CspResourceEntry } from './config.js';
 
 type EnabledCsp = Exclude<AstroConfig['security']['csp'], false>;

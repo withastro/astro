@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { createComponent, maybeRenderHead, render } from '../../../dist/runtime/server/index.js';
-import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
+import type { AstroComponentFactory } from '@astrojs/runtime/internal/server/render/index.js';
 import { createBasicPipeline, renderThroughMiddleware, SpyLogger } from '../test-utils.ts';
 import { createRouteData } from '../mocks.ts';
 

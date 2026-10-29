@@ -1,7 +1,7 @@
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin, Rolldown } from 'vite';
 import { isCSSRequest } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
-import { isPropagatedAssetBoundary } from '../../head-propagation/boundary.js';
+import { isPropagatedAssetBoundary } from '@astrojs/runtime/internal/core/head-propagation/boundary.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../vite-plugin-pages/const.js';
 import {
 	getParentExtendedModuleInfos,

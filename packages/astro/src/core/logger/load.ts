@@ -1,8 +1,8 @@
 import { isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { AstroLogger, type AstroLoggerDestination } from './core.js';
-import { AstroError } from '../errors/index.js';
-import { UnableToLoadLogger } from '../errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/index.js';
+import { UnableToLoadLogger } from '@astrojs/runtime/internal/core/errors/errors-data.js';
 import type { LoggerHandlerConfig } from './config.js';
 import type { AstroConfig, AstroInlineConfig } from '../../types/public/index.js';
 import { createNodeLoggerFromFlags } from './impls/node.js';

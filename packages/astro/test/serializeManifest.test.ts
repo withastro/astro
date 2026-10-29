@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
-import { AstroError } from '../dist/core/errors/index.js';
+import { ServerOnlyModule } from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/index.js';
 import testAdapter from './test-adapter.ts';
 import { type App, type Fixture, loadFixture } from './test-utils.ts';
 

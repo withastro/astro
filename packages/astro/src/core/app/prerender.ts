@@ -1,3 +1,4 @@
+import type { SerializedStaticImage } from '../../assets/types.js';
 import type { PrerenderResult } from '../../types/public/integrations.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { AstroLogger } from '../logger/core.js';
@@ -5,7 +6,7 @@ import { getEnvironment, setEnvironment } from '../environment/index.js';
 import {
 	collectPrerenderMetadata,
 	type CollectPrerenderMetadataOptions,
-} from '../render-scope/collect.js';
+} from '@astrojs/runtime/internal/core/render-scope/collect.js';
 import type { SSRManifest } from './types.js';
 
 export interface PrerenderableApp {
@@ -73,7 +74,10 @@ export async function renderForPrerender(
 		useBuildErrorStrategy(app.manifest);
 	}
 	const routeData = options?.routeData;
-	const { value: response, metadata } = await collectPrerenderMetadata(
+	const { value: response, metadata } = await collectPrerenderMetadata<
+		Response,
+		SerializedStaticImage
+	>(
 		async () => {
 			const rendered = await app.render(request, { routeData });
 			const bytes = rendered.body === null ? null : await rendered.arrayBuffer();

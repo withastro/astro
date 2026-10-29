@@ -7,8 +7,13 @@ import colors from 'piccolore';
 import type { RunnableDevEnvironment, Rolldown } from 'vite';
 import xxhash from 'xxhash-wasm';
 import * as z from 'zod/v4';
-import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
-import { isYAMLParseError } from '../core/errors/utils.js';
+import {
+	AstroError,
+	AstroErrorData,
+	MarkdownError,
+} from '@astrojs/runtime/internal/core/errors/index.js';
+import { errorMap } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
 import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';

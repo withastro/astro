@@ -1,11 +1,4 @@
-import type { ClientDirective } from '../../types/public/integrations.js';
+// NOTE: Although this entrypoint is exported, it is internal API and may change at any time.
 
-/**
- * Hydrate this component only on the client
- */
-const onlyDirective: ClientDirective = async (load) => {
-	const hydrate = await load();
-	await hydrate();
-};
-
-export default onlyDirective;
+export * from '@astrojs/runtime/internal/client/only.js';
+export { default } from '@astrojs/runtime/internal/client/only.js';

@@ -1,9 +1,9 @@
 import npath from 'node:path';
 import { type EnvironmentModuleNode, isCSSRequest, type RunnableDevEnvironment } from 'vite';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
-import { isPropagatedAssetBoundary } from '../core/head-propagation/boundary.js';
+import { isPropagatedAssetBoundary } from '@astrojs/runtime/internal/core/head-propagation/boundary.js';
 import { unwrapId } from '../core/util.js';
-import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
+import { hasSpecialQueries } from '@astrojs/vite-plugin-astro/internal/vite-plugin-utils/index.js';
 
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time

@@ -12,6 +12,7 @@ import {
 	prepareAssetsGenerationEnv,
 	StaticImageRegistry,
 } from '../../assets/build/generate.js';
+import type { SerializedStaticImage } from '../../assets/types.js';
 import { removeTrailingForwardSlash, trimSlashes } from '../../core/path.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
 import type { AstroLogger } from '../logger/core.js';
@@ -22,10 +23,10 @@ import type {
 	RouteToHeaders,
 } from '../../types/public/index.js';
 import type { RouteData, SSRError } from '../../types/public/internal.js';
-import { hashCryptoKey } from '../encryption.js';
-import { ensureAsyncRenderScope } from '../render-scope/node-scope.js';
-import type { RenderCollectors } from '../render-scope/scope.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { hashCryptoKey } from '@astrojs/runtime/internal/core/encryption.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/internal/core/render-scope/node-scope.js';
+import type { RenderCollectors } from '@astrojs/runtime/internal/core/render-scope/scope.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
 import { hasMetaRefreshTo, redirectTemplate } from '../routing/3xx.js';
@@ -50,7 +51,10 @@ export async function generatePages(
 	builder: ViteBuilder,
 ) {
 	// Collects images resolved outside of any render, e.g. at module top level.
-	const buildCollectors: RenderCollectors = { staticImages: [], referencedImages: new Set() };
+	const buildCollectors: RenderCollectors<SerializedStaticImage> = {
+		staticImages: [],
+		referencedImages: new Set(),
+	};
 	return ensureAsyncRenderScope().run(buildCollectors, () =>
 		generatePagesInBuildScope(options, internals, prerenderOutputDir, builder, buildCollectors),
 	);
@@ -61,7 +65,7 @@ async function generatePagesInBuildScope(
 	internals: BuildInternals,
 	prerenderOutputDir: URL,
 	builder: ViteBuilder,
-	buildCollectors: RenderCollectors,
+	buildCollectors: RenderCollectors<SerializedStaticImage>,
 ) {
 	const generatePagesTimer = performance.now();
 	const hasPagesToGenerate = hasPrerenderedPages(internals);

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { isRoute3xx } from '../../../dist/core/routing/internal/route-errors.js';
+import { isRoute3xx } from '@astrojs/runtime/internal/core/routing/internal/route-errors.js';
 
 describe('isRoute3xx', () => {
 	it('matches the 3xx route with or without a trailing slash', () => {

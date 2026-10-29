@@ -1,4 +1,4 @@
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 
 export function getRedirectLocationOrThrow(headers: Headers): string {
 	let location = headers.get('location');

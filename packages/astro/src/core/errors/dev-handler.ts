@@ -9,8 +9,11 @@ import { handleMiddleware } from '../middleware/astro-middleware.js';
 import { handlePages } from '../pages/handler.js';
 import { getCustom404Route, getCustom500Route } from '../routing/helpers.js';
 import { getRouteTable } from '../routing/route-table.js';
-import { type AstroError, isAstroError } from './index.js';
-import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from './errors-data.js';
+import { type AstroError, isAstroError } from '@astrojs/runtime/internal/core/errors/index.js';
+import {
+	MiddlewareNoDataOrNextCalled,
+	MiddlewareNotAResponse,
+} from '@astrojs/runtime/internal/core/errors/errors-data.js';
 import { rewroteToEmptyErrorResponse } from './handler.js';
 
 export interface DevErrorHandlerOptions {

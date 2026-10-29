@@ -1,0 +1,58 @@
+{
+  "name": "@astrojs/vite-plugin-astro",
+  "description": "Vite plugin for the Astro component language.",
+  "version": "0.0.0",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/vite-plugin-astro"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "exports": {
+    ".": "./dist/index.js",
+    "./components/*": "./components/*",
+    "./defaults": "./dist/defaults.js",
+    "./internal/*": "./dist/*"
+  },
+  "files": [
+    "components",
+    "dist"
+  ],
+  "scripts": {
+    "prepublish": "pnpm build",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@astrojs/compiler-rs": "^0.5.1",
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/runtime": "workspace:*",
+    "common-ancestor-path": "^2.0.0",
+    "devalue": "^6.0.2",
+    "magic-string": "^1.4.2",
+    "rolldown": "^1.2.11",
+    "smol-toml": "^1.9.0",
+    "zod": "^4.6.5"
+  },
+  "peerDependencies": {
+    "vite": "^8.3.3"
+  },
+  "devDependencies": {
+    "astro-scripts": "workspace:*",
+    "vite": "^8.3.3"
+  },
+  "keywords": [
+    "astro",
+    "vite",
+    "vite-plugin"
+  ],
+  "publishConfig": {
+    "provenance": true
+  }
+}

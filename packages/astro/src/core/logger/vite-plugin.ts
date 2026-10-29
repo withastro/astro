@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
-import { UnableToLoadLogger } from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
+import { UnableToLoadLogger } from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/index.js';
 import { normalizeLoggerConfig, type NormalizedLoggerConfig } from './utils.js';
 
 export const VIRTUAL_LOGGER_ID = 'virtual:astro:logger';

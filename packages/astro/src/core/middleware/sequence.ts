@@ -2,8 +2,8 @@ import type { MiddlewareHandler, RewritePayload } from '../../types/public/commo
 import type { APIContext } from '../../types/public/context.js';
 import { fetchStateSymbol } from '../constants.js';
 import { getEnvironment } from '../environment/index.js';
-import { ForbiddenRewrite } from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
+import { ForbiddenRewrite } from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/index.js';
 // The FetchState import is type-only (the symbol is read directly off the
 // context) so this module has no runtime dependency on the fetch-state
 // module, which sits on the other side of the middleware import cycle.

@@ -3,7 +3,7 @@ import { getEnvironment } from '../environment/index.js';
 import { FetchState } from '../fetch/fetch-state.js';
 import { handleMiddleware } from '../middleware/astro-middleware.js';
 import { handlePages } from '../pages/handler.js';
-import { isRoute3xx } from './internal/route-errors.js';
+import { isRoute3xx } from '@astrojs/runtime/internal/core/routing/internal/route-errors.js';
 import { getRouteTable } from './route-table.js';
 
 /** Props handed to `src/pages/3xx.astro` for the redirect it stands in for. */

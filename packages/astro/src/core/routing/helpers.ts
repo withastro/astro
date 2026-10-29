@@ -4,7 +4,10 @@ import type { RouteData } from '../../types/public/internal.js';
 import type { IntegrationResolvedRoute } from '../../types/public/integrations.js';
 import type { RouteInfo, SSRManifest } from '../app/types.js';
 import type { RoutesList } from '../../types/astro.js';
-import { isRoute404, isRoute500 } from './internal/route-errors.js';
+import {
+	isRoute404,
+	isRoute500,
+} from '@astrojs/runtime/internal/core/routing/internal/route-errors.js';
 
 type RedirectRouteData = RouteData & {
 	redirect: string;

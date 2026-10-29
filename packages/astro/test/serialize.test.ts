@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { serializeProps } from '../dist/runtime/server/serialize.js';
+import { serializeProps } from '@astrojs/runtime/internal/server/serialize.js';
 
 describe('serialize', () => {
 	it('serializes undefined', () => {

@@ -5,14 +5,17 @@ import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import type { Plugin } from 'vite';
 import { MARKDOWN_CONTENT_ENTRY_FLAG } from '../content/consts.js';
 import { hasContentFlag, safeParseFrontmatter } from '../content/utils.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { isMarkdownFile, isPage } from '../core/util.js';
 import { normalizePath } from '../core/viteUtils.js';
-import { shorthash } from '../runtime/server/shorthash.js';
+import { shorthash } from '@astrojs/runtime/internal/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
-import { getFileInfo, specialQueriesRE } from '../vite-plugin-utils/index.js';
+import { createDefaultAstroMetadata } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/metadata.js';
+import {
+	getFileInfo,
+	specialQueriesRE,
+} from '@astrojs/vite-plugin-astro/internal/vite-plugin-utils/index.js';
 import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
 
@@ -26,7 +29,7 @@ const astroServerRuntimeModulePath = normalizePath(
 );
 
 const astroErrorModulePath = normalizePath(
-	fileURLToPath(new URL('../core/errors/index.js', import.meta.url)),
+	fileURLToPath(import.meta.resolve('@astrojs/runtime/internal/core/errors/index.js')),
 );
 
 export default function markdown({ settings, logger }: AstroPluginOptions): Plugin {

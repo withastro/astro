@@ -1,6 +1,6 @@
 import { deterministicString } from './deterministic-string.js';
 import { removeQueryString } from '@astrojs/internal-helpers/path';
-import { shorthash } from '../../runtime/server/shorthash.js';
+import { shorthash } from '@astrojs/runtime/internal/server/shorthash.js';
 import type { ImageTransform } from '../types.js';
 import { isESMImportedImage } from './imageKind.js';
 

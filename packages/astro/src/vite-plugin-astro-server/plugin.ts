@@ -10,7 +10,7 @@ import {
 	devServerAppReadySymbol,
 } from '../core/constants.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { matchAllRoutes } from '../core/routing/match.js';

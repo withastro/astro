@@ -1,1 +1,1 @@
-export * from '../transitions/events.js';
+export * from '@astrojs/runtime/internal/transitions/events.js';

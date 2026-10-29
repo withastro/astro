@@ -1,5 +1,5 @@
 import { ELEMENT_NODE, TEXT_NODE, parse, renderSync } from 'ultrahtml';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { SvgComponentProps } from '../runtime.js';
 import { dropAttributes } from '../runtime.js';
 import type { ImageMetadata } from '../types.js';

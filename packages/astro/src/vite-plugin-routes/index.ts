@@ -12,11 +12,11 @@ import { getRoutePrerenderOption } from '../core/routing/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types.js';
+import { createDefaultAstroMetadata } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/metadata.js';
+import type { PluginMetadata } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
-import { RESOLVED_MODULE_DEV_CSS_ALL } from '../vite-plugin-css/const.js';
+import { RESOLVED_MODULE_DEV_CSS_ALL } from '@astrojs/vite-plugin-astro/internal/vite-plugin-css/const.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 type Payload = {

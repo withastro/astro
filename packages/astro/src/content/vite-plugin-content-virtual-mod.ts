@@ -3,12 +3,12 @@ import { fileURLToPath } from 'node:url';
 import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import { isAstroClientEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
-import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
+import type { AstroPluginMetadata } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/index.js';
+import { createDefaultAstroMetadata } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/metadata.js';
 import {
 	ASSET_IMPORTS_FILE,
 	ASSET_IMPORTS_RESOLVED_STUB_ID,

@@ -1,7 +1,10 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { isCollectingStaticImages, recordStaticImage } from '../core/render-scope/record.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
+import {
+	isCollectingStaticImages,
+	recordStaticImage,
+} from '@astrojs/runtime/internal/core/render-scope/record.js';
 import type { AstroRuntimeLogger } from '../types/public/context.js';
 import type { AstroAdapterClientConfig } from '../types/public/integrations.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';

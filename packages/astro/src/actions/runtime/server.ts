@@ -8,8 +8,8 @@ import {
 	ActionCalledFromServerError,
 	ActionNotFoundError,
 	ActionsReturnedInvalidDataError,
-} from '../../core/errors/errors-data.js';
-import { AstroError } from '../../core/errors/errors.js';
+} from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/errors.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { BodySizeLimitError, readBodyWithLimit } from '../../core/request-body.js';
 import type { APIContext } from '../../types/public/index.js';

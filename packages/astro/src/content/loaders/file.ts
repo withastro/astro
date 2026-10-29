@@ -6,8 +6,8 @@ import {
 	DuplicateContentEntrySlugError,
 	FileGlobNotSupported,
 	FileParserNotFound,
-} from '../../core/errors/errors-data.js';
-import { AstroError } from '../../core/errors/index.js';
+} from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/index.js';
 import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
 

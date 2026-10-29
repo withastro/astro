@@ -1,1 +1,1 @@
-export * from '../transitions/swap-functions.js';
+export * from '@astrojs/runtime/internal/transitions/swap-functions.js';

@@ -4,12 +4,12 @@ import type { SerializedStaticImage } from '../../../dist/assets/types.js';
 import {
 	uninstallRenderScope,
 	type RenderCollectors,
-} from '../../../dist/core/render-scope/scope.js';
-import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
+} from '@astrojs/runtime/internal/core/render-scope/scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/internal/core/render-scope/node-scope.js';
 import {
 	recordContentEntryRender,
 	recordStaticImage,
-} from '../../../dist/core/render-scope/record.js';
+} from '@astrojs/runtime/internal/core/render-scope/record.js';
 
 function image(hash: string): SerializedStaticImage {
 	return {
@@ -64,8 +64,14 @@ describe('render scope record helpers', () => {
 
 	it('never cross-records between interleaved async flows', async () => {
 		const scope = ensureAsyncRenderScope();
-		const storeA: RenderCollectors = { contentEntries: new Set(), staticImages: [] };
-		const storeB: RenderCollectors = { contentEntries: new Set(), staticImages: [] };
+		const storeA: RenderCollectors<SerializedStaticImage> = {
+			contentEntries: new Set(),
+			staticImages: [],
+		};
+		const storeB: RenderCollectors<SerializedStaticImage> = {
+			contentEntries: new Set(),
+			staticImages: [],
+		};
 
 		const tick = () => new Promise((resolve) => setTimeout(resolve, 1));
 		await Promise.all([

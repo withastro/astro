@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { $ZodError } from 'zod/v4/core';
-import { AstroError, type ErrorWithMetadata } from '../../dist/core/errors/errors.js';
-import { ClientAddressNotAvailable } from '../../dist/core/errors/errors-data.js';
+import {
+	AstroError,
+	type ErrorWithMetadata,
+} from '@astrojs/runtime/internal/core/errors/errors.js';
+import { ClientAddressNotAvailable } from '@astrojs/runtime/internal/core/errors/errors-data.js';
 import * as events from '../../dist/events/index.js';
 import type { AstroUserConfig } from '../../dist/types/public/config.js';
 

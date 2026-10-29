@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import hmrReload from '../../../dist/vite-plugin-hmr-reload/index.js';
+import hmrReload from '@astrojs/vite-plugin-astro/internal/vite-plugin-hmr-reload/index.js';
 
 describe('astro:hmr-reload', () => {
 	/**
@@ -44,6 +44,7 @@ describe('astro:hmr-reload', () => {
 		// for runnable environments is tested via integration/E2E tests.
 		const environment = {
 			name: options.environmentName,
+			config: { consumer: options.environmentName === 'client' ? 'client' : 'server' },
 			moduleGraph: {
 				idToModuleMap: new Map(),
 				invalidateModule(mod: any, seen?: Set<any>, _ts?: number, _hmr?: boolean) {

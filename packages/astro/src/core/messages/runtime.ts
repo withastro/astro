@@ -8,7 +8,7 @@ import {
 	AstroUserError,
 	CompilerError,
 	type ErrorWithMetadata,
-} from '../errors/index.js';
+} from '@astrojs/runtime/internal/core/errors/index.js';
 import { padMultilineString } from '../util-runtime.js';
 import type { AstroVersionProvider, TextStyler } from '../../cli/definitions.js';
 import type { AstroConfig } from '../../types/public/index.js';

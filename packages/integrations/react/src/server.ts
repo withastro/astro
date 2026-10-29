@@ -1,17 +1,26 @@
-import opts from 'astro:react:opts';
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { incrementId } from './context.js';
 import StaticHtml from './static-html.js';
-import type { RendererContext } from './types.js';
+import type { RendererContext, RendererOptions } from './types.js';
 import { createFilter } from '@astrojs/internal-helpers/create-filter';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
 const reactTransitionalTypeof = Symbol.for('react.transitional.element');
 
-const filter = opts?.include || opts?.exclude ? createFilter(opts.include, opts.exclude) : null;
+const filters = new WeakMap<RendererOptions, ((id: string) => boolean) | null>();
+
+function getFilter(opts: RendererOptions | undefined) {
+	if (!opts) return null;
+	let filter = filters.get(opts);
+	if (filter === undefined) {
+		filter = opts.include || opts.exclude ? createFilter(opts.include, opts.exclude) : null;
+		filters.set(opts, filter);
+	}
+	return filter;
+}
 
 async function check(
 	this: RendererContext,
@@ -36,6 +45,7 @@ async function check(
 		return React.Component.isPrototypeOf(Component) || React.PureComponent.isPrototypeOf(Component);
 	}
 
+	const filter = getFilter(this?.options);
 	if (filter && metadata?.componentUrl && !filter(metadata.componentUrl)) {
 		return false;
 	}
@@ -83,6 +93,7 @@ async function renderToStaticMarkup(
 		prefix = incrementId(this.result);
 	}
 	const attrs: Record<string, any> = { prefix };
+	const opts = this?.options ?? {};
 
 	delete props['class'];
 	const slots: Record<string, any> = {};

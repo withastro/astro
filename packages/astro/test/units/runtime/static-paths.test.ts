@@ -4,9 +4,9 @@ import { setEnvironment } from '../../../dist/core/environment/index.js';
 import { productionEnvironment } from '../../../dist/core/environment/production.js';
 import { StaticPaths } from '../../../dist/runtime/prerender/static-paths.js';
 import type { StaticPathsApp } from '../../../dist/runtime/prerender/static-paths.js';
-import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
-import { recordReferencedImage } from '../../../dist/core/render-scope/record.js';
-import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/internal/core/render-scope/node-scope.js';
+import { recordReferencedImage } from '@astrojs/runtime/internal/core/render-scope/record.js';
+import { uninstallRenderScope } from '@astrojs/runtime/internal/core/render-scope/scope.js';
 
 interface MockRouteData {
 	route: string;

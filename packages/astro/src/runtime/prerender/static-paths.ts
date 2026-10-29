@@ -1,3 +1,4 @@
+import type { SerializedStaticImage } from '../../assets/types.js';
 import type { ComponentInstance } from '../../types/astro.js';
 import type { SSRManifest } from '../../core/app/types.js';
 import type { PathWithRoute, StaticPathsResult } from '../../types/public/integrations.js';
@@ -10,7 +11,7 @@ import { callGetStaticPaths, getRouteCache } from '../../core/render/route-cache
 import {
 	collectPrerenderMetadata,
 	type CollectPrerenderMetadataOptions,
-} from '../../core/render-scope/collect.js';
+} from '@astrojs/runtime/internal/core/render-scope/collect.js';
 
 export type { PathWithRoute } from '../../types/public/integrations.js';
 
@@ -101,11 +102,10 @@ export class StaticPaths {
 	async getAllWithMetadata(
 		options: CollectPrerenderMetadataOptions = {},
 	): Promise<StaticPathsResult> {
-		const { value: paths, metadata } = await collectPrerenderMetadata(
-			() => this.getAll(),
-			undefined,
-			options,
-		);
+		const { value: paths, metadata } = await collectPrerenderMetadata<
+			PathWithRoute[],
+			SerializedStaticImage
+		>(() => this.getAll(), undefined, options);
 		return {
 			paths,
 			metadata: metadata && {

@@ -1,7 +1,10 @@
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { SERVER_ISLAND_COMPONENT } from '../server-islands/endpoint.js';
-import { isRoute404, isRoute500 } from './internal/route-errors.js';
+import {
+	isRoute404,
+	isRoute500,
+} from '@astrojs/runtime/internal/core/routing/internal/route-errors.js';
 
 /** Find matching route from pathname */
 export function matchRoute(pathname: string, manifest: RoutesList): RouteData | undefined {

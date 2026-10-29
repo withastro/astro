@@ -4,7 +4,7 @@ import type {
 	RewritePayload,
 } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 
 /**
  * Utility function that is in charge of calling the middleware.

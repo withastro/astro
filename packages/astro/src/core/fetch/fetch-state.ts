@@ -21,8 +21,8 @@ import {
 } from '../constants.js';
 import type { CspKind } from '../csp/config.js';
 import { normalizeCspResourceEntry, pushDirective } from '../csp/runtime.js';
-import { generateCspDigest } from '../encryption.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { generateCspDigest } from '@astrojs/runtime/internal/core/encryption.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import {
 	computeCurrentLocale as computeCurrentLocaleUtil,
 	computeCurrentLocaleFromParams,

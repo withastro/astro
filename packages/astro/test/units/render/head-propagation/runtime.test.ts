@@ -6,7 +6,7 @@ import {
 	getInstructionRenderState,
 	registerIfPropagating,
 	shouldRenderInstruction,
-} from '../../../../dist/runtime/server/render/head-propagation/runtime.js';
+} from '@astrojs/runtime/internal/server/render/head-propagation/runtime.js';
 
 const headAndContentSym = Symbol.for('astro.headAndContent');
 

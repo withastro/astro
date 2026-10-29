@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { chunkToString } from '../../../dist/runtime/server/render/common.js';
-import { createRenderInstruction } from '../../../dist/runtime/server/render/instruction.js';
+import { chunkToString } from '@astrojs/runtime/internal/server/render/common.js';
+import { createRenderInstruction } from '@astrojs/runtime/internal/server/render/instruction.js';
 
 function createStubResult() {
 	return {

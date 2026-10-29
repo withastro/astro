@@ -4,7 +4,7 @@ import type { AstroConfig } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import { originPathnameSymbol } from '../constants.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import {
 	appendForwardSlash,
@@ -16,7 +16,10 @@ import {
 import { createRequest } from '../request.js';
 import { validateAndDecodePathname } from '../util/pathname.js';
 import { DEFAULT_404_ROUTE } from './internal/astro-designed-error-pages.js';
-import { isRoute404, isRoute500 } from './internal/route-errors.js';
+import {
+	isRoute404,
+	isRoute500,
+} from '@astrojs/runtime/internal/core/routing/internal/route-errors.js';
 
 /**
  * Answers whether `route` produces `pathname`. See `createRewriteRouteValidator`.

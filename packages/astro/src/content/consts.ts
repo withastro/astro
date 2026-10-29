@@ -1,4 +1,6 @@
-export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAssets';
+import { PROPAGATED_ASSET_FLAG } from '@astrojs/runtime/internal/core/head-propagation/boundary.js';
+
+export { PROPAGATED_ASSET_FLAG };
 export const PROPAGATED_ASSET_QUERY_PARAM = `?${PROPAGATED_ASSET_FLAG}`;
 export const CONTENT_RENDER_FLAG = 'astroRenderContent';
 export const CONTENT_FLAG = 'astroContentCollectionEntry';

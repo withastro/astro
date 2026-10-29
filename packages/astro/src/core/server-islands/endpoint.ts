@@ -5,11 +5,11 @@ import {
 	renderComponent,
 	renderTemplate,
 } from '../../runtime/server/index.js';
-import { isAstroComponentFactory } from '../../runtime/server/render/astro/factory.js';
-import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
+import { isAstroComponentFactory } from '@astrojs/runtime/internal/server/render/astro/factory.js';
+import { createSlotValueFromString } from '@astrojs/runtime/internal/server/render/slot.js';
 import type { ComponentInstance, RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
-import { decryptString } from '../encryption.js';
+import { decryptString } from '@astrojs/runtime/internal/core/encryption.js';
 import { BodySizeLimitError, readBodyWithLimit } from '../request-body.js';
 import { getPattern } from '../routing/pattern.js';
 

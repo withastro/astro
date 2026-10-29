@@ -1,4 +1,4 @@
-import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { RuntimeFontFileUrlResolver } from '../definitions.js';
 
 export function createGetFontFileURL(runtimeFontFileUrlResolver: RuntimeFontFileUrlResolver) {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
-import { createRenderInstruction } from '../../../dist/runtime/server/render/instruction.js';
+import { createRenderInstruction } from '@astrojs/runtime/internal/server/render/instruction.js';
 import {
 	createComponent,
 	render,

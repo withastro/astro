@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { generateSpeculationRulesContent } from '../../../dist/prefetch/speculation-rules.js';
-import { generateCspDigest } from '../../../dist/core/encryption.js';
+import { generateCspDigest } from '@astrojs/runtime/internal/core/encryption.js';
 
 describe('speculation rules CSP integration', () => {
 	it('generates document-source speculation rules with data-astro-prefetch selector', () => {

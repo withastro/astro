@@ -13,7 +13,7 @@ import {
 	templateEnter,
 	templateExit,
 } from '../../../dist/runtime/server/index.js';
-import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
+import type { AstroComponentFactory } from '@astrojs/runtime/internal/server/render/index.js';
 import type { SSRResult } from '../../../dist/types/public/internal.js';
 import type { TestPipeline } from '../test-utils.ts';
 import { getEnvironment, setEnvironment } from '../../../dist/core/environment/index.js';

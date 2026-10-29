@@ -58,7 +58,7 @@ export type * from './internal.js';
 export type * from './manifest.js';
 export type * from './preview.js';
 export type * from './toolbar.js';
-export type * from './view-transitions.js';
+export type * from '@astrojs/runtime/internal/types/public/view-transitions.js';
 export type {
 	AstroLoggerDestination,
 	AstroLoggerMessage,
