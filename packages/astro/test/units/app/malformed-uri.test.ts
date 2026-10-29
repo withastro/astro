@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
+import { setLogger } from '../../../dist/core/logger/manifest-logger.js';
 import { parseRoute } from '../../../dist/core/routing/parse-route.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
+import { SpyLogger } from '../test-utils.ts';
 import { createManifest, createRouteInfo } from './test-helpers.ts';
 
 /**
@@ -14,6 +16,9 @@ import { createManifest, createRouteInfo } from './test-helpers.ts';
  * `App.render()`, that error used to escape the adapter request handler as an
  * uncaught exception (HTTP 500) that user middleware could not catch. These paths
  * are extremely common from automated path-traversal / `.env` scanners.
+ *
+ * Rendering rejects these paths with a `400` before middleware or routing run,
+ * without logging at error level (#18545).
  */
 
 const routeOptions: Parameters<typeof parseRoute>[1] = {
@@ -35,7 +40,14 @@ const pageModule = async () => ({
 	}),
 });
 
-const pageMap = new Map([[indexRouteData.component, pageModule]]);
+const slugRouteData = parseRoute('[slug].astro', routeOptions, {
+	component: 'src/pages/[slug].astro',
+});
+
+const pageMap = new Map([
+	[indexRouteData.component, pageModule],
+	[slugRouteData.component, pageModule],
+]);
 
 const app = new App(
 	createManifest({
@@ -44,6 +56,16 @@ const app = new App(
 	}) as any,
 );
 
+function createDynamicRouteApp() {
+	const manifest = createManifest({
+		routes: [createRouteInfo(indexRouteData), createRouteInfo(slugRouteData)],
+		pageMap: pageMap as any,
+	});
+	const logger = new SpyLogger();
+	setLogger(manifest, logger);
+	return { app: new App(manifest as any), logger };
+}
+
 describe('Malformed URI handling in App.match', () => {
 	it('match() does not throw on an invalid percent-sequence', () => {
 		const request = new Request('http://example.com/%C0%AF');
@@ -51,14 +73,27 @@ describe('Malformed URI handling in App.match', () => {
 		assert.equal(app.match(request), undefined, 'no route should match a malformed path');
 	});
 
-	it('render() returns a 404 for a malformed percent-sequence', async () => {
+	it('render() returns a 400 for a malformed percent-sequence', async () => {
 		const request = new Request('http://example.com/%C0%AF');
 		const response = await app.render(request);
-		assert.equal(
-			response.status,
-			404,
-			'a malformed path must resolve to a normal 404, not an uncaught 500',
+		assert.equal(response.status, 400, 'a malformed path must be rejected, not routed');
+	});
+
+	it('render() rejects a malformed path with 400 instead of matching a dynamic route', async () => {
+		const { app: dynamicApp, logger } = createDynamicRouteApp();
+		const response = await dynamicApp.render(new Request('http://example.com/%C0/'));
+		assert.equal(response.status, 400);
+		assert.deepEqual(
+			logger.logs.filter((log) => log.level === 'error'),
+			[],
+			'a malformed path must not be logged at error level',
 		);
+	});
+
+	it('render() still serves valid paths through a dynamic route', async () => {
+		const { app: dynamicApp } = createDynamicRouteApp();
+		const response = await dynamicApp.render(new Request('http://example.com/hello/'));
+		assert.equal(response.status, 200);
 	});
 
 	it('valid routes still match', () => {

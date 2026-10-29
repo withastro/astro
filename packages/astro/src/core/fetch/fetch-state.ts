@@ -33,7 +33,7 @@ import {
 import { getParams, getProps } from '../render/index.js';
 import { executeRewrite } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
-import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/pathname.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { setPathname } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
@@ -265,9 +265,9 @@ export class FetchState implements AstroFetchState {
 	/** Whether user middleware should be skipped for this request. */
 	skipMiddleware = false;
 	/**
-	 * Set to `true` when the request path was encoded too many times to fully
-	 * decode (see {@link validateAndDecodePathname}). These requests are
-	 * rejected with a `400` before middleware or routing run.
+	 * Set to `true` when the request path has broken percent-encoding or was
+	 * encoded too many times to fully decode (see {@link validateAndDecodePathname}).
+	 * These requests are rejected with a `400` before middleware or routing run.
 	 */
 	invalidEncoding = false;
 	/** A flag that tells the render content if the rewriting was triggered. */
@@ -1096,15 +1096,12 @@ export class FetchState implements AstroFetchState {
 	#normalizePathname(pathname: string): string {
 		try {
 			pathname = validateAndDecodePathname(pathname);
-		} catch (e: any) {
-			// The path was encoded too many times to fully decode. Mark it so
-			// the handler can reject the request with a 400 before middleware
-			// or routing run, instead of working with a half-decoded path.
-			if (e instanceof MultiLevelEncodingError) {
-				this.invalidEncoding = true;
-			} else {
-				this.logger.error(null, e.toString());
-			}
+		} catch {
+			// The path can't be decoded, or was encoded too many times to fully
+			// decode. Both are bad client input, so mark it for the handler to
+			// reject with a 400 before middleware or routing run, instead of
+			// working with an undecoded or half-decoded path.
+			this.invalidEncoding = true;
 		}
 		return collapseDuplicateSlashes(pathname);
 	}

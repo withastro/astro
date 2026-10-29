@@ -1,9 +1,9 @@
 import type { FetchState } from '../fetch/fetch-state.js';
 
 /**
- * Returns an empty `400 Bad Request` response when the request path was
- * encoded too many times to fully decode (`state.invalidEncoding`), or
- * `undefined` otherwise.
+ * Returns an empty `400 Bad Request` response when the request path has
+ * broken percent-encoding or was encoded too many times to fully decode
+ * (`state.invalidEncoding`), or `undefined` otherwise.
  *
  * Every entry point that routes the request or runs middleware calls this
  * first, so composable pipelines reject the request the same way
