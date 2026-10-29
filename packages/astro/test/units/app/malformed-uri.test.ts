@@ -44,9 +44,16 @@ const slugRouteData = parseRoute('[slug].astro', routeOptions, {
 	component: 'src/pages/[slug].astro',
 });
 
+const slugPageModule = async () => ({
+	page: async () => ({
+		default: page,
+		getStaticPaths: () => [{ params: { slug: '50%-off' } }],
+	}),
+});
+
 const pageMap = new Map([
 	[indexRouteData.component, pageModule],
-	[slugRouteData.component, pageModule],
+	[slugRouteData.component, slugPageModule],
 ]);
 
 const app = new App(
@@ -93,6 +100,14 @@ describe('Malformed URI handling in App.match', () => {
 	it('render() still serves valid paths through a dynamic route', async () => {
 		const { app: dynamicApp } = createDynamicRouteApp();
 		const response = await dynamicApp.render(new Request('http://example.com/hello/'));
+		assert.equal(response.status, 200);
+	});
+
+	it('render() serves a prerendered path containing a literal %', async () => {
+		const { app: dynamicApp } = createDynamicRouteApp();
+		const response = await dynamicApp.render(new Request('http://example.com/50%-off/'), {
+			routeData: { ...slugRouteData, prerender: true },
+		});
 		assert.equal(response.status, 200);
 	});
 

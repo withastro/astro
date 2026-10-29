@@ -33,7 +33,7 @@ import {
 import { getParams, getProps } from '../render/index.js';
 import { executeRewrite } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
-import { validateAndDecodePathname } from '../util/pathname.js';
+import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/pathname.js';
 import { setPathname } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
@@ -1096,12 +1096,17 @@ export class FetchState implements AstroFetchState {
 	#normalizePathname(pathname: string): string {
 		try {
 			pathname = validateAndDecodePathname(pathname);
-		} catch {
+		} catch (e) {
 			// The path can't be decoded, or was encoded too many times to fully
 			// decode. Both are bad client input, so mark it for the handler to
 			// reject with a 400 before middleware or routing run, instead of
-			// working with an undecoded or half-decoded path.
-			this.invalidEncoding = true;
+			// working with an undecoded or half-decoded path. The exception is a
+			// prerendered route whose `getStaticPaths` params contain a literal
+			// `%` (e.g. `/50%-off/`): it renders with the undecoded path so the
+			// page is still generated.
+			if (!this.routeData?.prerender || e instanceof MultiLevelEncodingError) {
+				this.invalidEncoding = true;
+			}
 		}
 		return collapseDuplicateSlashes(pathname);
 	}
