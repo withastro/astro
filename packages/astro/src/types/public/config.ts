@@ -258,6 +258,16 @@ export interface AstroUserConfig<
 
 	/**
 	 * @docs
+	 * @name serverIslands.routePrefix
+	 * @type {string}
+	 * @default `'/_server-islands/'`
+	 * @description
+	 * The URL path prefix used for Server Island requests. It must start and end with `/`.
+	 */
+	serverIslands?: { routePrefix?: string };
+
+	/**
+	 * @docs
 	 * @name trailingSlash
 	 * @type {('always' | 'never' | 'ignore')}
 	 * @default `'ignore'`

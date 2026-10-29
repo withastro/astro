@@ -354,12 +354,26 @@ describe('Server islands', () => {
 			const res = await fixture.fetch('/b');
 			assert.equal(res.status, 200);
 			const html = await res.text();
-			const urlMatch = /fetch\(["'](\/_server-islands\/IslandB\?[^"']+)["']/.exec(html)!;
+			const urlMatch = /fetch\(["'](\/_custom-islands\/IslandB\?[^"']+)["']/.exec(html)!;
 			assert.ok(urlMatch, 'should have a server island fetch URL');
 			const islandRes = await fixture.fetch(urlMatch[1]);
 			assert.equal(islandRes.status, 200);
 			const $ = cheerio.load(await islandRes.text());
 			assert.equal($('#island-b').text(), 'Island B (function)');
+			assert.equal((await fixture.fetch('/_server-islands/IslandB')).status, 404);
+		});
+
+		it('serves the configured route in production', async () => {
+			await fixture.build();
+			const app = await fixture.loadTestAdapterApp();
+			const response = await app.render(new Request('http://example.com/b'));
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			const urlMatch = /fetch\(["'](\/_custom-islands\/IslandB\?[^"']+)["']/.exec(html);
+			assert.ok(urlMatch);
+			const islandResponse = await app.render(new Request(`http://example.com${urlMatch[1]}`));
+			assert.equal(islandResponse.status, 200);
+			assert.match(await islandResponse.text(), /Island B \(function\)/);
 		});
 	});
 

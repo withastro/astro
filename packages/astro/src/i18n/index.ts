@@ -383,6 +383,7 @@ export function createMiddleware(
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
 	format: SSRManifest['buildFormat'],
+	serverIslandRoutePrefix?: SSRManifest['serverIslandRoutePrefix'],
 ) {
-	return createI18nMiddleware(i18nManifest, base, trailingSlash, format);
+	return createI18nMiddleware(i18nManifest, base, trailingSlash, format, serverIslandRoutePrefix);
 }

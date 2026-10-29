@@ -19,7 +19,8 @@ import type { AstroConfig, ValidRedirectStatus } from '../types/public/config.js
 import type { APIContext } from '../types/public/context.js';
 import type { ClientDeserializedManifest } from '../types/public/index.js';
 
-const { trailingSlash, site, i18n, build } = config as ClientDeserializedManifest;
+const { trailingSlash, site, i18n, build, serverIslandRoutePrefix } =
+	config as ClientDeserializedManifest;
 const { format } = build;
 const isBuild = import.meta.env.PROD;
 const { defaultLocale, locales, domains, fallback, routing } = i18n!;
@@ -411,7 +412,13 @@ if (i18n?.routing === 'manual') {
 			fallback: i18n.fallback,
 			domains: i18n.domains,
 		};
-		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
+		return I18nInternals.createMiddleware(
+			manifest,
+			base,
+			trailingSlash,
+			format,
+			serverIslandRoutePrefix,
+		);
 	};
 } else {
 	middleware = noop('middleware');

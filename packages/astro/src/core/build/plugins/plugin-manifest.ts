@@ -433,6 +433,7 @@ async function buildManifest(
 		middlewareMode,
 		site: settings.config.site,
 		base: settings.config.base,
+		serverIslandRoutePrefix: settings.config.serverIslands.routePrefix,
 		userAssetsBase: settings.config?.vite?.base,
 		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
