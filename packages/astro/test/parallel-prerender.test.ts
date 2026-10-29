@@ -34,6 +34,25 @@ describe('experimental.parallelPrerender', () => {
 		assert.ok(Number(renderedIn) > 0, 'expected a worker thread id');
 	});
 
+	it('renders imported SVGs as components and generates SVG image assets in workers', async () => {
+		const $ = cheerio.load(await fixture.readFile('/svg/index.html'));
+		assert.ok(Number($('#rendered-in').text()) > 0, 'expected a worker thread id');
+		assert.equal($('svg#inline-svg circle').length, 1);
+
+		for (const [id, width] of [
+			['image-component', '24'],
+			['get-image', '16'],
+		]) {
+			const image = $(`img#${id}`);
+			const src = image.attr('src');
+			assert.ok(src);
+			assert.match(src, /^\/_astro\/icon\.[^/]+\.svg$/);
+			assert.equal(image.attr('width'), width);
+			assert.ok(fixture.pathExists(src), `expected generated SVG asset: ${src}`);
+			assert.equal(cheerio.load(await fixture.readFile(src))('svg circle').length, 1);
+		}
+	});
+
 	it('calls getStaticPaths once and renders its paths in another worker', async () => {
 		const pages = await Promise.all(
 			['one', 'two', 'three', 'four', 'five', 'six'].map((slug) =>

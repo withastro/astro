@@ -74,7 +74,7 @@ if (inBrowser) {
 		// Here we reloaded a page with history state
 		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
-		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
+		scrollTo({ left: history.state.scrollX, top: history.state.scrollY, behavior: 'instant' });
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser address bar or via a link from extern,
 		// it needs a state in the history
@@ -211,7 +211,7 @@ const moveToLocation = (
 	}
 
 	if (historyState) {
-		scrollTo(historyState.scrollX, historyState.scrollY);
+		scrollTo({ left: historyState.scrollX, top: historyState.scrollY, behavior: 'instant' });
 	} else {
 		if (to.hash) {
 			// because we are already on the target page ...
@@ -472,11 +472,11 @@ async function transition(
 	async function abortAndRecreateMostRecentTransition(): Promise<Transition> {
 		if (mostRecentTransition) {
 			if (mostRecentTransition.viewTransition) {
-				try {
-					mostRecentTransition.viewTransition.skipTransition();
-				} catch {
-					// might throw AbortError DOMException. Ignored on purpose.
-				}
+				// skipTransition() does not throw; it rejects viewTransition.ready with
+				// an AbortError. Silence that rejection before calling skipTransition()
+				// so it does not surface as an unhandled promise rejection.
+				mostRecentTransition.viewTransition.ready.catch(() => {});
+				mostRecentTransition.viewTransition.skipTransition();
 				try {
 					// UpdateCallbackDone might already been settled, i.e. if the previous transition finished updating the DOM.
 					// Could not take long, we wait for it to avoid parallel updates

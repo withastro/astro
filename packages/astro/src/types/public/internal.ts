@@ -307,6 +307,12 @@ export interface SSRMetadata {
 	 */
 	extraStyleHashes: string[];
 	extraScriptHashes: string[];
+	/**
+	 * When set, the head renders this string in place of the CSP `<meta>` element, and the
+	 * renderer replaces it with the real element once the whole page has rendered. Only used for
+	 * non-streaming page renders, so hashes inserted by components rendered after the head are included.
+	 */
+	cspMetaPlaceholder?: string;
 	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
 	/**
 	 * `true` when the page being rendered is on a head-propagation path (its

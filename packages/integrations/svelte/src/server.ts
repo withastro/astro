@@ -2,6 +2,7 @@ import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro'
 import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 import { incrementId } from './context.js';
+import { escapeSlotName } from './escape.js';
 import type { RendererContext } from './types.js';
 
 function check(Component: any) {
@@ -45,13 +46,14 @@ async function renderToStaticMarkup(
 			}));
 		} else {
 			$$slots[key] = createRawSnippet(() => ({
-				render: () => `<${tagName} name="${key}">${value}</${tagName}>`,
+				render: () => `<${tagName} name="${escapeSlotName(key)}">${value}</${tagName}>`,
 			}));
 		}
 		// @render support for Svelte ^5.0
 		const slotName = key === 'default' ? 'children' : key;
 		renderProps[slotName] = createRawSnippet(() => ({
-			render: () => `<${tagName}${key !== 'default' ? ` name="${key}"` : ''}>${value}</${tagName}>`,
+			render: () =>
+				`<${tagName}${key !== 'default' ? ` name="${escapeSlotName(key)}"` : ''}>${value}</${tagName}>`,
 		}));
 	}
 

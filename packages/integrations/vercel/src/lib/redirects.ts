@@ -1,5 +1,10 @@
 import nodePath from 'node:path';
-import { isRemotePath, removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
+import {
+	isRemotePath,
+	removeLeadingForwardSlash,
+	appendForwardSlash,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import type { Redirect } from '@vercel/routing-utils';
 import type { AstroConfig, IntegrationResolvedRoute, RoutePart } from 'astro';
 
@@ -118,17 +123,82 @@ export function escapeRegex(content: string) {
 	return `^/${getMatchRegex(segments)}$`;
 }
 
+/**
+ * Vercel's `trailingSlash: true` normalizer appends a slash only when the last
+ * path segment contains no dot (`^/((?:[^/]+/)*[^/\.]+)$`). Paths with a dot
+ * are left untouched, unless they end in an extension and already carry a
+ * slash. So a source must stay unslashed whenever its last segment has a dot.
+ */
+const LAST_SEGMENT_HAS_DOT = /\.[^/]*$/;
+
+/**
+ * Adjust a Vercel redirect source for the Astro `trailingSlash` config.
+ * With `trailingSlash: 'always'` Vercel normalizes `/old` to `/old/` before
+ * redirects run, so an unslashed source can never match. Append a slash except
+ * for the root and dotted paths, which Vercel leaves unslashed even when
+ * `trailingSlash` is enabled.
+ */
+export function adjustSourceForTrailingSlash(
+	source: string,
+	trailingSlash: AstroConfig['trailingSlash'],
+): string {
+	if (trailingSlash === 'always') {
+		if (source === '/' || source.endsWith('/')) {
+			return source;
+		}
+		if (LAST_SEGMENT_HAS_DOT.test(source)) {
+			return source;
+		}
+		return appendForwardSlash(source);
+	}
+	if (trailingSlash === 'never') {
+		if (source === '/') {
+			return source;
+		}
+		return removeTrailingForwardSlash(source);
+	}
+	return source;
+}
+
+/**
+ * Whether the last route segment only resolves at request time. Vercel's
+ * normalizer skips such a path when the resolved value contains a dot, and
+ * appends a slash when it doesn't, so both forms have to match.
+ */
+function endsWithDynamicSegment(segments: RoutePart[][]): boolean {
+	const lastSegment = segments.at(-1);
+	return lastSegment?.some((part) => part.dynamic) ?? false;
+}
+
 export function getRedirects(routes: IntegrationResolvedRoute[], config: AstroConfig): Redirect[] {
 	const redirects: Redirect[] = [];
 
 	for (const route of routes) {
-		if (route.type === 'redirect') {
-			redirects.push({
-				source: config.base + getMatchPattern(route.segments),
-				destination: getRedirectLocation(route, config),
-				statusCode: getRedirectStatus(route),
-			});
+		if (route.type !== 'redirect') {
+			continue;
 		}
+
+		const destination = getRedirectLocation(route, config);
+		const statusCode = getRedirectStatus(route);
+		const pattern = config.base + getMatchPattern(route.segments);
+
+		if (config.trailingSlash === 'always' && endsWithDynamicSegment(route.segments)) {
+			// The resolved value may or may not contain a dot, so keep a rule for
+			// both the slashed and the unslashed form.
+			for (const source of new Set([
+				appendForwardSlash(pattern),
+				removeTrailingForwardSlash(pattern),
+			])) {
+				redirects.push({ source, destination, statusCode });
+			}
+			continue;
+		}
+
+		redirects.push({
+			source: adjustSourceForTrailingSlash(pattern, config.trailingSlash),
+			destination,
+			statusCode,
+		});
 	}
 	return redirects;
 }

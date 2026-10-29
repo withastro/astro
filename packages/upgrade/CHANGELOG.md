@@ -1,5 +1,15 @@
 # @astrojs/upgrade
 
+## 0.8.1
+
+### Patch Changes
+
+- [#18475](https://github.com/withastro/astro/pull/18475) [`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab) Thanks [@ematipico](https://github.com/ematipico)! - Bumps the minimum supported Node.js version to 22.23.4, which includes the fixes from the [October 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+  
+  This is a patch release because the [Node.js support and upgrade policy](https://docs.astro.build/en/upgrade-astro/#nodejs-support-and-upgrade-policies) allows the Core team to raise the minimum Maintenance LTS version in a patch release when a disclosed and fixed Node.js security flaw affects Astro.
+
+- [#18466](https://github.com/withastro/astro/pull/18466) [`d7f5c54`](https://github.com/withastro/astro/commit/d7f5c54edf40b388b08329ead308bb0b6fbf6bd7) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `@astrojs/upgrade [version]` ignoring an exact version number (for example `npx @astrojs/upgrade 7.3.8`) and upgrading to the latest release instead
+
 ## 0.8.0
 
 ### Minor Changes
