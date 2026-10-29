@@ -7,7 +7,7 @@ describe('matchAllRoutes fallbackRoutes', () => {
 	it('includes routes that match only via fallbackRoutes (i18n)', () => {
 		const trailingSlash = 'never';
 		const fallbackRoute = makeRoute({
-			segments: [[staticPart('es'), staticPart('start')]],
+			segments: [[staticPart('es')], [staticPart('start')]],
 			trailingSlash,
 			route: '/es/start',
 			pathname: '/es/start',
