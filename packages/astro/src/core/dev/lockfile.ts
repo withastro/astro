@@ -84,13 +84,16 @@ export function serializeLockFile(data: LockFileData): string {
 /**
  * Check if a process with the given PID is alive.
  * Signal 0 does not kill the process — it only checks whether the process exists.
+ * A process that exists but cannot be signaled by the current user (`EPERM`) counts as alive.
  */
 export function isProcessAlive(pid: number): boolean {
 	try {
 		process.kill(pid, 0);
 		return true;
-	} catch {
-		return false;
+	} catch (err) {
+		// Sandboxed agents and other users get EPERM for a running server; deleting its
+		// lock would orphan it. (#18543)
+		return (err as NodeJS.ErrnoException)?.code === 'EPERM';
 	}
 }
 
