@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -345,6 +345,42 @@ describe('checkExistingServer', () => {
 	it('cleans up a lock file when a live PID belongs to another command', async () => {
 		const data = { ...validData, pid: process.pid };
 		writeLockFile(root, data);
+
+		assert.equal(await checkExistingServer(root), null);
+		assert.equal(readLockFile(root), null);
+	});
+
+	it('keeps the lock file when signaling the live Astro process fails with EPERM', async (t) => {
+		// A real process whose command matches the Astro CLI entry, so the tinyps identity check passes.
+		const binDir = join(tempDir, 'node_modules', 'astro', 'bin');
+		mkdirSync(binDir, { recursive: true });
+		const astroBin = join(binDir, 'astro.mjs');
+		writeFileSync(astroBin, 'setInterval(() => {}, 1000);');
+		const child = spawn(process.execPath, [astroBin], { stdio: 'ignore' });
+		const pid = child.pid!;
+		t.after(() => child.kill());
+
+		const kill = process.kill.bind(process);
+		t.mock.method(process, 'kill', (target: number, signal?: string | number) => {
+			if (target === pid && signal === 0) {
+				throw Object.assign(new Error('kill EPERM'), { code: 'EPERM' });
+			}
+			return kill(target, signal);
+		});
+
+		const data = { ...validData, pid };
+		writeLockFile(root, data);
+
+		assert.deepEqual(await checkExistingServer(root), data);
+		assert.deepEqual(readLockFile(root), data);
+	});
+
+	it('removes the lock file when the recorded process does not exist (ESRCH)', async (t) => {
+		t.mock.method(process, 'kill', () => {
+			throw Object.assign(new Error('kill ESRCH'), { code: 'ESRCH' });
+		});
+
+		writeLockFile(root, validData);
 
 		assert.equal(await checkExistingServer(root), null);
 		assert.equal(readLockFile(root), null);
