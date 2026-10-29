@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers",
-  "version": "15.0.0-beta.3",
+  "version": "15.0.0-beta.4",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -54,7 +54,7 @@
     "vite": "^8.3.4"
   },
   "peerDependencies": {
-    "astro": "^7.4.0"
+    "astro": "^7.4.4-beta.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261012.1",

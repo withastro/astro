@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 15.0.0-beta.4
+
+### Patch Changes
+
+- Updated dependencies [[`db62f3b`](https://github.com/withastro/astro/commit/db62f3be62b7c0fe358b27a0c1c2f2c1aae07515)]:
+  - astro@7.4.4-beta.0
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 15.0.0-beta.3
 
 ### Patch Changes

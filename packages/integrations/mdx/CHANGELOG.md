@@ -1,5 +1,12 @@
 # @astrojs/mdx
 
+## 8.1.3-beta.0
+
+### Patch Changes
+
+- Updated dependencies [[`db62f3b`](https://github.com/withastro/astro/commit/db62f3be62b7c0fe358b27a0c1c2f2c1aae07515)]:
+  - astro@7.4.4-beta.0
+
 ## 8.0.3-beta.0
 
 ### Patch Changes
