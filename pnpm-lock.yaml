@@ -196,10 +196,10 @@ importers:
   examples/advanced-routing:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.9
+        specifier: ^11.1.10-beta.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       hono:
         specifier: ^4.13.13
@@ -208,13 +208,13 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.1.2
+        specifier: ^8.1.3-beta.0
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.19
@@ -223,7 +223,7 @@ importers:
         specifier: ^3.7.4
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       sharp:
         specifier: ^0.35.0
@@ -232,7 +232,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -241,7 +241,7 @@ importers:
         specifier: ^7.1.2
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       react:
         specifier: ^19.3.0
@@ -272,7 +272,7 @@ importers:
         specifier: ^3.17.4
         version: 3.17.4
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -287,10 +287,10 @@ importers:
         specifier: ^7.1.2
         version: link:../../packages/integrations/solid
       '@astrojs/svelte':
-        specifier: ^9.1.2
+        specifier: ^9.1.3-beta.0
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
-        specifier: ^7.1.2
+        specifier: ^7.1.3-beta.0
         version: link:../../packages/integrations/vue
       '@types/react':
         specifier: ^19.3.0
@@ -299,7 +299,7 @@ importers:
         specifier: ^19.3.0
         version: 19.3.0(@types/react@19.3.0)
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       preact:
         specifier: ^11.0.1
@@ -329,7 +329,7 @@ importers:
         specifier: ^2.11.3
         version: 2.11.3(preact@11.0.2)
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       preact:
         specifier: ^11.0.1
@@ -347,7 +347,7 @@ importers:
         specifier: ^19.3.0
         version: 19.3.0(@types/react@19.3.0)
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       react:
         specifier: ^19.3.0
@@ -362,7 +362,7 @@ importers:
         specifier: ^7.1.2
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.17
@@ -371,10 +371,10 @@ importers:
   examples/framework-svelte:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^9.1.2
+        specifier: ^9.1.3-beta.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       svelte:
         specifier: ^5.57.2
@@ -383,10 +383,10 @@ importers:
   examples/framework-vue:
     dependencies:
       '@astrojs/vue':
-        specifier: ^7.1.2
+        specifier: ^7.1.3-beta.0
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.43
@@ -395,40 +395,40 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.9
+        specifier: ^11.1.10-beta.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
 
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.9
+        specifier: ^11.1.10-beta.0
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
-        specifier: ^9.1.2
+        specifier: ^9.1.3-beta.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       svelte:
         specifier: ^5.57.2
@@ -437,7 +437,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       sass:
         specifier: ^1.105.1
@@ -452,28 +452,28 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
 
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^2.1.2
+        specifier: ^2.1.3-beta.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.1.2
+        specifier: ^8.1.3-beta.0
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
         specifier: ^6.1.1
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       preact:
         specifier: ^11.0.1
@@ -488,7 +488,7 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1(nanostores@1.5.5)(preact@11.0.2)
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.5.5
@@ -500,7 +500,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.1.2
+        specifier: ^8.1.3-beta.0
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.3.3
@@ -509,7 +509,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -524,7 +524,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^7.4.3
+        specifier: ^7.4.4-beta.0
         version: link:../../packages/astro
       vitest:
         specifier: ^5.0.4
@@ -3866,7 +3866,7 @@ importers:
         specifier: 'workspace:'
         version: link:../../../../integrations/preact
       astro:
-        specifier: 'workspace:'
+        specifier: workspace:7.4.4-beta.0
         version: link:../../..
       preact:
         specifier: ^11.0.1
@@ -5709,10 +5709,10 @@ importers:
   packages/integrations/netlify/test/development/fixtures/primitives:
     dependencies:
       '@astrojs/netlify':
-        specifier: 'workspace:'
+        specifier: workspace:8.2.11-beta.0
         version: link:../../../..
       astro:
-        specifier: 'workspace:'
+        specifier: workspace:7.4.4-beta.0
         version: link:../../../../../../astro
       sharp:
         specifier: ^0.35.0
@@ -5721,13 +5721,13 @@ importers:
   packages/integrations/netlify/test/functions/fixtures/cookies:
     dependencies:
       '@astrojs/netlify':
-        specifier: 'workspace:'
+        specifier: workspace:8.2.11-beta.0
         version: link:../../../..
 
   packages/integrations/netlify/test/functions/fixtures/includes:
     dependencies:
       '@astrojs/netlify':
-        specifier: 'workspace:'
+        specifier: workspace:8.2.11-beta.0
         version: link:../../../..
       cowsay:
         specifier: 1.6.0
@@ -5736,7 +5736,7 @@ importers:
   packages/integrations/netlify/test/functions/fixtures/middleware:
     dependencies:
       '@astrojs/netlify':
-        specifier: 'workspace:'
+        specifier: workspace:8.2.11-beta.0
         version: link:../../../..
       sharp:
         specifier: ^0.35.0
@@ -5745,7 +5745,7 @@ importers:
   packages/integrations/netlify/test/functions/fixtures/redirects:
     dependencies:
       '@astrojs/netlify':
-        specifier: 'workspace:'
+        specifier: workspace:8.2.11-beta.0
         version: link:../../../..
 
   packages/integrations/netlify/test/functions/fixtures/sessions:
@@ -5761,7 +5761,7 @@ importers:
   packages/integrations/netlify/test/functions/fixtures/skew-protection:
     dependencies:
       '@astrojs/netlify':
-        specifier: 'workspace:'
+        specifier: workspace:8.2.11-beta.0
         version: link:../../../..
       astro:
         specifier: workspace:*
@@ -5788,13 +5788,13 @@ importers:
   packages/integrations/netlify/test/static/fixtures/redirects:
     dependencies:
       '@astrojs/netlify':
-        specifier: 'workspace:'
+        specifier: workspace:8.2.11-beta.0
         version: link:../../../..
 
   packages/integrations/netlify/test/static/fixtures/static-headers:
     dependencies:
       '@astrojs/netlify':
-        specifier: 'workspace:'
+        specifier: workspace:8.2.11-beta.0
         version: link:../../../..
 
   packages/integrations/node:
