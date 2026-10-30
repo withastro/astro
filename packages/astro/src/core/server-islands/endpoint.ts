@@ -8,19 +8,26 @@ import {
 import { isAstroComponentFactory } from '../../runtime/server/render/astro/factory.js';
 import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
 import type { ComponentInstance, RoutesList } from '../../types/astro.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { decryptString } from '../encryption.js';
 import { BodySizeLimitError, readBodyWithLimit } from '../request-body.js';
 import { getPattern } from '../routing/pattern.js';
 
-export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
 export const SERVER_ISLAND_COMPONENT = '_server-islands.astro';
 
-type ConfigFields = Pick<SSRManifest, 'base' | 'trailingSlash'>;
+type ConfigFields = Pick<AstroConfig, 'base' | 'trailingSlash' | 'serverIslands'>;
+
+export function getServerIslandRoute(prefix: string) {
+	return `${prefix}[name]`;
+}
 
 function getServerIslandRouteData(config: ConfigFields) {
 	const segments = [
-		[{ content: '_server-islands', dynamic: false, spread: false }],
+		...config.serverIslands.routePrefix
+			.slice(1, -1)
+			.split('/')
+			.map((content) => [{ content, dynamic: false, spread: false }]),
 		[{ content: 'name', dynamic: true, spread: false }],
 	];
 	const route: RouteData = {
@@ -32,7 +39,7 @@ function getServerIslandRouteData(config: ConfigFields) {
 		prerender: false,
 		isIndex: false,
 		fallbackRoutes: [],
-		route: SERVER_ISLAND_ROUTE,
+		route: getServerIslandRoute(config.serverIslands.routePrefix),
 		origin: 'internal',
 		distURL: [],
 	};

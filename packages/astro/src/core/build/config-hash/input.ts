@@ -30,6 +30,7 @@ export function getConfigHashInput(config: AstroConfig) {
 	return {
 		site: config.site,
 		base: config.base,
+		serverIslands: config.serverIslands,
 		trailingSlash: config.trailingSlash,
 		output: config.output,
 		compressHTML: config.compressHTML,

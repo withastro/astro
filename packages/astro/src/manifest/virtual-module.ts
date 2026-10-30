@@ -47,13 +47,14 @@ ${i18nCode}
 ${imageCode}
 const base = ${JSON.stringify(config.base)};
 const trailingSlash = ${JSON.stringify(config.trailingSlash)};
+const serverIslandRoutePrefix = ${JSON.stringify(config.serverIslands.routePrefix)};
 const site = ${JSON.stringify(config.site)};
 const compressHTML = ${JSON.stringify(config.compressHTML)};
 const build = {
   format: ${JSON.stringify(config.build.format)},
 };
 
-export { base, i18n, trailingSlash, site, compressHTML, build, image };
+export { base, i18n, trailingSlash, serverIslandRoutePrefix, site, compressHTML, build, image };
 `;
 
 	return {

@@ -18,10 +18,11 @@ export function createI18nMiddleware(
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
 	format: SSRManifest['buildFormat'],
+	serverIslandRoutePrefix?: SSRManifest['serverIslandRoutePrefix'],
 ): MiddlewareHandler {
 	if (!i18n) return (_, next) => next();
 
-	const compiled = compileI18n(i18n, base, trailingSlash, format);
+	const compiled = compileI18n(i18n, base, trailingSlash, format, serverIslandRoutePrefix);
 
 	return async (context, next) => {
 		const response = await next();

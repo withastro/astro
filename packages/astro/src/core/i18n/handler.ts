@@ -30,12 +30,14 @@ export function compileI18n(
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
 	format: SSRManifest['buildFormat'],
+	serverIslandRoutePrefix?: SSRManifest['serverIslandRoutePrefix'],
 ): CompiledI18n {
 	const router = new I18nRouter({
 		strategy: i18n.strategy,
 		defaultLocale: i18n.defaultLocale,
 		locales: i18n.locales,
 		base,
+		serverIslandRoutePrefix,
 		domains: i18n.domainLookupTable
 			? Object.keys(i18n.domainLookupTable).reduce(
 					(acc, domain) => {
@@ -61,7 +63,13 @@ export function compileI18n(
 const i18nMemo = createManifestMemo<CompiledI18n | null>((manifest) => {
 	const config = manifest.i18n;
 	return config && config.strategy !== 'manual'
-		? compileI18n(config, manifest.base, manifest.trailingSlash, manifest.buildFormat)
+		? compileI18n(
+				config,
+				manifest.base,
+				manifest.trailingSlash,
+				manifest.buildFormat,
+				manifest.serverIslandRoutePrefix,
+			)
 		: null;
 });
 

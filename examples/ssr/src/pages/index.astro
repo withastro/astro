@@ -3,6 +3,7 @@ import { getProducts } from '../api';
 import Container from '../components/Container.astro';
 import Header from '../components/Header.astro';
 import ProductListing from '../components/ProductListing.astro';
+import ServerTime from '../components/ServerTime.astro';
 import '../styles/common.css';
 
 const products = await getProducts(Astro.request);
@@ -25,6 +26,9 @@ const products = await getProducts(Astro.request);
 		<Header />
 
 		<Container tag="main">
+			<ServerTime server:defer>
+				<p slot="fallback">Loading server time...</p>
+			</ServerTime>
 			<ProductListing products={products}>
 				<h2 class="product-listing-title" slot="title">
 					Product Listing

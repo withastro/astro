@@ -201,6 +201,7 @@ export interface SSRResult {
 	 */
 	cancelled: boolean;
 	base: string;
+	serverIslandRoutePrefix: string;
 	userAssetsBase: string | undefined;
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;

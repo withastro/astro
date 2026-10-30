@@ -32,7 +32,7 @@ export type ServerDeserializedManifest = Pick<
 
 export type ClientDeserializedManifest = Pick<
 	SSRManifest,
-	'base' | 'trailingSlash' | 'compressHTML' | 'site'
+	'base' | 'trailingSlash' | 'compressHTML' | 'site' | 'serverIslandRoutePrefix'
 > & {
 	i18n: AstroConfig['i18n'];
 	build: Pick<AstroConfig['build'], 'format'>;
