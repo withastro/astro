@@ -106,6 +106,10 @@ declare module '*.tiff' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
+declare module '*.tif' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
 declare module '*.webp' {
 	const metadata: ImageMetadata;
 	export default metadata;
