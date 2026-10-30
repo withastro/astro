@@ -165,6 +165,14 @@ export function astroContentVirtualModPlugin({
 	let devServer: ViteDevServer;
 	let liveConfig: string;
 	let isDev = false;
+	/**
+	 * Whether the data store module in this environment can read the store from disk.
+	 * Only true for prerendering with the default prerenderer, which runs in Node on the
+	 * build machine. Server bundles run elsewhere, and custom prerenderers (e.g. Cloudflare's
+	 * workerd one) may not have access to the file system.
+	 */
+	const readsDataStoreAtRuntime = (environmentName: string) =>
+		!isDev && environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender && !settings.prerenderer;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
@@ -364,6 +372,17 @@ export function astroContentVirtualModPlugin({
 					// > JSON.parse('…') is much faster to parse, compile, and execute
 					// compared to an equivalent JavaScript literal — not just in V8
 					// (1.7× as fast), but in all major JavaScript engines.
+					if (readsDataStoreAtRuntime(this.environment.name)) {
+						// The default prerenderer runs this bundle in Node during the build,
+						// so read the store from disk instead of inlining it. Bundling a
+						// store this size costs a lot of memory and time, and every
+						// parallel prerender worker would load its own inlined copy.
+						return {
+							code: `import { readFileSync } from 'node:fs';\nexport default JSON.parse(readFileSync(${JSON.stringify(fileURLToPath(dataStoreFile))}, 'utf-8'))`,
+							map: { mappings: '' },
+							meta: createContentDataIncrementalMetadata(),
+						};
+					}
 					return {
 						code: `export default JSON.parse(${JSON.stringify(jsonData)})`,
 						map: { mappings: '' },
