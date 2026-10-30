@@ -32,6 +32,31 @@ export async function copyCachedFile(source: fs.PathLike, destination: fs.PathLi
 	await fs.promises.utimes(destination, atime, mtime);
 }
 
+/**
+ * Gives each file in `destDir` the access and modification times of the file at
+ * the same relative path in `srcDir`. Files missing from `destDir` are skipped.
+ */
+export async function copyTimestamps(srcDir: URL, destDir: URL): Promise<void> {
+	const src = fileURLToPath(srcDir);
+	const dest = fileURLToPath(destDir);
+	if (!fs.existsSync(src)) return;
+	const entries = await fs.promises.readdir(src, { recursive: true, withFileTypes: true });
+	await Promise.all(
+		entries
+			.filter((entry) => entry.isFile())
+			.map(async (entry) => {
+				const srcFile = path.join(entry.parentPath, entry.name);
+				const destFile = path.join(dest, path.relative(src, srcFile));
+				const { atime, mtime } = await fs.promises.stat(srcFile);
+				try {
+					await fs.promises.utimes(destFile, atime, mtime);
+				} catch (err: any) {
+					if (err.code !== 'ENOENT') throw err;
+				}
+			}),
+	);
+}
+
 export function emptyDir(_dir: URL, skip?: Set<string>): void {
 	const dir = fileURLToPath(_dir);
 	if (!fs.existsSync(dir)) return undefined;
