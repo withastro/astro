@@ -29,7 +29,7 @@ export default function standalone(
 	// We spread a new object because `options` may be a frozen module namespace.
 	const resolvedOptions = { ...options, port };
 	const handler = createStandaloneHandler(app, resolvedOptions, headersMap);
-	const server = createServer(handler, host, port);
+	const server = createServer(handler, host, port, options.keepAliveTimeout);
 	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
 		// Resolve the logger before the 'listening' event fires so the startup message
@@ -68,7 +68,12 @@ export function createStandaloneHandler(
 }
 
 // also used by preview entrypoint
-export function createServer(listener: http.RequestListener, host: string, port: number) {
+export function createServer(
+	listener: http.RequestListener,
+	host: string,
+	port: number,
+	keepAliveTimeout?: number,
+) {
 	let httpServer: http.Server | https.Server;
 
 	if (process.env.SERVER_CERT_PATH && process.env.SERVER_KEY_PATH) {
@@ -82,6 +87,15 @@ export function createServer(listener: http.RequestListener, host: string, port:
 	} else {
 		httpServer = http.createServer(listener);
 	}
+	// Assigned here rather than by the caller so every connection this server accepts is
+	// served with the configured value: Node.js reads `keepAliveTimeout` when it arms a
+	// socket's idle timer, so an assignment made later would leave sockets that are
+	// already idling on the previous value. The guard matters — writing `undefined` would
+	// poison Node's timer arithmetic instead of preserving its default.
+	if (keepAliveTimeout !== undefined) {
+		httpServer.keepAliveTimeout = keepAliveTimeout;
+	}
+
 	enableDestroy(httpServer);
 
 	// Resolves once the server is closed
