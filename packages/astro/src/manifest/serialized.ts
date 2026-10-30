@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID } from '../actions/consts.js';
 import { toFallbackType } from '../core/app/common.js';
+import { normalizeTheLocale } from '../i18n/path.js';
 import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
 import type { SerializedSSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
 import { MANIFEST_REPLACE } from '../core/build/plugins/plugin-manifest.js';
@@ -186,12 +187,18 @@ async function createSerializedManifest(
 	let i18nManifest: SSRManifestI18n | undefined;
 	let csp: SSRManifestCSP | undefined;
 	if (settings.config.i18n) {
+		const domainLookupTable: Record<string, string> = {};
+		if (settings.config.i18n.domains) {
+			for (const [locale, domainValue] of Object.entries(settings.config.i18n.domains)) {
+				domainLookupTable[domainValue] = normalizeTheLocale(locale);
+			}
+		}
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
 			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
-			domainLookupTable: {},
+			domainLookupTable,
 			fallbackType: toFallbackType(settings.config.i18n.routing),
 			domains: settings.config.i18n.domains,
 		};
