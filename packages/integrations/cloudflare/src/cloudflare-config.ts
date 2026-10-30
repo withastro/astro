@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseEnv } from 'node:util';
-import type { PluginConfig } from '@cloudflare/vite-plugin';
+import type { ParsedInputConfigWithWorker, PluginConfig } from '@cloudflare/vite-plugin';
 
 export const DEFAULT_SESSION_KV_BINDING_NAME = 'SESSION';
 export const DEFAULT_IMAGES_BINDING_NAME = 'IMAGES';
@@ -57,17 +57,10 @@ interface CloudflareConfigOptions {
 	needsWorkerCache?: boolean;
 }
 
-type PluginConfigCustomizer = Extract<
-	NonNullable<PluginConfig['config']>,
-	(...args: never[]) => unknown
->;
-type CloudflareWorkerConfig = Parameters<PluginConfigCustomizer>[0];
-type CloudflareConfigCustomizer = (
-	config: Partial<CloudflareWorkerConfig>,
-) => Partial<CloudflareWorkerConfig>;
+type CloudflareWorkerConfig = ParsedInputConfigWithWorker['worker'];
 
 function setProcessEnvFromBindings(
-	config: Partial<CloudflareWorkerConfig>,
+	config: CloudflareWorkerConfig,
 	envDir: string | undefined,
 	mode: string | undefined,
 ): void {
@@ -100,7 +93,7 @@ function setProcessEnvFromBindings(
  */
 export function cloudflareConfigCustomizer(
 	options?: CloudflareConfigOptions,
-): CloudflareConfigCustomizer {
+): NonNullable<PluginConfig['config']> {
 	const sessionKVBindingName = options?.sessionKVBindingName ?? DEFAULT_SESSION_KV_BINDING_NAME;
 	const needsSessionKVBinding = options?.needsSessionKVBinding ?? true;
 	const imagesBindingName =
@@ -110,27 +103,32 @@ export function cloudflareConfigCustomizer(
 	const needsWorkerCache = options?.needsWorkerCache ?? false;
 
 	return (config) => {
-		setProcessEnvFromBindings(config, options?.envDir, options?.mode);
-		const hasImagesBinding = Object.values(config.env ?? {}).some(
+		const { worker } = config;
+		setProcessEnvFromBindings(worker, options?.envDir, options?.mode);
+		const hasImagesBinding = Object.values(worker.env ?? {}).some(
 			(binding) => binding.type === 'images',
 		);
-		const hasAssetsBinding = Object.values(config.env ?? {}).some(
+		const hasAssetsBinding = Object.values(worker.env ?? {}).some(
 			(binding) => binding.type === 'assets',
 		);
 		return {
-			entrypoint: config.entrypoint ?? '@astrojs/cloudflare/entrypoints/server',
-			env: {
-				...(!needsSessionKVBinding || config.env?.[sessionKVBindingName]
-					? {}
-					: { [sessionKVBindingName]: { type: 'kv' } }),
-				...(!imagesBindingName || hasImagesBinding
-					? {}
-					: { [imagesBindingName]: { type: 'images' } }),
-				...(hasAssetsBinding ? {} : { [DEFAULT_ASSETS_BINDING_NAME]: { type: 'assets' } }),
+			...config,
+			worker: {
+				...worker,
+				entrypoint: worker.entrypoint ?? '@astrojs/cloudflare/entrypoints/server',
+				env: {
+					...worker.env,
+					...(!needsSessionKVBinding || worker.env?.[sessionKVBindingName]
+						? {}
+						: { [sessionKVBindingName]: { type: 'kv' } }),
+					...(!imagesBindingName || hasImagesBinding
+						? {}
+						: { [imagesBindingName]: { type: 'images' } }),
+					...(hasAssetsBinding ? {} : { [DEFAULT_ASSETS_BINDING_NAME]: { type: 'assets' } }),
+				},
+				// Enable the Worker caching layer when a Cloudflare cache provider is configured
+				...(needsWorkerCache && !worker.cache ? { cache: { enabled: true } } : {}),
 			},
-			// Enable the Worker caching layer when a Cloudflare cache provider is configured
-			cache:
-				needsWorkerCache && config.cache?.enabled === undefined ? { enabled: true } : undefined,
 		};
 	};
 }
