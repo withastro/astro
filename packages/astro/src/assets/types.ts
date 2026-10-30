@@ -30,6 +30,21 @@ export interface SerializedStaticImage {
 	transform: ImageTransform;
 }
 
+declare global {
+	var astroAsset: {
+		/**
+		 * Resolves a content collection image source to an absolute path, the way read time
+		 * does. Installed by the content layer for the duration of a sync, and read by
+		 * `image()` from `astro/content/image`.
+		 *
+		 * Lives here rather than in module state because `content.config.ts` imports
+		 * `astro/content/image` through Vite while the content layer is loaded by Node, so
+		 * the two do not share module instances.
+		 */
+		contentImageResolver?: (source: string, importer: string) => Promise<string | undefined>;
+	};
+}
+
 const isESMImport = Symbol('#isESM');
 
 export type OmitBrand<T> = Omit<T, typeof isESMImport>;

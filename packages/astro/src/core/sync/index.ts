@@ -170,6 +170,7 @@ export async function syncInternal({
 				logger,
 				store,
 				watcher,
+				viteServer: tempViteServer,
 			});
 			if (watcher) {
 				contentLayer.watchContentConfig();

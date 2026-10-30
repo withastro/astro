@@ -706,3 +706,66 @@ describe('Content Layer - Data Transforms', () => {
 		assert.deepEqual(result.data.favoriteCat, { collection: 'cats', id: '1' });
 	});
 });
+
+describe('Content Layer - reference()', () => {
+	const reference = createReference();
+
+	describe('reference(collection, lookup)', () => {
+		it('resolves a string id', () => {
+			assert.deepEqual(reference('cats', 'tabby'), { collection: 'cats', id: 'tabby' });
+		});
+
+		it('resolves a numeric id to a string', () => {
+			assert.deepEqual(reference('cats', 1), { collection: 'cats', id: '1' });
+		});
+
+		it('is idempotent, so re-parsing transformed data is a no-op', () => {
+			const resolved = reference('cats', 'tabby');
+			assert.deepEqual(reference('cats', resolved), resolved);
+		});
+
+		it('passes a legacy `slug` reference through without renaming it', () => {
+			assert.deepEqual(reference('cats', { collection: 'cats', slug: 'tabby' }), {
+				collection: 'cats',
+				slug: 'tabby',
+			});
+		});
+
+		it('throws when the reference belongs to another collection', () => {
+			assert.throws(() => reference('cats', { collection: 'dogs', id: 'beagle' }), {
+				name: 'InvalidContentReferenceError',
+				message: /expected a reference to `cats`, but received one to `dogs`/,
+			});
+		});
+
+		it('throws on a lookup that is not an id', () => {
+			assert.throws(() => reference('cats', true as any), {
+				name: 'InvalidContentReferenceError',
+			});
+			// An explicit `undefined` is a mistake, not a request for the schema form.
+			assert.throws(() => reference('cats', undefined as any), {
+				name: 'InvalidContentReferenceError',
+			});
+		});
+	});
+
+	describe('reference(collection) — deprecated', () => {
+		it('still returns a schema that resolves ids', async () => {
+			const schema = reference('cats');
+			assert.deepEqual(await schema.parseAsync('tabby'), { collection: 'cats', id: 'tabby' });
+			assert.deepEqual(await schema.parseAsync(1), { collection: 'cats', id: '1' });
+		});
+
+		it('reports a cross-collection reference as a validation issue, not a throw', async () => {
+			const parsed = await reference('cats').safeParseAsync({
+				collection: 'dogs',
+				id: 'beagle',
+			});
+			assert.equal(parsed.success, false);
+			assert.match(
+				parsed.error.issues[0].message,
+				/expected a reference to `cats`, but received one to `dogs`/,
+			);
+		});
+	});
+});
