@@ -746,7 +746,19 @@ export async function createRoutesList(
 						: route.component,
 					settings.config.root,
 				);
-				const content = await localFs.promises.readFile(componentUrl, 'utf-8');
+				let content: string;
+				try {
+					content = await localFs.promises.readFile(componentUrl, 'utf-8');
+				} catch (e: any) {
+					if (dev && e?.code === 'ENOENT') {
+						logger.warn(
+							'router',
+							`Could not find route entrypoint at ${fileURLToPath(componentUrl)}.`,
+						);
+						return;
+					}
+					throw e;
+				}
 
 				await getRoutePrerenderOption(content, route, settings, logger);
 			}),
