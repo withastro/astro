@@ -69,6 +69,13 @@ let parser: DOMParser;
 // can use that to determine popstate if going forward or back.
 let currentHistoryIndex = 0;
 
+// Chrome and Edge on iOS hide history entries from the back button when they were
+// pushed without recent user activation, and a tap only counts as activation while
+// its event is dispatched (https://github.com/withastro/astro/issues/18377).
+// So a navigation that starts with activation pushes its entry right away, as a copy
+// of the current one, and moveToLocation() fills it in once the new page is in place.
+let pendingHistoryEntry = false;
+
 if (inBrowser) {
 	if (history.state) {
 		// Here we reloaded a page with history state
@@ -191,6 +198,12 @@ const moveToLocation = (
 				'',
 				to.href,
 			);
+		} else if (pendingHistoryEntry) {
+			history.replaceState(
+				{ ...options.state, index: currentHistoryIndex, scrollX: 0, scrollY: 0 },
+				'',
+				to.href,
+			);
 		} else {
 			history.pushState(
 				{ ...options.state, index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
@@ -198,6 +211,7 @@ const moveToLocation = (
 				to.href,
 			);
 		}
+		pendingHistoryEntry = false;
 	}
 	document.title = targetPageTitle;
 	// now we are on the new page for non-history navigation!
@@ -325,6 +339,17 @@ async function updateDOM(
 	}
 }
 
+// A full page load replaces the pending entry, which would otherwise stay behind
+// as a duplicate of the current page.
+function loadPage(to: URL) {
+	if (pendingHistoryEntry) {
+		pendingHistoryEntry = false;
+		location.replace(to.href);
+	} else {
+		location.href = to.href;
+	}
+}
+
 function abortAndRecreateMostRecentNavigation(): Navigation {
 	mostRecentNavigation?.controller.abort();
 	return (mostRecentNavigation = {
@@ -351,7 +376,7 @@ async function transition(
 	// not ours
 	if (!transitionEnabledOnThisPage() || location.origin !== to.origin) {
 		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
-		location.href = to.href;
+		loadPage(to);
 		return;
 	}
 
@@ -372,6 +397,16 @@ async function transition(
 		}
 	}
 
+	if (
+		navigationType === 'push' &&
+		!pendingHistoryEntry &&
+		to.href !== location.href &&
+		navigator.userActivation?.isActive
+	) {
+		history.pushState({ ...history.state, index: ++currentHistoryIndex }, '');
+		pendingHistoryEntry = true;
+	}
+
 	const prepEvent = await doPreparation(
 		from,
 		to,
@@ -387,7 +422,7 @@ async function transition(
 		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 		if (!prepEvent.signal.aborted) {
 			// not aborted -> delegate to browser
-			location.href = to.href;
+			loadPage(to);
 		}
 		// and / or exit
 		return;
@@ -598,6 +633,8 @@ export async function navigate(href: string, options?: Options) {
 }
 
 function onPopState(ev: PopStateEvent) {
+	// Traversing abandons the navigation a pending entry was pushed for.
+	pendingHistoryEntry = false;
 	if (!transitionEnabledOnThisPage() && ev.state) {
 		// The current page doesn't have View Transitions enabled
 		// but the page we navigate to does (because it set the state).

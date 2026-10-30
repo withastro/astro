@@ -103,6 +103,76 @@ test.describe('View Transitions', () => {
 		await expectLoads(1);
 	});
 
+	// https://github.com/withastro/astro/issues/18377
+	test('History entry is added while the click is handled', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+		const historyLength = await page.evaluate(() => history.length);
+
+		let release!: () => void;
+		const released = new Promise<void>((resolve) => (release = resolve));
+		await page.route('**/two', async (route) => {
+			await released;
+			await route.continue();
+		});
+
+		// page 2 is still loading
+		await page.click('#click-two');
+		expect(await page.evaluate(() => history.length)).toBe(historyLength + 1);
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		release();
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		expect(await page.evaluate(() => history.length)).toBe(historyLength + 1);
+
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('Interrupted navigation does not add an extra history entry', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/one'));
+		const p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+		const historyLength = await page.evaluate(() => history.length);
+
+		let release!: () => void;
+		const released = new Promise<void>((resolve) => (release = resolve));
+		await page.route('**/two', async (route) => {
+			await released;
+			await route.continue().catch(() => {});
+		});
+
+		// go to the long page while page 2 is still loading
+		await page.click('#click-two');
+		await page.click('#click-longpage');
+		await expect(page.locator('#longpage'), 'should have content').toBeVisible();
+		expect(await page.evaluate(() => history.length)).toBe(historyLength + 1);
+		release();
+
+		await page.goBack();
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('Full page load does not leave an extra history entry', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+		const historyLength = await page.evaluate(() => history.length);
+
+		// page 3 does not use ClientRouter
+		await page.click('#click-three');
+		p = page.locator('#three');
+		await expect(p, 'should have content').toHaveText('Page 3');
+		expect(await page.evaluate(() => history.length)).toBe(historyLength + 1);
+
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
 	test('Clicking on a link with nested content', async ({ page, astro }) => {
 		const expectLoads = collectLoads(page);
 		// Go to page 4
