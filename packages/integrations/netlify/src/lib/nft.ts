@@ -36,9 +36,9 @@ export async function copyDependenciesToFunction(
 	// dynamic import helps prevent the issue.
 	// TODO: investigate why
 	const { nodeFileTrace } = await import('@vercel/nft');
-	// NFT turns dynamic path segments into asset globs. In a workspace, a glob anchored at the
-	// workspace root walks unrelated packages, so skip it. Globs anchored at the project root stay
-	// traced because that directory is the function's runtime cwd.
+	// NFT turns dynamic path segments into asset globs, relative to `base`. In a workspace, `base`
+	// is the workspace root, which NFT also uses as `process.cwd()`, so a glob anchored there starts
+	// with `**` and walks unrelated packages. Globs rooted in a subdirectory don't match that prefix.
 	const ignoreWorkspaceGlobs = resolve(fileURLToPath(base)) !== resolve(fileURLToPath(root));
 	const result = await nodeFileTrace([entryPath], {
 		base: fileURLToPath(base),
