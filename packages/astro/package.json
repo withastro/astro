@@ -213,7 +213,7 @@
     "remark-code-titles": "^0.1.2",
     "sass": "^1.105.1",
     "typescript": "^6.0.3",
-    "undici": "7.30.0",
+    "undici": "8.12.2",
     "vitest": "^5.0.5"
   },
   "engines": {
