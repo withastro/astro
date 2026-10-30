@@ -10,7 +10,7 @@ import {
 } from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
 import { printHelp } from '../../core/messages/runtime.js';
-import { isRunByAgent, supportsAgentAutoBackgrounding } from '../agent.js';
+import { isBackgroundEnvEnabled, isRunByAgent, supportsAgentAutoBackgrounding } from '../agent.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
@@ -228,7 +228,7 @@ export async function dev({ flags }: DevOptions) {
 			port: server.address.port,
 			url: serverUrl,
 			urls: server.resolvedUrls,
-			background: !!process.env.ASTRO_DEV_BACKGROUND,
+			background: isBackgroundEnvEnabled(process.env.ASTRO_DEV_BACKGROUND),
 			startedAt: new Date().toISOString(),
 		});
 
