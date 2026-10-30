@@ -1,0 +1,9 @@
+{
+  "name": "@test/image-napi-basic",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/image-napi": "workspace:*",
+    "astro": "workspace:*"
+  }
+}
