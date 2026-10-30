@@ -350,9 +350,7 @@ export function redirectToFallback({
 			});
 
 			if (urlLocale && fallbackKeys.includes(urlLocale)) {
-				const fallbackLocale = fallback[urlLocale];
-				// the user might have configured the locale using the granular locales, so we want to retrieve its corresponding path instead
-				const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
+				const pathFallbackLocale = fallback[urlLocale];
 				let newPathname: string;
 				// If a locale falls back to the default locale, we want to **remove** the locale because
 				// the default locale doesn't have a prefix
