@@ -122,11 +122,11 @@ const build = {
   assetsPrefix: ${JSON.stringify(config.build.assetsPrefix)},
 };
 
-const cacheDir = new URL(manifest.cacheDir);
-const outDir = new URL(manifest.outDir);
-const publicDir = new URL(manifest.publicDir);
-const srcDir = new URL(manifest.srcDir);
-const root = new URL(manifest.rootDir);
+const cacheDir = manifest.cacheDir;
+const outDir = manifest.outDir;
+const publicDir = manifest.publicDir;
+const srcDir = manifest.srcDir;
+const root = manifest.rootDir;
 const trailingSlash = manifest.trailingSlash;
 const site = manifest.site;
 const compressHTML = manifest.compressHTML;

@@ -7,6 +7,30 @@ import type { NodeAppHeadersJson, Options } from './types.js';
 export const STATIC_HEADERS_FILE = '_headers.json';
 
 /**
+ * Marks the session base the adapter injects. The adapter stores it relative to the project root,
+ * so the runtime resolves it against `rootDir`. Drivers configured by the user are left untouched
+ * because their `base` is driver-specific, such as a key prefix for key-value stores.
+ */
+export const PORTABLE_SESSION_BASE_FLAG = '__astroPortableSessionBase';
+
+/**
+ * Resolves the adapter-injected session base against the runtime `rootDir`. Only a base marked with
+ * `PORTABLE_SESSION_BASE_FLAG` is resolved; any other driver's `base` is left untouched.
+ */
+export function resolveSessionBase(
+	sessionConfig: { driver: string; options?: Record<string, any> | undefined } | undefined,
+	rootDir: URL,
+): void {
+	const options = sessionConfig?.options;
+	const base = options?.base;
+	if (!options?.[PORTABLE_SESSION_BASE_FLAG] || typeof base !== 'string' || path.isAbsolute(base)) {
+		return;
+	}
+	options.base = url.fileURLToPath(new URL(base, rootDir));
+	delete options[PORTABLE_SESSION_BASE_FLAG];
+}
+
+/**
  * Resolves the client directory path at runtime.
  *
  * At build time, we know the relative path between server and client directories.
@@ -17,18 +41,10 @@ export const STATIC_HEADERS_FILE = '_headers.json';
  * It throws an error if it can't find the directory while walking the parent directories.
  */
 export function resolveClientDir(options: Options) {
-	// options.client and options.server are file:// URLs set at build time
-	// e.g., "file:///project/dist/client/" and "file:///project/dist/server/"
-	const clientURLRaw = new URL(options.client);
-	const serverURLRaw = new URL(options.server);
-
-	// Calculate relative path from server to client (e.g., "../client")
-	// This relative path is stable regardless of where the build output is deployed
-	const rel = path.relative(url.fileURLToPath(serverURLRaw), url.fileURLToPath(clientURLRaw));
-
-	// Find the server entry folder by walking up from this file's location
-	// We need to find the actual runtime location, not the build-time paths
-	const serverFolder = path.basename(options.server);
+	// options.client is the relative path from the server directory to the client directory,
+	// such as "../client". options.server is the server directory basename, used below.
+	const rel = options.client;
+	const serverFolder = options.server;
 	let serverEntryFolderURL = path.dirname(import.meta.url);
 	let previous = '';
 	while (!serverEntryFolderURL.endsWith(serverFolder)) {

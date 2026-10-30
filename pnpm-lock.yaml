@@ -5947,6 +5947,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/node/test/fixtures/relocated-dist: {}
+
   packages/integrations/node/test/fixtures/sessions:
     dependencies:
       '@astrojs/node':
