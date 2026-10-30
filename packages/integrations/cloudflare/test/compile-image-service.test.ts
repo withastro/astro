@@ -87,6 +87,18 @@ describe('CompileImageService', () => {
 			const blob = await res.blob();
 			assert.equal(blob.type, 'image/jpeg');
 		});
+
+		it('returns 304 for local images when If-None-Match matches the ETag', async () => {
+			const url = '/_image?href=/_astro/placeholder.gLBdjEDe.jpg&f=jpg';
+			const first = await fixture.fetch(url);
+			assert.equal(first.status, 200);
+			const etag = first.headers.get('ETag');
+			assert.ok(etag, 'Expected an ETag on the /_image response');
+
+			const res = await fixture.fetch(url, { headers: { 'If-None-Match': etag } });
+			assert.equal(res.status, 304);
+			assert.equal(res.headers.get('ETag'), etag);
+		});
 	});
 });
 

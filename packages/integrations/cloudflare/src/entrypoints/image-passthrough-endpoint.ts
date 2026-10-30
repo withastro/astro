@@ -30,7 +30,10 @@ export const GET: APIRoute = async ({ request }) => {
 			if (sourceUrl.origin !== url.origin) {
 				return new Response('Forbidden', { status: 403 });
 			}
-			response = await env.ASSETS.fetch(new Request(sourceUrl, { headers: request.headers }));
+			// Client headers are not forwarded: conditional headers such as `If-None-Match` would make
+			// ASSETS answer 304, which the redirect guard below turns into a 404.
+			// https://github.com/withastro/astro/issues/18560
+			response = await env.ASSETS.fetch(sourceUrl);
 		}
 
 		if (response.status >= 300 && response.status < 400) {
@@ -52,6 +55,10 @@ export const GET: APIRoute = async ({ request }) => {
 		headers.set('Date', new Date().toUTCString());
 		const etag = response.headers.get('ETag');
 		if (etag) headers.set('ETag', etag);
+
+		if (etag && request.headers.get('If-None-Match') === etag) {
+			return new Response(null, { status: 304, headers });
+		}
 
 		return new Response(response.body, { status: 200, headers });
 	} catch (_err) {
