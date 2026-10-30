@@ -1,5 +1,17 @@
 # astro
 
+## 7.4.5
+
+### Patch Changes
+
+- [#18558](https://github.com/withastro/astro/pull/18558) [`fac3c50`](https://github.com/withastro/astro/commit/fac3c50463ce9c290bdccb1d6dba30dc7ca4d779) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `astro dev status` and other background server commands deleting the lock file of a running dev or preview server when run from a sandbox or as another user that is not permitted to signal its process
+
+- [#18559](https://github.com/withastro/astro/pull/18559) [`10dae2f`](https://github.com/withastro/astro/commit/10dae2f31486cc0a6a04d1f3d7f5ab7fa8889b30) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `import.meta.env` values containing `$` sequences (such as `$$` or `$&`) being corrupted in `astro build` when server code reads the `import.meta.env` object directly, for example with `const { MY_SECRET } = import.meta.env`
+
+- [#18544](https://github.com/withastro/astro/pull/18544) [`e3bec3d`](https://github.com/withastro/astro/commit/e3bec3d2c770cb53771dad723db57a2ebf931b42) Thanks [@skezo](https://github.com/skezo)! - Fixes request paths with invalid percent-encoding (e.g. `/%C0%AF` or a bare `%`) being logged as an `Invalid URL encoding` error and routed with the undecoded path. These requests now return a `400`, the same as a path that is encoded too many times.
+
+- [#18520](https://github.com/withastro/astro/pull/18520) [`e023aba`](https://github.com/withastro/astro/commit/e023abac912d7cb6af2b9fb5107ef5dabc667096) Thanks [@matthewp](https://github.com/matthewp)! - Makes rendering of string tag names stricter and consistent across `.astro` dynamic tags, JSX, and MDX. Only the leading part of the string that is a valid element name is rendered, so characters such as `/` or `=` can no longer change the generated markup. A string that does not start with a valid element name (for example `'!--'` or `''`) now throws an error instead of producing invalid HTML.
+
 ## 7.4.4
 
 ### Patch Changes

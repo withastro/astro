@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 14.4.4
+
+### Patch Changes
+
+- [#18552](https://github.com/withastro/astro/pull/18552) [`549f88e`](https://github.com/withastro/astro/commit/549f88e7ca7fd427d04d4288f887b139a4892294) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a dev dependency scan error caused by object keys named `import` in frontmatter, such as the `import` option of `import.meta.glob()`
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.4.3
 
 ### Patch Changes
