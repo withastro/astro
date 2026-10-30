@@ -31,6 +31,11 @@ describe('core/render components', () => {
 		assert.equal(target.attr('id'), 'target');
 		assert.equal(typeof target.attr('style'), 'undefined');
 		assert.equal($('#pwnd').length, 0);
+
+		const slash = $('#slash');
+		assert.equal(slash.length, 1);
+		assert.equal(slash.prop('tagName'), 'P');
+		assert.equal(typeof slash.attr('data-injected'), 'undefined');
 	});
 
 	it('should merge `class` and `class:list`', async () => {
