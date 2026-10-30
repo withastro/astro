@@ -1,4 +1,4 @@
-import { posix, relative, sep } from 'node:path';
+import { posix, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { copyFilesToFolder } from '@astrojs/internal-helpers/fs';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
@@ -36,11 +36,13 @@ export async function copyDependenciesToFunction(
 	// dynamic import helps prevent the issue.
 	// TODO: investigate why
 	const { nodeFileTrace } = await import('@vercel/nft');
+	// NFT turns dynamic path segments into asset globs. In a workspace, a glob anchored at the
+	// workspace root walks unrelated packages, so skip it. Globs anchored at the project root stay
+	// traced because that directory is the function's runtime cwd.
+	const ignoreWorkspaceGlobs = resolve(fileURLToPath(base)) !== resolve(fileURLToPath(root));
 	const result = await nodeFileTrace([entryPath], {
 		base: fileURLToPath(base),
-		// NFT turns dynamic path segments into asset globs. A glob anchored at `base` would walk
-		// the whole workspace, so skip it instead of bundling unrelated files from the monorepo.
-		ignore: (file) => file.startsWith('**'),
+		ignore: (file) => ignoreWorkspaceGlobs && file.startsWith('**'),
 		cache,
 	});
 
