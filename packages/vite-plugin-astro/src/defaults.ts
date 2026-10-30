@@ -3,7 +3,6 @@
  * (such as the Container API) can read them without loading the options schema.
  */
 export const ASTRO_PLUGIN_DEFAULTS = {
-	srcDir: './src',
 	publicDir: './public',
 	compressHTML: 'jsx',
 	trailingSlash: 'ignore',

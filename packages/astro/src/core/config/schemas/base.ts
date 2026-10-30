@@ -104,7 +104,11 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.root)
 		.transform((val) => new URL(val)),
-	srcDir: AstroPluginOptionsSchema.shape.srcDir.transform((val) => new URL(val)),
+	srcDir: z
+		.string()
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.srcDir)
+		.transform((val) => new URL(val)),
 	publicDir: AstroPluginOptionsSchema.shape.publicDir.transform((val) => new URL(val)),
 	outDir: z
 		.string()

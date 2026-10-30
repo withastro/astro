@@ -25,9 +25,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.root)
 			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
-		srcDir: AstroPluginOptionsSchema.shape.srcDir.transform((val) =>
-			resolveDirAsUrl(val, fileProtocolRoot),
-		),
+		srcDir: z
+			.string()
+			.default(ASTRO_CONFIG_DEFAULTS.srcDir)
+			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		compressHTML: AstroPluginOptionsSchema.shape.compressHTML,
 		publicDir: AstroPluginOptionsSchema.shape.publicDir.transform((val) =>
 			resolveDirAsUrl(val, fileProtocolRoot),

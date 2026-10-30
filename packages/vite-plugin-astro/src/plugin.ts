@@ -21,8 +21,6 @@ import scriptsPlugin from './vite-plugin-scripts/index.js';
 export interface ResolvedSharedConfig {
 	/** Absolute project root, with a trailing slash. */
 	root: URL;
-	/** Absolute source directory, with a trailing slash. */
-	srcDir: URL;
 	/** Absolute public directory, with a trailing slash. */
 	publicDir: URL;
 	/** Vite's resolved `base`. */
@@ -94,7 +92,6 @@ export default function astro(options: AstroPluginOptions = {}, cli?: AstroPlugi
 					config = resolveSharedConfig(parsed, viteConfig);
 					Object.assign(compileConfig, {
 						root: config.root,
-						srcDir: config.srcDir,
 						publicDir: config.publicDir,
 						base: config.base,
 						site: config.site,
@@ -190,7 +187,6 @@ function resolveSharedConfig(
 	const root = path.resolve(viteConfig.root, options.root ?? '.');
 	return {
 		root: resolveDirAsUrl(root, '.'),
-		srcDir: resolveDirAsUrl(root, options.srcDir),
 		publicDir: resolveDirAsUrl(root, options.publicDir),
 		base: viteConfig.base,
 		site: options.site,
