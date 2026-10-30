@@ -174,7 +174,23 @@ function npm(
 			})(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
-			return await initializedProvider?.resolveFont(familyName, rest);
+			const result = await initializedProvider?.resolveFont(familyName, rest);
+			if (!result) return result;
+			// With `remote: false`, unifont points font files at `file://` URLs. The rest of the
+			// pipeline treats absolute paths as local files (read from disk, hashed, watched) and
+			// anything else as remote, so convert them like the local provider does.
+			// https://github.com/withastro/astro/issues/16218
+			return {
+				...result,
+				fonts: result.fonts.map((font) => ({
+					...font,
+					src: font.src.map((source) =>
+						'url' in source && source.url.startsWith('file:')
+							? { ...source, url: fileURLToPath(source.url) }
+							: source,
+					),
+				})),
+			};
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
