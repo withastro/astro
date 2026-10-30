@@ -14,7 +14,6 @@ const OptimizeDepsSchema = z.object({
  */
 export const AstroPluginOptionsSchema = z.object({
 	root: z.string().optional(),
-	srcDir: z.string().optional().default(ASTRO_PLUGIN_DEFAULTS.srcDir),
 	publicDir: z.string().optional().default(ASTRO_PLUGIN_DEFAULTS.publicDir),
 	site: z.string().url().optional(),
 	compressHTML: z
@@ -70,12 +69,6 @@ export interface AstroPluginOptions {
 	 * @default Vite's `root`
 	 */
 	root?: string;
-	/**
-	 * Directory of the project's source files, resolved against `root`.
-	 *
-	 * @default './src'
-	 */
-	srcDir?: string;
 	/**
 	 * Directory of static assets served as-is, resolved against `root`.
 	 *

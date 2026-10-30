@@ -16,7 +16,6 @@ The `astro` CLI uses `astro()` too, with a second argument (see [The `astro` CLI
 | Option             | Type                              | Default      | Notes                                 |
 | ------------------ | --------------------------------- | ------------ | ------------------------------------- |
 | `root`             | `string`                          | Vite `root`  | Resolved against Vite's `root`.       |
-| `srcDir`           | `string`                          | `'./src'`    | Resolved against `root`.              |
 | `publicDir`        | `string`                          | `'./public'` | Resolved against `root`.              |
 | `site`             | `string` (absolute URL)           | —            |                                       |
 | `compressHTML`     | `boolean \| 'jsx'`                | `'jsx'`      |                                       |
@@ -26,7 +25,7 @@ The `astro` CLI uses `astro()` too, with a second argument (see [The `astro` CLI
 
 There is no `base` option: the base is Vite's resolved `base`. The `astro` CLI maps its `base` onto Vite's.
 
-Validation: `AstroPluginOptionsSchema` (zod v4). The `astro` config schema (`packages/astro/src/core/config/schemas/{base,relative}.ts`) builds `srcDir`, `publicDir`, `site`, `compressHTML` and `trailingSlash` from `AstroPluginOptionsSchema.shape`. Defaults live in `ASTRO_PLUGIN_DEFAULTS`, exported from the import-free `@astrojs/vite-plugin-astro/defaults` entry, and are spread into `ASTRO_CONFIG_DEFAULTS`.
+Validation: `AstroPluginOptionsSchema` (zod v4). The `astro` config schema (`packages/astro/src/core/config/schemas/{base,relative}.ts`) builds `publicDir`, `site`, `compressHTML` and `trailingSlash` from `AstroPluginOptionsSchema.shape`. Defaults live in `ASTRO_PLUGIN_DEFAULTS`, exported from the import-free `@astrojs/vite-plugin-astro/defaults` entry, and are spread into `ASTRO_CONFIG_DEFAULTS`.
 
 ## Rendering
 
@@ -113,7 +112,6 @@ interface AstroPluginApi {
 
 interface ResolvedSharedConfig {
   root: URL; // absolute, trailing slash
-  srcDir: URL; // absolute, trailing slash
   publicDir: URL; // absolute, trailing slash
   base: string; // Vite's resolved base
   site: string | undefined;
@@ -130,7 +128,7 @@ import { getAstroApi } from '@astrojs/vite-plugin-astro';
 const feature = {
   name: 'my-feature',
   configResolved(config) {
-    const { srcDir, base } = getAstroApi(config).config;
+    const { publicDir, base } = getAstroApi(config).config;
   },
 };
 ```
