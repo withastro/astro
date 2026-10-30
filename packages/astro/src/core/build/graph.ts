@@ -90,5 +90,10 @@ export function getTopLevelPageModuleInfos(
 	id: string,
 	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
 ): Rolldown.ModuleInfo[] {
-	return getParentModuleInfos(id, ctx).filter(moduleIsTopLevelPage);
+	// Stop at the virtual page entry: above it sit the pages map and the manifest, which runtime
+	// modules (e.g. those behind `astro:i18n`) import, so walking further would attribute this
+	// module to every page using those runtime modules. https://github.com/withastro/astro/issues/18556
+	return getParentModuleInfos(id, ctx, (importer) =>
+		importer.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID),
+	).filter(moduleIsTopLevelPage);
 }

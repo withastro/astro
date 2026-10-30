@@ -38,4 +38,9 @@ describe('CSS graph boundaries with astro:i18n', () => {
 		assert.match(css, /color:red/);
 		assert.doesNotMatch(css, /background:#fff/);
 	});
+
+	it('does not attach CSS from docs-only scripts to unrelated pages', async () => {
+		assert.doesNotMatch(await getPageCss('/index.html'), /\.docs-script/);
+		assert.match(await getPageCss('/docs/index.html'), /\.docs-script/);
+	});
 });
