@@ -32,6 +32,20 @@ export async function copyCachedFile(source: fs.PathLike, destination: fs.PathLi
 	await fs.promises.utimes(destination, atime, mtime);
 }
 
+/**
+ * Moves a file to `destination`. When the two paths are on different
+ * filesystems, copies the file and removes the source instead.
+ */
+export async function moveFile(source: fs.PathLike, destination: fs.PathLike): Promise<void> {
+	try {
+		await fs.promises.rename(source, destination);
+	} catch (err: any) {
+		if (err.code !== 'EXDEV') throw err;
+		await fs.promises.copyFile(source, destination);
+		await fs.promises.unlink(source);
+	}
+}
+
 export function emptyDir(_dir: URL, skip?: Set<string>): void {
 	const dir = fileURLToPath(_dir);
 	if (!fs.existsSync(dir)) return undefined;

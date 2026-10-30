@@ -6,7 +6,7 @@ import * as vite from 'vite';
 import { LINKS_PLACEHOLDER } from '../../content/consts.js';
 import { contentAssetsBuildPostHook } from '../../content/vite-plugin-content-assets.js';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
-import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
+import { emptyDir, moveFile, removeEmptyDirs } from '../../core/fs/index.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
@@ -465,7 +465,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions, internals: BuildInternals
 				if (!fs.existsSync(currentUrl)) return;
 				const dir = new URL(path.parse(clientUrl.href).dir);
 				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
-				return fs.promises.rename(currentUrl, clientUrl);
+				return moveFile(currentUrl, clientUrl);
 			}),
 		);
 	}
@@ -485,7 +485,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions, internals: BuildInternals
 				if (!fs.existsSync(currentUrl)) return;
 				const dir = new URL(path.parse(clientUrl.href).dir);
 				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
-				return fs.promises.rename(currentUrl, clientUrl);
+				return moveFile(currentUrl, clientUrl);
 			}),
 		);
 		removeEmptyDirs(fileURLToPath(serverRoot));
