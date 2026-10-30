@@ -795,6 +795,10 @@ class VercelBuilder {
 	}
 }
 
+// Vercel supports every Node.js major from 26 onwards, so a newer major missing
+// from SUPPORTED_NODE_VERSIONS resolves to its own runtime.
+const FIRST_CONSECUTIVE_NODE_VERSION = 26;
+
 export function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
 	if (process.versions.bun) {
 		const major = process.versions.bun.split('.')[0]; // '1.3.9' --> '1'
@@ -803,6 +807,9 @@ export function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogg
 	const version = process.version.slice(1); // 'v18.19.0' --> '18.19.0'
 	const major = version.split('.')[0]; // '18.19.0' --> '18'
 	const support = SUPPORTED_NODE_VERSIONS[major];
+	if (support === undefined && Number(major) >= FIRST_CONSECUTIVE_NODE_VERSION) {
+		return `nodejs${major}.x`;
+	}
 	if (support === undefined) {
 		logger.warn(
 			`\n` +
