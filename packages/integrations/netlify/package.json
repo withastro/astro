@@ -42,8 +42,8 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@netlify/blobs": "^11.1.4",
-    "@netlify/functions": "^6.0.2",
+    "@netlify/blobs": "^11.1.7",
+    "@netlify/functions": "^6.0.3",
     "@netlify/vite-plugin": "^3.0.1",
     "@vercel/nft": "^1.11.0",
     "rolldown": "^1.2.13",
@@ -58,7 +58,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
-    "devalue": "^6.0.2",
+    "devalue": "^6.0.3",
     "typescript": "^6.0.3"
   },
   "astro": {
