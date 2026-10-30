@@ -29,7 +29,14 @@ describe('NFT tracing in a monorepo', () => {
 		);
 	});
 
-	it('does not trace files outside the server output', () => {
+	it('traces files resolved from the runtime cwd', () => {
+		assert.ok(
+			functionFiles.some((file) => file.endsWith('asset.txt')),
+			'the function should include files resolved from process.cwd()',
+		);
+	});
+
+	it('does not trace unrelated workspace files', () => {
 		assert.equal(
 			functionFiles.some((file) => file.includes('hero-image')),
 			false,

@@ -1,4 +1,4 @@
-import { dirname, posix, relative, sep } from 'node:path';
+import { posix, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { copyFilesToFolder } from '@astrojs/internal-helpers/fs';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
@@ -38,10 +38,9 @@ export async function copyDependenciesToFunction(
 	const { nodeFileTrace } = await import('@vercel/nft');
 	const result = await nodeFileTrace([entryPath], {
 		base: fileURLToPath(base),
-		// Without `processCwd`, NFT uses `base` as the analysis cwd, so runtime `path.resolve()`
-		// calls anchor at the workspace root and can glob the whole monorepo. Bounding it to the
-		// entry directory keeps wildcard inference in the built server output.
-		processCwd: dirname(entryPath),
+		// NFT turns dynamic path segments into asset globs. A glob anchored at `base` would walk
+		// the whole workspace, so skip it instead of bundling unrelated files from the monorepo.
+		ignore: (file) => file.startsWith('**'),
 		cache,
 	});
 
