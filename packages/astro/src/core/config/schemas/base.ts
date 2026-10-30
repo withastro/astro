@@ -521,6 +521,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
+			liveContentEntrypoints: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.liveContentEntrypoints),
 			chromeDevtoolsWorkspace: z
 				.boolean()
 				.optional()

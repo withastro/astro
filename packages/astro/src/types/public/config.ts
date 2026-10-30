@@ -3492,6 +3492,52 @@ export interface AstroUserConfig<
 		contentIntellisense?: boolean;
 
 		/**
+		 * @name experimental.liveContentEntrypoints
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 7.5
+		 * @description
+		 *
+		 * Enables defining live collections in `src/content.config.ts`, next to your build-time collections, instead of in a separate `src/live.config.ts` file.
+		 *
+		 * A live collection in the content config points to an entrypoint: a module that default-exports the collection, defined with `defineLiveCollection()`. The path is relative to the root of your project:
+		 *
+		 * ```ts
+		 * // src/content.config.ts
+		 * import { defineCollection } from 'astro:content';
+		 * import { glob } from 'astro/loaders';
+		 *
+		 * const blog = defineCollection({
+		 *   loader: glob({ pattern: '*.md', base: './src/blog' }),
+		 * });
+		 *
+		 * const products = defineCollection({
+		 *   type: 'live',
+		 *   entrypoint: './src/live/products.ts',
+		 * });
+		 *
+		 * export const collections = { blog, products };
+		 * ```
+		 *
+		 * ```ts
+		 * // src/live/products.ts
+		 * import { defineLiveCollection } from 'astro:content';
+		 * import { z } from 'astro/zod';
+		 * import { productsLoader } from './loaders/products';
+		 *
+		 * export default defineLiveCollection({
+		 *   loader: productsLoader(),
+		 *   schema: z.object({ title: z.string(), price: z.number() }),
+		 * });
+		 * ```
+		 *
+		 * The content config is only evaluated when content is synced, and is never bundled with your site. Only the entrypoints of live collections and their imports are bundled with your server, so build-time loaders and their dependencies stay out of it.
+		 *
+		 * Live collections defined in `src/live.config.ts` keep working alongside them.
+		 */
+		liveContentEntrypoints?: boolean;
+
+		/**
 		 * @name experimental.chromeDevtoolsWorkspace
 		 * @type {boolean}
 		 * @default `false`

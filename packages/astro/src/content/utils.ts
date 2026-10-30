@@ -122,6 +122,12 @@ function contentConfigParser(logger: AstroLogger) {
 					schema: z.any().optional(),
 					loader: z.function(),
 				}),
+				z.object({
+					type: z.literal(LIVE_CONTENT_TYPE),
+					entrypoint: z.string(),
+					schema: z.never().optional(),
+					loader: z.never().optional(),
+				}),
 			]),
 		),
 	});
@@ -490,6 +496,11 @@ export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[numb
 	return flags.has(flag);
 }
 
+/** Resolves the `entrypoint` of a live collection declared in the content config. */
+export function resolveLiveEntrypoint(root: URL, entrypoint: string): URL {
+	return new URL(entrypoint, root);
+}
+
 export function isDeferredModule(viteId: string): boolean {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(CONTENT_MODULE_FLAG);
@@ -518,7 +529,29 @@ async function loadContentConfig({
 	const unparsedConfig = await environment.runner.import(configPathname);
 
 	const config = contentConfigParser(logger).safeParse(unparsedConfig);
+	const relativeConfigPath = path.relative(fileURLToPath(settings.config.root), configPathname);
 	if (config.success) {
+		for (const [name, collection] of Object.entries(config.data.collections)) {
+			if (!('entrypoint' in collection)) continue;
+			if (!settings.config.experimental.liveContentEntrypoints) {
+				throw new AstroError({
+					...AstroErrorData.LiveContentConfigError,
+					message: AstroErrorData.LiveContentConfigError.message(
+						`The live collection "${name}" has an \`entrypoint\`, which requires the \`experimental.liveContentEntrypoints\` flag.`,
+						relativeConfigPath,
+					),
+				});
+			}
+			if (!fs.existsSync(resolveLiveEntrypoint(settings.config.root, collection.entrypoint))) {
+				throw new AstroError({
+					...AstroErrorData.LiveContentConfigError,
+					message: AstroErrorData.LiveContentConfigError.message(
+						`The entrypoint "${collection.entrypoint}" of the live collection "${name}" doesn't exist. Entrypoints are resolved from the root of the project.`,
+						relativeConfigPath,
+					),
+				});
+			}
+		}
 		// Generate a digest of the config file so we can invalidate the cache if it changes
 		const hasher = await xxhash();
 		const digest = hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));
@@ -529,14 +562,17 @@ async function loadContentConfig({
 			.join('\n');
 		logger.error('content', `There was a problem with your content config:\n\n${message}\n`);
 		const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
-			([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,
+			([, collection]: [string, any]) =>
+				collection?.type === LIVE_CONTENT_TYPE && !('entrypoint' in collection),
 		);
 		if (liveCollections.length > 0) {
 			throw new AstroError({
 				...AstroErrorData.LiveContentConfigError,
 				message: AstroErrorData.LiveContentConfigError.message(
-					'Live collections must be defined in a `src/live.config.ts` file.',
-					path.relative(fileURLToPath(settings.config.root), configPathname),
+					settings.config.experimental.liveContentEntrypoints
+						? 'Live collections must be defined in a `src/live.config.ts` file, or have an `entrypoint`.'
+						: 'Live collections must be defined in a `src/live.config.ts` file.',
+					relativeConfigPath,
 				),
 			});
 		}

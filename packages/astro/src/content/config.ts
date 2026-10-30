@@ -109,6 +109,16 @@ export type LiveCollectionConfig<
 	loader: L;
 };
 
+/**
+ * A live collection declared in the content config. Its loader and schema are defined with
+ * `defineLiveCollection()` in the module at `entrypoint`, a path relative to the project root.
+ * Requires `experimental.liveContentEntrypoints`.
+ */
+export type LiveEntrypointCollectionConfig = {
+	type: 'live';
+	entrypoint: string;
+};
+
 export type CollectionConfig<
 	S extends BaseSchema,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
@@ -128,6 +138,25 @@ export function defineLiveCollection<
 			),
 		});
 	}
+	return validateLiveCollectionConfig(config, importerFilename);
+}
+
+/**
+ * `defineLiveCollection()` for the entrypoints of live collections declared in the content
+ * config. It validates the collection like `defineLiveCollection()`, without requiring it to be
+ * called from `src/live.config.ts`.
+ */
+export function defineEntrypointLiveCollection<
+	L extends LiveLoader,
+	S extends BaseSchema | undefined = undefined,
+>(config: LiveCollectionConfig<L, S>): LiveCollectionConfig<L, S> {
+	return validateLiveCollectionConfig(config, undefined);
+}
+
+function validateLiveCollectionConfig<
+	L extends LiveLoader,
+	S extends BaseSchema | undefined = undefined,
+>(config: LiveCollectionConfig<L, S>, importerFilename: string | undefined) {
 	// Default to live content type if not specified
 	config.type ??= LIVE_CONTENT_TYPE;
 
@@ -174,10 +203,14 @@ export function defineLiveCollection<
 	return config;
 }
 
+export function defineCollection(
+	config: LiveEntrypointCollectionConfig,
+): LiveEntrypointCollectionConfig;
 export function defineCollection<
 	S extends BaseSchema,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
->(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader> {
+>(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader>;
+export function defineCollection(config: any): any {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {
@@ -188,6 +221,28 @@ export function defineCollection<
 				importerFilename,
 			),
 		});
+	}
+
+	if (config.type === LIVE_CONTENT_TYPE && 'entrypoint' in config) {
+		if (typeof config.entrypoint !== 'string') {
+			throw new AstroError({
+				...AstroErrorData.LiveContentConfigError,
+				message: AstroErrorData.LiveContentConfigError.message(
+					'The `entrypoint` of a live collection must be a path to a module.',
+					importerFilename,
+				),
+			});
+		}
+		if ('loader' in config || 'schema' in config) {
+			throw new AstroError({
+				...AstroErrorData.LiveContentConfigError,
+				message: AstroErrorData.LiveContentConfigError.message(
+					'A live collection with an `entrypoint` cannot have a `loader` or a `schema`. Define them with `defineLiveCollection()` in its entrypoint.',
+					importerFilename,
+				),
+			});
+		}
+		return config;
 	}
 
 	if ('loader' in config) {

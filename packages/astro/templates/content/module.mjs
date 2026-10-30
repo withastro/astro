@@ -11,11 +11,13 @@ import {
 	createRenderEntry,
 } from 'astro/content/runtime';
 
-export { defineCollection, defineLiveCollection } from 'astro/content/runtime';
+export { defineCollection } from 'astro/content/runtime';
+/* @@DEFINE_LIVE_COLLECTION@@ */
 // TODO: remove in Astro 8
 export { z } from 'astro/zod';
 
 /* @@LIVE_CONTENT_CONFIG@@ */
+/* @@LIVE_CONTENT_ENTRYPOINTS@@ */
 
 const logger = createConsoleLogger({ level });
 if (loggerDestination) {
@@ -24,11 +26,13 @@ if (loggerDestination) {
 
 export const getCollection = createGetCollection({
 	liveCollections,
+	liveCollectionEntrypoints,
 	logger,
 });
 
 export const getEntry = createGetEntry({
 	liveCollections,
+	liveCollectionEntrypoints,
 	logger,
 });
 
@@ -40,10 +44,12 @@ export const reference = createReference();
 
 export const getLiveCollection = createGetLiveCollection({
 	liveCollections,
+	liveCollectionEntrypoints,
 });
 
 export const getLiveEntry = createGetLiveEntry({
 	liveCollections,
+	liveCollectionEntrypoints,
 });
 
 // TODO: remove in Astro 8

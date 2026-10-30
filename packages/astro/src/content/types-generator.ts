@@ -21,7 +21,7 @@ import {
 	COLLECTIONS_DIR,
 	CONTENT_LAYER_TYPE,
 	CONTENT_TYPES_FILE,
-	type LIVE_CONTENT_TYPE,
+	LIVE_CONTENT_TYPE,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import {
@@ -38,6 +38,7 @@ import {
 	getEntrySlug,
 	getEntryType,
 	reloadContentConfigObserver,
+	resolveLiveEntrypoint,
 } from './utils.js';
 import { getContentConfigLoadPromise } from './config-prewarm.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
@@ -474,6 +475,10 @@ async function writeContentFiles({
 	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
+		// Live collections are typed by `LiveContentConfig`
+		if (collectionConfig?.type === LIVE_CONTENT_TYPE) {
+			continue;
+		}
 		if (
 			collectionConfig?.type &&
 			collection.type !== 'unknown' &&
@@ -580,6 +585,26 @@ async function writeContentFiles({
 	const liveConfigPathRelativeToCacheDir = contentPaths.liveConfig?.exists
 		? normalizeConfigPath(settings.dotAstroDir.pathname, contentPaths.liveConfig.url.pathname)
 		: undefined;
+	const liveEntrypointTypes: string[] = [];
+	for (const [name, collection] of Object.entries(contentConfig?.collections ?? {})) {
+		if (!('entrypoint' in collection)) continue;
+		const entrypointPath = normalizeConfigPath(
+			settings.dotAstroDir.pathname,
+			resolveLiveEntrypoint(settings.config.root, collection.entrypoint).pathname,
+		);
+		liveEntrypointTypes.push(
+			`${JSON.stringify(name)}: typeof import(${entrypointPath})['default'];`,
+		);
+	}
+	let liveContentConfigType = liveConfigPathRelativeToCacheDir
+		? `typeof import(${liveConfigPathRelativeToCacheDir})`
+		: 'never';
+	if (liveEntrypointTypes.length > 0) {
+		const liveConfigCollectionsType = liveConfigPathRelativeToCacheDir
+			? `typeof import(${liveConfigPathRelativeToCacheDir})['collections'] & `
+			: '';
+		liveContentConfigType = `{ collections: ${liveConfigCollectionsType}{ ${liveEntrypointTypes.join(' ')} } }`;
+	}
 
 	for (const contentEntryType of contentEntryTypes) {
 		if (contentEntryType.contentModuleTypes) {
@@ -592,12 +617,7 @@ async function writeContentFiles({
 			"'@@CONTENT_CONFIG_TYPE@@'",
 			contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never',
 		)
-		.replace(
-			"'@@LIVE_CONTENT_CONFIG_TYPE@@'",
-			liveConfigPathRelativeToCacheDir
-				? `typeof import(${liveConfigPathRelativeToCacheDir})`
-				: 'never',
-		);
+		.replace("'@@LIVE_CONTENT_CONFIG_TYPE@@'", liveContentConfigType);
 
 	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content
 	if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
