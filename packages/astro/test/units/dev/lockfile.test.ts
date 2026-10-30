@@ -18,6 +18,7 @@ import {
 	checkExistingServer,
 	type LockFileData,
 } from '../../../dist/core/dev/lockfile.js';
+import { stopExistingServer } from '../../../dist/cli/server.js';
 
 const validData: LockFileData = {
 	pid: 12345,
@@ -434,6 +435,44 @@ describe('killDevServer', () => {
 
 		assert.equal(isProcessAlive(pid), false);
 		assert.equal(readLockFile(root), null);
+	});
+
+	it('keeps the lock file and throws when the process cannot be signaled (EPERM)', async (t) => {
+		t.mock.method(process, 'kill', () => {
+			throw Object.assign(new Error('kill EPERM'), { code: 'EPERM' });
+		});
+
+		writeLockFile(root, validData);
+
+		await assert.rejects(killDevServer(root, validData), /permission denied/);
+		assert.deepEqual(readLockFile(root), validData);
+	});
+});
+// #endregion
+
+// #region stopExistingServer
+describe('stopExistingServer', () => {
+	let tempDir: string;
+	let root: URL;
+
+	before(() => {
+		tempDir = mkdtempSync(join(tmpdir(), 'astro-lockfile-'));
+		root = pathToFileURL(tempDir + '/');
+	});
+
+	after(() => {
+		rmSync(tempDir, { recursive: true, force: true });
+	});
+
+	it('keeps the lock file and throws when the process cannot be signaled (EPERM)', async (t) => {
+		t.mock.method(process, 'kill', () => {
+			throw Object.assign(new Error('kill EPERM'), { code: 'EPERM' });
+		});
+
+		writeLockFile(root, validData);
+
+		await assert.rejects(stopExistingServer(root, 'dev', validData.pid), /permission denied/);
+		assert.deepEqual(readLockFile(root), validData);
 	});
 });
 // #endregion

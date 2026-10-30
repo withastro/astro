@@ -207,18 +207,33 @@ export function evaluateExistingServer(
 }
 
 /**
+ * Send `signal` to the server process `pid`.
+ *
+ * Errors meaning the process is already gone are ignored.
+ * @throws If the current user is not permitted to signal the process (`EPERM`).
+ */
+export function signalServerProcess(pid: number, signal: NodeJS.Signals): void {
+	try {
+		process.kill(pid, signal);
+	} catch (err) {
+		if ((err as NodeJS.ErrnoException)?.code === 'EPERM') {
+			throw new Error(
+				`Cannot stop the server (pid ${pid}): permission denied. Stop it from the environment that started it.`,
+			);
+		}
+	}
+}
+
+/**
  * Kill the dev server identified by `data` and clean up its lock file.
  *
  * Sends SIGTERM and waits up to {@link GRACEFUL_SHUTDOWN_TIMEOUT} for the
  * process to exit, escalating to SIGKILL if it is still alive. The lock file
- * is always removed afterwards so a new server can start.
+ * is removed afterwards so a new server can start.
+ * @throws If the process cannot be signaled; the lock file is kept in that case.
  */
 export async function killDevServer(root: URL, data: LockFileData): Promise<void> {
-	try {
-		process.kill(data.pid, 'SIGTERM');
-	} catch {
-		// Process may have already exited between check and kill
-	}
+	signalServerProcess(data.pid, 'SIGTERM');
 
 	// Wait for graceful shutdown before escalating to SIGKILL
 	const deadline = Date.now() + GRACEFUL_SHUTDOWN_TIMEOUT;
@@ -229,11 +244,7 @@ export async function killDevServer(root: URL, data: LockFileData): Promise<void
 
 	// If still alive after timeout, force kill
 	if (isProcessAlive(data.pid)) {
-		try {
-			process.kill(data.pid, 'SIGKILL');
-		} catch {
-			// Already dead
-		}
+		signalServerProcess(data.pid, 'SIGKILL');
 	}
 
 	// Clean up the lock file in case the process didn't remove it
