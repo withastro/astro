@@ -93,6 +93,19 @@ describe('Static headers', () => {
 		);
 	});
 
+	it('each page gets its own CSP headers, with or without a trailing slash', async () => {
+		const csp = async (pathname: string) => {
+			const res = await fetch(`http://${server.host}:${server.port}${pathname}`);
+			return res.headers.get('Content-Security-Policy');
+		};
+		const index = await csp('/');
+		const one = await csp('/one');
+
+		// Only the index renders the server island, so the two policies differ.
+		assert.notEqual(index, one);
+		assert.equal(await csp('/one/'), one);
+	});
+
 	it('survives a request with a malformed port in the Host header', async () => {
 		// A malformed port makes the URL unparseable while the static handler
 		// builds a Request to look up per-route headers. The request must not
