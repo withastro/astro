@@ -53,7 +53,8 @@ export function createBaseSettings(
 					);
 					let data;
 					try {
-						data = JSON.parse(contents);
+						// Editors such as Visual Studio save JSON with a UTF-8 BOM, which JSON.parse rejects.
+						data = JSON.parse(contents.replace(/^\uFEFF/, ''));
 					} catch (e) {
 						throw new AstroError({
 							...AstroErrorData.DataCollectionEntryParseError,

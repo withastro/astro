@@ -1,12 +1,15 @@
 import { strict as assert } from 'node:assert';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import { file } from '../../../dist/content/loaders/file.js';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
-import { createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
+import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
 describe('File Loader', () => {
 	const root = new URL('../../fixtures/content-layer/', import.meta.url);
@@ -52,6 +55,39 @@ describe('File Loader', () => {
 		assert.equal(beagle.data.breed, 'Beagle');
 		assert.deepEqual(beagle.data.temperament, ['Friendly', 'Curious', 'Merry']);
 		assert.equal(beagle.filePath, 'src/data/dogs.json');
+	});
+
+	it('loads entries from a JSON file that starts with a UTF-8 BOM', async () => {
+		const tempDir = createTempDir();
+		const dataDir = join(fileURLToPath(tempDir), 'src', 'data');
+		mkdirSync(dataDir, { recursive: true });
+		writeFileSync(join(dataDir, 'dogs.json'), '\uFEFF[{ "id": "beagle", "breed": "Beagle" }]');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir);
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			dogs: defineCollection({
+				loader: file('src/data/dogs.json'),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const entries = store.values('dogs');
+		assert.equal(entries.length, 1);
+		assert.equal(entries[0].data.breed, 'Beagle');
 	});
 
 	it('loads entries from YAML file', async () => {
