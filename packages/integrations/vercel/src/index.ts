@@ -795,11 +795,9 @@ class VercelBuilder {
 	}
 }
 
-// Vercel only runs even-numbered (LTS) Node.js majors from 20 onwards, so a major
-// missing from SUPPORTED_NODE_VERSIONS resolves to its own runtime.
-function isEvenNodeLts(major: number): boolean {
-	return major >= 20 && major % 2 === 0;
-}
+// Vercel supports every Node.js major from 26 onwards, so a newer major missing
+// from SUPPORTED_NODE_VERSIONS resolves to its own runtime.
+const FIRST_CONSECUTIVE_NODE_VERSION = 26;
 
 export function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
 	if (process.versions.bun) {
@@ -809,7 +807,7 @@ export function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogg
 	const version = process.version.slice(1); // 'v18.19.0' --> '18.19.0'
 	const major = version.split('.')[0]; // '18.19.0' --> '18'
 	const support = SUPPORTED_NODE_VERSIONS[major];
-	if (support === undefined && isEvenNodeLts(Number(major))) {
+	if (support === undefined && Number(major) >= FIRST_CONSECUTIVE_NODE_VERSION) {
 		return `nodejs${major}.x`;
 	}
 	if (support === undefined) {
