@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import os from 'node:os';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 import { projectName } from '../dist/index.js';
 import { mockExit, mockPrompt, type ProjectNameContext, setup } from './test-utils.ts';
@@ -16,6 +18,65 @@ describe('project name', async () => {
 		await projectName(context);
 		assert.equal(context.cwd, './foo/bar/baz');
 		assert.equal(context.projectName, 'baz');
+	});
+
+	it('pass in a nested name without a leading dot', async () => {
+		const context: ProjectNameContext = {
+			projectName: '',
+			cwd: 'apps/web',
+			prompt: mockPrompt({}),
+			exit: mockExit,
+		};
+		await projectName(context);
+		assert.equal(context.cwd, 'apps/web');
+		assert.equal(context.projectName, 'web');
+	});
+
+	it('pass in a nested name with a trailing slash', async () => {
+		const context: ProjectNameContext = {
+			projectName: '',
+			cwd: 'apps/web/',
+			prompt: mockPrompt({}),
+			exit: mockExit,
+		};
+		await projectName(context);
+		assert.equal(context.projectName, 'web');
+	});
+
+	it('pass in an absolute path', async () => {
+		const cwd = path.join(os.tmpdir(), 'create-astro-project-name', 'my-site');
+		const context: ProjectNameContext = {
+			projectName: '',
+			cwd,
+			prompt: mockPrompt({}),
+			exit: mockExit,
+		};
+		await projectName(context);
+		assert.equal(context.cwd, cwd);
+		assert.equal(context.projectName, 'my-site');
+	});
+
+	it('pass in a scoped name', async () => {
+		const context: ProjectNameContext = {
+			projectName: '',
+			cwd: '@astro/site',
+			prompt: mockPrompt({}),
+			exit: mockExit,
+		};
+		await projectName(context);
+		assert.equal(context.projectName, '@astro/site');
+	});
+
+	it('nested name from the prompt', async () => {
+		const context: ProjectNameContext = {
+			projectName: '',
+			cwd: '',
+			prompt: mockPrompt({ name: './projects/my-site' }),
+			exit: mockExit,
+		};
+		await projectName(context);
+		assert.equal(context.cwd, './projects/my-site');
+		assert.equal(context.projectName, 'my-site');
 	});
 
 	it('dot', async () => {

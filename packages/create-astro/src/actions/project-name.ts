@@ -40,26 +40,32 @@ export async function projectName(
 		});
 
 		ctx.cwd = name!.trim();
-		ctx.projectName = toValidName(name!);
+		ctx.projectName = toValidName(nameFromPath(name!));
 		if (ctx.dryRun) {
 			await info('--dry-run', 'Skipping project naming');
 			return;
 		}
 	} else {
-		let name = ctx.cwd;
-		if (name === '.' || name === './') {
-			const parts = process.cwd().split(path.sep);
-			name = parts[parts.length - 1];
-		} else if (name.startsWith('./') || name.startsWith('../')) {
-			const parts = name.split('/');
-			name = parts[parts.length - 1];
-		}
-		ctx.projectName = toValidName(name);
+		ctx.projectName = toValidName(nameFromPath(ctx.cwd));
 	}
 
 	if (!ctx.cwd) {
 		ctx.exit(1);
 	}
+}
+
+/** Use the last segment of a project path as its name, keeping scoped names like `@scope/name` whole */
+function nameFromPath(projectPath: string) {
+	const name = projectPath.trim();
+	if (name === '.' || name === './') {
+		const parts = process.cwd().split(path.sep);
+		return parts[parts.length - 1];
+	}
+	if (/^@[^/\\]+\/[^/\\]+$/.test(name)) {
+		return name;
+	}
+	const parts = name.split(/[/\\]/).filter(Boolean);
+	return parts[parts.length - 1] ?? name;
 }
 
 async function checkCwd(cwd: string | undefined) {
