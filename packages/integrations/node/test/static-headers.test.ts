@@ -101,6 +101,17 @@ describe('Static headers', () => {
 		const res = await fetch(`http://${server.host}:${server.port}/`);
 		assert.equal(res.status, 200);
 	});
+
+	it('passes the request body through to on-demand routes', async () => {
+		const res = await fetch(`http://${server.host}:${server.port}/echo`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: 'message=hello',
+		});
+		assert.equal(res.status, 200);
+		const data = await res.json();
+		assert.equal(data.message, 'hello');
+	});
 });
 
 describe('Static headers listener cleanup', () => {
