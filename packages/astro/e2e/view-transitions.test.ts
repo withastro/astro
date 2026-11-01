@@ -5,6 +5,7 @@ declare global {
 	interface Window {
 		preloads: string[];
 		restoredScrollY?: number;
+		initialScrollRestoration?: ScrollRestoration;
 		clientSideRouterForTestsParkedHere?: (
 			url: string,
 			options?: { history?: 'auto' | 'replace' | 'push' },
@@ -379,6 +380,26 @@ test.describe('View Transitions', () => {
 		);
 		await page.goBack();
 		await expect.poll(() => page.evaluate(() => window.restoredScrollY)).toBe(2000);
+	});
+
+	test('Reload leaves scroll restoration to the browser', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await expect(page.locator('#longpage')).toBeInViewport();
+
+		await page.evaluate(() => window.scrollTo({ top: 1000, behavior: 'instant' }));
+		await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(1000);
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
+
+		// Capture the mode the browser sees at document start, before the router's module runs
+		await page.addInitScript(() => {
+			window.initialScrollRestoration = history.scrollRestoration;
+		});
+		await page.reload();
+		await expect(page.locator('#longpage')).toBeAttached();
+
+		expect(await page.evaluate(() => window.initialScrollRestoration)).toBe('auto');
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
 	});
 
 	test('Fragment scroll position restored on back button', async ({ page, astro }) => {
