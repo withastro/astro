@@ -29,6 +29,20 @@ export interface InvalidateOptions {
 export interface CacheProvider {
 	name: string;
 	setHeaders?(options: CacheOptions, request: Request): Headers;
+	/**
+	 * Return true to buffer this response before applying cache headers and
+	 * returning from `next()`. Only called with `onRequest`, for GET responses
+	 * with a body and a positive `maxAge` before streaming begins.
+	 *
+	 * Opt in only if the provider already needs the complete response body
+	 * before making its storage decision (as `memoryCache()` does). Return false
+	 * for responses that will not be stored, such as responses with cookies.
+	 * This lets async layouts/components contribute directives or opt out before
+	 * storage. This waits for the complete body, so do not opt in for infinite
+	 * streams. Streaming/background-writing providers should leave it unset.
+	 * It does not collect `maxAge` first set after streaming has begun.
+	 */
+	shouldBufferResponse?(response: Response, request: Request): boolean;
 	onRequest?(
 		context: {
 			request: Request;

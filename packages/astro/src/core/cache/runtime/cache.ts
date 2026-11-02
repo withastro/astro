@@ -21,6 +21,15 @@ export interface CacheLike {
 	/**
 	 * Set cache options for the current request. Call multiple times to merge options.
 	 * Pass `false` to explicitly opt out of caching.
+	 *
+	 * With streaming enabled, set directives (including opt-outs) in page
+	 * frontmatter or middleware. Async layouts/components may run after HTTP
+	 * cache headers are finalized, even if their own frontmatter is synchronous.
+	 * Disable streaming with `experimentalDisableStreaming: true` to collect
+	 * directives from the entire component tree with CDN providers. Providers
+	 * opting into response buffering (including `memoryCache()`) collect late
+	 * directives for GET responses already marked with a positive `maxAge`
+	 * before streaming begins.
 	 */
 	set(input: CacheOptions | CacheHint | LiveDataEntry | false): void;
 	/** All accumulated cache tags for this request. */

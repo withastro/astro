@@ -421,6 +421,12 @@ const memoryProvider = ((config): CacheProvider => {
 
 	return {
 		name: 'memory',
+		// Storage already waits for the full body. Collect cache directives from
+		// async layouts/components before parsing the resulting cache headers.
+		// Preserve streaming for responses that are already known to be uncacheable.
+		shouldBufferResponse(response) {
+			return !hasSetCookieHeader(response) && !getUncacheableVaryHeader(response);
+		},
 
 		async onRequest(context, next) {
 			const requestUrl = new URL(context.request.url);

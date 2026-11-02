@@ -2511,6 +2511,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/cache-streaming:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/client-address-node:
     dependencies:
       '@astrojs/node':

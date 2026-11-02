@@ -110,14 +110,19 @@ export async function handleCache(
 			},
 			async () => {
 				let res = await next();
-				// `next()` resolves once the streamed body starts, but layouts and
-				// components can still call `cache.set()` while the rest renders.
-				// When the response is going to be cached, the provider buffers the
-				// body anyway, so render it fully before reading the cache options.
-				// https://github.com/withastro/astro/issues/18499
-				// https://github.com/withastro/astro/issues/18453
-				if (state.request.method === 'GET' && res.body && (cache!.options.maxAge ?? 0) > 0) {
+				// Only providers that explicitly opt in (e.g. memoryCache(), which
+				// already buffers before storage) can wait for late directives here.
+				// `onRequest` alone does not imply buffering: custom providers may
+				// stream and write in the background. Preserve that behavior by default.
+				if (
+					state.request.method === 'GET' &&
+					res.body &&
+					(cache!.options.maxAge ?? 0) > 0 &&
+					cacheProvider.shouldBufferResponse?.(res, state.request) === true
+				) {
 					const buffered = new Response(await res.arrayBuffer(), res);
+					// Astro cookies live on the Response, not necessarily in its headers.
+					// Losing them here could cause a personalized response to be cached.
 					const cookies = getCookiesFromResponse(res);
 					if (cookies) attachCookiesToResponse(buffered, cookies);
 					res = buffered;
