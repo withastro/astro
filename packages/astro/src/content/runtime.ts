@@ -29,6 +29,10 @@ import { defineCollection as defineCollectionOrig } from './config.js';
 import type { LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import {
+	type CollectionMetadata,
+	getCollectionsMetadata as getCollectionsMetadataOf,
+} from './metadata.js';
+import {
 	LiveCollectionCacheHintError,
 	LiveCollectionError,
 	LiveCollectionValidationError,
@@ -90,6 +94,25 @@ async function parseLiveEntry(
 			),
 		};
 	}
+}
+
+export function createGetCollectionsMetadata({
+	liveCollections,
+}: {
+	liveCollections: LiveCollectionConfigMap;
+}) {
+	return async function getCollectionsMetadata(): Promise<CollectionMetadata[]> {
+		// @ts-expect-error virtual module
+		const { enabled, collections } = await import('astro:collections-metadata');
+		if (!enabled) {
+			throw new AstroError(AstroErrorData.CollectionMetadataNotEnabled);
+		}
+		// Copies, so that callers can't change the metadata returned to other callers
+		return structuredClone([
+			...(collections as CollectionMetadata[]),
+			...getCollectionsMetadataOf(liveCollections, 'live'),
+		]);
+	};
 }
 
 export function createGetCollection({

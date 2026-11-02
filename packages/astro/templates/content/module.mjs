@@ -3,6 +3,7 @@ import loggerDestination, { level } from 'virtual:astro:logger';
 import {
 	createDeprecatedFunction,
 	createGetCollection,
+	createGetCollectionsMetadata,
 	createGetEntries,
 	createGetEntry,
 	createGetLiveCollection,
@@ -25,6 +26,10 @@ if (loggerDestination) {
 export const getCollection = createGetCollection({
 	liveCollections,
 	logger,
+});
+
+export const getCollectionsMetadata = createGetCollectionsMetadata({
+	liveCollections,
 });
 
 export const getEntry = createGetEntry({

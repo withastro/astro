@@ -3,6 +3,7 @@ import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
+import type { CollectionDescriptors } from './metadata.js';
 
 function getImporterFilename() {
 	// Find the first line in the stack trace that doesn't include 'defineCollection' or 'getImporterFilename'
@@ -83,10 +84,19 @@ type LoaderConstraint<TData extends { id: string }> =
 			| Record<string, Omit<TData, 'id'> & { id?: string }>
 			| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
 
-type ContentLayerConfig<S extends BaseSchema, TLoader extends LoaderConstraint<{ id: string }>> = {
+type ContentLayerConfig<
+	S extends BaseSchema,
+	TLoader extends LoaderConstraint<{ id: string }>,
+	TDescriptors extends CollectionDescriptors = CollectionDescriptors,
+> = {
 	type?: 'content_layer';
 	schema?: S | ((context: SchemaContext) => S);
 	loader: TLoader;
+	/**
+	 * Serializable values identifying the collection, returned by `getCollectionsMetadata()`.
+	 * They override the descriptors of the loader with the same key.
+	 */
+	descriptors?: TDescriptors;
 };
 
 type DataCollectionConfig<S extends BaseSchema> = {
@@ -103,21 +113,32 @@ type ContentCollectionConfig<S extends BaseSchema> = {
 export type LiveCollectionConfig<
 	L extends LiveLoader,
 	S extends BaseSchema | undefined = undefined,
+	TDescriptors extends CollectionDescriptors = CollectionDescriptors,
 > = {
 	type?: 'live';
 	schema?: S;
 	loader: L;
+	/**
+	 * Serializable values identifying the collection, returned by `getCollectionsMetadata()`.
+	 * They override the descriptors of the loader with the same key.
+	 */
+	descriptors?: TDescriptors;
 };
 
 export type CollectionConfig<
 	S extends BaseSchema,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
-> = ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S, TLoader>;
+	TDescriptors extends CollectionDescriptors = CollectionDescriptors,
+> =
+	| ContentCollectionConfig<S>
+	| DataCollectionConfig<S>
+	| ContentLayerConfig<S, TLoader, TDescriptors>;
 
 export function defineLiveCollection<
 	L extends LiveLoader,
 	S extends BaseSchema | undefined = undefined,
->(config: LiveCollectionConfig<L, S>): LiveCollectionConfig<L, S> {
+	const TDescriptors extends CollectionDescriptors = Record<never, never>,
+>(config: LiveCollectionConfig<L, S, TDescriptors>): LiveCollectionConfig<L, S, TDescriptors> {
 	const importerFilename = getImporterFilename();
 	if (importerFilename && !importerFilename.includes('live.config')) {
 		throw new AstroError({
@@ -177,7 +198,8 @@ export function defineLiveCollection<
 export function defineCollection<
 	S extends BaseSchema,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
->(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader> {
+	const TDescriptors extends CollectionDescriptors = Record<never, never>,
+>(config: CollectionConfig<S, TLoader, TDescriptors>): CollectionConfig<S, TLoader, TDescriptors> {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {

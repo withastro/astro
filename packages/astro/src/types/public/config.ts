@@ -3589,6 +3589,41 @@ export interface AstroUserConfig<
 			  };
 
 		/**
+		 * @name experimental.collectionMetadata
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 7.5
+		 * @description
+		 *
+		 * Enables `getCollectionsMetadata()` from `astro:content`, which lists every content collection of your project, build-time and live, with facts about each one: its name, its type, the name of its loader, and its descriptors.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     collectionMetadata: true,
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * Descriptors are serializable values that a loader, or the `descriptors` option of `defineCollection()`, attaches to a collection, so that code can recognize a collection without knowing its name:
+		 *
+		 * ```ts
+		 * import { getCollection, getCollectionsMetadata } from 'astro:content';
+		 *
+		 * const docs = (await getCollectionsMetadata()).filter(
+		 *   (collection) => collection.descriptors.starlight === 'docs',
+		 * );
+		 * for (const { name } of docs) {
+		 *   const entries = await getCollection(name);
+		 * }
+		 * ```
+		 */
+		collectionMetadata?: boolean;
+
+		/**
 		 * @name experimental.incrementalBuild
 		 * @type {boolean}
 		 * @default `false`

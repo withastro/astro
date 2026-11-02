@@ -551,6 +551,10 @@ export const AstroConfigSchema = z.object({
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.collectionStorage),
+			collectionMetadata: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.collectionMetadata),
 		})
 		.prefault({}),
 	legacy: z

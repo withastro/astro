@@ -13,6 +13,8 @@ import {
 	ASSET_IMPORTS_FILE,
 	ASSET_IMPORTS_RESOLVED_STUB_ID,
 	ASSET_IMPORTS_VIRTUAL_ID,
+	COLLECTIONS_METADATA_FILE,
+	COLLECTIONS_METADATA_VIRTUAL_ID,
 	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_STORE_CHUNK_FILE_NAME_PATTERN,
@@ -22,6 +24,7 @@ import {
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
 	MODULES_MJS_VIRTUAL_ID,
+	RESOLVED_COLLECTIONS_METADATA_VIRTUAL_ID,
 	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
 	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX,
 	RESOLVED_DATA_STORE_VIRTUAL_ID,
@@ -71,22 +74,23 @@ function invalidateDataStore(viteServer: ViteDevServer, { notifyClient = true } 
 		const environment = viteServer.environments[name];
 		if (!environment) continue;
 
-		const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
-		if (module) {
-			// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
-			environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
-		}
-		// Also invalidate the module in the runner's evaluation cache.
-		// Server-side invalidation only clears `transformResult`, but the runner
-		// may still hold a stale evaluated result. When the runner's `fetchModule`
-		// call triggers a fresh server transform, the transform re-populates
-		// `transformResult` before the runner checks it, causing a false cache hit.
-		if (isRunnableDevEnvironment(environment)) {
-			const runnerModule = environment.runner.evaluatedModules.getModuleById(
-				RESOLVED_DATA_STORE_VIRTUAL_ID,
-			);
-			if (runnerModule) {
-				environment.runner.evaluatedModules.invalidateModule(runnerModule);
+		// The collections metadata module is written by each sync, along with the data store
+		for (const id of [RESOLVED_DATA_STORE_VIRTUAL_ID, RESOLVED_COLLECTIONS_METADATA_VIRTUAL_ID]) {
+			const module = environment.moduleGraph.getModuleById(id);
+			if (module) {
+				// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
+				environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
+			}
+			// Also invalidate the module in the runner's evaluation cache.
+			// Server-side invalidation only clears `transformResult`, but the runner
+			// may still hold a stale evaluated result. When the runner's `fetchModule`
+			// call triggers a fresh server transform, the transform re-populates
+			// `transformResult` before the runner checks it, causing a false cache hit.
+			if (isRunnableDevEnvironment(environment)) {
+				const runnerModule = environment.runner.evaluatedModules.getModuleById(id);
+				if (runnerModule) {
+					environment.runner.evaluatedModules.invalidateModule(runnerModule);
+				}
 			}
 		}
 		// Signal the runner to clear its route cache so that getStaticPaths()
@@ -191,6 +195,9 @@ export function astroContentVirtualModPlugin({
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
 				devServer.watcher.add(assetImportsPath);
+				devServer.watcher.add(
+					fileURLToPath(new URL(COLLECTIONS_METADATA_FILE, settings.dotAstroDir)),
+				);
 				// Manually invalidate the data store to avoid a race condition in file watching.
 				// Skip client reload since no browser has loaded content yet at startup.
 				invalidateDataStore(devServer, { notifyClient: false });
@@ -200,7 +207,7 @@ export function astroContentVirtualModPlugin({
 		resolveId: {
 			filter: {
 				id: new RegExp(
-					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|^${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}|(?:\\?|&)${CONTENT_MODULE_FLAG}(?:&|=|$)`,
+					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${COLLECTIONS_METADATA_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|^${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}|(?:\\?|&)${CONTENT_MODULE_FLAG}(?:&|=|$)`,
 				),
 			},
 			async handler(id, importer) {
@@ -217,6 +224,9 @@ export function astroContentVirtualModPlugin({
 				}
 				if (id === DATA_STORE_VIRTUAL_ID) {
 					return RESOLVED_DATA_STORE_VIRTUAL_ID;
+				}
+				if (id === COLLECTIONS_METADATA_VIRTUAL_ID) {
+					return RESOLVED_COLLECTIONS_METADATA_VIRTUAL_ID;
 				}
 				if (id.startsWith(DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX)) {
 					const fileName = id.slice(DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX.length);
@@ -265,7 +275,7 @@ export function astroContentVirtualModPlugin({
 		load: {
 			filter: {
 				id: new RegExp(
-					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$|^${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}`,
+					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${RESOLVED_COLLECTIONS_METADATA_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$|^${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}`,
 				),
 			},
 			async handler(id) {
@@ -371,6 +381,15 @@ export function astroContentVirtualModPlugin({
 					};
 				}
 
+				if (id === RESOLVED_COLLECTIONS_METADATA_VIRTUAL_ID) {
+					const file = new URL(COLLECTIONS_METADATA_FILE, settings.dotAstroDir);
+					const collections = fs.existsSync(file) ? fs.readFileSync(file, 'utf-8') : '[]';
+					return {
+						code: `export const enabled = ${settings.config.experimental.collectionMetadata};\nexport const collections = ${collections};`,
+						meta: createContentDataIncrementalMetadata(),
+					};
+				}
+
 				if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
 					const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
 					return {
@@ -397,16 +416,21 @@ export function astroContentVirtualModPlugin({
 			devServer = server;
 			const dataStorePath = fileURLToPath(dataStoreFile);
 			const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
+			const metadataPath = fileURLToPath(new URL(COLLECTIONS_METADATA_FILE, settings.dotAstroDir));
 
 			server.watcher.on('add', (addedPath) => {
 				if (addedPath === dataStorePath && !isDirectInvalidationEcho(dataStorePath)) {
 					invalidateDataStore(server);
 					invalidateAssetImports(server, assetImportsPath);
+				} else if (addedPath === metadataPath) {
+					invalidateDataStore(server);
 				}
 			});
 
 			server.watcher.on('change', (changedPath) => {
-				if (changedPath === dataStorePath) {
+				if (changedPath === metadataPath) {
+					invalidateDataStore(server);
+				} else if (changedPath === dataStorePath) {
 					if (isDirectInvalidationEcho(dataStorePath)) {
 						return;
 					}

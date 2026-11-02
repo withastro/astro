@@ -2115,6 +2115,21 @@ export const FileGlobNotSupported = {
 
 /**
  * @docs
+ * @message
+ * **Example error message:**<br/>
+ * `getCollectionsMetadata()` requires the `experimental.collectionMetadata` flag.
+ * @description
+ * `getCollectionsMetadata()` was called, but the `experimental.collectionMetadata` flag is not enabled. Enable the flag in your Astro config to list the collections of your project.
+ */
+export const CollectionMetadataNotEnabled = {
+	name: 'CollectionMetadataNotEnabled',
+	title: 'Collection metadata is not enabled.',
+	message: '`getCollectionsMetadata()` requires the `experimental.collectionMetadata` flag.',
+	hint: 'Set `experimental.collectionMetadata` to `true` in your Astro config.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name Action Errors
  */
