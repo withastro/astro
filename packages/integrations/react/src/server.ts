@@ -129,15 +129,11 @@ async function renderToStaticMarkup(
 	} else {
 		html = await renderToPipeableStreamAsync(vnode, renderOptions);
 	}
-	// Strip the preloads React 19 auto-injects (e.g. for <img>) from island output.
-	// These should be in <head>, not inside the island.
-	// See: https://github.com/facebook/react/issues/27910
-	// React never emits other <link> tags (stylesheet, preconnect, ...) on its own, so those come
-	// from the component and must be kept to match the client render. React 18 injects nothing.
+	// Preserve React's resource links. Automatic hints and component-authored links
+	// can have identical markup, so filtering the HTML would also remove explicit
+	// stylesheets and preloads (and can break hydration with React 18).
+	// React handles its hoisted resources during hydration.
 	// See: https://github.com/withastro/astro/issues/18418
-	if (!React.version.startsWith('18.')) {
-		html = html.replace(/<link\s[^>]*rel="(?:preload|modulepreload)"[^>]*>/g, '');
-	}
 	return { html, attrs };
 }
 
