@@ -60,6 +60,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 
 		const environment = {
 			name: 'ssr',
+			fetchModule: async () => ({ cache: true }),
 			moduleGraph: {
 				idToModuleMap: moduleGraphEntries,
 				getModuleById: (id: string) => moduleGraphEntries.get(id) ?? null,

@@ -1,0 +1,21 @@
+---
+import React from 'react';
+import { value } from '../hmr/index.js';
+import '../hmr/style.css';
+
+const gate = Astro.url.searchParams.get('gate');
+if (gate) await fetch(new URL(`/__hmr-gate/${gate}`, Astro.url));
+const { default: laterReact } = await import('react');
+const { default: HmrGreeting } = await import('../components/HmrGreeting.jsx');
+const { value: lazyValue } = await import('../hmr/lazy.js');
+---
+<html>
+	<head><title>HMR</title></head>
+	<body>
+		<h1>Original page</h1>
+		<p id="value">{value}</p>
+		<p id="lazy-value">{lazyValue}</p>
+		<p id="react-identity">{React === laterReact ? 'same' : 'different'}</p>
+		<HmrGreeting />
+	</body>
+</html>

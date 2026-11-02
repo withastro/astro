@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import hmrReload from '../../../dist/vite-plugin-hmr-reload/index.js';
+import type { DevEnvironment } from 'vite';
 
 describe('astro:hmr-reload', () => {
 	/**
@@ -33,10 +34,19 @@ describe('astro:hmr-reload', () => {
 		environmentName: string;
 		modules: ReturnType<typeof createMockModule>[];
 		clientModuleIds?: string[];
+		fetchModule?: DevEnvironment['fetchModule'];
 	}) {
 		const wsSent: any[] = [];
 		const hotSent: any[] = [];
 		const invalidated: any[] = [];
+		const modules = new Map<string, ReturnType<typeof createMockModule>>();
+		function collect(mod: ReturnType<typeof createMockModule>) {
+			if (modules.has(mod.id)) return;
+			modules.set(mod.id, mod);
+			for (const importer of mod.importers)
+				collect(importer as ReturnType<typeof createMockModule>);
+		}
+		for (const mod of options.modules) collect(mod);
 
 		// Note: isRunnableDevEnvironment() uses instanceof, so plain mocks
 		// won't pass the check — the non-runnable (Cloudflare) path is
@@ -44,22 +54,28 @@ describe('astro:hmr-reload', () => {
 		// for runnable environments is tested via integration/E2E tests.
 		const environment = {
 			name: options.environmentName,
+			fetchModule:
+				options.fetchModule ??
+				(async (url, _importer, options) =>
+					options?.cached
+						? { cache: true as const }
+						: { code: '', file: url, id: url, url, invalidate: false }),
 			moduleGraph: {
 				idToModuleMap: new Map(),
 				invalidateModule(mod: any, seen?: Set<any>, _ts?: number, _hmr?: boolean) {
 					invalidated.push(mod);
-					if (seen) {
-						seen.add(mod);
-						// Simulate Vite's recursive importer walk: add importers to seen
-						for (const importer of mod.importers) {
-							if (!seen.has(importer)) {
-								seen.add(importer);
-							}
-						}
+					function visit(node: any) {
+						if (!seen || seen.has(node)) return;
+						seen.add(node);
+						for (const importer of node.importers) visit(importer);
 					}
+					visit(mod);
 				},
-				getModuleById(_id: string) {
-					return null;
+				getModuleById(id: string) {
+					return modules.get(id);
+				},
+				async getModuleByUrl(url: string) {
+					return modules.get(url);
 				},
 			},
 			hot: {
@@ -137,15 +153,185 @@ describe('astro:hmr-reload', () => {
 		assert.equal(ctx.wsSent.length, 1);
 		assert.deepEqual(ctx.wsSent[0], { type: 'full-reload' });
 
-		// For non-runnable environments (mock fails instanceof), should also
-		// send full-reload through the environment's hot channel so the
-		// remote runner (e.g. workerd) clears its module cache.
-		assert.equal(ctx.hotSent.length, 1);
-		assert.equal(ctx.hotSent[0].type, 'full-reload');
+		// Preserve unrelated remote-runner dependencies. The module graph is
+		// invalidated below and changed modules are refreshed by fetchModule;
+		// no whole-cache reset should be sent to the remote runner.
+		assert.equal(ctx.hotSent.length, 0);
 
 		// Should invalidate the module graph
 		assert.equal(ctx.invalidated.length, 1, 'should invalidate SSR module graph');
 		assert.equal(ctx.invalidated[0], mod);
+	});
+
+	it('refreshes evaluated exports even if the transform cache was already warmed', async () => {
+		const mod = createMockModule('/src/value.js');
+		const calls: Array<boolean | undefined> = [];
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [mod],
+			async fetchModule(url, _importer, options) {
+				calls.push(options?.cached);
+				return options?.cached
+					? { cache: true }
+					: { code: 'export const value = 1', id: url, file: url, url, invalidate: false };
+			},
+		});
+		ctx.call();
+		const result = await ctx.environment.fetchModule(mod.id, undefined, { cached: true });
+		assert.ok('invalidate' in result && result.invalidate);
+		assert.deepEqual(await ctx.environment.fetchModule(mod.id, undefined, { cached: true }), {
+			cache: true,
+		});
+		assert.deepEqual(
+			calls,
+			[true, false, true],
+			'only the first affected runner fetch must be invalidated',
+		);
+	});
+
+	it('does not invalidate an unrelated remote dependency', async () => {
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [createMockModule('/src/value.js')],
+		});
+		ctx.call();
+		assert.deepEqual(
+			await ctx.environment.fetchModule('/node_modules/react.js', undefined, { cached: true }),
+			{ cache: true },
+		);
+	});
+
+	it('does not let analysis fetches consume a pending remote invalidation', async () => {
+		const mod = createMockModule('/src/lazy.js');
+		const ctx = createMockContext({ environmentName: 'ssr', modules: [mod] });
+		ctx.call();
+		const analysis = await ctx.environment.fetchModule(mod.id);
+		assert.ok('invalidate' in analysis && !analysis.invalidate);
+		const result = await ctx.environment.fetchModule(mod.id, undefined, { cached: true });
+		assert.ok('invalidate' in result && result.invalidate);
+	});
+
+	it('consumes invalidation when a remote runner first loads an uncached module', async () => {
+		const mod = createMockModule('/src/value.js');
+		const ctx = createMockContext({ environmentName: 'ssr', modules: [mod] });
+		ctx.call();
+		const result = await ctx.environment.fetchModule(mod.id, undefined, { cached: false });
+		assert.ok('invalidate' in result && result.invalidate);
+		assert.deepEqual(await ctx.environment.fetchModule(mod.id, undefined, { cached: true }), {
+			cache: true,
+		});
+	});
+
+	it('refreshes every transitively invalidated remote importer', async () => {
+		const leaf = createMockModule('/src/value.js');
+		const barrel = createMockModule('/src/index.js');
+		const page = createMockModule('/src/page.astro');
+		leaf.importers.add(barrel as any);
+		barrel.importers.add(page as any);
+		const ctx = createMockContext({ environmentName: 'ssr', modules: [leaf] });
+		ctx.call();
+		for (const mod of [leaf, barrel, page]) {
+			const result = await ctx.environment.fetchModule(mod.id, undefined, { cached: true });
+			assert.ok('invalidate' in result && result.invalidate, mod.id);
+		}
+	});
+
+	it('retains invalidation after a failed module refetch', async () => {
+		const mod = createMockModule('/src/value.js');
+		let fail = true;
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [mod],
+			async fetchModule(url, _importer, options) {
+				if (options?.cached) return { cache: true };
+				if (fail) {
+					fail = false;
+					throw new Error('transform failed');
+				}
+				return { code: '', id: url, file: url, url, invalidate: false };
+			},
+		});
+		ctx.call();
+		await assert.rejects(
+			() => ctx.environment.fetchModule(mod.id, undefined, { cached: true }),
+			/transform failed/,
+		);
+		const result = await ctx.environment.fetchModule(mod.id, undefined, { cached: true });
+		assert.ok('invalidate' in result && result.invalidate);
+	});
+
+	it('does not lose a newer edit arriving during a cache check', async () => {
+		const mod = createMockModule('/src/value.js');
+		const check = Promise.withResolvers<void>();
+		let first = true;
+		let refetches = 0;
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [mod],
+			async fetchModule(url, _importer, options) {
+				if (options?.cached) {
+					if (first) {
+						first = false;
+						await check.promise;
+					}
+					return { cache: true };
+				}
+				refetches++;
+				return { code: '', id: url, file: url, url, invalidate: false };
+			},
+		});
+		ctx.call();
+		const pending = ctx.environment.fetchModule(mod.id, undefined, { cached: true });
+		ctx.call();
+		check.resolve();
+		await pending;
+		const result = await ctx.environment.fetchModule(mod.id, undefined, { cached: true });
+		assert.ok('invalidate' in result && result.invalidate);
+		assert.equal(refetches, 2);
+	});
+
+	it('does not lose a newer edit arriving during a refetch', async () => {
+		const mod = createMockModule('/src/value.js');
+		const entered = Promise.withResolvers<void>();
+		const release = Promise.withResolvers<void>();
+		let refetches = 0;
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [mod],
+			async fetchModule(url, _importer, options) {
+				if (options?.cached) return { cache: true };
+				if (++refetches === 1) {
+					entered.resolve();
+					await release.promise;
+				}
+				return { code: '', id: url, file: url, url, invalidate: false };
+			},
+		});
+		ctx.call();
+		const pending = ctx.environment.fetchModule(mod.id, undefined, { cached: true });
+		await entered.promise;
+		ctx.call();
+		release.resolve();
+		await pending;
+		const result = await ctx.environment.fetchModule(mod.id, undefined, { cached: true });
+		assert.ok('invalidate' in result && result.invalidate);
+		assert.equal(refetches, 2);
+	});
+
+	it('preserves externalized module responses', async () => {
+		const external = { externalize: 'node:fs', type: 'builtin' as const };
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [createMockModule('/src/value.js')],
+			async fetchModule() {
+				return external;
+			},
+		});
+		ctx.call();
+		assert.equal(
+			await ctx.environment.fetchModule('node:fs', undefined, { cached: true }),
+			external,
+		);
 	});
 
 	it('returns undefined for non-server environments', () => {
