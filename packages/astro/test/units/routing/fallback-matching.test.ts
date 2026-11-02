@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createComponent, render } from '../../../dist/runtime/server/index.js';
+import type { ComponentInstance } from '../../../dist/types/astro.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
 import { matchAllRoutes, matchRoute } from '../../../dist/core/routing/match.js';
 import { matchRoute as devMatch } from '../../../dist/core/routing/dev.js';
 import { setEnvironment } from '../../../dist/core/environment/index.js';
@@ -17,7 +20,10 @@ function sourceRoute(prerender = false) {
 	return source;
 }
 
-function devManifest(routes, modules = {}) {
+function devManifest(
+	routes: RouteData[],
+	modules: Record<string, Pick<ComponentInstance, 'getStaticPaths'>> = {},
+) {
 	const manifest = createManifest({ serverLike: true });
 	setLogger(manifest, defaultLogger);
 	setEnvironment(manifest, {
@@ -25,7 +31,7 @@ function devManifest(routes, modules = {}) {
 		name: 'test-dev',
 		runtimeMode: 'development',
 		async getComponentByRoute(_manifest, route) {
-			return modules[route.component] ?? {};
+			return { default: createComponent(() => render``), ...modules[route.component] };
 		},
 	});
 	updateRouteTable(manifest, routes);
