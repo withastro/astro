@@ -5711,6 +5711,15 @@ importers:
         specifier: ^0.35.0
         version: 0.35.5(@types/node@22.19.19)
 
+  packages/integrations/netlify/test/functions/fixtures/monorepo-trace/apps/app:
+    dependencies:
+      '@astrojs/netlify':
+        specifier: workspace:*
+        version: link:../../../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../../../astro
+
   packages/integrations/netlify/test/functions/fixtures/redirects:
     dependencies:
       '@astrojs/netlify':
@@ -6505,6 +6514,15 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/monorepo-trace/apps/app:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../../astro
 
   packages/integrations/vercel/test/fixtures/no-output:
     dependencies:
