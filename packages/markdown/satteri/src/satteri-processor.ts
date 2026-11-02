@@ -17,6 +17,7 @@ import type {
 	MdastPluginList,
 } from 'satteri';
 import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
+import type { CollectionMetadata } from '@astrojs/internal-helpers/collections';
 import type {
 	AstroMarkdownOptions,
 	MarkdownHeading,
@@ -33,6 +34,8 @@ declare module 'satteri' {
 
 export interface SatteriAstroData {
 	frontmatter: Record<string, any>;
+	/** The content collection of the entry being rendered, when Astro knows it. */
+	collection?: CollectionMetadata;
 	headings: MarkdownHeading[];
 	localImagePaths: Set<string>;
 	remoteImagePaths: Set<string>;
@@ -304,6 +307,7 @@ export async function createSatteriMarkdownProcessor(
 		async render(content, renderOpts) {
 			const astro: SatteriAstroData = {
 				frontmatter: renderOpts?.frontmatter ?? {},
+				collection: renderOpts?.collection,
 				headings: [],
 				localImagePaths: new Set(),
 				remoteImagePaths: new Set(),

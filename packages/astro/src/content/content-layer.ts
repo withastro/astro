@@ -20,7 +20,7 @@ import type { RenderedContent } from './data-store.js';
 import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
 import { writeFileAtomic } from './data-store-writer.js';
 import { runHookCollectionsResolved } from '../integrations/hooks.js';
-import { getCollectionsMetadata } from './metadata.js';
+import { type CollectionMetadata, getCollectionsMetadata } from './metadata.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import {
 	type ContentObservable,
@@ -57,6 +57,8 @@ export class ContentLayer {
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
 	#lastResolvedConfigDigest?: string;
+	/** The metadata of each build-time collection, when `experimental.collectionMetadata` is enabled. */
+	#collectionsMetadata = new Map<string, CollectionMetadata>();
 
 	#queue: PQueue;
 
@@ -144,10 +146,12 @@ export class ContentLayer {
 			logger: this.#logger.forkIntegrationLogger(loaderName),
 			config: this.#settings.config,
 			parseData,
-			renderMarkdown: this.#processMarkdown.bind(this),
+			renderMarkdown: (content, options) =>
+				this.#processMarkdown(content, options, this.#collectionsMetadata.get(collectionName)),
 			generateDigest: await this.#getGenerateDigest(),
 			watcher: this.#watcher,
 			refreshContextData,
+			collectionMetadata: this.#collectionsMetadata.get(collectionName),
 			entryTypes: getEntryConfigByExtMap([
 				...this.#settings.contentEntryTypes,
 				...this.#settings.dataEntryTypes,
@@ -158,6 +162,7 @@ export class ContentLayer {
 	async #processMarkdown(
 		content: string,
 		options?: RenderMarkdownOptions,
+		collection?: CollectionMetadata,
 	): Promise<RenderedContent> {
 		if (!this.#markdownRenderer) {
 			const { markdown, image } = this.#settings.config;
@@ -173,6 +178,7 @@ export class ContentLayer {
 		const { code, metadata } = await this.#markdownRenderer.render(body, {
 			frontmatter,
 			fileURL: options?.fileURL,
+			collection,
 		});
 		return {
 			html: code,
@@ -386,6 +392,7 @@ export class ContentLayer {
 	}) {
 		const file = new URL(COLLECTIONS_METADATA_FILE, this.#settings.dotAstroDir);
 		if (!this.#settings.config.experimental.collectionMetadata) {
+			this.#collectionsMetadata = new Map();
 			await fs.rm(file, { force: true });
 			return;
 		}
@@ -396,6 +403,9 @@ export class ContentLayer {
 		);
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
 		const metadata = getCollectionsMetadata(buildTimeCollections, 'build-time');
+		this.#collectionsMetadata = new Map(
+			metadata.map((collection) => [collection.name, collection]),
+		);
 		// Unchanged metadata is not written, so development doesn't reload pages for nothing
 		await writeFileAtomic(file, JSON.stringify(metadata));
 		if (digest === undefined || digest !== this.#lastResolvedConfigDigest) {
