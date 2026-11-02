@@ -20,6 +20,19 @@ declare module 'astro:content' {
 
 	export type CollectionKey = keyof DataEntryMap;
 	export type CollectionEntry<C extends CollectionKey> = Flatten<DataEntryMap[C]>;
+	/** A collection entry read with `{ content: false }`, without `body` and `rendered`. */
+	export type CollectionEntryWithoutContent<C extends CollectionKey> = Omit<
+		CollectionEntry<C>,
+		'body' | 'rendered'
+	>;
+	type ContentOptionEnabled = '@@CONTENT_OPTION_ENABLED@@';
+	/** Requires `experimental.collectionStorageDrivers`. */
+	export type ReadEntryOptions = ContentOptionEnabled extends true
+		? {
+				/** When `false`, entries are returned without `body` and `rendered`, and can't be passed to `render()`. */
+				content?: boolean;
+			}
+		: { content?: never };
 
 	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
 
@@ -36,6 +49,35 @@ declare module 'astro:content' {
 		id: string;
 	};
 
+	export function getCollection<
+		C extends keyof DataEntryMap,
+		E extends CollectionEntryWithoutContent<C>,
+	>(
+		query: ReadEntryOptions & {
+			name: C;
+			filter: (entry: CollectionEntryWithoutContent<C>) => entry is E;
+			content: false;
+		},
+	): Promise<E[]>;
+	export function getCollection<C extends keyof DataEntryMap>(
+		query: ReadEntryOptions & {
+			name: C;
+			filter?: (entry: CollectionEntryWithoutContent<C>) => unknown;
+			content: false;
+		},
+	): Promise<CollectionEntryWithoutContent<C>[]>;
+	export function getCollection<C extends keyof DataEntryMap, E extends CollectionEntry<C>>(
+		query: ReadEntryOptions & {
+			name: C;
+			filter: (entry: CollectionEntry<C>) => entry is E;
+		},
+	): Promise<E[]>;
+	export function getCollection<C extends keyof DataEntryMap>(
+		query: ReadEntryOptions & {
+			name: C;
+			filter?: (entry: CollectionEntry<C>) => unknown;
+		},
+	): Promise<CollectionEntry<C>[]>;
 	export function getCollection<C extends keyof DataEntryMap, E extends CollectionEntry<C>>(
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => entry is E,
@@ -57,6 +99,22 @@ declare module 'astro:content' {
 		E extends keyof DataEntryMap[C] | (string & {}),
 	>(
 		entry: ReferenceDataEntry<C, E>,
+		options: ReadEntryOptions & { content: false },
+	): Promise<CollectionEntryWithoutContent<C> | undefined>;
+	export function getEntry<
+		C extends keyof DataEntryMap,
+		E extends keyof DataEntryMap[C] | (string & {}),
+	>(
+		collection: C,
+		id: E,
+		options: ReadEntryOptions & { content: false },
+	): Promise<CollectionEntryWithoutContent<C> | undefined>;
+	export function getEntry<
+		C extends keyof DataEntryMap,
+		E extends keyof DataEntryMap[C] | (string & {}),
+	>(
+		entry: ReferenceDataEntry<C, E>,
+		options?: ReadEntryOptions,
 	): E extends keyof DataEntryMap[C]
 		? Promise<DataEntryMap[C][E]>
 		: Promise<CollectionEntry<C> | undefined>;
@@ -66,6 +124,7 @@ declare module 'astro:content' {
 	>(
 		collection: C,
 		id: E,
+		options?: ReadEntryOptions,
 	): E extends keyof DataEntryMap[C]
 		? string extends keyof DataEntryMap[C]
 			? Promise<DataEntryMap[C][E]> | undefined
@@ -79,6 +138,11 @@ declare module 'astro:content' {
 	/** Resolve an array of entry references from the same collection */
 	export function getEntries<C extends keyof DataEntryMap>(
 		entries: ReferenceDataEntry<C, keyof DataEntryMap[C]>[],
+		options: ReadEntryOptions & { content: false },
+	): Promise<CollectionEntryWithoutContent<C>[]>;
+	export function getEntries<C extends keyof DataEntryMap>(
+		entries: ReferenceDataEntry<C, keyof DataEntryMap[C]>[],
+		options?: ReadEntryOptions,
 	): Promise<CollectionEntry<C>[]>;
 
 	export function render<C extends keyof DataEntryMap>(

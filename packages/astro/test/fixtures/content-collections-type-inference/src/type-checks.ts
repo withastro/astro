@@ -10,7 +10,7 @@
  * If the patch in templates/content/types.d.ts regresses, tsc will fail here
  * because a @ts-expect-error will become unused (the type collapsed to `any`).
  */
-import type { CollectionEntry, InferLoaderSchema } from 'astro:content';
+import { type CollectionEntry, getCollection, type InferLoaderSchema } from 'astro:content';
 
 // ============================================================================
 // Case 1: Loader with schema on the loader object ("blog" collection)
@@ -54,3 +54,30 @@ type SchemalessData = InferLoaderSchema<'schemaless'>;
 // So we verify `any` by checking that arbitrary property access works:
 const _schemalessValue: SchemalessData = { anything: 'goes', count: 42 };
 const _schemalessAccess: string = _schemalessValue.nonExistentProp;
+
+// ============================================================================
+// Case 4: getCollection() with a query object
+// ============================================================================
+
+async function _queryChecks() {
+	const withoutContent = await getCollection({ name: 'legacy', content: false });
+	const _title: string = withoutContent[0].data.title;
+	// @ts-expect-error - entries read with `content: false` have no `body`
+	withoutContent[0].body;
+
+	const filtered = await getCollection({
+		name: 'legacy',
+		filter: (entry) => entry.data.legacyField,
+	});
+	const _body: string | undefined = filtered[0].body;
+
+	const narrowed = await getCollection({
+		name: 'legacy',
+		content: false,
+		filter: (entry): entry is typeof entry & { id: 'first' } => entry.id === 'first',
+	});
+	const _id: 'first' = narrowed[0].id;
+
+	// @ts-expect-error - read options are only accepted in the query object
+	await getCollection('legacy', undefined, { content: false });
+}

@@ -1,6 +1,7 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import * as devalue from 'devalue';
-import { type DataStoreSource, InMemorySource } from './data-store-source.js';
+import { CompositeSource, type DataStoreSource, InMemorySource } from './data-store-source.js';
+import { type BundledStorageDriver, StoredCollectionsSource } from './storage-runtime.js';
 
 export interface RenderedContent {
 	/** Rendered HTML string. If present then `render(entry)` will return a component that renders this HTML. */
@@ -177,12 +178,25 @@ export class ImmutableDataStore {
 	}
 }
 
+async function loadStorageDrivers(): Promise<BundledStorageDriver[]> {
+	// @ts-expect-error - this is a virtual module
+	const { default: drivers } = await import('astro:collection-storage');
+	return drivers;
+}
+
 function dataStoreSingleton() {
 	let instance: Promise<DataStoreSource> | DataStoreSource | undefined = undefined;
 	return {
 		get: async (): Promise<DataStoreSource> => {
 			if (!instance) {
-				instance = ImmutableDataStore.fromModule().then((store) => new InMemorySource(store));
+				instance = Promise.all([ImmutableDataStore.fromModule(), loadStorageDrivers()]).then(
+					([store, drivers]) => {
+						const bundledSource = new InMemorySource(store);
+						if (drivers.length === 0) return bundledSource;
+						const stored = new Set(drivers.flatMap((driver) => driver.collections));
+						return new CompositeSource(bundledSource, new StoredCollectionsSource(drivers), stored);
+					},
+				);
 			}
 			return instance;
 		},
