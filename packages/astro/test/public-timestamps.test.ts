@@ -48,10 +48,10 @@ describe('Public file timestamps', () => {
 						applyToEnvironment(environment) {
 							return environment.name === 'client';
 						},
-						configEnvironment(name) {
+						configEnvironment(envName) {
 							// Astro forces copying on by default in the client environment,
 							// so disable it after its build config has been assembled.
-							if (name === 'client' && 'build' in vite) {
+							if (envName === 'client' && 'build' in vite) {
 								return { build: { copyPublicDir: false } };
 							}
 						},
