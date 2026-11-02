@@ -1,5 +1,6 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import * as devalue from 'devalue';
 import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
@@ -30,6 +31,7 @@ import {
 } from './consts.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
+import { readStoredCollectionsManifest } from './storage-sync.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -317,11 +319,17 @@ export function astroContentVirtualModPlugin({
 							meta: createContentDataIncrementalMetadata(),
 						};
 					}
-					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
+					let jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
+					// Collections with a storage driver are read from their driver, not bundled
+					const storedCollections = readStoredCollectionsManifest(
+						fs,
+						settings.dotAstroDir,
+					)?.drivers.flatMap((driver) => driver.collections);
 
 					if (getDataStoreChunkSize(settings) !== undefined) {
 						try {
 							const manifest: Record<string, string[]> = JSON.parse(jsonData);
+							for (const name of storedCollections ?? []) delete manifest[name];
 							// Emit each part as a lazy virtual import so the parts stay separate
 							// chunks instead of being inlined into one huge module (the very
 							// thing chunking avoids). manifestToMap reads the resolved
@@ -352,6 +360,11 @@ export function astroContentVirtualModPlugin({
 						// instead of being swallowed by the runtime's fallback to an
 						// empty store.
 						JSON.parse(jsonData);
+						if (storedCollections?.length) {
+							const collections: Map<string, unknown> = devalue.parse(jsonData);
+							for (const name of storedCollections) collections.delete(name);
+							jsonData = devalue.stringify(collections);
+						}
 					} catch (err) {
 						const message = 'Could not parse JSON file';
 						this.error({ message, id, cause: err });

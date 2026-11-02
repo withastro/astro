@@ -5,6 +5,7 @@ import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type * as z from 'zod/v4';
+import { normalizeEntrypoint } from '../core/entrypoint.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -14,10 +15,18 @@ import {
 	COLLECTIONS_MANIFEST_FILE,
 	CONTENT_LAYER_TYPE,
 	MODULES_IMPORTS_FILE,
+	STORED_COLLECTIONS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
 import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
+import type { CollectionStorageDescriptor } from './storage.js';
+import {
+	createDriverLoader,
+	type LoadCollectionStorageDriver,
+	type NormalizedStorageDescriptor,
+	writeStoredCollections,
+} from './storage-sync.js';
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
@@ -34,6 +43,8 @@ export interface ContentLayerOptions {
 	logger: AstroLogger;
 	watcher?: FSWatcher;
 	contentConfigObserver?: ContentObservable;
+	/** Creates the driver of collections with a storage driver. Defaults to importing the entrypoint of their descriptor. */
+	loadStorageDriver?: LoadCollectionStorageDriver;
 }
 
 type CollectionLoader<TData> = () =>
@@ -52,6 +63,7 @@ export class ContentLayer {
 	#markdownRenderer?: MarkdownRenderer;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
+	#loadStorageDriver: LoadCollectionStorageDriver;
 
 	#queue: PQueue;
 
@@ -61,8 +73,10 @@ export class ContentLayer {
 		store,
 		watcher,
 		contentConfigObserver = globalContentConfigObserver,
+		loadStorageDriver,
 	}: ContentLayerOptions) {
 		this.#logger = logger;
+		this.#loadStorageDriver = loadStorageDriver ?? createDriverLoader();
 		this.#store = store;
 		this.#settings = settings;
 		this.#contentConfigObserver = contentConfigObserver;
@@ -354,6 +368,7 @@ export class ContentLayer {
 		this.#validateReferences(contentConfig.config.collections, logger);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
+		await this.#writeStoredCollections(contentConfig.config.collections);
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeAssetImports(assetImportsFile);
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
@@ -363,6 +378,38 @@ export class ContentLayer {
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
 		}
+	}
+
+	/**
+	 * Writes the collections that have a storage driver to a new snapshot, and records where
+	 * they were written for the build. Removes the record when no collection has a driver.
+	 */
+	async #writeStoredCollections(
+		collections: Record<string, { type?: string; storage?: CollectionStorageDescriptor }>,
+	) {
+		const manifestFile = new URL(STORED_COLLECTIONS_FILE, this.#settings.dotAstroDir);
+		const stored = new Map<string, NormalizedStorageDescriptor>();
+		for (const [name, collection] of Object.entries(collections)) {
+			if (collection.storage) {
+				stored.set(name, {
+					...collection.storage,
+					entrypoint: normalizeEntrypoint(
+						collection.storage.entrypoint,
+						this.#settings.config.root,
+					),
+				});
+			}
+		}
+		if (stored.size === 0) {
+			await fs.rm(manifestFile, { force: true });
+			return;
+		}
+		const manifest = await writeStoredCollections({
+			collections: stored,
+			readEntries: (name) => this.#store.values(name),
+			loadDriver: this.#loadStorageDriver,
+		});
+		await fs.writeFile(manifestFile, JSON.stringify(manifest));
 	}
 
 	/**

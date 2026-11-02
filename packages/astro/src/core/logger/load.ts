@@ -1,6 +1,5 @@
-import { isAbsolute } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { AstroLogger, type AstroLoggerDestination } from './core.js';
+import { importEntrypoint } from '../entrypoint.js';
 import { AstroError } from '../errors/index.js';
 import { UnableToLoadLogger } from '../errors/errors-data.js';
 import type { LoggerHandlerConfig } from './config.js';
@@ -20,13 +19,7 @@ import {
  * while the Vite one *generates code* doing so, to bundle the handler into the build output.
  */
 async function createDestination(config: NormalizedLoggerConfig): Promise<AstroLoggerDestination> {
-	// `normalizeLoggerConfig()` turns `URL` and relative entrypoints into absolute paths,
-	// which `import()` only accepts as file URLs on Windows. Package entrypoints keep their
-	// specifier and resolve through the regular module resolution.
-	const specifier = isAbsolute(config.entrypoint)
-		? pathToFileURL(config.entrypoint).href
-		: config.entrypoint;
-	const logger = await import(/* @vite-ignore */ specifier);
+	const logger = await importEntrypoint(config.entrypoint);
 
 	// `astro/logger/compose` takes the composed destinations rather than a serializable config.
 	if (config.entrypoint === COMPOSE_LOGGER_ENTRYPOINT) {

@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { mkdtempSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { unified } from '@astrojs/markdown-remark';
+import type { CollectionStorageDriver, StoredEntry } from '../../../dist/content/storage.js';
 
 /**
  * Creates a temporary directory for tests
@@ -124,4 +125,50 @@ export function createMarkdownEntryType(
 			return getEntryInfo(contents, fileUrl);
 		},
 	};
+}
+
+/**
+ * Creates a collection storage driver that keeps snapshots in memory. `snapshots` exposes the
+ * committed snapshots, keyed by snapshot ID, then by collection, then by entry ID.
+ */
+export function createMemoryStorageDriver() {
+	const snapshots = new Map<string, Map<string, Map<string, StoredEntry>>>();
+	const committed = new Map<string, { committedAt: Date; dev: boolean }>();
+	const driver = {
+		async openWriter({ snapshot, dev }: { snapshot: string; dev: boolean }) {
+			const pending = new Map<string, Map<string, StoredEntry>>();
+			return {
+				async write(collection: string, entries: StoredEntry[]) {
+					pending.set(collection, new Map(entries.map((entry) => [entry.id, entry])));
+				},
+				async commit() {
+					snapshots.set(snapshot, pending);
+					committed.set(snapshot, { committedAt: new Date(), dev });
+				},
+			};
+		},
+		async listSnapshots() {
+			return [...committed].map(([snapshot, info]) => ({ snapshot, ...info }));
+		},
+		async deleteSnapshot(snapshot: string) {
+			snapshots.delete(snapshot);
+			committed.delete(snapshot);
+		},
+		async openReader({ snapshot }: { snapshot: string }) {
+			const read = (collection: string) => snapshots.get(snapshot)?.get(collection);
+			const withoutContent = ({ content: _content, ...entry }: StoredEntry): StoredEntry => entry;
+			return {
+				async get(collection: string, id: string, { content }: { content: boolean }) {
+					const entry = read(collection)?.get(id);
+					if (!entry) return undefined;
+					return content ? entry : withoutContent(entry);
+				},
+				async entries(collection: string, { content }: { content: boolean }) {
+					const entries = [...(read(collection)?.values() ?? [])];
+					return content ? entries : entries.map(withoutContent);
+				},
+			};
+		},
+	} satisfies CollectionStorageDriver;
+	return { ...driver, snapshots };
 }
