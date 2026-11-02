@@ -6,7 +6,7 @@ import * as vite from 'vite';
 import { LINKS_PLACEHOLDER } from '../../content/consts.js';
 import { contentAssetsBuildPostHook } from '../../content/vite-plugin-content-assets.js';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
-import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
+import { copyTimestamps, emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
@@ -311,6 +311,15 @@ async function buildEnvironments(opts: StaticBuildOptionsInput, internals: Build
 				builder.environments.client.config.build.rolldownOptions.input = sortedClientInput;
 				settings.timer.start('Client build');
 				await buildPhase('client bundle', () => builder.build(builder.environments.client));
+				// Vite copies public files without keeping timestamps (#18483).
+				// Use its resolved config, including publicDir/copyPublicDir overrides.
+				const clientConfig = builder.environments.client.config;
+				if (clientConfig.build.copyPublicDir && clientConfig.publicDir) {
+					await copyTimestamps(
+						pathToDirectoryURL(clientConfig.publicDir),
+						pathToDirectoryURL(clientConfig.build.outDir),
+					);
+				}
 				settings.timer.end('Client build');
 
 				// Store extracted chunks on internals for post plugin to consume
