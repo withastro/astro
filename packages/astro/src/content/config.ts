@@ -3,6 +3,7 @@ import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
+import type { CollectionStorageDescriptor } from './storage.js';
 
 function getImporterFilename() {
 	// Find the first line in the stack trace that doesn't include 'defineCollection' or 'getImporterFilename'
@@ -87,6 +88,11 @@ type ContentLayerConfig<S extends BaseSchema, TLoader extends LoaderConstraint<{
 	type?: 'content_layer';
 	schema?: S | ((context: SchemaContext) => S);
 	loader: TLoader;
+	/**
+	 * Keeps the collection's entries in a storage driver instead of the data store bundled
+	 * with the site. Requires `experimental.collectionStorageDrivers`.
+	 */
+	storage?: CollectionStorageDescriptor;
 };
 
 type DataCollectionConfig<S extends BaseSchema> = {

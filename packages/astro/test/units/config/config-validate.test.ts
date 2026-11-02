@@ -744,4 +744,12 @@ describe('Config Validation', () => {
 			}
 		});
 	});
+
+	describe('experimental.collectionStorageDrivers', () => {
+		it('is disabled by default', async () => {
+			const result = await validateConfig({});
+
+			assert.equal(result.experimental.collectionStorageDrivers, false);
+		});
+	});
 });

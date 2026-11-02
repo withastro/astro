@@ -2115,6 +2115,22 @@ export const FileGlobNotSupported = {
 
 /**
  * @docs
+ * @message
+ * **Example error message:**<br/>
+ * The collection `docs` sets the `storage` option, but collection storage drivers aren't enabled.
+ * @description
+ * A collection sets the `storage` option, but the `experimental.collectionStorageDrivers` flag is not enabled. Enable the flag in your Astro config, or remove the `storage` option to keep the collection bundled with your site.
+ */
+export const CollectionStorageDriversNotEnabled = {
+	name: 'CollectionStorageDriversNotEnabled',
+	title: 'Collection storage drivers are not enabled.',
+	message: (collection: string) =>
+		`The collection \`${collection}\` sets the \`storage\` option, but collection storage drivers aren't enabled.`,
+	hint: 'Set `experimental.collectionStorageDrivers` to `true` in your Astro config, or remove the `storage` option from the collection.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name Action Errors
  */
