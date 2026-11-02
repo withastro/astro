@@ -2117,6 +2117,22 @@ export const FileGlobNotSupported = {
  * @docs
  * @message
  * **Example error message:**<br/>
+ * The `content` option of `getCollection()`, `getEntry()` and `getEntries()` requires collection storage drivers.
+ * @description
+ * The `content` option of `getCollection()`, `getEntry()` and `getEntries()` is part of the experimental collection storage drivers, and requires the `experimental.collectionStorageDrivers` flag. Enable the flag in your Astro config, or remove the `content` option.
+ */
+export const ContentOptionNotEnabled = {
+	name: 'ContentOptionNotEnabled',
+	title: 'The `content` option is not enabled.',
+	message:
+		'The `content` option of `getCollection()`, `getEntry()` and `getEntries()` requires collection storage drivers.',
+	hint: 'Set `experimental.collectionStorageDrivers` to `true` in your Astro config, or remove the `content` option.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
  * The collection `docs` sets the `storage` option, but collection storage drivers aren't enabled.
  * @description
  * A collection sets the `storage` option, but the `experimental.collectionStorageDrivers` flag is not enabled. Enable the flag in your Astro config, or remove the `storage` option to keep the collection bundled with your site.
@@ -2143,6 +2159,22 @@ export const InvalidCollectionStorageDriver = {
 	message: (entrypoint: string, reason: string) =>
 		`Could not use the collection storage driver \`${entrypoint}\`. ${reason}`,
 	hint: 'Check that the driver package is installed, and that the `storage` option of your collection uses the function the driver package provides.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * The entry `intro` of the collection `docs` was read with `{ content: false }`, so it can't be rendered.
+ * @description
+ * Entries read with `{ content: false }` don't include the content needed to render them. Read the entry without this option, for example with `getEntry()`, before passing it to `render()`.
+ */
+export const RenderEntryWithoutContentError = {
+	name: 'RenderEntryWithoutContentError',
+	title: 'Attempted to render an entry read without its content.',
+	message: (collection: string, id: string) =>
+		`The entry \`${id}\` of the collection \`${collection}\` was read with \`{ content: false }\`, so it can't be rendered.`,
+	hint: 'Pass the entry returned by `getEntry(collection, id)` to `render()` instead.',
 } satisfies ErrorData;
 
 /**

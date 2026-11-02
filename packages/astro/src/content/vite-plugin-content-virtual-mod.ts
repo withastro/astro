@@ -14,6 +14,7 @@ import {
 	ASSET_IMPORTS_FILE,
 	ASSET_IMPORTS_RESOLVED_STUB_ID,
 	ASSET_IMPORTS_VIRTUAL_ID,
+	COLLECTION_STORAGE_VIRTUAL_ID,
 	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_STORE_CHUNK_FILE_NAME_PATTERN,
@@ -23,6 +24,7 @@ import {
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
 	MODULES_MJS_VIRTUAL_ID,
+	RESOLVED_COLLECTION_STORAGE_VIRTUAL_ID,
 	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
 	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX,
 	RESOLVED_DATA_STORE_VIRTUAL_ID,
@@ -31,7 +33,7 @@ import {
 } from './consts.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
-import { readStoredCollectionsManifest } from './storage-sync.js';
+import { readStoredCollectionsManifest, type StoredCollectionsManifest } from './storage-sync.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -205,7 +207,7 @@ export function astroContentVirtualModPlugin({
 		resolveId: {
 			filter: {
 				id: new RegExp(
-					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|^${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}|(?:\\?|&)${CONTENT_MODULE_FLAG}(?:&|=|$)`,
+					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${COLLECTION_STORAGE_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|^${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}|(?:\\?|&)${CONTENT_MODULE_FLAG}(?:&|=|$)`,
 				),
 			},
 			async handler(id, importer) {
@@ -222,6 +224,9 @@ export function astroContentVirtualModPlugin({
 				}
 				if (id === DATA_STORE_VIRTUAL_ID) {
 					return RESOLVED_DATA_STORE_VIRTUAL_ID;
+				}
+				if (id === COLLECTION_STORAGE_VIRTUAL_ID) {
+					return RESOLVED_COLLECTION_STORAGE_VIRTUAL_ID;
 				}
 				if (id.startsWith(DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX)) {
 					const fileName = id.slice(DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX.length);
@@ -270,7 +275,7 @@ export function astroContentVirtualModPlugin({
 		load: {
 			filter: {
 				id: new RegExp(
-					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$|^${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}`,
+					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${RESOLVED_COLLECTION_STORAGE_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$|^${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}`,
 				),
 			},
 			async handler(id) {
@@ -387,6 +392,21 @@ export function astroContentVirtualModPlugin({
 					};
 				}
 
+				if (id === RESOLVED_COLLECTION_STORAGE_VIRTUAL_ID) {
+					const manifest = isAstroClientEnvironment(this.environment)
+						? undefined
+						: readStoredCollectionsManifest(fs, settings.dotAstroDir);
+					return {
+						code: generateCollectionStorageModule(
+							manifest,
+							settings.config.experimental.collectionStorageDrivers,
+						),
+						// The snapshot changes on every build, so it must not count as a
+						// dependency change for incremental builds
+						meta: createContentDataIncrementalMetadata(),
+					};
+				}
+
 				if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
 					const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
 					return {
@@ -474,4 +494,24 @@ async function generateContentEntryFile({
 	}
 
 	return virtualModContents;
+}
+
+/**
+ * Generates the module that bundles the storage drivers of the collections written by the
+ * last sync, along with the snapshot each driver must read, and whether the `content` option of
+ * the read functions is enabled.
+ */
+export function generateCollectionStorageModule(
+	manifest: StoredCollectionsManifest | undefined,
+	contentOptionEnabled: boolean,
+) {
+	const drivers = manifest?.drivers ?? [];
+	const imports = drivers.map(
+		({ entrypoint }, i) => `import createDriver${i} from ${JSON.stringify(entrypoint)};`,
+	);
+	const entries = drivers.map(
+		({ config, snapshot, collections }, i) =>
+			`{createDriver:createDriver${i},config:${JSON.stringify(config)},snapshot:${JSON.stringify(snapshot)},collections:${JSON.stringify(collections)}}`,
+	);
+	return `${imports.join('\n')}\nexport const contentOptionEnabled = ${contentOptionEnabled};\nexport default [${entries.join(',')}];`;
 }

@@ -2580,6 +2580,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/collection-storage:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/component-library:
     dependencies:
       '@astrojs/preact':
@@ -2808,6 +2814,12 @@ importers:
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../../../integrations/mdx
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/content-option-disabled:
+    dependencies:
       astro:
         specifier: workspace:*
         version: link:../../..

@@ -597,6 +597,10 @@ async function writeContentFiles({
 			liveConfigPathRelativeToCacheDir
 				? `typeof import(${liveConfigPathRelativeToCacheDir})`
 				: 'never',
+		)
+		.replace(
+			"'@@CONTENT_OPTION_ENABLED@@'",
+			String(settings.config.experimental.collectionStorageDrivers),
 		);
 
 	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content

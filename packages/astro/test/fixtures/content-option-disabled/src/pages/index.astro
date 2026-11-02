@@ -1,0 +1,21 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+
+async function errorOf(read: () => Promise<unknown>) {
+	try {
+		await read();
+	} catch (error) {
+		return (error as Error).name;
+	}
+}
+
+// @ts-expect-error The `content` option requires collection storage drivers
+const fromEntry = await errorOf(() => getEntry('docs', 'intro', { content: false }));
+// @ts-expect-error The `content` option requires collection storage drivers
+const fromCollection = await errorOf(() => getCollection({ name: 'docs', content: false }));
+const withoutContentOption = (await getCollection({ name: 'docs' })).length;
+---
+
+<p id="entry">{fromEntry}</p>
+<p id="collection">{fromCollection}</p>
+<p id="count">{withoutContentOption}</p>
