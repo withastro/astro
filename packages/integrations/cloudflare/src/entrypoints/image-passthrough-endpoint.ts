@@ -4,6 +4,7 @@ import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { fetchWithRedirects } from 'astro/assets';
+import { matchesIfNoneMatch } from '../utils/etag.js';
 
 export const prerender = false;
 
@@ -30,9 +31,10 @@ export const GET: APIRoute = async ({ request }) => {
 			if (sourceUrl.origin !== url.origin) {
 				return new Response('Forbidden', { status: 403 });
 			}
-			// Client headers are not forwarded: conditional headers such as `If-None-Match` would make
-			// ASSETS answer 304, which the redirect guard below turns into a 404.
-			// https://github.com/withastro/astro/issues/18560
+			// Fetch the full representation before checking its type and validators.
+			// Forwarding conditional headers can produce a 304 without a Content-Type;
+			// forwarding Range can produce partial bytes that we would serve as 200.
+			// Revalidation is handled below for both local and remote images (#18560).
 			response = await env.ASSETS.fetch(sourceUrl);
 		}
 
@@ -56,7 +58,8 @@ export const GET: APIRoute = async ({ request }) => {
 		const etag = response.headers.get('ETag');
 		if (etag) headers.set('ETag', etag);
 
-		if (etag && request.headers.get('If-None-Match') === etag) {
+		if (matchesIfNoneMatch(request.headers.get('If-None-Match'), etag)) {
+			await response.body?.cancel();
 			return new Response(null, { status: 304, headers });
 		}
 
