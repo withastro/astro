@@ -22,7 +22,15 @@ export type {
 	UnresolvedImageTransform,
 } from '../../assets/types.js';
 export type { ContainerRenderer } from '../../container/index.js';
-export type { CollectionStorageDescriptor } from '../../content/storage.js';
+export type {
+	CollectionStorageDescriptor,
+	CollectionStorageDriver,
+	CollectionStorageDriverFactory,
+	CollectionStorageReader,
+	CollectionStorageSnapshot,
+	CollectionStorageWriter,
+	StoredEntry,
+} from '../../content/storage.js';
 export type {
 	AssetsPrefix,
 	NodeAppHeadersJson,
