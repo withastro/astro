@@ -33,28 +33,72 @@ export async function copyCachedFile(source: fs.PathLike, destination: fs.PathLi
 }
 
 /**
- * Gives each file in `destDir` the access and modification times of the file at
- * the same relative path in `srcDir`. Files missing from `destDir` are skipped.
+ * Restores timestamps only for unchanged public files. Build plugins may have
+ * overwritten the copied files, so matching paths (or sizes) alone are not enough.
+ * Source symlinks are followed, like Vite's public copy; destination symlinks are
+ * never followed, to avoid changing files outside the output directory.
  */
 export async function copyTimestamps(srcDir: URL, destDir: URL): Promise<void> {
-	const src = fileURLToPath(srcDir);
-	const dest = fileURLToPath(destDir);
-	if (!fs.existsSync(src)) return;
-	const entries = await fs.promises.readdir(src, { recursive: true, withFileTypes: true });
-	await Promise.all(
-		entries
-			.filter((entry) => entry.isFile())
-			.map(async (entry) => {
-				const srcFile = path.join(entry.parentPath, entry.name);
-				const destFile = path.join(dest, path.relative(src, srcFile));
-				const { atime, mtime } = await fs.promises.stat(srcFile);
-				try {
-					await fs.promises.utimes(destFile, atime, mtime);
-				} catch (err: any) {
-					if (err.code !== 'ENOENT') throw err;
+	async function visit(src: string, dest: string, ancestors: Set<string>): Promise<void> {
+		try {
+			const source = await fs.promises.stat(src);
+			const destination = await fs.promises.lstat(dest);
+			if (source.isDirectory() && destination.isDirectory()) {
+				const realPath = await fs.promises.realpath(src);
+				if (ancestors.has(realPath)) return;
+				const parents = new Set(ancestors).add(realPath);
+				// Walk sequentially to bound open files and comparison buffers, even
+				// for large public directories. Also handles symlinked directories.
+				for (const name of await fs.promises.readdir(src)) {
+					await visit(path.join(src, name), path.join(dest, name), parents);
 				}
-			}),
-	);
+			} else if (
+				source.isFile() &&
+				destination.isFile() &&
+				source.size === destination.size &&
+				(await filesHaveSameContents(src, dest, source.size))
+			) {
+				await fs.promises.utimes(dest, source.atime, source.mtime);
+			}
+		} catch (err: any) {
+			// Files may have been removed or replaced by directories during build.
+			if (err.code !== 'ENOENT' && err.code !== 'ENOTDIR') throw err;
+		}
+	}
+	await visit(fileURLToPath(srcDir), fileURLToPath(destDir), new Set());
+}
+
+async function filesHaveSameContents(src: string, dest: string, size: number): Promise<boolean> {
+	const source = await fs.promises.open(src, 'r');
+	try {
+		const destination = await fs.promises.open(dest, 'r');
+		try {
+			const sourceBuffer = Buffer.allocUnsafe(64 * 1024);
+			const destinationBuffer = Buffer.allocUnsafe(64 * 1024);
+			for (let position = 0; position < size; ) {
+				const length = Math.min(sourceBuffer.length, size - position);
+				const { bytesRead: sourceBytes } = await source.read(sourceBuffer, 0, length, position);
+				const { bytesRead: destinationBytes } = await destination.read(
+					destinationBuffer,
+					0,
+					length,
+					position,
+				);
+				if (
+					sourceBytes !== length ||
+					destinationBytes !== length ||
+					!sourceBuffer.subarray(0, length).equals(destinationBuffer.subarray(0, length))
+				)
+					return false;
+				position += length;
+			}
+			return true;
+		} finally {
+			await destination.close();
+		}
+	} finally {
+		await source.close();
+	}
 }
 
 export function emptyDir(_dir: URL, skip?: Set<string>): void {

@@ -311,11 +311,15 @@ async function buildEnvironments(opts: StaticBuildOptionsInput, internals: Build
 				builder.environments.client.config.build.rolldownOptions.input = sortedClientInput;
 				settings.timer.start('Client build');
 				await buildPhase('client bundle', () => builder.build(builder.environments.client));
-				// Vite copies `public/` without keeping file timestamps (#18483).
-				await copyTimestamps(
-					settings.config.publicDir,
-					pathToDirectoryURL(builder.environments.client.config.build.outDir),
-				);
+				// Vite copies public files without keeping timestamps (#18483).
+				// Use its resolved config, including publicDir/copyPublicDir overrides.
+				const clientConfig = builder.environments.client.config;
+				if (clientConfig.build.copyPublicDir && clientConfig.publicDir) {
+					await copyTimestamps(
+						pathToDirectoryURL(clientConfig.publicDir),
+						pathToDirectoryURL(clientConfig.build.outDir),
+					);
+				}
 				settings.timer.end('Client build');
 
 				// Store extracted chunks on internals for post plugin to consume
