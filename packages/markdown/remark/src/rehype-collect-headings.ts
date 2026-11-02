@@ -3,13 +3,11 @@ import Slugger from 'github-slugger';
 import type { MdxTextExpression } from 'mdast-util-mdx-expression';
 import type { Node } from 'unist';
 import { visit } from 'unist-util-visit';
-import type { VFile } from 'vfile';
 import type { MarkdownHeading, RehypePlugin } from '@astrojs/internal-helpers/markdown';
 
 import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
 
 const rawNodeTypes = new Set(['text', 'raw', 'mdxTextExpression']);
-const codeTagNames = new Set(['code', 'pre']);
 
 /**
  * Rehype plugin that adds `id` attributes to headings based on their text content.
@@ -21,7 +19,6 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 		const headings: MarkdownHeading[] = [];
 		const frontmatter = file.data.astro?.frontmatter;
 		const slugger = new Slugger();
-		const isMDX = isMDXFile(file);
 		visit(tree, (node) => {
 			if (node.type !== 'element') return;
 			const { tagName } = node;
@@ -41,24 +38,17 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 					}
 				}
 				if (rawNodeTypes.has(child.type) && 'value' in child) {
-					if (isMDX || ('tagName' in parent && codeTagNames.has(parent.tagName))) {
-						let value = child.value;
-						if (isMdxTextExpression(child) && frontmatter) {
-							const frontmatterPath = getMdxFrontmatterVariablePath(child);
-							if (Array.isArray(frontmatterPath) && frontmatterPath.length > 0) {
-								const frontmatterValue = getMdxFrontmatterVariableValue(
-									frontmatter,
-									frontmatterPath,
-								);
-								if (typeof frontmatterValue === 'string') {
-									value = frontmatterValue;
-								}
+					let value = child.value;
+					if (isMdxTextExpression(child) && frontmatter) {
+						const frontmatterPath = getMdxFrontmatterVariablePath(child);
+						if (Array.isArray(frontmatterPath) && frontmatterPath.length > 0) {
+							const frontmatterValue = getMdxFrontmatterVariableValue(frontmatter, frontmatterPath);
+							if (typeof frontmatterValue === 'string') {
+								value = frontmatterValue;
 							}
 						}
-						text += value;
-					} else {
-						text += child.value.replace(/\{/g, '${');
 					}
+					text += value;
 				}
 			});
 
@@ -73,10 +63,6 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 		file.data.astro ??= {};
 		file.data.astro.headings = headings;
 	};
-}
-
-function isMDXFile(file: VFile) {
-	return Boolean(file.history[0]?.endsWith('.mdx'));
 }
 
 /**
