@@ -223,7 +223,7 @@ function isMissingLocalePage(state: FetchState, routeData: RouteData, response: 
 	}
 	return (
 		isFallbackRouteMatch(routeData, state.pathname) &&
-		response.status === state.status &&
+		response.status === 302 &&
 		!response.headers.has('Location')
 	);
 }
