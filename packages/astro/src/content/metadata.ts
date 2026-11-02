@@ -1,18 +1,12 @@
-export type JSONValue = string | number | boolean | null | JSONArray | JSONObject;
+import type {
+	AnyCollectionMetadata,
+	CollectionDescriptors,
+	JSONArray,
+	JSONObject,
+	JSONValue,
+} from '@astrojs/internal-helpers/collections';
 
-// Interfaces, rather than type aliases, so TypeScript resolves the recursive members lazily
-export interface JSONObject {
-	[key: string]: JSONValue;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface JSONArray extends Array<JSONValue> {}
-
-/**
- * Serializable values attached to a collection by its loader or by `defineCollection()`, so
- * other code can recognize the collection without knowing its name.
- */
-export type CollectionDescriptors = Record<string, JSONValue>;
+export type { AnyCollectionMetadata, CollectionDescriptors, JSONArray, JSONObject, JSONValue };
 
 /**
  * Narrows a union of collection metadata to the collections that have the descriptors `D`,
@@ -23,20 +17,6 @@ export type ExtractCollectionMetadata<
 	D extends CollectionDescriptors,
 	T extends M['type'] = M['type'],
 > = Extract<M, { type: T; descriptors: D }>;
-
-/**
- * Facts about any collection, never its entries, with `name` as a `string` and untyped
- * descriptors. Integrations and Markdown plugins receive this shape, because a published package
- * can't see the collections of a project. In a project, `CollectionMetadata` from `astro:content`
- * has one variant for each collection, with its exact `name` and `descriptors`.
- */
-export interface AnyCollectionMetadata {
-	name: string;
-	type: 'build-time' | 'live';
-	loader: { name: string };
-	/** Descriptors from the loader and from the collection config, the latter taking precedence. */
-	descriptors: CollectionDescriptors;
-}
 
 interface CollectionWithDescriptors {
 	type?: string;

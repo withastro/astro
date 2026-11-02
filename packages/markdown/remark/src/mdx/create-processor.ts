@@ -76,12 +76,12 @@ export function createUnifiedMdxProcessor(
 	const processor = createMdxProcessor(mdxOptions, { sourcemap: mdx.sourcemap ?? false });
 
 	return {
-		async process(content, filePath, frontmatter) {
+		async process(content, filePath, frontmatter, processOptions) {
 			const vfile = new VFile({
 				value: content,
 				path: filePath,
 				data: {
-					astro: { frontmatter },
+					astro: { frontmatter, collection: processOptions?.collection },
 					applyFrontmatterExport: { srcDir: mdx.srcDir },
 				},
 			});

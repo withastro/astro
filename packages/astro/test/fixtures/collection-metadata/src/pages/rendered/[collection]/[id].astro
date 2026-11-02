@@ -1,0 +1,10 @@
+---
+import { getEntry, render } from 'astro:content';
+
+export const prerender = false;
+
+const entry = await getEntry(Astro.params.collection as 'docs', Astro.params.id!);
+const { Content } = await render(entry!);
+---
+
+<Content />

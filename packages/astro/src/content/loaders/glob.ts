@@ -124,6 +124,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 			store,
 			generateDigest,
 			entryTypes,
+			collectionMetadata,
 		}) => {
 			const renderFunctionByContentType = new WeakMap<
 				ContentEntryType,
@@ -225,13 +226,16 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					let rendered: RenderedContent | undefined = undefined;
 
 					try {
-						rendered = await render?.({
-							id,
-							data,
-							body,
-							filePath,
-							digest,
-						});
+						rendered = await render?.(
+							{
+								id,
+								data,
+								body,
+								filePath,
+								digest,
+							},
+							{ collection: collectionMetadata },
+						);
 					} catch (error: any) {
 						logger.error(`Error rendering ${entry}: ${error.message}`);
 						throw error;
