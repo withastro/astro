@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import nodeFs from 'node:fs';
 import { describe, it } from 'node:test';
+import { getCollectionFiles } from '../../../dist/content/collection-files.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { getCollectionsMetadata } from '../../../dist/content/metadata.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
@@ -165,5 +166,29 @@ describe('collections metadata module', () => {
 
 		assert.match(code, /export const enabled = false;/);
 		assert.match(code, /export const collections = \[\];/);
+	});
+});
+
+describe('getCollectionFiles', () => {
+	const docs = {
+		name: 'docs',
+		type: 'build-time',
+		loader: { name: 'glob' },
+		descriptors: {},
+	} as const;
+	const guides = { ...docs, name: 'guides' } as const;
+	const entries: Record<string, Array<Record<string, unknown>>> = {
+		docs: [
+			{ id: 'intro', filePath: 'src/docs/intro.mdx', deferredRender: true },
+			{ id: 'setup', filePath: 'src/docs/setup.md' },
+			{ id: 'shared', filePath: 'src/shared/shared.mdx', deferredRender: true },
+		],
+		guides: [{ id: 'shared', filePath: 'src/shared/shared.mdx', deferredRender: true }],
+	};
+
+	it('maps the files of entries rendered as modules to their collection', () => {
+		const files = getCollectionFiles([docs, guides], (name) => entries[name] as any);
+
+		assert.deepEqual(files, { 'src/docs/intro.mdx': docs });
 	});
 });
