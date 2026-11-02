@@ -109,6 +109,9 @@ const SUPPORTED_NODE_VERSIONS: Record<
 		status: 'available',
 	},
 	24: {
+		status: 'available',
+	},
+	26: {
 		status: 'default',
 	},
 };
@@ -795,10 +798,6 @@ class VercelBuilder {
 	}
 }
 
-// Vercel supports every Node.js major from 26 onwards, so a newer major missing
-// from SUPPORTED_NODE_VERSIONS resolves to its own runtime.
-const FIRST_CONSECUTIVE_NODE_VERSION = 26;
-
 export function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
 	if (process.versions.bun) {
 		const major = process.versions.bun.split('.')[0]; // '1.3.9' --> '1'
@@ -807,17 +806,14 @@ export function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogg
 	const version = process.version.slice(1); // 'v18.19.0' --> '18.19.0'
 	const major = version.split('.')[0]; // '18.19.0' --> '18'
 	const support = SUPPORTED_NODE_VERSIONS[major];
-	if (support === undefined && Number(major) >= FIRST_CONSECUTIVE_NODE_VERSION) {
-		return `nodejs${major}.x`;
-	}
 	if (support === undefined) {
 		logger.warn(
 			`\n` +
 				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
-				`\tYour project will use Node.js 24 as the runtime instead.\n` +
-				`\tConsider switching your local version to 24.\n`,
+				`\tYour project will use Node.js 26 as the runtime instead.\n` +
+				`\tConsider switching your local version to 26.\n`,
 		);
-		return 'nodejs24.x';
+		return 'nodejs26.x';
 	}
 	if (support.status === 'default' || support.status === 'available') {
 		return `nodejs${major}.x`;
@@ -841,11 +837,11 @@ export function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogg
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
 				`\tThis version is deprecated by Vercel Serverless Functions.\n` +
-				`\tConsider upgrading your local version to 24.\n`,
+				`\tConsider upgrading your local version to 26.\n`,
 		);
 		return `nodejs${major}.x`;
 	}
-	return 'nodejs24.x';
+	return 'nodejs26.x';
 }
 
 function createRoutesWithStaticHeaders(

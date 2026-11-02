@@ -18,9 +18,6 @@ describe('getRuntime', () => {
 	for (const [version, runtime] of [
 		['24.3.0', 'nodejs24.x'],
 		['26.0.0', 'nodejs26.x'],
-		['27.0.0', 'nodejs27.x'],
-		['28.1.0', 'nodejs28.x'],
-		['29.2.0', 'nodejs29.x'],
 	]) {
 		it(`uses ${runtime} without warning when built with Node.js ${version}`, () => {
 			const warnings: string[] = [];
@@ -30,13 +27,13 @@ describe('getRuntime', () => {
 		});
 	}
 
-	for (const version of ['23.1.0', '25.2.0']) {
-		it(`warns and falls back to nodejs24.x when built with Node.js ${version}`, () => {
+	for (const version of ['23.1.0', '25.2.0', '27.0.0']) {
+		it(`warns and falls back to nodejs26.x when built with Node.js ${version}`, () => {
 			const warnings: string[] = [];
 			const proc = { version: `v${version}`, versions: { node: version } } as any;
 			assert.equal(
 				getRuntime(proc, { warn: (m: string) => warnings.push(m) } as any),
-				'nodejs24.x',
+				'nodejs26.x',
 			);
 			assert.equal(warnings.length, 1);
 		});
