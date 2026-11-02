@@ -9,8 +9,9 @@ type State = {
 	index: number;
 	scrollX: number;
 	scrollY: number;
+	__astroPending?: string;
 };
-type Navigation = { controller: AbortController };
+type Navigation = { controller: AbortController; historyEntry?: number };
 type Transition = {
 	// The view transitions object (API and simulation)
 	viewTransition?: ViewTransition;
@@ -69,14 +70,23 @@ let parser: DOMParser;
 // can use that to determine popstate if going forward or back.
 let currentHistoryIndex = 0;
 
-// Chrome and Edge on iOS hide history entries from the back button when they were
-// pushed without recent user activation, and a tap only counts as activation while
-// its event is dispatched (https://github.com/withastro/astro/issues/18377).
-// So a navigation that starts with activation pushes its entry right away, as a copy
-// of the current one, and moveToLocation() fills it in once the new page is in place.
-let pendingHistoryEntry = false;
+// A push made while user activation is still live, awaiting its DOM swap.
+// Keep the current URL until swap so relative links and loaders still see the
+// current document's URL. Store the target in state so Forward/reload during a
+// fetch can complete the pending navigation, rather than expose a duplicate.
+let pendingHistoryEntry: number | undefined;
+// The source entry is no longer current while a placeholder is pending. Retain
+// scroll updates until we can write that entry on a later traversal.
+const pendingSourceScroll = new Map<number, { scrollX: number; scrollY: number }>();
 
 if (inBrowser) {
+	if (history.state?.__astroPending) {
+		// Reloading a placeholder must load its destination, not another copy of
+		// the source page. Clear the marker before loading the destination.
+		const { __astroPending, ...state } = history.state;
+		history.replaceState(state, '', __astroPending);
+		location.reload();
+	}
 	if (history.state) {
 		// Here we reloaded a page with history state
 		// (e.g. history navigation from non-transition page or browser reload)
@@ -178,6 +188,7 @@ const moveToLocation = (
 	options: Options,
 	pageTitleForBrowserHistory: string,
 	historyState?: State,
+	navigation?: Navigation,
 ) => {
 	const intraPage = samePage(from, to);
 
@@ -185,7 +196,14 @@ const moveToLocation = (
 	document.title = pageTitleForBrowserHistory;
 
 	let scrolledToTop = false;
-	if (to.href !== location.href && !historyState) {
+	if (navigation?.historyEntry !== undefined && navigation.historyEntry === pendingHistoryEntry) {
+		history.replaceState(
+			{ ...options.state, index: currentHistoryIndex, scrollX: 0, scrollY: 0 },
+			'',
+			to.href,
+		);
+		pendingHistoryEntry = undefined;
+	} else if (to.href !== location.href && !historyState) {
 		if (options.history === 'replace') {
 			const current = history.state;
 			history.replaceState(
@@ -198,20 +216,16 @@ const moveToLocation = (
 				'',
 				to.href,
 			);
-		} else if (pendingHistoryEntry) {
-			history.replaceState(
-				{ ...options.state, index: currentHistoryIndex, scrollX: 0, scrollY: 0 },
-				'',
-				to.href,
-			);
 		} else {
+			for (const index of pendingSourceScroll.keys()) {
+				if (index > currentHistoryIndex) pendingSourceScroll.delete(index);
+			}
 			history.pushState(
 				{ ...options.state, index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
 				'',
 				to.href,
 			);
 		}
-		pendingHistoryEntry = false;
 	}
 	document.title = targetPageTitle;
 	// now we are on the new page for non-history navigation!
@@ -283,6 +297,7 @@ async function updateDOM(
 	preparationEvent: TransitionBeforePreparationEvent,
 	options: Options,
 	currentTransition: Transition,
+	currentNavigation: Navigation,
 	historyState?: State,
 	fallback?: Fallback,
 ) {
@@ -326,7 +341,18 @@ async function updateDOM(
 		currentTransition.viewTransition!,
 		animateFallbackOld,
 	);
-	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
+	if (preparationEvent.signal.aborted) {
+		currentTransition.viewTransitionFinished?.();
+		return;
+	}
+	moveToLocation(
+		swapEvent.to,
+		swapEvent.from,
+		options,
+		pageTitleForBrowserHistory,
+		historyState,
+		currentNavigation,
+	);
 	triggerEvent('astro:after-swap');
 
 	// Resolve the finished promise of the simulation's ViewTransition.
@@ -336,17 +362,6 @@ async function updateDOM(
 		animate('new').finally(() => currentTransition.viewTransitionFinished!());
 	} else {
 		currentTransition.viewTransitionFinished?.();
-	}
-}
-
-// A full page load replaces the pending entry, which would otherwise stay behind
-// as a duplicate of the current page.
-function loadPage(to: URL) {
-	if (pendingHistoryEntry) {
-		pendingHistoryEntry = false;
-		location.replace(to.href);
-	} else {
-		location.href = to.href;
 	}
 }
 
@@ -373,10 +388,31 @@ async function transition(
 
 	const currentNavigation = abortAndRecreateMostRecentNavigation();
 
+	// Superseded navigations share their uncommitted entry. Do not add phantom
+	// entries for pages that never reached a swap, even if the next navigation
+	// has no user activation or requests replacement.
+	if (!historyState && pendingHistoryEntry !== undefined) {
+		currentNavigation.historyEntry = pendingHistoryEntry;
+	}
+
+	const loadInBrowser = () => {
+		if (
+			currentNavigation.historyEntry === pendingHistoryEntry &&
+			pendingHistoryEntry !== undefined
+		) {
+			pendingHistoryEntry = undefined;
+			const { __astroPending, ...state } = history.state;
+			history.replaceState(state, '');
+			location.replace(to.href);
+		} else {
+			location.href = to.href;
+		}
+	};
+
 	// not ours
 	if (!transitionEnabledOnThisPage() || location.origin !== to.origin) {
 		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
-		loadPage(to);
+		loadInBrowser();
 		return;
 	}
 
@@ -391,20 +427,10 @@ async function transition(
 	}
 	if (samePage(from, to) && !options.formData) {
 		if ((direction !== 'back' && to.hash) || (direction === 'back' && from.hash)) {
-			moveToLocation(to, from, options, document.title, historyState);
+			moveToLocation(to, from, options, document.title, historyState, currentNavigation);
 			if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 			return;
 		}
-	}
-
-	if (
-		navigationType === 'push' &&
-		!pendingHistoryEntry &&
-		to.href !== location.href &&
-		navigator.userActivation?.isActive
-	) {
-		history.pushState({ ...history.state, index: ++currentHistoryIndex }, '');
-		pendingHistoryEntry = true;
 	}
 
 	const prepEvent = await doPreparation(
@@ -417,12 +443,70 @@ async function transition(
 		currentNavigation!.controller.signal,
 		options.formData,
 		defaultLoader,
-	);
+		(event) => {
+			// A restored placeholder can replay a GET, but cannot reconstruct a
+			// POST body. Keep new POST navigations on the existing deferred path.
+			if (event.to.origin !== location.origin) return;
+			if (currentNavigation.historyEntry !== undefined) {
+				// A POST may fill a GET's reservation, but must not inherit its
+				// replay behavior. Until it commits, reload/traversal should return
+				// to the source URL, not request the POST destination as a GET.
+				history.replaceState(
+					{
+						...options.state,
+						index: currentHistoryIndex,
+						scrollX: 0,
+						scrollY: 0,
+						...(event.formData ? {} : { __astroPending: event.to.href }),
+					},
+					'',
+				);
+			} else if (
+				navigationType === 'push' &&
+				!event.formData &&
+				navigator.userActivation?.isActive &&
+				event.to.href !== from.href
+			) {
+				// WKWebView can hide pushState entries created after the click has
+				// finished dispatching. Reserve the entry before the first await.
+				for (const index of pendingSourceScroll.keys()) {
+					if (index > currentHistoryIndex) pendingSourceScroll.delete(index);
+				}
+				history.pushState(
+					{
+						...options.state,
+						index: ++currentHistoryIndex,
+						scrollX: 0,
+						scrollY: 0,
+						__astroPending: event.to.href,
+					},
+					'',
+				);
+				pendingHistoryEntry = currentNavigation.historyEntry = currentHistoryIndex;
+			}
+		},
+	).catch((error) => {
+		if (
+			!currentNavigation.controller.signal.aborted &&
+			currentNavigation.historyEntry !== undefined &&
+			currentNavigation.historyEntry === pendingHistoryEntry
+		) {
+			if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
+			loadInBrowser();
+		}
+		throw error;
+	});
+	if (
+		currentNavigation.historyEntry !== undefined &&
+		currentNavigation.historyEntry === pendingHistoryEntry
+	) {
+		pendingSourceScroll.set(currentNavigation.historyEntry - 1, { scrollX, scrollY });
+	}
 	if (prepEvent.defaultPrevented || prepEvent.signal.aborted) {
 		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 		if (!prepEvent.signal.aborted) {
 			// not aborted -> delegate to browser
-			loadPage(to);
+			loadInBrowser();
 		}
 		// and / or exit
 		return;
@@ -538,7 +622,8 @@ async function transition(
 		// This automatically cancels any previous transition
 		// We also already took care that the earlier update callback got through
 		currentTransition.viewTransition = document.startViewTransition(
-			async () => await updateDOM(prepEvent, options, currentTransition, historyState),
+			async () =>
+				await updateDOM(prepEvent, options, currentTransition, currentNavigation, historyState),
 		);
 	} else {
 		// Simulation mode requires a bit more manual work.
@@ -552,6 +637,7 @@ async function transition(
 				prepEvent,
 				options,
 				currentTransition,
+				currentNavigation,
 				historyState,
 				hasUAVisualTransition ? 'swap' : getFallback(),
 			);
@@ -633,8 +719,18 @@ export async function navigate(href: string, options?: Options) {
 }
 
 function onPopState(ev: PopStateEvent) {
-	// Traversing abandons the navigation a pending entry was pushed for.
-	pendingHistoryEntry = false;
+	// A traversal abandons the reservation, including when the destination is
+	// stateless. A late fetch must not replace the entry we just traversed to.
+	mostRecentNavigation?.controller.abort();
+	if (pendingHistoryEntry !== undefined) {
+		pendingSourceScroll.set(pendingHistoryEntry - 1, { scrollX, scrollY });
+	}
+	pendingHistoryEntry = undefined;
+	const savedScroll = pendingSourceScroll.get(ev.state?.index);
+	if (savedScroll) {
+		history.replaceState({ ...history.state, ...savedScroll }, '');
+		pendingSourceScroll.delete(ev.state.index);
+	}
 	if (!transitionEnabledOnThisPage() && ev.state) {
 		// The current page doesn't have View Transitions enabled
 		// but the page we navigate to does (because it set the state).
@@ -649,6 +745,10 @@ function onPopState(ev: PopStateEvent) {
 	// The browser will handle navigation fine without our help
 	if (ev.state === null) {
 		return;
+	}
+	if (history.state.__astroPending) {
+		const { __astroPending, ...state } = history.state;
+		history.replaceState(state, '', __astroPending);
 	}
 	const state: State = history.state;
 	const nextIndex = state.index;
@@ -665,6 +765,10 @@ function onPopState(ev: PopStateEvent) {
 }
 
 const onScrollEnd = () => {
+	if (pendingHistoryEntry !== undefined) {
+		pendingSourceScroll.set(pendingHistoryEntry - 1, { scrollX, scrollY });
+		return;
+	}
 	// NOTE: our "popstate" event handler may call `pushState()` or
 	// `replaceState()` and then `scrollTo()`, which will fire "scroll" and
 	// "scrollend" events. To avoid redundant work and expensive calls to
