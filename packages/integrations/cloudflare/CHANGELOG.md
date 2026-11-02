@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 15.0.0-beta.5
+
+### Patch Changes
+
+- [#18553](https://github.com/withastro/astro/pull/18553) [`bf39bf6`](https://github.com/withastro/astro/commit/bf39bf6a990c069a1ed5128bb425254722595556) Thanks [@petebacondarwin](https://github.com/petebacondarwin)! - Updates the Cloudflare adapter to use the Vite plugin's full configuration API while preserving user-defined Worker settings, bindings, and Containers
+
 ## 15.0.0-beta.4
 
 ### Patch Changes
