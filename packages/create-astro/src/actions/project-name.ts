@@ -57,15 +57,11 @@ export async function projectName(
 /** Use the last segment of a project path as its name, keeping scoped names like `@scope/name` whole */
 function nameFromPath(projectPath: string) {
 	const name = projectPath.trim();
-	if (name === '.' || name === './') {
-		const parts = process.cwd().split(path.sep);
-		return parts[parts.length - 1];
-	}
 	if (/^@[^/\\]+\/[^/\\]+$/.test(name)) {
 		return name;
 	}
-	const parts = name.split(/[/\\]/).filter(Boolean);
-	return parts[parts.length - 1] ?? name;
+	// `path.resolve` handles `.`, `./`, `..` and trailing separators, and `.\` on Windows
+	return path.basename(path.resolve(name));
 }
 
 async function checkCwd(cwd: string | undefined) {

@@ -67,6 +67,17 @@ describe('project name', async () => {
 		assert.equal(context.projectName, '@astro/site');
 	});
 
+	it('pass in a Windows relative path', { skip: process.platform !== 'win32' }, async () => {
+		const context: ProjectNameContext = {
+			projectName: '',
+			cwd: '.\\test\\fixtures\\empty',
+			prompt: mockPrompt({}),
+			exit: mockExit,
+		};
+		await projectName(context);
+		assert.equal(context.projectName, 'empty');
+	});
+
 	it('nested name from the prompt', async () => {
 		const context: ProjectNameContext = {
 			projectName: '',
