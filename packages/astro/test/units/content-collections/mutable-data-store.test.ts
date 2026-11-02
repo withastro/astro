@@ -128,6 +128,30 @@ describe('MutableDataStore', () => {
 		);
 	});
 
+	it('does not rewrite an empty content-assets.mjs when a store without asset imports is cleared', async () => {
+		const assetsFilePath = path.join(tmpDir, 'content-assets-empty-clear.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('items');
+
+		scoped.set({ id: 'one', data: { title: 'One' } });
+		await store.writeAssetImports(assetsFilePath);
+		const contentBefore = await fs.readFile(assetsFilePath, 'utf-8');
+
+		const writes: string[] = [];
+		store.onFileWritten((file) => writes.push(file));
+
+		scoped.clear();
+		scoped.set({ id: 'one', data: { title: 'Edited' } });
+		await store.writeAssetImports(assetsFilePath);
+		await store.waitUntilSaveComplete();
+
+		assert.equal(await fs.readFile(assetsFilePath, 'utf-8'), contentBefore);
+		assert.ok(
+			!writes.includes(assetsFilePath),
+			'content-assets.mjs should not be written when its content is unchanged',
+		);
+	});
+
 	it('removes stale module imports when an entry is deleted (via debounced write trigger)', async () => {
 		const modulesFilePath = path.join(tmpDir, 'content-modules-delete.mjs');
 		const store = new MutableDataStore();
