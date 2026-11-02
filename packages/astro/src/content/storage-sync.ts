@@ -119,11 +119,17 @@ export async function writeStoredCollections({
 	collections,
 	readEntries,
 	loadDriver,
+	devSnapshots,
 }: {
 	/** The storage descriptor of each collection that has one. */
 	collections: Map<string, NormalizedStorageDescriptor>;
 	readEntries: (collection: string) => DataEntry[];
 	loadDriver: LoadCollectionStorageDriver;
+	/**
+	 * The snapshot of each descriptor in a dev server, by descriptor key. When given, each
+	 * descriptor writes again to its snapshot, created on its first write with a random ID.
+	 */
+	devSnapshots?: Map<string, string>;
 }): Promise<StoredCollectionsManifest> {
 	const groups = new Map<string, { descriptor: NormalizedStorageDescriptor; names: string[] }>();
 	for (const [name, descriptor] of collections) {
@@ -134,9 +140,14 @@ export async function writeStoredCollections({
 	}
 
 	const manifest: StoredCollectionsManifest = { drivers: [] };
-	for (const { descriptor, names } of groups.values()) {
+	for (const [key, { descriptor, names }] of groups) {
 		const driver = await loadDriver(descriptor);
-		const snapshot = (await driver.createSnapshotId?.()) ?? randomUUID();
+		// `createSnapshotId()` may return the ID of a deployment, whose snapshot a dev server
+		// would then overwrite
+		const snapshot = devSnapshots
+			? (devSnapshots.get(key) ?? randomUUID())
+			: ((await driver.createSnapshotId?.()) ?? randomUUID());
+		devSnapshots?.set(key, snapshot);
 		if (typeof snapshot !== 'string' || snapshot === '') {
 			throw new AstroError({
 				...AstroErrorData.InvalidCollectionStorageDriver,
@@ -146,7 +157,7 @@ export async function writeStoredCollections({
 				),
 			});
 		}
-		const writer = await driver.openWriter({ snapshot, dev: false });
+		const writer = await driver.openWriter({ snapshot, dev: devSnapshots !== undefined });
 		for (const name of names) {
 			await writer.write(name, readEntries(name).map(serializeEntry));
 		}
