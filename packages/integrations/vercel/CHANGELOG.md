@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 11.0.18
+
+### Patch Changes
+
+- [#18554](https://github.com/withastro/astro/pull/18554) [`3ef9fea`](https://github.com/withastro/astro/commit/3ef9fea973c3a21c65a320407fbb2cf4e947b495) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes NFT tracing so dynamic path segments no longer glob the whole workspace, which could include unrelated files in function bundles for monorepo projects
+
 ## 11.0.17
 
 ### Patch Changes
