@@ -1,0 +1,19 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const collections = ['docs', 'first'] as const;
+	const paths = [];
+	for (const collection of collections) {
+		for (const entry of await getCollection(collection)) {
+			paths.push({ params: { collection, id: entry.id } });
+		}
+	}
+	return paths;
+}
+
+const entry = await getEntry(Astro.params.collection as 'docs', Astro.params.id);
+const { Content } = await render(entry!);
+---
+
+<Content />

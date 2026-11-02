@@ -47,6 +47,7 @@ export const DATA_STORE_MANIFEST_FILE = 'manifest.json';
 export const ASSET_IMPORTS_FILE = 'content-assets.mjs';
 export const MODULES_IMPORTS_FILE = 'content-modules.mjs';
 export const COLLECTIONS_METADATA_FILE = 'collections-metadata.json';
+export const COLLECTION_FILES_FILE = 'collection-files.json';
 export const COLLECTIONS_MANIFEST_FILE = 'collections/collections.json';
 export const COLLECTIONS_DIR = 'collections/';
 

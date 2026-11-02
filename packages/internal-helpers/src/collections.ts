@@ -22,3 +22,15 @@ export interface CollectionMetadata {
 	/** Descriptors from the loader and from the collection config, the latter taking precedence. */
 	descriptors: CollectionDescriptors;
 }
+
+/** Name of Astro's Vite plugin whose `api` returns the collection of a file. */
+export const COLLECTION_FILES_PLUGIN_NAME = 'astro:collection-files';
+
+/** The `api` of Astro's `astro:collection-files` Vite plugin. */
+export interface CollectionFilesApi {
+	/**
+	 * Returns the metadata of the collection that a file compiled as a module belongs to, or
+	 * `undefined` when it belongs to no collection, or to more than one.
+	 */
+	getCollection(fileId: string): CollectionMetadata | undefined;
+}
