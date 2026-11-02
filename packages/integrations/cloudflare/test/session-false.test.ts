@@ -86,12 +86,20 @@ describe('@astrojs/cloudflare session: false', () => {
 	describe('KV binding resource', () => {
 		it('provisions no session KV namespace when the driver is not needed', () => {
 			const customize = cloudflareConfigCustomizer({ needsSessionKVBinding: false });
-			assert.equal(customize({}).env?.[DEFAULT_SESSION_KV_BINDING_NAME], undefined);
+			const result = customize({
+				worker: { name: 'test-worker', compatibilityDate: '2026-10-01', env: {} },
+				containers: [],
+			});
+			assert.equal(result.worker.env?.[DEFAULT_SESSION_KV_BINDING_NAME], undefined);
 		});
 
 		it('provisions the session KV namespace when the driver is needed', () => {
 			const customize = cloudflareConfigCustomizer({ needsSessionKVBinding: true });
-			assert.deepEqual(customize({}).env?.[DEFAULT_SESSION_KV_BINDING_NAME], { type: 'kv' });
+			const result = customize({
+				worker: { name: 'test-worker', compatibilityDate: '2026-10-01', env: {} },
+				containers: [],
+			});
+			assert.deepEqual(result.worker.env?.[DEFAULT_SESSION_KV_BINDING_NAME], { type: 'kv' });
 		});
 	});
 });

@@ -3,6 +3,7 @@ import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
+import type { ParsedInputConfigWithWorker } from '@cloudflare/vite-plugin';
 import {
 	assertWranglerConfigMigrated,
 	cloudflareConfigCustomizer,
@@ -12,145 +13,240 @@ import {
 	withNodejsAlsFlag,
 } from '../dist/cloudflare-config.js';
 
-describe('cloudflareConfigCustomizer', () => {
-	describe('compatibility date', () => {
-		it('does not set a compatibility date', () => {
-			const result = cloudflareConfigCustomizer()({});
+function createConfig(
+	worker: Partial<ParsedInputConfigWithWorker['worker']> = {},
+): ParsedInputConfigWithWorker {
+	return {
+		worker: { name: 'test-worker', compatibilityDate: '2026-10-01', env: {}, ...worker },
+		containers: [],
+	};
+}
 
-			assert.equal(result.compatibilityDate, undefined);
+describe('cloudflareConfigCustomizer', () => {
+	it('preserves account settings, Containers, and Worker configuration without mutating the input', () => {
+		const config: ParsedInputConfigWithWorker = {
+			...createConfig({
+				compatibilityFlags: ['nodejs_compat'],
+				assets: { runWorkerFirst: true },
+				observability: { enabled: true },
+			}),
+			accountId: 'test-account',
+			complianceRegion: 'public',
+			containers: [
+				{ name: 'test-container', image: { dockerfile: './Dockerfile' }, maxInstances: 20 },
+			],
+		};
+		const original = structuredClone(config);
+
+		const result = cloudflareConfigCustomizer()(config);
+
+		assert.deepEqual(result, {
+			...original,
+			worker: {
+				...original.worker,
+				entrypoint: '@astrojs/cloudflare/entrypoints/server',
+				env: {
+					SESSION: { type: 'kv' },
+					IMAGES: { type: 'images' },
+					ASSETS: { type: 'assets' },
+				},
+			},
+		});
+		assert.deepEqual(config, original);
+	});
+
+	it('loads text, JSON, and secret bindings from the Worker into process.env', (t) => {
+		const envDir = mkdtempSync(join(realpathSync(tmpdir()), 'astro-cloudflare-env-'));
+		const names = ['ASTRO_CF_TEST_TEXT', 'ASTRO_CF_TEST_JSON', 'ASTRO_CF_TEST_SECRET'];
+		const original = names.map((name) => process.env[name]);
+		t.after(() => {
+			rmSync(envDir, { recursive: true, force: true });
+			for (const [index, name] of names.entries()) {
+				if (original[index] === undefined) delete process.env[name];
+				else process.env[name] = original[index];
+			}
+		});
+		writeFileSync(join(envDir, '.dev.vars.production'), 'ASTRO_CF_TEST_SECRET=secret-value');
+
+		cloudflareConfigCustomizer({ envDir, mode: 'production' })(
+			createConfig({
+				env: {
+					ASTRO_CF_TEST_TEXT: { type: 'text', value: 'text-value' },
+					ASTRO_CF_TEST_JSON: { type: 'json', value: { key: 'value' } },
+					ASTRO_CF_TEST_SECRET: { type: 'secret' },
+				},
+			}),
+		);
+
+		assert.equal(process.env.ASTRO_CF_TEST_TEXT, 'text-value');
+		assert.equal(process.env.ASTRO_CF_TEST_JSON, '{"key":"value"}');
+		assert.equal(process.env.ASTRO_CF_TEST_SECRET, 'secret-value');
+	});
+
+	describe('compatibility date', () => {
+		it('preserves the compatibility date', () => {
+			const result = cloudflareConfigCustomizer()(createConfig());
+
+			assert.equal(result.worker.compatibilityDate, '2026-10-01');
 		});
 	});
 
 	describe('entrypoint', () => {
 		it('sets the server entrypoint when none exists', () => {
-			const result = cloudflareConfigCustomizer()({});
+			const result = cloudflareConfigCustomizer()(createConfig());
 
-			assert.equal(result.entrypoint, '@astrojs/cloudflare/entrypoints/server');
+			assert.equal(result.worker.entrypoint, '@astrojs/cloudflare/entrypoints/server');
 		});
 
 		it('preserves the user entrypoint', () => {
-			const result = cloudflareConfigCustomizer()({ entrypoint: './src/worker.ts' });
+			const result = cloudflareConfigCustomizer()(createConfig({ entrypoint: './src/worker.ts' }));
 
-			assert.equal(result.entrypoint, './src/worker.ts');
+			assert.equal(result.worker.entrypoint, './src/worker.ts');
 		});
 	});
 
 	describe('session KV binding', () => {
 		it('adds the default SESSION binding through env', () => {
-			const result = cloudflareConfigCustomizer()({});
+			const result = cloudflareConfigCustomizer()(createConfig());
 
-			assert.deepEqual(result.env?.[DEFAULT_SESSION_KV_BINDING_NAME], { type: 'kv' });
+			assert.deepEqual(result.worker.env?.[DEFAULT_SESSION_KV_BINDING_NAME], { type: 'kv' });
 		});
 
 		it('adds a custom SESSION binding name', () => {
-			const result = cloudflareConfigCustomizer({ sessionKVBindingName: 'MY_SESSION' })({});
+			const result = cloudflareConfigCustomizer({ sessionKVBindingName: 'MY_SESSION' })(
+				createConfig(),
+			);
 
-			assert.deepEqual(result.env?.MY_SESSION, { type: 'kv' });
+			assert.deepEqual(result.worker.env?.MY_SESSION, { type: 'kv' });
 		});
 
 		it('does not add the SESSION binding when it already exists', () => {
-			const result = cloudflareConfigCustomizer()({
-				env: { SESSION: { type: 'kv', id: 'existing-id' } },
-			});
+			const result = cloudflareConfigCustomizer()(
+				createConfig({
+					env: { SESSION: { type: 'kv', id: 'existing-id' } },
+				}),
+			);
 
-			assert.equal(result.env?.SESSION, undefined);
+			assert.deepEqual(result.worker.env?.SESSION, { type: 'kv', id: 'existing-id' });
 		});
 
 		it('does not add the SESSION binding when it is disabled', () => {
-			const result = cloudflareConfigCustomizer({ needsSessionKVBinding: false })({});
+			const result = cloudflareConfigCustomizer({ needsSessionKVBinding: false })(createConfig());
 
-			assert.equal(result.env?.SESSION, undefined);
+			assert.equal(result.worker.env?.SESSION, undefined);
 		});
 
-		it('does not return user-declared bindings', () => {
-			const result = cloudflareConfigCustomizer()({
-				env: {
-					RATE_LIMIT: { type: 'kv', id: 'rate-limit-id' },
-					CACHE: { type: 'kv', id: 'cache-id' },
-				},
-			});
+		it('preserves user-declared bindings', () => {
+			const result = cloudflareConfigCustomizer()(
+				createConfig({
+					env: {
+						RATE_LIMIT: { type: 'kv', id: 'rate-limit-id' },
+						CACHE: { type: 'kv', id: 'cache-id' },
+					},
+				}),
+			);
 
-			assert.equal(result.env?.RATE_LIMIT, undefined);
-			assert.equal(result.env?.CACHE, undefined);
-			assert.deepEqual(result.env?.SESSION, { type: 'kv' });
+			assert.deepEqual(result.worker.env?.RATE_LIMIT, { type: 'kv', id: 'rate-limit-id' });
+			assert.deepEqual(result.worker.env?.CACHE, { type: 'kv', id: 'cache-id' });
+			assert.deepEqual(result.worker.env?.SESSION, { type: 'kv' });
 		});
 	});
 
 	describe('images binding', () => {
 		it('adds the default IMAGES binding through env', () => {
-			const result = cloudflareConfigCustomizer()({});
+			const result = cloudflareConfigCustomizer()(createConfig());
 
-			assert.deepEqual(result.env?.[DEFAULT_IMAGES_BINDING_NAME], { type: 'images' });
+			assert.deepEqual(result.worker.env?.[DEFAULT_IMAGES_BINDING_NAME], { type: 'images' });
 		});
 
 		it('adds a custom IMAGES binding name', () => {
-			const result = cloudflareConfigCustomizer({ imagesBindingName: 'MY_IMAGES' })({});
+			const result = cloudflareConfigCustomizer({ imagesBindingName: 'MY_IMAGES' })(createConfig());
 
-			assert.deepEqual(result.env?.MY_IMAGES, { type: 'images' });
+			assert.deepEqual(result.worker.env?.MY_IMAGES, { type: 'images' });
 		});
 
 		it('does not add the IMAGES binding when it already exists', () => {
-			const result = cloudflareConfigCustomizer()({ env: { IMAGES: { type: 'images' } } });
+			const result = cloudflareConfigCustomizer()(
+				createConfig({ env: { IMAGES: { type: 'images' } } }),
+			);
 
-			assert.equal(result.env?.IMAGES, undefined);
+			assert.deepEqual(result.worker.env?.IMAGES, { type: 'images' });
 		});
 
 		it('does not add the IMAGES binding when one exists with a different name', () => {
-			const result = cloudflareConfigCustomizer()({
-				env: { CUSTOM_IMAGES: { type: 'images' } },
-			});
+			const result = cloudflareConfigCustomizer()(
+				createConfig({
+					env: { CUSTOM_IMAGES: { type: 'images' } },
+				}),
+			);
 
-			assert.equal(result.env?.IMAGES, undefined);
+			assert.deepEqual(result.worker.env?.CUSTOM_IMAGES, { type: 'images' });
+			assert.equal(result.worker.env?.IMAGES, undefined);
 		});
 
 		it('does not add the IMAGES binding when it is disabled', () => {
-			const result = cloudflareConfigCustomizer({ imagesBindingName: false })({});
+			const result = cloudflareConfigCustomizer({ imagesBindingName: false })(createConfig());
 
-			assert.equal(result.env?.IMAGES, undefined);
+			assert.equal(result.worker.env?.IMAGES, undefined);
 		});
 	});
 
 	describe('assets binding', () => {
 		it('adds the default ASSETS binding through env', () => {
-			const result = cloudflareConfigCustomizer()({});
+			const result = cloudflareConfigCustomizer()(createConfig());
 
-			assert.deepEqual(result.env?.[DEFAULT_ASSETS_BINDING_NAME], { type: 'assets' });
+			assert.deepEqual(result.worker.env?.[DEFAULT_ASSETS_BINDING_NAME], { type: 'assets' });
 		});
 
 		it('does not add the ASSETS binding when it already exists', () => {
-			const result = cloudflareConfigCustomizer()({ env: { ASSETS: { type: 'assets' } } });
+			const result = cloudflareConfigCustomizer()(
+				createConfig({ env: { ASSETS: { type: 'assets' } } }),
+			);
 
-			assert.equal(result.env?.ASSETS, undefined);
+			assert.deepEqual(result.worker.env?.ASSETS, { type: 'assets' });
 		});
 
 		it('does not add the ASSETS binding when one exists with a different name', () => {
-			const result = cloudflareConfigCustomizer()({
-				env: { CUSTOM_ASSETS: { type: 'assets' } },
-			});
+			const result = cloudflareConfigCustomizer()(
+				createConfig({
+					env: { CUSTOM_ASSETS: { type: 'assets' } },
+				}),
+			);
 
-			assert.equal(result.env?.ASSETS, undefined);
+			assert.deepEqual(result.worker.env?.CUSTOM_ASSETS, { type: 'assets' });
+			assert.equal(result.worker.env?.ASSETS, undefined);
 		});
 	});
 
 	describe('worker cache', () => {
 		it('enables cache when it is needed and not configured', () => {
-			const result = cloudflareConfigCustomizer({ needsWorkerCache: true })({});
+			const result = cloudflareConfigCustomizer({ needsWorkerCache: true })(createConfig());
 
-			assert.deepEqual(result.cache, { enabled: true });
+			assert.deepEqual(result.worker.cache, { enabled: true });
 		});
 
 		it('does not enable cache when it is not needed', () => {
-			const result = cloudflareConfigCustomizer({ needsWorkerCache: false })({});
+			const result = cloudflareConfigCustomizer({ needsWorkerCache: false })(createConfig());
 
-			assert.equal(result.cache, undefined);
+			assert.equal(result.worker.cache, undefined);
 		});
 
 		it('does not override an existing cache setting', () => {
-			const result = cloudflareConfigCustomizer({ needsWorkerCache: true })({
-				cache: { enabled: false },
-			});
+			const result = cloudflareConfigCustomizer({ needsWorkerCache: true })(
+				createConfig({
+					cache: { enabled: false },
+				}),
+			);
 
-			assert.equal(result.cache, undefined);
+			assert.deepEqual(result.worker.cache, { enabled: false });
+		});
+
+		it('preserves additional cache options when cache is enabled', () => {
+			const result = cloudflareConfigCustomizer({ needsWorkerCache: true })(
+				createConfig({ cache: { enabled: true, crossVersionCache: true } }),
+			);
+
+			assert.deepEqual(result.worker.cache, { enabled: true, crossVersionCache: true });
 		});
 	});
 
