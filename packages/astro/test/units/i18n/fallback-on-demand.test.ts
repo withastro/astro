@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import type { SSRManifest } from '../../../dist/core/app/types.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createRouteData, createTestApp } from '../mocks.ts';
 import { dynamicPart, staticPart } from '../routing/test-helpers.ts';
@@ -10,16 +11,25 @@ const page = createComponent((result, props, slots) => {
 	return render`<p id="path">${Astro.url.pathname}</p><p id="search">${Astro.url.search}</p><p id="locale">${Astro.currentLocale}</p><p id="id">${Astro.params.id}</p>`;
 });
 
+interface FallbackAppOptions {
+	base?: string;
+	trailingSlash?: SSRManifest['trailingSlash'];
+	route?: string;
+	component?: typeof page;
+	middleware?: SSRManifest['middleware'];
+	dynamic?: boolean;
+}
+
 function fallbackApp(
 	fallbackType: 'rewrite' | 'redirect',
 	{
 		base = '/',
-		trailingSlash = 'ignore' as 'ignore' | 'always' | 'never',
+		trailingSlash = 'ignore',
 		route = '/live',
 		component = page,
-		middleware = undefined as any,
+		middleware,
 		dynamic = false,
-	} = {},
+	}: FallbackAppOptions = {},
 ) {
 	const segments = dynamic ? [[staticPart('posts')], [dynamicPart('id')]] : undefined;
 	const live = createPage(component, { route, segments, trailingSlash });
