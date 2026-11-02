@@ -152,6 +152,73 @@ describe('MutableDataStore', () => {
 		);
 	});
 
+	for (const operation of ['delete', 'clear', 'clearAll'] as const) {
+		it(`does not rewrite empty asset imports after debounced ${operation} (#18573)`, async () => {
+			const assetsFile = pathToFileURL(path.join(tmpDir, `empty-assets-${operation}.mjs`));
+			const store = new MutableDataStore();
+			const writes: string[] = [];
+			store.onFileWritten((file) => writes.push(file));
+			store.scopedStore('items').set({ id: 'one', data: {} });
+			await store.writeAssetImports(assetsFile);
+			await store.waitUntilSaveComplete();
+			assert.equal(await fs.readFile(assetsFile, 'utf-8'), 'export default new Map();');
+			assert.equal(writes.length, 1, 'create the empty module exactly once');
+			writes.length = 0;
+
+			for (let i = 0; i < 2; i++) {
+				store.scopedStore('items').set({ id: 'one', data: { version: i } });
+				if (operation === 'delete') store.delete('items', 'one');
+				else if (operation === 'clear') store.clear('items');
+				else store.clearAll();
+				// Exercise the scheduled writer without an explicit writeAssetImports call.
+				await store.waitUntilSaveComplete();
+				assert.deepEqual(writes, [], 'unchanged empty modules must not notify the watcher');
+			}
+		});
+	}
+
+	it('writes exactly once when the last asset is removed and can add assets again (#18573)', async () => {
+		const assetsFile = path.join(tmpDir, 'assets-empty-transition.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('items');
+		const setImage = () =>
+			scoped.set({
+				id: 'one',
+				data: {},
+				filePath: 'src/content/items/one.json',
+				assetImports: ['./image.png'],
+			});
+		setImage();
+		await store.writeAssetImports(assetsFile);
+		await store.waitUntilSaveComplete();
+		const withImage = await fs.readFile(assetsFile, 'utf-8');
+		const writes: string[] = [];
+		store.onFileWritten((file) => writes.push(file));
+
+		scoped.delete('one');
+		await store.waitUntilSaveComplete();
+		assert.equal(await fs.readFile(assetsFile, 'utf-8'), 'export default new Map();');
+		assert.deepEqual(writes, [assetsFile], 'removing the last asset still invalidates once');
+
+		writes.length = 0;
+		setImage();
+		await store.waitUntilSaveComplete();
+		assert.equal(await fs.readFile(assetsFile, 'utf-8'), withImage);
+		assert.deepEqual(writes, [assetsFile], 'adding an asset after emptying still invalidates');
+	});
+
+	it('can retry an empty asset write after a filesystem error (#18573)', async () => {
+		const store = new MutableDataStore();
+		const directory = path.join(tmpDir, 'missing-assets-directory');
+		const assetsFile = path.join(directory, 'content-assets.mjs');
+		store.clearAll();
+		await assert.rejects(store.writeAssetImports(assetsFile), { name: 'UnknownFilesystemError' });
+		await fs.mkdir(directory);
+		await store.writeAssetImports(assetsFile);
+		await store.waitUntilSaveComplete();
+		assert.equal(await fs.readFile(assetsFile, 'utf-8'), 'export default new Map();');
+	});
+
 	it('removes stale module imports when an entry is deleted (via debounced write trigger)', async () => {
 		const modulesFilePath = path.join(tmpDir, 'content-modules-delete.mjs');
 		const store = new MutableDataStore();
