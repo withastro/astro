@@ -1,3 +1,4 @@
+import type { CollectionMetadata } from '../../content/metadata.js';
 import type { AddressInfo } from 'node:net';
 import type { ViteDevServer, InlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
@@ -497,6 +498,20 @@ export interface BaseIntegrationHooks {
 	}) => void | Promise<void>;
 	'astro:routes:resolved': (options: {
 		routes: IntegrationResolvedRoute[];
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	/**
+	 * Called with the metadata of the build-time collections during the content sync, after
+	 * `astro:config:done` and before any loader runs. Requires `experimental.collectionMetadata`.
+	 *
+	 * In `astro build`, it's called on every build, before `astro:build:start`: the build's Vite
+	 * pipeline hasn't loaded any module yet, except the modules `content.config.ts` imports, which
+	 * are loaded to read the content config. In `astro dev`, it's called after
+	 * `astro:server:setup` and before `astro:server:start`, and again when the content config
+	 * changes.
+	 */
+	'astro:collections:resolved': (options: {
+		collections: CollectionMetadata[];
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 }

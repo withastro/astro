@@ -52,11 +52,15 @@ describe('getCollectionsMetadata', () => {
 });
 
 describe('ContentLayer with collection metadata', () => {
-	async function sync(root: URL, collectionMetadata: boolean) {
+	function createContentLayer(
+		root: URL,
+		collectionMetadata: boolean,
+		integrations: unknown[] = [],
+	) {
 		const settings = createMinimalSettings(root, {
-			config: { experimental: { collectionMetadata } },
+			config: { experimental: { collectionMetadata }, integrations },
 		});
-		const contentLayer = new ContentLayer({
+		return new ContentLayer({
 			settings,
 			logger: defaultLogger,
 			store: new MutableDataStore(),
@@ -65,7 +69,10 @@ describe('ContentLayer with collection metadata', () => {
 				legacy: { type: 'content' },
 			}),
 		});
-		await contentLayer.sync();
+	}
+
+	async function sync(root: URL, collectionMetadata: boolean) {
+		await createContentLayer(root, collectionMetadata).sync();
 		return new URL('./.astro/collections-metadata.json', root);
 	}
 
@@ -80,6 +87,44 @@ describe('ContentLayer with collection metadata', () => {
 				descriptors: { library: 'docs', version: 1, audience: 'all' },
 			},
 		]);
+	});
+
+	it('calls astro:collections:resolved once per content config', async () => {
+		const calls: unknown[] = [];
+		const integration = {
+			name: 'collections-spy',
+			hooks: {
+				'astro:collections:resolved': ({ collections }: { collections: unknown[] }) => {
+					calls.push(collections);
+				},
+			},
+		};
+		const contentLayer = createContentLayer(createTempDir(), true, [integration]);
+
+		await contentLayer.sync();
+		await contentLayer.sync();
+
+		assert.equal(calls.length, 1);
+		assert.deepEqual(calls[0], [
+			{
+				name: 'docs',
+				type: 'build-time',
+				loader: { name: 'docs-loader' },
+				descriptors: { library: 'docs', version: 1, audience: 'all' },
+			},
+		]);
+	});
+
+	it('does not call astro:collections:resolved when the flag is disabled', async () => {
+		let called = false;
+		const integration = {
+			name: 'collections-spy',
+			hooks: { 'astro:collections:resolved': () => (called = true) },
+		};
+
+		await createContentLayer(createTempDir(), false, [integration]).sync();
+
+		assert.equal(called, false);
 	});
 
 	it('removes the metadata when the flag is disabled', async () => {

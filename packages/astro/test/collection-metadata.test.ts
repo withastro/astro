@@ -91,3 +91,63 @@ describe('Collection descriptors without the flag', () => {
 		assert.match(await fixture.readFile('/index.html'), /<p id="count">1<\/p>/);
 	});
 });
+
+describe('astro:collections:resolved in a build', () => {
+	const calls: string[] = [];
+
+	before(async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/collection-metadata/',
+			adapter: testAdapter(),
+			outDir: './dist/collection-metadata-hook-order/',
+			integrations: [
+				{
+					name: 'record-hook-order',
+					hooks: {
+						'astro:config:setup': ({ updateConfig }) => {
+							updateConfig({
+								vite: {
+									plugins: [
+										{
+											name: 'record-first-load',
+											// Only the build's Vite pipeline, not the server sync loads the content config with
+											apply: 'build',
+											load() {
+												if (!calls.includes('vite:load')) calls.push('vite:load');
+											},
+										},
+									],
+								},
+							});
+						},
+						'astro:config:done': () => {
+							calls.push('astro:config:done');
+						},
+						'astro:collections:resolved': () => {
+							calls.push('astro:collections:resolved');
+						},
+						'astro:build:start': () => {
+							calls.push('astro:build:start');
+						},
+					},
+				},
+			],
+		});
+		await fixture.build({});
+	});
+
+	it('runs after astro:config:done, before the build starts and loads any module', () => {
+		const order = [
+			'astro:config:done',
+			'astro:collections:resolved',
+			'astro:build:start',
+			'vite:load',
+		].map((call) => calls.indexOf(call));
+
+		assert.ok(!order.includes(-1), `missing calls: ${calls.join(', ')}`);
+		assert.deepEqual(
+			order,
+			[...order].sort((a, b) => a - b),
+		);
+	});
+});
