@@ -115,15 +115,21 @@ async function importDriver(
  * returns where they were written. Collections sharing a storage descriptor share a driver
  * and a snapshot.
  */
+/** The snapshot every dev server writes, so a project has a single dev snapshot. */
+const DEV_SNAPSHOT = 'dev';
+
 export async function writeStoredCollections({
 	collections,
 	readEntries,
 	loadDriver,
+	dev = false,
 }: {
 	/** The storage descriptor of each collection that has one. */
 	collections: Map<string, NormalizedStorageDescriptor>;
 	readEntries: (collection: string) => DataEntry[];
 	loadDriver: LoadCollectionStorageDriver;
+	/** Whether a dev server writes the collections, to {@link DEV_SNAPSHOT} instead of a new snapshot. */
+	dev?: boolean;
 }): Promise<StoredCollectionsManifest> {
 	const groups = new Map<string, { descriptor: NormalizedStorageDescriptor; names: string[] }>();
 	for (const [name, descriptor] of collections) {
@@ -136,7 +142,9 @@ export async function writeStoredCollections({
 	const manifest: StoredCollectionsManifest = { drivers: [] };
 	for (const { descriptor, names } of groups.values()) {
 		const driver = await loadDriver(descriptor);
-		const snapshot = (await driver.createSnapshotId?.()) ?? randomUUID();
+		// `createSnapshotId()` may return the ID of a deployment, whose snapshot a dev server
+		// would then overwrite
+		const snapshot = dev ? DEV_SNAPSHOT : ((await driver.createSnapshotId?.()) ?? randomUUID());
 		if (typeof snapshot !== 'string' || snapshot === '') {
 			throw new AstroError({
 				...AstroErrorData.InvalidCollectionStorageDriver,
@@ -146,7 +154,7 @@ export async function writeStoredCollections({
 				),
 			});
 		}
-		const writer = await driver.openWriter({ snapshot, dev: false });
+		const writer = await driver.openWriter({ snapshot, dev });
 		if (typeof writer?.write !== 'function' || typeof writer?.commit !== 'function') {
 			throw new AstroError({
 				...AstroErrorData.InvalidCollectionStorageDriver,

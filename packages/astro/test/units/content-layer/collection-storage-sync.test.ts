@@ -115,6 +115,37 @@ describe('writeStoredCollections', () => {
 		assert.notEqual(first.drivers[0].snapshot, second.drivers[0].snapshot);
 	});
 
+	it('writes dev servers to the dev snapshot, without creating an ID', async () => {
+		let created = 0;
+		const driver = {
+			...createMemoryStorageDriver(),
+			createSnapshotId: async () => {
+				created++;
+				return 'deploy-42';
+			},
+		};
+		const write = (docs: unknown[]) =>
+			writeStoredCollections({
+				collections: new Map([['docs', { entrypoint: 'memory-driver' }]]),
+				readEntries: () => docs as any,
+				loadDriver: async () => driver,
+				dev: true,
+			});
+
+		const first = await write(entries.get('docs')!);
+		const second = await write([]);
+
+		const { snapshot } = first.drivers[0];
+		assert.equal(created, 0);
+		assert.equal(snapshot, 'dev');
+		assert.equal(second.drivers[0].snapshot, snapshot);
+		assert.deepEqual(readStored(driver, snapshot), { docs: [] });
+		const listed = await driver.listSnapshots();
+		assert.equal(listed.length, 1);
+		assert.equal(listed[0].snapshot, snapshot);
+		assert.equal(listed[0].dev, true);
+	});
+
 	it('throws when the driver creates an empty snapshot ID', async () => {
 		const driver = { ...createMemoryStorageDriver(), createSnapshotId: () => '' };
 

@@ -252,6 +252,7 @@ export async function createContainerWithAutomaticRestart({
 			watcher: restart.container.viteServer.watcher,
 			store: previousContentLayer.store,
 			loadStorageDriver: createViteDriverLoader(restart.container.viteServer),
+			dev: true,
 		});
 		contentLayer.watchContentConfig();
 		// A loader error must not reject the watcher callback that triggered the

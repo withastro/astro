@@ -173,6 +173,8 @@ export async function syncInternal({
 				watcher,
 				loadStorageDriver: createViteDriverLoader(tempViteServer),
 				writesStoredCollections: command !== 'sync',
+				// Dev servers sync through here too when they restart
+				dev: command === 'dev',
 			});
 			if (watcher) {
 				contentLayer.watchContentConfig();

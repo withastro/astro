@@ -1,4 +1,5 @@
 import { existsSync, promises as fs } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
 import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
@@ -50,6 +51,11 @@ export interface ContentLayerOptions {
 	 * reads what it would write: builds and dev servers write their own snapshots. Defaults to `true`.
 	 */
 	writesStoredCollections?: boolean;
+	/**
+	 * Whether a dev server runs the content layer. Collections with a storage driver are then
+	 * written to the dev snapshot again after each change, instead of to new snapshots.
+	 */
+	dev?: boolean;
 }
 
 type CollectionLoader<TData> = () =>
@@ -70,6 +76,8 @@ export class ContentLayer {
 	#contentConfigObserver: ContentObservable;
 	#loadStorageDriver: LoadCollectionStorageDriver;
 	#writesStoredCollections: boolean;
+	#dev: boolean;
+	#unsubscribeStoreWrites?: () => void;
 
 	#queue: PQueue;
 
@@ -81,10 +89,12 @@ export class ContentLayer {
 		contentConfigObserver = globalContentConfigObserver,
 		loadStorageDriver,
 		writesStoredCollections = true,
+		dev = false,
 	}: ContentLayerOptions) {
 		this.#logger = logger;
 		this.#loadStorageDriver = loadStorageDriver ?? createDriverLoader();
 		this.#writesStoredCollections = writesStoredCollections;
+		this.#dev = dev;
 		this.#store = store;
 		this.#settings = settings;
 		this.#contentConfigObserver = contentConfigObserver;
@@ -92,6 +102,37 @@ export class ContentLayer {
 			this.#watcher = createWatcherWrapper(watcher);
 		}
 		this.#queue = new PQueue({ concurrency: 1 });
+		if (watcher) {
+			// Loaders update the store outside of syncs when watched files change, so the
+			// collections with a storage driver are written again after each store write.
+			// Syncs write them themselves.
+			const importsFiles = new Set(
+				[ASSET_IMPORTS_FILE, MODULES_IMPORTS_FILE].map((file) =>
+					fileURLToPath(new URL(file, settings.dotAstroDir)),
+				),
+			);
+			this.#unsubscribeStoreWrites = store.onFileWritten((path) => {
+				if (this.loading || importsFiles.has(path)) return;
+				const contentConfig = this.#contentConfigObserver.get();
+				if (contentConfig.status !== 'loaded') return;
+				const { collections } = contentConfig.config;
+				if (
+					!Object.values(collections).some(
+						(collection) => 'storage' in collection && collection.storage,
+					)
+				) {
+					return;
+				}
+				this.#queue
+					.add(() => this.#writeStoredCollections(collections))
+					.catch((error) => {
+						this.#logger.error(
+							'content',
+							`Could not write the collections with a storage driver: ${error.message}`,
+						);
+					});
+			});
+		}
 	}
 
 	/**
@@ -124,6 +165,7 @@ export class ContentLayer {
 	dispose() {
 		this.#queue.clear();
 		this.#unsubscribe?.();
+		this.#unsubscribeStoreWrites?.();
 		this.#watcher?.removeAllTrackedListeners();
 	}
 
@@ -391,8 +433,9 @@ export class ContentLayer {
 	}
 
 	/**
-	 * Writes the collections that have a storage driver to a new snapshot, and records where
-	 * they were written for the build. Removes the record when no collection has a driver.
+	 * Writes the collections that have a storage driver to a new snapshot, or to the dev server's
+	 * snapshots, and records where they were written. Removes the record when no collection has a
+	 * driver.
 	 */
 	async #writeStoredCollections(
 		collections: Record<string, { type?: string; storage?: CollectionStorageDescriptor }>,
@@ -418,6 +461,7 @@ export class ContentLayer {
 			collections: stored,
 			readEntries: (name) => this.#store.values(name),
 			loadDriver: this.#loadStorageDriver,
+			dev: this.#dev,
 		});
 		await fs.writeFile(manifestFile, JSON.stringify(manifest));
 	}
