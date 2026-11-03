@@ -3,6 +3,7 @@ import { describe, it, mock } from 'node:test';
 import type { CacheProvider } from '../../../dist/core/cache/types.js';
 import type { MemoryCacheProviderOptions } from '../../../dist/core/cache/memory-provider.js';
 import memoryProvider from '../../../dist/core/cache/memory-provider.js';
+import { settlePendingStores, waitUntil } from './test-helpers.ts';
 
 /**
  * Helper: create a CacheProvider instance with optional config.
@@ -19,11 +20,6 @@ function makeRequest(url: string, headers: Record<string, string> = {}): Request
 }
 
 /**
- * Background cache stores handed to `waitUntil` by `makeContext`.
- */
-const pendingStores: Promise<unknown>[] = [];
-
-/**
  * Helper: create the context passed to `onRequest`, with a no-op logger. The
  * `waitUntil` hook records the store promise so tests can await it.
  */
@@ -32,19 +28,8 @@ function makeContext(request: Request, warn: (message: string) => void = () => {
 		request,
 		url: new URL(request.url),
 		logger: { info() {}, warn, error() {} },
-		waitUntil: (promise: Promise<unknown>) => {
-			pendingStores.push(promise);
-		},
+		waitUntil,
 	};
-}
-
-/**
- * Helper: wait for the background stores recorded so far. Call it after any cacheable
- * request whose stored entry a later assertion depends on, including assertions that a
- * different key or an uncacheable response is a MISS.
- */
-async function settlePendingStores(): Promise<void> {
-	await Promise.all(pendingStores.splice(0));
 }
 
 /**

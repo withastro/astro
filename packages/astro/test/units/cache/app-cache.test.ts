@@ -5,6 +5,7 @@ import memoryProvider from '../../../dist/core/cache/memory-provider.js';
 import { createComponent, render, renderHead } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createTestApp } from '../mocks.ts';
 import type { APIContext } from '../../../dist/types/public/context.js';
+import { settlePendingStores, waitUntil } from './test-helpers.ts';
 
 function createCacheManifestOverrides() {
 	return {
@@ -19,27 +20,6 @@ function createSessionCacheManifestOverrides() {
 		sessionConfig: { driver: 'memory', cookie: 'astro-session' },
 		sessionDriver: async () => ({ default: () => sessionMemoryDriver() }),
 	};
-}
-
-/**
- * Background cache stores handed to `waitUntil` by `waitUntil` below.
- */
-const pendingStores: Promise<unknown>[] = [];
-
-/**
- * Render option: records the background cache store so tests can await it.
- */
-function waitUntil(promise: Promise<unknown>) {
-	pendingStores.push(promise);
-}
-
-/**
- * Helper: wait for the background stores recorded so far. Call it after any cacheable
- * request whose stored entry a later assertion depends on, including assertions that a
- * different key or an uncacheable response is a MISS.
- */
-async function settlePendingStores(): Promise<void> {
-	await Promise.all(pendingStores.splice(0));
 }
 
 // #region Route factories
