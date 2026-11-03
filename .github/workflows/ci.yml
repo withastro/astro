@@ -67,7 +67,7 @@ jobs:
       matrix:
         # windows-latest is still windows-2022 for some reason, even though the windows-2025 image is GA
         OS: [ubuntu-latest, windows-2025]
-        NODE_VERSION: [22]
+        NODE_VERSION: [22.23.4]
       fail-fast: true
     steps:
       # Disable crlf so all OS can share the same Turbo cache
@@ -160,7 +160,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, macos-14, windows-2025]
-        NODE_VERSION: [22, 24]
+        NODE_VERSION: [22.23.4, 24]
         TEST_SUITE:
           - { name: astro, script: 'pnpm run test:astro' }
           - { name: integrations, script: 'pnpm run test:integrations' }
@@ -169,9 +169,9 @@ jobs:
         # Windows and use one of the older Node versions.
         exclude:
           - os: macos-14
-            NODE_VERSION: 22
+            NODE_VERSION: 22.23.4
           - os: windows-2025
-            NODE_VERSION: 22
+            NODE_VERSION: 22.23.4
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -235,12 +235,12 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         # VS Code 1.101 (minimum supported version) ships with Node 22.15.1
-        node_version: [22.22.2, 24.15.0]
+        node_version: [22.23.4, 24.15.0]
         include:
           - os: windows-latest
-            node_version: 22.22.2
+            node_version: 22.23.4
           - os: macos-latest
-            node_version: 22.22.2
+            node_version: 22.23.4
       fail-fast: false
 
     name: 'Test (language-tools): node-${{ matrix.node_version }}, ${{ matrix.os }}'
@@ -292,7 +292,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-2025]
-        NODE_VERSION: [22]
+        NODE_VERSION: [22.23.4]
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -331,7 +331,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-2025]
-        NODE_VERSION: [22]
+        NODE_VERSION: [22.23.4]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:

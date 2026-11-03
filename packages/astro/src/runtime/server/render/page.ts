@@ -5,9 +5,29 @@ import { renderToAsyncIterable, renderToReadableStream, renderToString } from '.
 import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
 import { renderCspContent } from './csp.js';
+import { renderCspMetaTag } from './head.js';
 import type { AstroComponentFactory } from './index.js';
 import { isDeno, isNode, isWorkerd } from './util.js';
 import { isAstroComponentFactory } from './astro/factory.js';
+
+// Components rendered after the head can still insert CSP hashes, so for pages rendered to a
+// string the head writes a placeholder that is replaced with the real `<meta>` element once the
+// whole page has rendered (https://github.com/withastro/astro/issues/18479). It is set before
+// rendering starts, because the head can already be rendered while buffering propagated head content.
+function setCspMetaPlaceholder(result: SSRResult): string | undefined {
+	if (result.shouldInjectCspMetaTags && result.cspDestination === 'meta') {
+		result._metadata.cspMetaPlaceholder = `<!--astro-csp-meta-${crypto.randomUUID()}-->`;
+	}
+	return result._metadata.cspMetaPlaceholder;
+}
+
+function replaceCspMetaPlaceholder(
+	result: SSRResult,
+	placeholder: string | undefined,
+	html: string,
+): string {
+	return placeholder ? html.replace(placeholder, () => renderCspMetaTag(result)) : html;
+}
 
 export async function renderPage(
 	result: SSRResult,
@@ -30,7 +50,8 @@ export async function renderPage(
 		// MDX (which also wraps runtime errors with a helpful hint and streams the
 		// content), the HTML renderer for `.html`, and framework renderers for
 		// components. It also injects the `<head>` for layout-less MDX pages.
-		const str = await renderComponentToString(
+		const cspMetaPlaceholder = setCspMetaPlaceholder(result);
+		let str = await renderComponentToString(
 			result,
 			(componentFactory as NonAstroPageComponent).name,
 			componentFactory,
@@ -39,6 +60,7 @@ export async function renderPage(
 			true,
 			route,
 		);
+		str = replaceCspMetaPlaceholder(result, cspMetaPlaceholder, str);
 
 		const bytes = encoder.encode(str);
 		const headers = new Headers([
@@ -96,7 +118,11 @@ export async function renderPage(
 			body = await renderToReadableStream(result, componentFactory, props, children, true, route);
 		}
 	} else {
+		const cspMetaPlaceholder = setCspMetaPlaceholder(result);
 		body = await renderToString(result, componentFactory, props, children, true, route);
+		if (typeof body === 'string') {
+			body = replaceCspMetaPlaceholder(result, cspMetaPlaceholder, body);
+		}
 	}
 
 	// If the Astro component returns a Response on init, return that response

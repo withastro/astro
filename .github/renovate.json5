@@ -214,6 +214,12 @@
       "groupName": "@playwright/test",
       "matchManagers": ["npm"],
       "matchPackageNames": ["@playwright/test"]
+    },
+    // The CodSpeed Vitest plugin, its core, and Vitest itself move in lockstep, so bump them in one update.
+    {
+      "groupName": "@codspeed",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@codspeed/vitest-plugin", "@codspeed/core", "vitest", "@vitest/*"]
     }
     //#endregion
   ],

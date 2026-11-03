@@ -187,6 +187,8 @@ export class MutableDataStore extends ImmutableDataStore {
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
+			this.#assetsDirty = false;
+			return;
 		}
 
 		if (!this.#assetsDirty && existsSync(filePath)) {

@@ -1,6 +1,7 @@
 import picomatch from 'picomatch';
 import type { AstroCookies } from '../cookies/cookies.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
+import { REROUTABLE_STATUS_CODES } from '../constants.js';
 import { AstroError } from '../errors/errors.js';
 import { CacheQueryConfigConflict } from '../errors/errors-data.js';
 import type { CacheProvider, CacheProviderFactory, InvalidateOptions } from './types.js';
@@ -267,6 +268,15 @@ function hasAtLeastOneCookie(cookies: AstroCookies | undefined): boolean {
 	return cookies ? !cookies.headers().next().done : false;
 }
 
+/**
+ * Whether the router will replace this response with the rendered error page.
+ * Such responses are not cached: the cached copy has a non-null body, so a
+ * cache hit would skip the reroute and serve an empty body (#18456).
+ */
+function isErrorPageReroute(response: Response): boolean {
+	return response.body === null && REROUTABLE_STATUS_CODES.includes(response.status);
+}
+
 function hasSetCookieHeader(response: Response): boolean {
 	if (response.headers.has('set-cookie')) return true;
 	return hasAtLeastOneCookie(getCookiesFromResponse(response));
@@ -459,6 +469,10 @@ const memoryProvider = ((config): CacheProvider => {
 								const cdnCC = freshResponse.headers.get('CDN-Cache-Control');
 								const { maxAge: newMaxAge, swr: newSwr } = parseCdnCacheControl(cdnCC);
 								if (newMaxAge > 0) {
+									if (isErrorPageReroute(freshResponse)) {
+										cache.delete(key);
+										return;
+									}
 									if (hasSetCookieHeader(freshResponse)) {
 										warnSkippedSetCookie(context.logger, requestUrl);
 										return;
@@ -509,6 +523,9 @@ const memoryProvider = ((config): CacheProvider => {
 			const { maxAge, swr } = parseCdnCacheControl(cdnCC);
 
 			if (maxAge > 0) {
+				if (isErrorPageReroute(response)) {
+					return response;
+				}
 				if (hasSetCookieHeader(response)) {
 					warnSkippedSetCookie(context.logger, requestUrl);
 					return response;

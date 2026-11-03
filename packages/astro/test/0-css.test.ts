@@ -114,6 +114,7 @@ describe('CSS', function () {
 				assert.match(style, /\.comp-a\[data-astro-cid/);
 				assert.match(style, /\.comp-c\{/);
 				assert.doesNotMatch(style, /\.comp-b/);
+				assert.doesNotMatch(style, /\.comp-d/);
 			});
 
 			it('CSS modules imported in both frontmatter and script should not duplicate', async () => {
@@ -461,7 +462,7 @@ describe('CSS', function () {
 			assert.equal(allInjectedStyles.includes('.vue-css{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-sass{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-scss{'), true);
-			assert.equal(allInjectedStyles.includes('.vue-scoped{'), true);
+			assert.match(allInjectedStyles, /\.vue-scoped\[data-v-[a-z0-9]+\]\{/);
 			assert.equal(allInjectedStyles.includes('._vueModules_'), true);
 		});
 

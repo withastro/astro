@@ -30,10 +30,13 @@ export async function runHighlighterWithAstro(lang: string | undefined, code: st
 	}
 
 	const grammar = Prism.languages[lang];
-	let html = code;
-	if (grammar) {
-		html = Prism.highlight(code, grammar, lang);
-	}
+	// Without a grammar, still escape the code so it displays as plain text,
+	// matching the output of `Prism.highlight()` for supported languages.
+	const html = grammar ? Prism.highlight(code, grammar, lang) : escapeCode(code);
 
 	return { classLanguage, html };
+}
+
+function escapeCode(code: string) {
+	return code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

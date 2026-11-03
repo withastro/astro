@@ -123,7 +123,7 @@ async function renderToStaticMarkup(
 	};
 	let html: string;
 	if (opts.experimentalDisableStreaming) {
-		html = ReactDOM.renderToString(vnode);
+		html = ReactDOM.renderToString(vnode, renderOptions);
 	} else if ('renderToReadableStream' in ReactDOM) {
 		html = await renderToReadableStreamAsync(vnode, renderOptions);
 	} else {

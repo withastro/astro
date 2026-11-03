@@ -329,6 +329,40 @@ describe('Server islands', () => {
 		});
 	});
 
+	describe('island discovered after another island page in dev', () => {
+		let fixture: Fixture;
+		let devServer: DevServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/server-islands/late-discovery',
+				adapter: testAdapter(),
+				outDir: './dist/server-islands-late-discovery/',
+				cacheDir: './node_modules/.astro-test/server-islands-late-discovery/',
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('renders an island that imports astro:actions on the second island page requested', async () => {
+			const first = await fixture.fetch('/');
+			assert.equal(first.status, 200);
+
+			const res = await fixture.fetch('/b');
+			assert.equal(res.status, 200);
+			const html = await res.text();
+			const urlMatch = /fetch\(["'](\/_server-islands\/IslandB\?[^"']+)["']/.exec(html)!;
+			assert.ok(urlMatch, 'should have a server island fetch URL');
+			const islandRes = await fixture.fetch(urlMatch[1]);
+			assert.equal(islandRes.status, 200);
+			const $ = cheerio.load(await islandRes.text());
+			assert.equal($('#island-b').text(), 'Island B (function)');
+		});
+	});
+
 	describe('Hybrid mode', () => {
 		let fixture: Fixture;
 		before(async () => {

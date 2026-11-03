@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.9.12
+
+### Patch Changes
+
+- [#18455](https://github.com/withastro/astro/pull/18455) [`7af66fc`](https://github.com/withastro/astro/commit/7af66fc785d85b1df1f98e7123a52b2306250985) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `astro-check` binary ignoring its first two command-line arguments, so flags such as `--help`, `--root`, `--watch`, and `--tsconfig` are respected again. If your scripts padded the arguments to work around this (for example, `astro-check -- -- --tsconfig ./tsconfig.app.json`), remove the padding.
+- Updated dependencies [[`044148d`](https://github.com/withastro/astro/commit/044148d5cfbc90e0277b3205a52ec73bc452bb7e)]:
+  - @astrojs/language-server@2.17.3
+
 ## 0.9.11
 
 ### Patch Changes

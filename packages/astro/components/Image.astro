@@ -27,12 +27,12 @@ if (typeof props.height === 'string') {
 const layout = props.layout ?? imageConfig.layout ?? 'none';
 
 if (layout !== 'none') {
-	props.layout ??= imageConfig.layout;
+	props.layout ??= layout;
 	props.fit ??= imageConfig.objectFit ?? 'cover';
 	props.position ??= imageConfig.objectPosition ?? 'center';
 } else if (imageConfig.objectFit || imageConfig.objectPosition) {
-	props.fit ??= imageConfig.objectFit;
-	props.position ??= imageConfig.objectPosition;
+	if (imageConfig.objectFit) props.fit ??= imageConfig.objectFit;
+	if (imageConfig.objectPosition) props.position ??= imageConfig.objectPosition;
 }
 
 const image = await getImage(props as UnresolvedImageTransform);

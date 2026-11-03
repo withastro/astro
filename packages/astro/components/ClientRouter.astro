@@ -60,7 +60,7 @@ const { fallback = 'animate' } = Astro.props;
 			);
 		}
 		document.addEventListener('click', (ev) => {
-			let link = ev.target;
+			let link: EventTarget | null | undefined = ev.target;
 
 			lastClickedElementLeavingWindow = leavesWindow(ev) ? link : null;
 
