@@ -39,8 +39,9 @@ function makeContext(request: Request, warn: (message: string) => void = () => {
 }
 
 /**
- * Helper: wait for the background stores recorded so far. Call it after a MISS
- * before a request that should be served from the stored entry.
+ * Helper: wait for the background stores recorded so far. Call it after any cacheable
+ * request whose stored entry a later assertion depends on, including assertions that a
+ * different key or an uncacheable response is a MISS.
  */
 async function settlePendingStores(): Promise<void> {
 	await Promise.all(pendingStores.splice(0));
