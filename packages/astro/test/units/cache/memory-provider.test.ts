@@ -179,7 +179,7 @@ describe('memory-provider streaming miss', () => {
 		}
 	}
 
-	it('streams the body before the render completes', async () => {
+	it('streams the body before the render completes', async (t) => {
 		const provider = createProvider();
 		const encoder = new TextEncoder();
 		const decoder = new TextDecoder();
@@ -187,6 +187,7 @@ describe('memory-provider streaming miss', () => {
 		const rest = new Promise<void>((resolve) => {
 			release = resolve;
 		});
+		t.after(() => release());
 		const body = new ReadableStream<Uint8Array>({
 			async start(controller) {
 				controller.enqueue(encoder.encode('<head>'));
@@ -222,7 +223,7 @@ describe('memory-provider streaming miss', () => {
 		assert.equal(await res2.text(), '<head></html>');
 	});
 
-	it('stores the page when the visitor disconnects mid-stream', async () => {
+	it('stores the page when the visitor disconnects mid-stream', async (t) => {
 		const provider = createProvider();
 		const encoder = new TextEncoder();
 		const decoder = new TextDecoder();
@@ -230,6 +231,7 @@ describe('memory-provider streaming miss', () => {
 		const rest = new Promise<void>((resolve) => {
 			release = resolve;
 		});
+		t.after(() => release());
 		const body = new ReadableStream<Uint8Array>({
 			async start(controller) {
 				controller.enqueue(encoder.encode('<head>'));
