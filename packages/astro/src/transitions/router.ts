@@ -649,7 +649,8 @@ if (inBrowser) {
 		// The router restores scroll itself only for the navigations it handles. A full reload or a
 		// cross-document return to this entry should use the browser's native restoration, which
 		// applies before the first paint, unlike the router's module script. See #18569.
-		addEventListener('pagehide', () => {
+		// Firefox ignores a mode change made in `pagehide`, so it has to happen in `beforeunload`.
+		addEventListener('beforeunload', () => {
 			history.scrollRestoration = 'auto';
 		});
 		addEventListener('pageshow', (ev) => {
