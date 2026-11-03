@@ -1,8 +1,9 @@
 import { expect } from '@playwright/test';
 import { type PreviewServer, testFactory } from './test-utils.ts';
 
+// Keep the fixture under this package so prerender output stays beside its dependencies.
 const test = testFactory(import.meta.url, {
-	root: '../../integrations/react/test/fixtures/react-19-preloads/',
+	root: './fixtures/react-resource-links/',
 });
 let previewServer: PreviewServer;
 test.beforeAll(async ({ astro }) => {
