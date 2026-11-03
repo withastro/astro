@@ -14,8 +14,17 @@ export function waitUntil(promise: Promise<unknown>) {
 /**
  * Helper: wait for the background stores recorded so far. Call it after any cacheable
  * request whose stored entry a later assertion depends on, including assertions that a
- * different key or an uncacheable response is a MISS.
+ * different key or an uncacheable response is a MISS. Rejects if the stores have not settled
+ * within 1000 ms.
  */
 export async function settlePendingStores(): Promise<void> {
-	await Promise.all(pendingStores.splice(0));
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	const timeout = new Promise<never>((_, reject) => {
+		timer = setTimeout(() => reject(new Error('cache store did not settle')), 1000);
+	});
+	try {
+		await Promise.race([Promise.all(pendingStores.splice(0)), timeout]);
+	} finally {
+		clearTimeout(timer);
+	}
 }

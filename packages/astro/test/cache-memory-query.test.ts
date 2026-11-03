@@ -17,11 +17,20 @@ function waitUntil(promise: Promise<unknown>) {
 
 /**
  * Helper: asserts that at least one store was recorded since the last call, then waits for
- * them. Call it only after a request whose response should be stored.
+ * them. Call it only after a request whose response should be stored. Rejects if the stores
+ * have not settled within 1000 ms.
  */
 async function settleExpectedStore(): Promise<void> {
 	assert.ok(pendingStores.length > 0, 'expected a cache store');
-	await Promise.all(pendingStores.splice(0));
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	const timeout = new Promise<never>((_, reject) => {
+		timer = setTimeout(() => reject(new Error('cache store did not settle')), 1000);
+	});
+	try {
+		await Promise.race([Promise.all(pendingStores.splice(0)), timeout]);
+	} finally {
+		clearTimeout(timer);
+	}
 }
 
 describe('Memory cache provider — default query exclusions', () => {
