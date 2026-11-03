@@ -1604,6 +1604,21 @@ importers:
         specifier: ^19.3.0
         version: 19.3.0(react@19.3.0)
 
+  packages/astro/e2e/fixtures/react-resource-links:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.3.0
+        version: 19.3.0(react@19.3.0)
+
   packages/astro/e2e/fixtures/react19-preact-hook-error:
     dependencies:
       preact:
@@ -6118,10 +6133,10 @@ importers:
   packages/integrations/react/test/fixtures/react-19-preloads:
     dependencies:
       '@astrojs/react':
-        specifier: latest
+        specifier: workspace:*
         version: link:../../..
       astro:
-        specifier: latest
+        specifier: workspace:*
         version: link:../../../../../astro
       react:
         specifier: ^19.3.0
