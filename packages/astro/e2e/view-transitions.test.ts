@@ -402,6 +402,26 @@ test.describe('View Transitions', () => {
 		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
 	});
 
+	test('History navigation after a cancelled unload restores manual scroll restoration', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await expect(page.locator('#longpage')).toBeInViewport();
+		await page.click('#click-one');
+		await expect(page.locator('#one')).toBeVisible();
+
+		// Simulate a `beforeunload` that doesn't end in an unload (e.g. a cancelled prompt)
+		await page.evaluate(() => window.dispatchEvent(new Event('beforeunload')));
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('auto');
+
+		await page.goBack();
+		await expect(page.locator('#longpage')).toBeVisible();
+		await page.goForward();
+		await expect(page.locator('#one')).toBeVisible();
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
+	});
+
 	test('Fragment scroll position restored on back button', async ({ page, astro }) => {
 		// Go to the long page
 		await page.goto(astro.resolveUrl('/long-page'));

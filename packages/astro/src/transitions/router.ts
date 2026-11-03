@@ -363,6 +363,10 @@ async function transition(
 			? 'replace'
 			: 'push';
 
+	// The `beforeunload` handler switches to 'auto', and nothing undoes that when the unload doesn't
+	// happen (cancelled prompt, download). Reset it on every router navigation, before any history entry is pushed.
+	history.scrollRestoration = 'manual';
+
 	if (navigationType !== 'traverse') {
 		updateScrollPosition({ scrollX, scrollY });
 	}
