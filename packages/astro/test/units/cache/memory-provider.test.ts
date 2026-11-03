@@ -330,7 +330,7 @@ describe('memory-provider streaming miss', () => {
 		const provider = createProvider();
 		const url = 'http://localhost/page';
 		const encoder = new TextEncoder();
-		// `pull` runs only once the queued chunk has been read, so the error follows the chunk
+		// The source errors after its first chunk, so the cache copy fails partway through the body.
 		const body = new ReadableStream<Uint8Array>({
 			start(controller) {
 				controller.enqueue(encoder.encode('<head>'));
