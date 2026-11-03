@@ -131,6 +131,57 @@ describe('formDataToObject', () => {
 		assert.deepEqual(res.favoriteNumbers, [1, 2]);
 	});
 
+	it('should handle optional, nullable, and default values chained before .transform()', () => {
+		const formData = new FormData();
+		formData.set('age', '25');
+		formData.set('isCool', 'on');
+		formData.append('favoriteNumbers', '1');
+		formData.append('favoriteNumbers', '2');
+
+		const input = z.object({
+			age: z
+				.number()
+				.optional()
+				.transform((age) => age ?? 0),
+			isCool: z
+				.boolean()
+				.optional()
+				.transform((isCool) => isCool ?? false),
+			favoriteNumbers: z
+				.array(z.number())
+				.optional()
+				.transform((numbers) => numbers ?? []),
+			name: z
+				.string()
+				.optional()
+				.transform((name) => name ?? 'anonymous'),
+			email: z
+				.string()
+				.nullable()
+				.transform((email) => email ?? 'none'),
+			count: z
+				.number()
+				.default(5)
+				.transform((count) => count * 2),
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.equal(res.age, 25);
+		assert.equal(res.isCool, true);
+		assert.deepEqual(res.favoriteNumbers, [1, 2]);
+		assert.equal(res.name, undefined);
+		assert.equal(res.email, null);
+		assert.equal(res.count, 5);
+		assert.deepEqual(input.parse(res), {
+			age: 25,
+			isCool: true,
+			favoriteNumbers: [1, 2],
+			name: 'anonymous',
+			email: 'none',
+			count: 10,
+		});
+	});
+
 	it('should handle File objects', () => {
 		const formData = new FormData();
 		formData.set('file', new File([''], 'test.txt'));
