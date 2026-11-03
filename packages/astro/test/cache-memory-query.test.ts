@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { before, beforeEach, describe, it } from 'node:test';
 import testAdapter from './test-adapter.ts';
 import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
@@ -16,9 +16,8 @@ function waitUntil(promise: Promise<unknown>) {
 }
 
 /**
- * Helper: wait for the background stores recorded so far. Call it after any cacheable
- * request whose stored entry a later assertion depends on, including assertions that a
- * different key or an uncacheable response is a MISS.
+ * Helper: asserts that at least one store was recorded since the last call, then waits for
+ * them. Call it only after a request whose response should be stored.
  */
 async function settlePendingStores(): Promise<void> {
 	assert.ok(pendingStores.length > 0, 'expected a cache store');
@@ -28,6 +27,10 @@ async function settlePendingStores(): Promise<void> {
 describe('Memory cache provider — default query exclusions', () => {
 	let fixture: Fixture;
 	let app: App;
+
+	beforeEach(() => {
+		pendingStores.length = 0;
+	});
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -90,6 +93,10 @@ describe('Memory cache provider — default query exclusions', () => {
 describe('Memory cache provider — query include', () => {
 	let fixture: Fixture;
 	let app: App;
+
+	beforeEach(() => {
+		pendingStores.length = 0;
+	});
 
 	before(async () => {
 		fixture = await loadFixture({
