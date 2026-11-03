@@ -87,7 +87,8 @@ export default function testAdapter({
 														routeData,
 														locals,
 														addCookieHeader,
-														prerenderedErrorPageFetch, waitUntil,
+														prerenderedErrorPageFetch,
+														waitUntil,
 													${provideAddress ? `clientAddress: clientAddress ?? '0.0.0.0',` : ''}
 													});
 												}
@@ -215,7 +216,8 @@ export function selfTestAdapter({
 														routeData,
 														locals,
 														addCookieHeader,
-														prerenderedErrorPageFetch, waitUntil,
+														prerenderedErrorPageFetch,
+														waitUntil,
 													${provideAddress ? `clientAddress: clientAddress ?? '0.0.0.0',` : ''}
 													});
 												}
