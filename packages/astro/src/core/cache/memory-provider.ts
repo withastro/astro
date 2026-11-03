@@ -557,6 +557,8 @@ const memoryProvider = ((config): CacheProvider => {
 							)}`,
 						);
 					});
+				// Serverless runtimes may stop the request once the response is sent, which
+				// could drop the store; long-lived servers like Node don't provide `waitUntil`.
 				context.waitUntil?.(store);
 				forClient.headers.set('X-Astro-Cache', 'MISS');
 				return forClient;
