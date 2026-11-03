@@ -165,6 +165,16 @@ describe('memory-provider streaming miss', () => {
 		}
 	}
 
+	/**
+	 * Helper: yield to the event loop `count` times, so promise chains started earlier run to
+	 * completion before the next assertion.
+	 */
+	async function flushTurns(count: number): Promise<void> {
+		for (let i = 0; i < count; i++) {
+			await new Promise((resolve) => setImmediate(resolve));
+		}
+	}
+
 	it('streams the body before the render completes', async (t) => {
 		const provider = createProvider();
 		const encoder = new TextEncoder();
@@ -323,6 +333,41 @@ describe('memory-provider streaming miss', () => {
 		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
 		await assert.rejects(res1.text(), { message: 'render failed' });
 		await settlePendingStores();
+
+		assert.equal(warn.mock.callCount(), 1);
+		assert.match(warn.mock.calls[0].arguments[0], /Skipping cache for \/page.*render failed/);
+
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, body: 'second' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'MISS');
+		assert.equal(await res2.text(), 'second');
+	});
+
+	it('does not store a body that fails mid-stream without waitUntil', async () => {
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+		const encoder = new TextEncoder();
+		// The source errors after its first chunk, so the cache copy fails partway through the body.
+		const body = new ReadableStream<Uint8Array>({
+			start(controller) {
+				controller.enqueue(encoder.encode('<head>'));
+			},
+			pull(controller) {
+				controller.error(new Error('render failed'));
+			},
+		});
+		const warn = mock.fn<(message: string) => void>();
+
+		const res1 = await provider.onRequest!(
+			{ ...makeContext(makeRequest(url), warn), waitUntil: undefined },
+			makeNext({ maxAge: 60, body }),
+		);
+		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
+		await assert.rejects(res1.text(), { message: 'render failed' });
+		// Without `waitUntil` the store is not returned to the test, so yield until its catch has run
+		await flushTurns(10);
 
 		assert.equal(warn.mock.callCount(), 1);
 		assert.match(warn.mock.calls[0].arguments[0], /Skipping cache for \/page.*render failed/);
