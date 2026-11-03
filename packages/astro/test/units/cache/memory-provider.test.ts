@@ -220,6 +220,50 @@ describe('memory-provider streaming miss', () => {
 		assert.equal(await res2.text(), '<head></html>');
 	});
 
+	it('stores the page when the visitor disconnects mid-stream', async () => {
+		const provider = createProvider();
+		const encoder = new TextEncoder();
+		const decoder = new TextDecoder();
+		let release!: () => void;
+		const rest = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		const body = new ReadableStream<Uint8Array>({
+			async start(controller) {
+				controller.enqueue(encoder.encode('<head>'));
+				await rest;
+				controller.enqueue(encoder.encode('</html>'));
+				controller.close();
+			},
+		});
+		const url = 'http://localhost/page';
+
+		const res1 = await awaitOnRequest(
+			provider.onRequest!(makeContext(makeRequest(url)), makeNext({ maxAge: 60, body })),
+			release,
+		);
+		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
+
+		const reader = res1.body!.getReader();
+		const first = await reader.read();
+		assert.equal(decoder.decode(first.value), '<head>');
+		// The body is locked by the reader, so cancel through it rather than `res1.body`. The
+		// cancel settles only once the cache copy finishes too, so it is awaited after release.
+		const canceled = reader.cancel();
+
+		// The render keeps going after the visitor leaves, and the page is still stored
+		release();
+		await settlePendingStores();
+		await canceled;
+
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, body: 'should-not-see' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res2.text(), '<head></html>');
+	});
+
 	it('does not store a body that fails mid-stream', async () => {
 		const provider = createProvider();
 		const url = 'http://localhost/page';
