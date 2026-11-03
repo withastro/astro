@@ -427,7 +427,7 @@ test('nested navigation during before-preparation cannot reserve an abandoned en
 		document.addEventListener(
 			'astro:before-preparation',
 			() => {
-				window.historyAudit.navigate('/seven');
+				void window.historyAudit.navigate('/seven');
 			},
 			{ once: true },
 		),
@@ -446,7 +446,7 @@ test('activated navigation preserves caller state and removes the internal pendi
 			'click',
 			(event) => {
 				event.preventDefault();
-				window.historyAudit.navigate('/two', { state: { custom: 'activated' } });
+				void window.historyAudit.navigate('/two', { state: { custom: 'activated' } });
 			},
 			{ once: true },
 		),
