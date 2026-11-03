@@ -381,7 +381,7 @@ describe('memory-provider streaming miss', () => {
 		);
 		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
 		await assert.rejects(res1.text(), { message: 'render failed' });
-		// Without `waitUntil` the store is not returned to the test, so yield until its catch has run
+		// Without `waitUntil` the store is not returned to the test; yield a few event-loop turns so its catch runs before the warning is checked.
 		await flushTurns(10);
 
 		assert.equal(warn.mock.callCount(), 1);
