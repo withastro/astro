@@ -4,7 +4,7 @@ import testAdapter from './test-adapter.ts';
 import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 /**
- * Background cache stores handed to `waitUntil` by `waitUntil` below.
+ * Background cache stores the memory provider hands to the recording `waitUntil` below.
  */
 const pendingStores: Promise<unknown>[] = [];
 
@@ -21,6 +21,7 @@ function waitUntil(promise: Promise<unknown>) {
  * different key or an uncacheable response is a MISS.
  */
 async function settlePendingStores(): Promise<void> {
+	assert.ok(pendingStores.length > 0, 'expected a cache store');
 	await Promise.all(pendingStores.splice(0));
 }
 
