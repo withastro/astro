@@ -1,4 +1,5 @@
 import yargs from 'yargs-parser';
+import { flushAndExit } from './exit.js';
 
 type CLICommand =
 	| 'help'
@@ -194,7 +195,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			const { preferences } = await import('./preferences/index.js');
 			const [subcommand, key, value] = flags._.slice(3).map((v) => v.toString());
 			const exitCode = await preferences(subcommand, key, value, { flags });
-			return process.exit(exitCode);
+			return flushAndExit(exitCode);
 		}
 	}
 
@@ -241,11 +242,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			const { check } = await import('./check/index.js');
 			const checkServer = await check(flags);
 			if (typeof checkServer === 'boolean') {
-				return process.exit(checkServer ? 1 : 0);
+				return flushAndExit(checkServer ? 1 : 0);
 			} else if (flags.watch) {
 				return await new Promise(() => {}); // lives forever
 			} else {
-				return process.exit(0);
+				return flushAndExit(0);
 			}
 		}
 	}
