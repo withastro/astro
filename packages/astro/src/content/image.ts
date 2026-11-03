@@ -1,10 +1,10 @@
 import fsMod from 'node:fs';
 import path from 'node:path';
-import type { ViteDevServer } from 'vite';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
 import { imageMetadata } from '../assets/utils/metadata.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { IMAGE_FIELD_MARKER, IMAGE_IMPORT_PREFIX } from './consts.js';
+import { getContentImageResolver } from './image-context.js';
 
 /**
  * Config-time image helper, published as `astro/content/image`.
@@ -35,63 +35,6 @@ export type ContentImageField = {
 
 /** The part of the schema context `image()` needs. */
 export type ImageContext = { filePath?: string };
-
-/**
- * Resolves an image source the way read time does, so that Vite aliases and root-absolute
- * paths can be probed and validated during sync, not just relative ones.
- */
-export type ImageSourceResolver = (source: string, importer: string) => Promise<string | undefined>;
-
-/**
- * Builds a resolver backed by Vite's plugin container, matching how
- * `astro:content-asset-propagation` resolves the same source at read time
- * (`vite-plugin-content-assets.ts:50-56`).
- */
-export function createViteImageSourceResolver(server: ViteDevServer): ImageSourceResolver {
-	return async (source, importer) => {
-		const resolved = await server.environments.ssr.pluginContainer.resolveId(source, importer);
-		if (!resolved) {
-			return undefined;
-		}
-		// Drop any query/hash a plugin appended; we only want a path to read.
-		const id = resolved.id.split('?')[0].split('#')[0];
-		return path.isAbsolute(id) && fsMod.existsSync(id) ? id : undefined;
-	};
-}
-
-/**
- * Syncs that are in flight, innermost last. The ambient resolver is always the last entry's,
- * and `baseResolver` is whatever occupied the slot before the first of them started.
- */
-const activeResolvers: Array<{ resolver: ImageSourceResolver }> = [];
-let baseResolver: ImageSourceResolver | undefined;
-
-/**
- * Installs `resolver` as the ambient resolver `image()` reads, for the duration of `run()`.
- *
- * The slot is process-wide (see {@link ContentLayer#doSync} for why it has to be), and syncs
- * belonging to different `ContentLayer` instances can overlap, so the installs are tracked in
- * a stack instead of each sync restoring whatever it happened to find: one finishing after
- * another started would otherwise leave that other sync's resolver installed for good.
- */
-export async function withContentImageResolver<T>(
-	resolver: ImageSourceResolver,
-	run: () => Promise<T>,
-): Promise<T> {
-	globalThis.astroAsset ??= {};
-	if (activeResolvers.length === 0) {
-		baseResolver = globalThis.astroAsset.contentImageResolver;
-	}
-	const entry = { resolver };
-	activeResolvers.push(entry);
-	globalThis.astroAsset.contentImageResolver = resolver;
-	try {
-		return await run();
-	} finally {
-		activeResolvers.splice(activeResolvers.indexOf(entry), 1);
-		globalThis.astroAsset.contentImageResolver = activeResolvers.at(-1)?.resolver ?? baseResolver;
-	}
-}
 
 function throwImageNotFound(src: string): never {
 	throw new AstroError({
@@ -193,7 +136,7 @@ export async function image(
 	// Aliases, root-absolute paths, and bare specifiers with no sibling file: only Vite
 	// knows how to resolve these. Without a resolver — a loader running outside a sync, for
 	// instance — defer to read time as before rather than reporting a false negative.
-	const resolveSource = globalThis.astroAsset?.contentImageResolver;
+	const resolveSource = getContentImageResolver(context);
 	if (!resolveSource) {
 		return createImageMarker(rawSrc);
 	}

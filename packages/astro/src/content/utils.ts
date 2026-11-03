@@ -33,6 +33,7 @@ import {
 	LIVE_CONTENT_TYPE,
 } from './consts.js';
 import { image as resolveImageField } from './image.js';
+import { attachContentImageResolver, getContentImageResolver } from './image-context.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
@@ -177,20 +178,21 @@ export async function getEntryData<
 
 	if (typeof schema === 'function') {
 		const { filePath } = entry._internal;
+		const imageResolver = getContentImageResolver(entry._internal);
 		if (pluginContext) {
-			schema = schema({
-				filePath,
-				image: createImage(pluginContext, shouldEmitFile, filePath),
-			});
+			const schemaContext = attachContentImageResolver(
+				{ filePath, image: createImage(pluginContext, shouldEmitFile, filePath) },
+				imageResolver,
+			);
+			schema = schema(schemaContext);
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
-			schema = schema({
-				// The entry's file path, so `image(context, { src })` can resolve relative
-				// sources.
+			const imageContext = attachContentImageResolver({ filePath }, imageResolver);
+			const schemaContext = {
 				filePath,
-				// Deprecated `({ image })` form. Routed through the same resolver, so legacy
-				// schemas gain probing and validation too.
-				image: () => z.string().transform((val) => resolveImageField({ filePath }, { src: val })),
-			});
+				image: () => z.string().transform((val) => resolveImageField(imageContext, { src: val })),
+			};
+			attachContentImageResolver(schemaContext, imageResolver);
+			schema = schema(schemaContext);
 		}
 	}
 

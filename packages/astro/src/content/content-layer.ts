@@ -26,7 +26,11 @@ import {
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
-import { createViteImageSourceResolver, withContentImageResolver } from './image.js';
+import {
+	attachContentImageResolver,
+	createViteImageSourceResolver,
+	type ImageSourceResolver,
+} from './image-context.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
 export interface ContentLayerOptions {
@@ -196,26 +200,13 @@ export class ContentLayer {
 	}
 
 	async #doSync(options: RefreshContentOptions) {
-		// Let `image()` resolve aliases and root-absolute sources the way read time does, for
-		// as long as this sync is running. Ambient rather than passed down because
-		// `content.config.ts` imports `astro/content/image` through Vite while this module is
-		// loaded by Node, so the two do not share module instances — threading it through the
-		// loader context instead would mean exposing it on the public `LoaderContext`.
-		//
-		// Reentrancy: `sync()` funnels every job through `#queue` (concurrency 1), so one
-		// `ContentLayer` never has two syncs in flight. Separate instances in the same process
-		// (parallel in-process tests, mainly) can still overlap; `withContentImageResolver`
-		// keeps that from leaving a resolver installed after its sync ends, but the slot holds
-		// a single resolver, so while two syncs overlap both see the one that started last.
-		if (!this.#viteServer) {
-			return await this.#doSyncInner(options);
-		}
-		return await withContentImageResolver(createViteImageSourceResolver(this.#viteServer), () =>
-			this.#doSyncInner(options),
-		);
+		const imageResolver = this.#viteServer
+			? createViteImageSourceResolver(this.#viteServer)
+			: undefined;
+		return await this.#doSyncInner(options, imageResolver);
 	}
 
-	async #doSyncInner(options: RefreshContentOptions) {
+	async #doSyncInner(options: RefreshContentOptions, imageResolver?: ImageSourceResolver) {
 		let contentConfig = this.#contentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 
@@ -352,10 +343,10 @@ export class ContentLayer {
 								id,
 								collection: name,
 								unvalidatedData: data,
-								_internal: {
-									rawData: undefined,
-									filePath,
-								},
+								_internal: attachContentImageResolver(
+									{ rawData: undefined, filePath },
+									imageResolver,
+								),
 							},
 							{ ...collection, schema },
 							false,

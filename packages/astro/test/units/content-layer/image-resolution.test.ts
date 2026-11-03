@@ -5,7 +5,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { IMAGE_IMPORT_PREFIX } from '../../../dist/content/consts.js';
-import { image, withContentImageResolver } from '../../../dist/content/image.js';
+import { image } from '../../../dist/content/image.js';
+import { attachContentImageResolver } from '../../../dist/content/image-context.js';
 
 const coverFixture = fileURLToPath(new URL('../assets/600x400.jpg', import.meta.url));
 
@@ -47,14 +48,20 @@ describe('image() source resolution', () => {
 	});
 
 	it('passes a remote URL through without reading it', async () => {
-		const result = await withContentImageResolver(
-			async () => {
-				throw new Error('the resolver must not run for a remote source');
-			},
-			() => image({ filePath: entryFilePath }, { src: 'https://example.com/cover.jpg' }),
-		);
+		const context = attachContentImageResolver({ filePath: entryFilePath }, async () => {
+			throw new Error('the resolver must not run for a remote source');
+		});
+		const result = await image(context, { src: 'https://example.com/cover.jpg' });
 		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}https://example.com/cover.jpg`);
 		assert.equal(result.width, undefined);
+	});
+
+	it('resolves a root-absolute source through the resolver', async () => {
+		const context = attachContentImageResolver({ filePath: entryFilePath }, async (source) =>
+			source === '/cover.jpg' ? coverPath : undefined,
+		);
+		const result = await image(context, { src: '/cover.jpg' });
+		assert.equal(result.width, 600);
 	});
 
 	it('defers an unresolved source to read time when no resolver is installed', async () => {
@@ -63,30 +70,22 @@ describe('image() source resolution', () => {
 		assert.equal(result.width, undefined);
 	});
 
-	it('resolves an alias through the ambient resolver', async () => {
-		const result = await withContentImageResolver(
-			async (source) => (source === '@images/cover.jpg' ? coverPath : undefined),
-			() => image({ filePath: entryFilePath }, { src: '@images/cover.jpg' }),
+	it('reads resolver context created by a separate module instance', async () => {
+		const { attachContentImageResolver: attachFromDuplicate } = (await import(
+			new URL('../../../dist/content/image-context.js?duplicate', import.meta.url).href
+		)) as typeof import('../../../dist/content/image-context.js');
+		const context = attachFromDuplicate({ filePath: entryFilePath }, async (source) =>
+			source === '@images/cover.jpg' ? coverPath : undefined,
 		);
-		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}@images/cover.jpg`);
-		assert.equal(result.width, 600);
-	});
+		const result = await image(context, { src: '@images/cover.jpg' });
 
-	it('resolves a root-absolute source through the ambient resolver', async () => {
-		const result = await withContentImageResolver(
-			async (source) => (source === '/cover.jpg' ? coverPath : undefined),
-			() => image({ filePath: entryFilePath }, { src: '/cover.jpg' }),
-		);
 		assert.equal(result.width, 600);
 	});
 
 	it('reports an alias the resolver cannot resolve', async () => {
+		const context = attachContentImageResolver({ filePath: entryFilePath }, async () => undefined);
 		await assert.rejects(
-			() =>
-				withContentImageResolver(
-					async () => undefined,
-					() => image({ filePath: entryFilePath }, { src: '@missing/x.jpg' }),
-				),
+			() => image(context, { src: '@missing/x.jpg' }),
 			/Could not find requested image/,
 		);
 	});
