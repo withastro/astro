@@ -135,8 +135,8 @@ describe('cache directives during streaming', () => {
 			assert.equal(response.headers.get('X-Astro-Cache'), null);
 			assert.match(await response.text(), new RegExp(`render ${i}`));
 		}
-		assert.equal(cacheWarnings(logger).filter((log) => /Set-Cookie/.test(log.message)).length, 2);
-		assert.equal(cacheWarnings(logger).filter((log) => /cache\.set/.test(log.message)).length, 0);
+		assert.equal(cacheWarnings(logger).filter((log) => log.message.includes('Set-Cookie')).length, 2);
+		assert.equal(cacheWarnings(logger).filter((log) => log.message.includes('cache.set')).length, 0);
 	});
 
 	it('preserves early Astro cookies when the provider declines buffering', async () => {

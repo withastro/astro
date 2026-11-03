@@ -8,12 +8,12 @@ import type { CacheProvider } from '../../../dist/core/cache/types.js';
 import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { createBasicPipeline } from '../test-utils.ts';
 
-async function setup(provider: CacheProvider, method = 'GET') {
+async function setup(customProvider: CacheProvider, method = 'GET') {
 	const { manifest } = createBasicPipeline({
 		mode: 'production',
 		manifest: {
 			cacheConfig: { provider: 'test' },
-			cacheProvider: async () => ({ default: () => provider }),
+			cacheProvider: async () => ({ default: () => customProvider }),
 		},
 	});
 	const state = new FetchState(manifest, new Request('http://localhost/', { method }));
