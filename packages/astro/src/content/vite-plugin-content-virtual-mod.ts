@@ -147,7 +147,12 @@ export function attachDataStoreInvalidation(
 	store.onFileWritten((path) => {
 		if (path === dataStorePath) {
 			markDirectInvalidation(dataStorePath);
-			invalidateDataStore(server);
+			// Startup sync can write before any browser connects. Vite buffers a
+			// full-reload sent with zero clients and delivers it on first connect,
+			// which reloads the first page once (#18568). Skip client notify then;
+			// later writes still reload when clients are connected.
+			const clientCount = server.ws?.clients?.size ?? 0;
+			invalidateDataStore(server, { notifyClient: clientCount > 0 });
 			invalidateAssetImports(server, assetImportsPath);
 		} else if (path === assetImportsPath) {
 			markDirectInvalidation(assetImportsPath);

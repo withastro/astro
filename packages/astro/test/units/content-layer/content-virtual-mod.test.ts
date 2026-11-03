@@ -43,7 +43,7 @@ function createMockEnvironment(name: string, sentMessages: Array<Record<string, 
  * Creates a minimal mock ViteDevServer with just enough structure for
  * the content virtual mod plugin's buildStart hook.
  */
-function createMockViteDevServer({ includePrerender = false } = {}) {
+function createMockViteDevServer({ includePrerender = false, clientCount = 1 } = {}) {
 	const sentMessages: Array<Record<string, unknown>> = [];
 	const watcherListeners = new Map<string, Array<(path: string) => void>>();
 	const environments: Record<string, ReturnType<typeof createMockEnvironment>> = {
@@ -56,6 +56,9 @@ function createMockViteDevServer({ includePrerender = false } = {}) {
 	return {
 		sentMessages,
 		environments,
+		// Simulate Vite's websocket client set so attachDataStoreInvalidation can
+		// skip full-reload when nobody is connected yet (#18568).
+		ws: { clients: new Set(Array.from({ length: clientCount }, () => ({}))) },
 		watcher: {
 			add: () => {},
 			on: (event: string, listener: (path: string) => void) => {
@@ -243,6 +246,40 @@ describe('attachDataStoreInvalidation', () => {
 		t.mock.timers.tick(5_000);
 		mockServer.watcher.emit('change', dataStorePath);
 		assert.equal(countClientReloads(mockServer), 2, 'a later external change should reload');
+	});
+
+	it('does not full-reload the client when a store write happens with no connected clients (#18568)', async (t) => {
+		const root = createTempDir('content-data-store-startup-write-test-');
+		const settings = createMinimalSettings(root, { config: { legacy: {} } });
+		const dataStoreFile = getDataStoreFile(settings, true);
+		await nodeFs.promises.mkdir(settings.dotAstroDir, { recursive: true });
+
+		t.mock.timers.enable({ apis: ['Date'], now: 10_000 });
+		t.after(() => mock.timers.reset());
+
+		const mockServer = createMockViteDevServer({ clientCount: 0 });
+		const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
+		// @ts-expect-error - mock args are sufficient for this test
+		plugin.config?.({}, { command: 'serve' });
+		// @ts-expect-error - mock server has enough structure for this test
+		plugin.configureServer?.(mockServer);
+
+		const store = await MutableDataStore.fromFile(dataStoreFile);
+		// @ts-expect-error - mock server has enough structure for this test
+		attachDataStoreInvalidation(store, mockServer, settings);
+
+		store.set('dogs', 'beagle', { id: 'beagle', data: { breed: 'Beagle' } });
+		await store.waitUntilSaveComplete();
+
+		assert.equal(
+			countClientReloads(mockServer),
+			0,
+			'startup store write with zero clients must not send full-reload',
+		);
+		const contentChanged = mockServer.sentMessages.filter(
+			(msg) => msg.channel === 'ssr' && msg.type === 'astro:content-changed',
+		);
+		assert.equal(contentChanged.length, 1, 'server modules should still be invalidated');
 	});
 
 	it('invalidates the prerender environment when it exists (#17991)', async (t) => {
