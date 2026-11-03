@@ -28,7 +28,13 @@ import { bufferPropagatedHead } from './head-propagation/runtime.js';
 import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
 import { renderChild } from './any.js';
 import { type ComponentSlots, renderSlots, renderSlotToString } from './slot.js';
-import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
+import {
+	formatList,
+	internalSpreadAttributes,
+	renderElement,
+	sanitizeElementName,
+	voidElementNames,
+} from './util.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -287,7 +293,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// This is a custom element without a renderer. Because of that, render it
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
-		// Sanitize tag name because some people might try to inject attributes 🙄
 		const Tag = sanitizeElementName(Component);
 		const childSlots = Object.values(children).join('');
 
@@ -409,12 +414,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			destination.write(markHTMLString(renderedElement));
 		},
 	};
-}
-
-function sanitizeElementName(tag: string) {
-	const unsafe = /[&<>'"\s]+/;
-	if (!unsafe.test(tag)) return tag;
-	return tag.trim().split(unsafe)[0].trim();
 }
 
 function renderFragmentComponent(result: SSRResult, slots: ComponentSlots = {}): RenderInstance {

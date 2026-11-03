@@ -19,6 +19,7 @@ import {
 	isProcessAlive,
 	readLockFile,
 	removeLockFile,
+	signalServerProcess,
 	type LockFileData,
 	type ServerCommand,
 } from '../core/dev/lockfile.js';
@@ -145,11 +146,7 @@ export async function stopExistingServer(
 	command: ServerCommand,
 	pid: number,
 ): Promise<void> {
-	try {
-		process.kill(pid, 'SIGTERM');
-	} catch {
-		// Process may have already exited between check and kill.
-	}
+	signalServerProcess(pid, 'SIGTERM');
 
 	const deadline = Date.now() + GRACEFUL_SHUTDOWN_TIMEOUT;
 	while (Date.now() < deadline) {
@@ -158,11 +155,7 @@ export async function stopExistingServer(
 	}
 
 	if (isProcessAlive(pid)) {
-		try {
-			process.kill(pid, 'SIGKILL');
-		} catch {
-			// Already dead.
-		}
+		signalServerProcess(pid, 'SIGKILL');
 	}
 
 	removeLockFile(root, command);

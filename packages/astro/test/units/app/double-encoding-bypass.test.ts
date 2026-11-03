@@ -333,3 +333,23 @@ describe('URL normalization: rewrite-based middleware bypass', () => {
 		assert.equal(body.path, 'public/data');
 	});
 });
+
+describe('URL normalization: undecodable paths', () => {
+	it('rejects a path that is not valid UTF-8 with 400 (overlong escape)', async () => {
+		const app = createApp(createPassthroughMiddleware());
+		const response = await app.render(new Request('http://example.com/api/%C0%AF'));
+		assert.equal(response.status, 400, 'undecodable path must be rejected, not routed');
+	});
+
+	it('rejects a path that is not valid UTF-8 with 400 (lone surrogate)', async () => {
+		const app = createApp(createPassthroughMiddleware());
+		const response = await app.render(new Request('http://example.com/api/%ED%A0%80'));
+		assert.equal(response.status, 400, 'undecodable path must be rejected, not routed');
+	});
+
+	it('rejects a path with a malformed escape with 400 (bare percent)', async () => {
+		const app = createApp(createPassthroughMiddleware());
+		const response = await app.render(new Request('http://example.com/api/100%'));
+		assert.equal(response.status, 400, 'undecodable path must be rejected, not routed');
+	});
+});
