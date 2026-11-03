@@ -176,6 +176,7 @@ describe('context.cache through App pipeline', () => {
 		const head = await app.render(new Request('http://localhost/head-cached', { method: 'HEAD' }), {
 			waitUntil,
 		});
+		await settlePendingStores();
 		assert.equal(head.status, 200);
 		assert.equal(head.headers.get('X-Astro-Cache'), null);
 
