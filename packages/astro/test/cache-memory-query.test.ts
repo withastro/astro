@@ -19,7 +19,7 @@ function waitUntil(promise: Promise<unknown>) {
  * Helper: asserts that at least one store was recorded since the last call, then waits for
  * them. Call it only after a request whose response should be stored.
  */
-async function settlePendingStores(): Promise<void> {
+async function settleExpectedStore(): Promise<void> {
 	assert.ok(pendingStores.length > 0, 'expected a cache store');
 	await Promise.all(pendingStores.splice(0));
 }
@@ -51,7 +51,7 @@ describe('Memory cache provider — default query exclusions', () => {
 	it('excludes utm_* params from cache key by default', async () => {
 		const first = await renderRequest('/cached?page=1&utm_source=google');
 		assert.equal(first.headers.get('X-Astro-Cache'), 'MISS');
-		await settlePendingStores();
+		await settleExpectedStore();
 
 		// Same page, different UTM — should be a HIT
 		const second = await renderRequest('/cached?page=1&utm_source=twitter&utm_medium=social');
@@ -65,7 +65,7 @@ describe('Memory cache provider — default query exclusions', () => {
 	it('excludes fbclid from cache key by default', async () => {
 		const first = await renderRequest('/cached?page=2');
 		assert.equal(first.headers.get('X-Astro-Cache'), 'MISS');
-		await settlePendingStores();
+		await settleExpectedStore();
 
 		const second = await renderRequest('/cached?page=2&fbclid=abc123');
 		assert.equal(second.headers.get('X-Astro-Cache'), 'HIT');
@@ -74,7 +74,7 @@ describe('Memory cache provider — default query exclusions', () => {
 	it('excludes gclid from cache key by default', async () => {
 		const first = await renderRequest('/cached?page=3');
 		assert.equal(first.headers.get('X-Astro-Cache'), 'MISS');
-		await settlePendingStores();
+		await settleExpectedStore();
 
 		const second = await renderRequest('/cached?page=3&gclid=xyz789');
 		assert.equal(second.headers.get('X-Astro-Cache'), 'HIT');
@@ -83,7 +83,7 @@ describe('Memory cache provider — default query exclusions', () => {
 	it('still differentiates on non-excluded params', async () => {
 		const first = await renderRequest('/cached?page=10');
 		assert.equal(first.headers.get('X-Astro-Cache'), 'MISS');
-		await settlePendingStores();
+		await settleExpectedStore();
 
 		const second = await renderRequest('/cached?page=20');
 		assert.equal(second.headers.get('X-Astro-Cache'), 'MISS');
@@ -117,7 +117,7 @@ describe('Memory cache provider — query include', () => {
 	it('only includes allowlisted params in cache key', async () => {
 		const first = await renderRequest('/cached?page=1&sort=name');
 		assert.equal(first.headers.get('X-Astro-Cache'), 'MISS');
-		await settlePendingStores();
+		await settleExpectedStore();
 
 		// Same allowed params + extra unknown param — should be a HIT
 		const second = await renderRequest('/cached?page=1&sort=name&tracking=abc');
@@ -131,7 +131,7 @@ describe('Memory cache provider — query include', () => {
 	it('different allowed param values produce different entries', async () => {
 		const first = await renderRequest('/cached?page=5&sort=name');
 		assert.equal(first.headers.get('X-Astro-Cache'), 'MISS');
-		await settlePendingStores();
+		await settleExpectedStore();
 
 		const second = await renderRequest('/cached?page=5&sort=price');
 		assert.equal(second.headers.get('X-Astro-Cache'), 'MISS');
@@ -140,7 +140,7 @@ describe('Memory cache provider — query include', () => {
 	it('request with no query params matches request with only non-allowed params', async () => {
 		const first = await renderRequest('/cached');
 		assert.equal(first.headers.get('X-Astro-Cache'), 'MISS');
-		await settlePendingStores();
+		await settleExpectedStore();
 
 		// Only non-allowed params — effectively same key as no params
 		const second = await renderRequest('/cached?utm_source=google&tracking=abc');
