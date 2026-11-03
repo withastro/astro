@@ -4,6 +4,7 @@ import { type DevServer, testFactory, waitForHydrate, warmupDevServer } from './
 declare global {
 	interface Window {
 		preloads: string[];
+		restoredScrollY?: number;
 		clientSideRouterForTestsParkedHere?: (
 			url: string,
 			options?: { history?: 'auto' | 'replace' | 'push' },
@@ -353,6 +354,31 @@ test.describe('View Transitions', () => {
 
 		const newScrollY = await page.evaluate(() => window.scrollY);
 		expect(oldScrollY).toEqual(newScrollY);
+	});
+
+	test('Scroll position restored instantly with smooth scroll-behavior', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/smooth-scroll'));
+		await expect(page.locator('#smooth-scroll')).toBeVisible();
+
+		await page.evaluate(() => window.scrollTo({ top: 2000, behavior: 'instant' }));
+		await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(2000);
+
+		await page.click('#click-one');
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+
+		// Read scrollY synchronously after the router restores it, before a smooth scroll could progress
+		await page.evaluate(() =>
+			document.addEventListener(
+				'astro:after-swap',
+				() => (window.restoredScrollY = window.scrollY),
+				{ once: true },
+			),
+		);
+		await page.goBack();
+		await expect.poll(() => page.evaluate(() => window.restoredScrollY)).toBe(2000);
 	});
 
 	test('Fragment scroll position restored on back button', async ({ page, astro }) => {

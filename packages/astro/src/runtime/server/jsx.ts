@@ -8,6 +8,7 @@ import {
 	spreadAttributes,
 	voidElementNames,
 } from './index.js';
+import { sanitizeElementName } from './render/util.js';
 import { isAstroComponentFactory } from './render/astro/factory.js';
 import { renderComponentToString } from './render/component.js';
 import type { RenderInstruction } from './render/instruction.js';
@@ -190,9 +191,10 @@ Did you forget to import the component or is it possible there is a typo?`);
 
 async function renderElement(
 	result: any,
-	tag: string,
+	type: string,
 	{ children, ...props }: Record<string, any>,
 ) {
+	const tag = sanitizeElementName(type);
 	return markHTMLString(
 		`<${tag}${spreadAttributes(props)}${markHTMLString(
 			(children == null || children === '') && voidElementNames.test(tag)

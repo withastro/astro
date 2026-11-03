@@ -31,7 +31,6 @@ export interface CommandRunner {
 export interface CommandExecutorOptions {
 	cwd?: string;
 	env?: Record<string, string | undefined>;
-	shell?: boolean;
 	input?: string;
 	stdio?: StdioOptions;
 }

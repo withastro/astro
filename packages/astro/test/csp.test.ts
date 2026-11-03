@@ -260,4 +260,20 @@ describe('CSP', () => {
 			assert.ok(headers.has('content-security-policy'), 'should have a CSP header');
 		}
 	});
+
+	it('should include hashes inserted by components rendered after the head', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp-component-hashes/',
+		});
+		await fixture.build();
+
+		for (const page of ['/with-head/index.html', '/mdx/index.html']) {
+			const html = await fixture.readFile(page);
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			assert.ok(meta.attr('content')!.includes("'sha256-bodyComponentHash'"), page);
+			assert.equal(html.includes('astro-csp-meta'), false, page);
+		}
+	});
 });

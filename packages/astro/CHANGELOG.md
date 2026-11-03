@@ -1,5 +1,58 @@
 # astro
 
+## 7.4.5
+
+### Patch Changes
+
+- [#18558](https://github.com/withastro/astro/pull/18558) [`fac3c50`](https://github.com/withastro/astro/commit/fac3c50463ce9c290bdccb1d6dba30dc7ca4d779) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `astro dev status` and other background server commands deleting the lock file of a running dev or preview server when run from a sandbox or as another user that is not permitted to signal its process
+
+- [#18559](https://github.com/withastro/astro/pull/18559) [`10dae2f`](https://github.com/withastro/astro/commit/10dae2f31486cc0a6a04d1f3d7f5ab7fa8889b30) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `import.meta.env` values containing `$` sequences (such as `$$` or `$&`) being corrupted in `astro build` when server code reads the `import.meta.env` object directly, for example with `const { MY_SECRET } = import.meta.env`
+
+- [#18544](https://github.com/withastro/astro/pull/18544) [`e3bec3d`](https://github.com/withastro/astro/commit/e3bec3d2c770cb53771dad723db57a2ebf931b42) Thanks [@skezo](https://github.com/skezo)! - Fixes request paths with invalid percent-encoding (e.g. `/%C0%AF` or a bare `%`) being logged as an `Invalid URL encoding` error and routed with the undecoded path. These requests now return a `400`, the same as a path that is encoded too many times.
+
+- [#18520](https://github.com/withastro/astro/pull/18520) [`e023aba`](https://github.com/withastro/astro/commit/e023abac912d7cb6af2b9fb5107ef5dabc667096) Thanks [@matthewp](https://github.com/matthewp)! - Makes rendering of string tag names stricter and consistent across `.astro` dynamic tags, JSX, and MDX. Only the leading part of the string that is a valid element name is rendered, so characters such as `/` or `=` can no longer change the generated markup. A string that does not start with a valid element name (for example `'!--'` or `''`) now throws an error instead of producing invalid HTML.
+
+## 7.4.4
+
+### Patch Changes
+
+- [#18344](https://github.com/withastro/astro/pull/18344) [`df838da`](https://github.com/withastro/astro/commit/df838da6c6d965504fae0d89e12d3e67bdd0f4c6) Thanks [@edmundhung](https://github.com/edmundhung)! - Allows `astro add` to configure tagged versions of official adapters
+
+## 7.4.3
+
+### Patch Changes
+
+- [#18488](https://github.com/withastro/astro/pull/18488) [`e4e25fa`](https://github.com/withastro/astro/commit/e4e25fa7d47e702985cbb1ee633d4ffb92f8dad6) Thanks [@umeraamir69](https://github.com/umeraamir69)! - CSP no longer hashes empty children on external stylesheets and scripts, which was inserting the SHA-256 of the empty string into `script-src` and `style-src`.
+
+- [#18500](https://github.com/withastro/astro/pull/18500) [`e5a3a1b`](https://github.com/withastro/astro/commit/e5a3a1bdec268933f01a0da3fbeb4e38bdf455c9) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `<Image>` and `<Picture>` emitting duplicate `srcset` candidates when `densities` contains equivalent values such as `1` and `'1x'`
+
+- [#18517](https://github.com/withastro/astro/pull/18517) [`c3185b7`](https://github.com/withastro/astro/commit/c3185b764e14f50664b0e63ec665804fdecf685e) Thanks [@okxint](https://github.com/okxint)! - Fix unhandled `AbortError` rejection when `ClientRouter` skips a pending view transition
+
+- [#18497](https://github.com/withastro/astro/pull/18497) [`c712113`](https://github.com/withastro/astro/commit/c7121132acc25ee3a7f3dc6dd36240f031537878) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes an uncaught `TypeError` in the browser when a `server:defer` island request fails due to a network error. The fallback content is kept, as it is for non-200 responses.
+
+- [#18525](https://github.com/withastro/astro/pull/18525) [`d0240b9`](https://github.com/withastro/astro/commit/d0240b9d5738a97f0b8ad100b76bce8b7527e4cd) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a `DEP0190` deprecation warning printed by `astro info` on Node.js 24 and later
+
+- [#18522](https://github.com/withastro/astro/pull/18522) [`776b9a6`](https://github.com/withastro/astro/commit/776b9a6124a8d5aef8e280a8af4f8ba68c80e65b) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `memoryCache()` serving an empty body for cached pages that return an empty `404` or `500` response. These responses now render the `404` or `500` error page on every request.
+
+- [#18511](https://github.com/withastro/astro/pull/18511) [`d060ff9`](https://github.com/withastro/astro/commit/d060ff9b68f737af2788e521635afb6f6a84b029) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `transition:name` styles missing in dev when the element is inside a component that is only rendered through another component with no styles or scripts
+
+- [#18494](https://github.com/withastro/astro/pull/18494) [`5fe699c`](https://github.com/withastro/astro/commit/5fe699c888d0423db75cac3f0939409d7eb28e37) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `astro` CLI refusing to run on StackBlitz by allowing Node.js `>=22.22.0` inside WebContainers, whose Node.js version users cannot change
+
+- [#18506](https://github.com/withastro/astro/pull/18506) [`bf43a60`](https://github.com/withastro/astro/commit/bf43a6042f8a9e87c2cef1b4c36700d4e941c35f) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `<ClientRouter />` animating scroll restoration on back/forward navigation when `scroll-behavior: smooth` is set. Saved scroll positions are now restored instantly, matching the browser's native behavior.
+
+- [#18476](https://github.com/withastro/astro/pull/18476) [`8ea79a2`](https://github.com/withastro/astro/commit/8ea79a282e53b83c65f69c9013f5eeb5d97aadb1) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a `DataCloneError` crash when building pages that render SVG imports with `<Image />` or `getImage()` while `experimental.parallelPrerender` is enabled.
+
+- [#18504](https://github.com/withastro/astro/pull/18504) [`6dbd737`](https://github.com/withastro/astro/commit/6dbd73764f8a0f16d696f276b634e32631982aab) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `<Picture>` emitting a duplicate `1x` candidate in `<source>` `srcset` when `densities` includes `1`
+
+- [#18524](https://github.com/withastro/astro/pull/18524) [`7524889`](https://github.com/withastro/astro/commit/75248890363ce7de03e5d9b56605958323752dc4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes type errors reported in Astro's built-in `<Image />`, `<Picture />`, `<Code />`, `<Debug />` and `<ClientRouter />` components when type-checking a project that extends `astro/tsconfigs/strictest` with `tsc` and `@astrojs/ts-content-mapper`
+
+- [#18493](https://github.com/withastro/astro/pull/18493) [`3773941`](https://github.com/withastro/astro/commit/377394179293d1f898c49d38a5b28cf9b21641a9) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes scoped styles of unused Astro components being included in the build when those components are re-exported from a barrel file
+
+- [#18512](https://github.com/withastro/astro/pull/18512) [`1151b9e`](https://github.com/withastro/astro/commit/1151b9e0d05e850fa3638a927ac9f66179010e00) Thanks [@jp-knj](https://github.com/jp-knj)! - Fixes CSP hashes added with `Astro.csp` from components rendered inside `<body>` being left out of the CSP `<meta>` element in static builds, including MDX pages
+- Updated dependencies [[`6cf3423`](https://github.com/withastro/astro/commit/6cf3423e4c62af5e54a2676c8304a209ab1e064d), [`edfbf4a`](https://github.com/withastro/astro/commit/edfbf4ab34ff007ae8f7188af76a023a15c9443d)]:
+  - @astrojs/telemetry@3.4.2
+  - @astrojs/markdown-satteri@0.4.6
+
 ## 7.4.2
 
 ### Patch Changes

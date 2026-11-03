@@ -26,7 +26,7 @@ function isImportExpression(code: string): boolean {
 			index += lineBreak + 3;
 			continue;
 		}
-		return code[index] === '.' || code[index] === '(';
+		return code[index] === '.' || code[index] === '(' || code[index] === ':';
 	}
 	return true;
 }

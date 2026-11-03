@@ -279,6 +279,14 @@ describe('astro:image', () => {
 					[undefined, 2],
 				);
 
+				// Densities including 1 do not emit a duplicate descriptorless 1x candidate
+				$source = $('#picture-density-1-2 source');
+				assert.equal($source.length, 1);
+				assert.deepEqual(
+					parseSrcset($source.attr('srcset')!).map((src) => src.d),
+					[1, 2],
+				);
+
 				// Widths
 				$img = $('#picture-widths img');
 				$picture = $('#picture-widths picture');

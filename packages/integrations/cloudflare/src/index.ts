@@ -598,8 +598,13 @@ export default function createIntegration({
 
 					// Cloudflare env is only available per request. This isn't feasible for code that access env vars
 					// in a global way, so we shim their access as `process.env.*`. This is not the recommended way for users to access environment variables. But we'll add this for compatibility for chosen variables. Mainly to support `@astrojs/db`
+					// Scoped to the server environments so the client keeps Vite's default `process.env` replacement. See https://github.com/withastro/astro/issues/18507
+					for (const name of ['ssr', 'prerender']) {
+						vite.environments ??= {};
+						const environment = (vite.environments[name] ??= {});
+						environment.define = { 'process.env': 'process.env', ...environment.define };
+					}
 					vite.define = {
-						'process.env': 'process.env',
 						'globalThis.__ASTRO_IMAGES_BINDING_NAME': JSON.stringify(imagesBindingName),
 						...vite.define,
 					};
