@@ -413,6 +413,37 @@ describe('CSP Rendering', () => {
 			assert.equal(html.includes('astro-csp-meta'), false);
 		});
 
+		it('places the CSP meta tag after <meta charset> and before head scripts in non-streaming renders', async () => {
+			const pipeline = createCspPipeline({ streaming: false });
+
+			const Page = createComponent(() => {
+				return render`<html>
+				<head><meta charset="utf-8"><title>Test</title><script src="/head.js"></script>${renderHead()}</head>
+				<body>${maybeRenderHead()}<h1>Test</h1></body>
+			</html>`;
+			});
+
+			const { html } = await renderPage(Page, pipeline);
+
+			assert.match(html, /<head><meta charset="utf-8"><meta http-equiv="content-security-policy"/);
+			assert.equal(html.match(/http-equiv="content-security-policy"/g)?.length, 1);
+		});
+
+		it('places the CSP meta tag at the start of <head> when there is no <meta charset>', async () => {
+			const pipeline = createCspPipeline({ streaming: false });
+
+			const Page = createComponent(() => {
+				return render`<html>
+				<head lang="en"><script src="/head.js"></script>${renderHead()}</head>
+				<body>${maybeRenderHead()}<h1>Test</h1></body>
+			</html>`;
+			});
+
+			const { html } = await renderPage(Page, pipeline);
+
+			assert.match(html, /<head lang="en"><meta http-equiv="content-security-policy"/);
+		});
+
 		it('should allow injecting custom style resources and hashes via Astro.csp', async () => {
 			const pipeline = createCspPipeline({
 				directives: ["img-src 'self'"],
