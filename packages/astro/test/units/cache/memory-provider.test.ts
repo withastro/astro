@@ -19,14 +19,31 @@ function makeRequest(url: string, headers: Record<string, string> = {}): Request
 }
 
 /**
- * Helper: create the context passed to `onRequest`, with a no-op logger.
+ * Background cache stores handed to `waitUntil` by `makeContext`.
+ */
+const pendingStores: Promise<unknown>[] = [];
+
+/**
+ * Helper: create the context passed to `onRequest`, with a no-op logger. The
+ * `waitUntil` hook records the store promise so tests can await it.
  */
 function makeContext(request: Request, warn: (message: string) => void = () => {}) {
 	return {
 		request,
 		url: new URL(request.url),
 		logger: { info() {}, warn, error() {} },
+		waitUntil: (promise: Promise<unknown>) => {
+			pendingStores.push(promise);
+		},
 	};
+}
+
+/**
+ * Helper: wait for the background stores recorded so far. Call it after a MISS
+ * before a request that should be served from the stored entry.
+ */
+async function settlePendingStores(): Promise<void> {
+	await Promise.all(pendingStores.splice(0));
 }
 
 /**
@@ -40,7 +57,7 @@ function makeNext({
 	tags,
 	headers = {},
 }: {
-	body?: string | null;
+	body?: string | ReadableStream<Uint8Array> | null;
 	status?: number;
 	maxAge?: number;
 	swr?: number;
@@ -84,6 +101,7 @@ describe('memory-provider onRequest', () => {
 		// First request — MISS
 		const req1 = makeRequest(url);
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
+		await settlePendingStores();
 
 		// Second request — HIT
 		const req2 = makeRequest(url);
@@ -133,6 +151,89 @@ describe('memory-provider onRequest', () => {
 
 // #endregion
 
+// #region onRequest: streaming miss
+
+describe('memory-provider streaming miss', () => {
+	it('streams the body before the render completes', async () => {
+		const provider = createProvider();
+		const encoder = new TextEncoder();
+		const decoder = new TextDecoder();
+		let release!: () => void;
+		const rest = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		const body = new ReadableStream<Uint8Array>({
+			async start(controller) {
+				controller.enqueue(encoder.encode('<head>'));
+				await rest;
+				controller.enqueue(encoder.encode('</html>'));
+				controller.close();
+			},
+		});
+		const url = 'http://localhost/page';
+
+		// onRequest must resolve while the body is still held behind `rest`
+		const res1 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, body }),
+		);
+		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
+
+		const reader = res1.body!.getReader();
+		const first = await reader.read();
+		assert.equal(decoder.decode(first.value), '<head>');
+
+		release();
+		const second = await reader.read();
+		assert.equal(decoder.decode(second.value), '</html>');
+		assert.equal((await reader.read()).done, true);
+		await settlePendingStores();
+
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, body: 'should-not-see' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res2.text(), '<head></html>');
+	});
+
+	it('does not store a body that fails mid-stream', async () => {
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+		const encoder = new TextEncoder();
+		// `pull` runs only once the queued chunk has been read, so the error follows the chunk
+		const body = new ReadableStream<Uint8Array>({
+			start(controller) {
+				controller.enqueue(encoder.encode('<head>'));
+			},
+			pull(controller) {
+				controller.error(new Error('render failed'));
+			},
+		});
+		const warn = mock.fn<(message: string) => void>();
+
+		const res1 = await provider.onRequest!(
+			makeContext(makeRequest(url), warn),
+			makeNext({ maxAge: 60, body }),
+		);
+		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
+		await assert.rejects(res1.text(), { message: 'render failed' });
+		await settlePendingStores();
+
+		assert.equal(warn.mock.callCount(), 1);
+		assert.match(warn.mock.calls[0].arguments[0], /Skipping cache for \/page.*render failed/);
+
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, body: 'second' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'MISS');
+		assert.equal(await res2.text(), 'second');
+	});
+});
+
+// #endregion
+
 // #region onRequest: host-aware keys
 
 describe('memory-provider host-aware cache keys', () => {
@@ -163,6 +264,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page?b=2&a=1');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
+		await settlePendingStores();
 
 		// Same params, different order — should HIT
 		const req2 = makeRequest('http://localhost/page?a=1&b=2');
@@ -178,6 +280,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?utm_source=twitter&utm_medium=social');
 		const res2 = await provider.onRequest!(
@@ -192,6 +295,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page?page=2');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'page-2' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?page=2&fbclid=abc123');
 		const res2 = await provider.onRequest!(
@@ -206,6 +310,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page?page=3');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'page-3' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?page=3&gclid=xyz789');
 		const res2 = await provider.onRequest!(
@@ -220,6 +325,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'no-params' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?utm_source=twitter&fbclid=abc&gclid=xyz');
 		const res2 = await provider.onRequest!(
@@ -234,6 +340,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page?id=1');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'id-1' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?id=2');
 		const res2 = await provider.onRequest!(
@@ -248,6 +355,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/list?page=1&sort=name');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'page-1' }));
+		await settlePendingStores();
 
 		// Different sort but same page — should HIT (sort not in include list)
 		const req2 = makeRequest('http://localhost/list?page=1&sort=date');
@@ -263,6 +371,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/list');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'no-params' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/list?sort=name&filter=active');
 		const res2 = await provider.onRequest!(
@@ -277,6 +386,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page?id=1');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?id=1&session_id=abc');
 		const res2 = await provider.onRequest!(
@@ -308,6 +418,7 @@ describe('memory-provider Vary header', () => {
 			makeContext(req1),
 			makeNext({ maxAge: 60, body: 'english', headers: { Vary: 'Accept-Language' } }),
 		);
+		await settlePendingStores();
 
 		// Second request: Accept-Language: fr — should MISS
 		const req2 = makeRequest(url, { 'Accept-Language': 'fr' });
@@ -317,6 +428,7 @@ describe('memory-provider Vary header', () => {
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'MISS');
 		assert.equal(await res2.text(), 'french');
+		await settlePendingStores();
 
 		// Third request: Accept-Language: en — should HIT from first
 		const req3 = makeRequest(url, { 'Accept-Language': 'en' });
@@ -368,11 +480,13 @@ describe('memory-provider LRU eviction', () => {
 		for (const path of ['/a', '/b']) {
 			const req = makeRequest(`http://localhost${path}`);
 			await provider.onRequest!(makeContext(req), makeNext({ maxAge: 60, body: path }));
+			await settlePendingStores();
 		}
 
 		// Add a third — should evict /a (oldest)
 		const req3 = makeRequest('http://localhost/c');
 		await provider.onRequest!(makeContext(req3), makeNext({ maxAge: 60, body: '/c' }));
+		await settlePendingStores();
 
 		// /b should still be cached (HIT)
 		const reqB = makeRequest('http://localhost/b');
@@ -410,6 +524,7 @@ describe('memory-provider invalidate', () => {
 		// Cache an entry with tags
 		const req1 = makeRequest(url);
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, tags: ['product'] }));
+		await settlePendingStores();
 
 		// Verify cached
 		const req2 = makeRequest(url);
@@ -435,6 +550,7 @@ describe('memory-provider invalidate', () => {
 		for (const path of ['/a', '/b']) {
 			const req = makeRequest(`http://localhost${path}`);
 			await provider.onRequest!(makeContext(req), makeNext({ maxAge: 60, body: path }));
+			await settlePendingStores();
 		}
 
 		// Invalidate only /a
@@ -463,6 +579,7 @@ describe('memory-provider invalidate', () => {
 
 		const req1 = makeRequest(url);
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, tags: ['product'] }));
+		await settlePendingStores();
 
 		await provider.invalidate({ tags: ['blog'] });
 
@@ -489,6 +606,7 @@ describe('memory-provider SWR', () => {
 			makeContext(req1),
 			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
 		);
+		await settlePendingStores();
 
 		// Wait for entry to become stale (just over 1 second)
 		await new Promise((r) => setTimeout(r, 1100));
@@ -525,6 +643,7 @@ describe('memory-provider SWR', () => {
 			makeContext(req1),
 			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
 		);
+		await settlePendingStores();
 
 		t.mock.timers.tick(2_000);
 		const req2 = makeRequest(url);
@@ -556,6 +675,7 @@ describe('memory-provider SWR', () => {
 			makeContext(makeRequest(url)),
 			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
 		);
+		await settlePendingStores();
 
 		t.mock.timers.tick(2_000);
 		const res2 = await provider.onRequest!(
@@ -587,6 +707,7 @@ describe('memory-provider response body', () => {
 
 		const req1 = makeRequest(url);
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body }));
+		await settlePendingStores();
 
 		const req2 = makeRequest(url);
 		const res2 = await provider.onRequest!(
@@ -605,6 +726,7 @@ describe('memory-provider response body', () => {
 			makeContext(req1),
 			makeNext({ maxAge: 60, status: 201, body: 'created' }),
 		);
+		await settlePendingStores();
 
 		const req2 = makeRequest(url);
 		const res2 = await provider.onRequest!(makeContext(req2), makeNext({ maxAge: 60 }));
@@ -645,6 +767,7 @@ describe('memory-provider response body', () => {
 				headers: { 'Content-Type': 'application/json', 'X-Custom': 'hello' },
 			}),
 		);
+		await settlePendingStores();
 
 		const req2 = makeRequest(url);
 		const res2 = await provider.onRequest!(makeContext(req2), makeNext({ maxAge: 60 }));
