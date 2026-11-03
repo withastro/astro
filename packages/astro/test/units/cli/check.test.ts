@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { describe, it } from 'node:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
 import { promisify } from 'node:util';
-import { flushAndExit, ignoreEpipe } from '../../../dist/cli/flush-and-exit.js';
+import { exitOnEpipe, flushAndExit } from '../../../dist/cli/flush-and-exit.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -90,15 +90,42 @@ describe('flushAndExit', () => {
 	});
 });
 
-describe('ignoreEpipe', () => {
-	it('swallows EPIPE errors and rethrows others', () => {
+describe('exitOnEpipe', () => {
+	it('exits with code 1 on EPIPE and rethrows other errors', () => {
 		const stream = new Writable({ write: (_chunk, _encoding, callback) => callback() });
-		ignoreEpipe([stream]);
+		const exitCodes: number[] = [];
+		exitOnEpipe([stream], (code) => exitCodes.push(code));
 
 		const epipe = Object.assign(new Error('write EPIPE'), { code: 'EPIPE' });
 		assert.doesNotThrow(() => stream.emit('error', epipe));
+		assert.deepEqual(exitCodes, [1]);
 
 		const other = Object.assign(new Error('write EIO'), { code: 'EIO' });
 		assert.throws(() => stream.emit('error', other), /EIO/);
+	});
+
+	it('ends a process that never finishes once its stdout reader closes', async () => {
+		const flushModule = new URL('../../../dist/cli/flush-and-exit.js', import.meta.url).href;
+		// Writes forever and keeps the event loop alive, like `astro check --watch`.
+		const script = `
+			const { exitOnEpipe } = await import(${JSON.stringify(flushModule)});
+			exitOnEpipe();
+			setInterval(() => process.stdout.write('x\\n'), 1);
+		`;
+		const child = spawn(process.execPath, ['--input-type=module', '-e', script], {
+			stdio: ['ignore', 'pipe', 'pipe'],
+		});
+		let stderr = '';
+		child.stderr.on('data', (chunk) => (stderr += chunk));
+		child.stdout.once('data', () => child.stdout.destroy());
+
+		const timeout = setTimeout(() => child.kill(), 10_000);
+		const [code, signal] = await new Promise<[number | null, string | null]>((resolve) =>
+			child.on('exit', (c, s) => resolve([c, s])),
+		);
+		clearTimeout(timeout);
+		assert.equal(signal, null);
+		assert.equal(code, 1);
+		assert.doesNotMatch(stderr, /EPIPE/);
 	});
 });

@@ -239,8 +239,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 		case 'check': {
 			const { check } = await import('./check/index.js');
-			const { flushAndExit, ignoreEpipe } = await import('./flush-and-exit.js');
-			ignoreEpipe();
+			const { exitOnEpipe, flushAndExit } = await import('./flush-and-exit.js');
+			exitOnEpipe();
 			const checkServer = await check(flags);
 			if (typeof checkServer === 'boolean') {
 				return await flushAndExit(checkServer ? 1 : 0);

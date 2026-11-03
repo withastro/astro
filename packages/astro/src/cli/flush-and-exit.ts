@@ -1,13 +1,19 @@
 import type { Writable } from 'node:stream';
 
 /**
- * Adds an `'error'` listener to each stream that ignores `EPIPE` (the reader closed
- * the pipe early, e.g. `astro check | head`) and rethrows any other error.
+ * Adds an `'error'` listener to each stream that calls `exit(1)` on `EPIPE` (the reader
+ * closed the pipe early, e.g. `astro check | head`) instead of crashing with a stack trace,
+ * and rethrows any other error. Exiting stops work, such as `--watch`, whose output can no
+ * longer reach anyone.
  */
-export function ignoreEpipe(streams: Writable[] = [process.stdout, process.stderr]): void {
+export function exitOnEpipe(
+	streams: Writable[] = [process.stdout, process.stderr],
+	exit: (code: number) => void = process.exit,
+): void {
 	for (const stream of streams) {
 		stream.on('error', (err: NodeJS.ErrnoException) => {
 			if (err.code !== 'EPIPE') throw err;
+			exit(1);
 		});
 	}
 }
