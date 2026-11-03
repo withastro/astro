@@ -246,6 +246,14 @@ describe('memory-provider streaming miss', () => {
 		const second = await reader.read();
 		assert.equal(decoder.decode(second.value), '</html>');
 		assert.equal((await reader.read()).done, true);
+		// Without `waitUntil` there is nothing to await; the store settles within microtasks once the body closes
+		await new Promise((resolve) => setImmediate(resolve));
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, body: 'should-not-see' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res2.text(), '<head></html>');
 	});
 
 	it('stores the page when the visitor disconnects mid-stream', async (t) => {
