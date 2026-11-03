@@ -175,6 +175,22 @@ describe('memory-provider streaming miss', () => {
 		}
 	}
 
+	/**
+	 * Helper: wait until the background store for `url` has landed. Each pass yields one event
+	 * loop turn, then probes with a response that has no cache headers, so the probe is never
+	 * stored itself. Gives up after 10 passes; the caller's HIT assertion then reports the miss.
+	 */
+	async function waitForStore(provider: CacheProvider, url: string): Promise<void> {
+		for (let i = 0; i < 10; i++) {
+			await flushTurns(1);
+			const probe = await provider.onRequest!(
+				makeContext(makeRequest(url)),
+				makeNext({ body: 'probe' }),
+			);
+			if (probe.headers.get('X-Astro-Cache') === 'HIT') return;
+		}
+	}
+
 	it('streams the body before the render completes', async (t) => {
 		const provider = createProvider();
 		const encoder = new TextEncoder();
@@ -256,8 +272,7 @@ describe('memory-provider streaming miss', () => {
 		const second = await reader.read();
 		assert.equal(decoder.decode(second.value), '</html>');
 		assert.equal((await reader.read()).done, true);
-		// Without `waitUntil` there is nothing to await; the store settles within microtasks once the body closes
-		await new Promise((resolve) => setImmediate(resolve));
+		await waitForStore(provider, url);
 		const res2 = await provider.onRequest!(
 			makeContext(makeRequest(url)),
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
