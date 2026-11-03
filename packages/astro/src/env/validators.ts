@@ -77,7 +77,9 @@ const stringValidator =
 const numberValidator =
 	({ gt, min, lt, max, int }: NumberSchema): ValueValidator =>
 	(input) => {
-		const num = Number.parseFloat(input ?? '');
+		// `Number()` rejects trailing characters that `parseFloat()` ignores (e.g. `8080abc`
+		// or `1,5`), but it reads a blank string as `0`, so blank values are rejected first.
+		const num = input?.trim() ? Number(input) : Number.NaN;
 		if (isNaN(num)) {
 			return {
 				ok: false,
