@@ -5,7 +5,9 @@ import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 /**
  * Background cache stores the memory provider hands to the recording `waitUntil` below.
- * Unlike the shared helper in `test/units/cache/test-helpers.ts`, requests through the built test adapter must record a store, so `settleExpectedStore` fails if none was recorded, and the per-test reset keeps a leftover store from a previous test from satisfying that check.
+ * Unlike the shared helper in `test/units/cache/test-helpers.ts`, requests through the built
+ * test adapter must record a store, so `settleExpectedStore` fails if none was recorded, and
+ * the per-test reset keeps a leftover store from a previous test from satisfying that check.
  */
 const pendingStores: Promise<unknown>[] = [];
 
