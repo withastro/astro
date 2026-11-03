@@ -309,6 +309,7 @@ describe('memory-provider host-aware cache keys', () => {
 
 		const req1 = makeRequest('http://host-a.com/page');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'host-a' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://host-b.com/page');
 		const res2 = await provider.onRequest!(
