@@ -1,5 +1,9 @@
 /**
  * Background cache stores the memory provider hands to the recording `waitUntil` below.
+ * The provider stores a cache miss only once the cache copy of the body has been read to the
+ * end, after `onRequest` has returned. A test that checks the cache straight after a miss
+ * would otherwise race that store: an expected HIT fails, and an expected MISS passes
+ * whether or not the entry was keyed correctly.
  */
 const pendingStores: Promise<unknown>[] = [];
 

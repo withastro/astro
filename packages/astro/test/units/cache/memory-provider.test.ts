@@ -142,6 +142,10 @@ describe('memory-provider onRequest', () => {
 // #region onRequest: streaming miss
 
 describe('memory-provider streaming miss', () => {
+	// These tests fake a slow render with a body stream that sends `<head>` at once and holds
+	// `</html>` until the test calls `release()`. Each registers `t.after(() => release())` so
+	// a failed assertion still ends the body, and the next test's store wait can't stall on it.
+
 	/**
 	 * Helper: await an `onRequest` call, rejecting after 1s so a provider that waits for the
 	 * full body fails fast instead of hanging until the runner timeout. On failure, `release`
@@ -254,7 +258,8 @@ describe('memory-provider streaming miss', () => {
 		});
 		const url = 'http://localhost/page';
 
-		// Without `waitUntil`, the store runs on its own; onRequest must still resolve before the body ends
+		// Node provides no `waitUntil`: the store must still run, and onRequest must still
+		// resolve before the body ends
 		const res = await awaitOnRequest(
 			provider.onRequest!(
 				{ ...makeContext(makeRequest(url)), waitUntil: undefined },
@@ -375,13 +380,16 @@ describe('memory-provider streaming miss', () => {
 		});
 		const warn = mock.fn<(message: string) => void>();
 
+		// Without `waitUntil` nothing awaits the store, so a failure it does not catch itself
+		// would be an unhandled rejection that crashes a Node server; node:test fails on one.
 		const res1 = await provider.onRequest!(
 			{ ...makeContext(makeRequest(url), warn), waitUntil: undefined },
 			makeNext({ maxAge: 60, body }),
 		);
 		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
 		await assert.rejects(res1.text(), { message: 'render failed' });
-		// Without `waitUntil` the store is not returned to the test; yield a few event-loop turns so its catch runs before the warning is checked.
+		// Without `waitUntil` the store is not returned to the test; yield a few event-loop
+		// turns so its catch runs before the warning is checked.
 		await flushTurns(10);
 
 		assert.equal(warn.mock.callCount(), 1);
