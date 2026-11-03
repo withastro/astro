@@ -4,7 +4,8 @@
 const pendingStores: Promise<unknown>[] = [];
 
 /**
- * Render option: records the background cache store so tests can await it.
+ * Recording `waitUntil` hook, passed as an `App.render` option or on the provider context;
+ * records each background cache store so tests can await it.
  */
 export function waitUntil(promise: Promise<unknown>) {
 	pendingStores.push(promise);
