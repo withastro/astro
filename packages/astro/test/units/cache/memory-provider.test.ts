@@ -132,10 +132,12 @@ describe('memory-provider onRequest', () => {
 
 		// First request — has Set-Cookie, should not cache
 		const req1 = makeRequest(url);
-		await provider.onRequest!(
+		const res1 = await provider.onRequest!(
 			makeContext(req1),
 			makeNext({ maxAge: 60, headers: { 'Set-Cookie': 'session=abc' } }),
 		);
+		assert.equal(res1.headers.has('X-Astro-Cache'), false);
+		await settlePendingStores();
 
 		// Second request — should be a miss (not cached)
 		const req2 = makeRequest(url);
