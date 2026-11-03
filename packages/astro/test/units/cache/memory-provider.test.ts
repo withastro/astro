@@ -209,6 +209,45 @@ describe('memory-provider streaming miss', () => {
 		assert.equal(await res2.text(), '<head></html>');
 	});
 
+	it('streams the body before the render completes without waitUntil', async (t) => {
+		const provider = createProvider();
+		const encoder = new TextEncoder();
+		const decoder = new TextDecoder();
+		let release!: () => void;
+		const rest = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		t.after(() => release());
+		const body = new ReadableStream<Uint8Array>({
+			async start(controller) {
+				controller.enqueue(encoder.encode('<head>'));
+				await rest;
+				controller.enqueue(encoder.encode('</html>'));
+				controller.close();
+			},
+		});
+		const url = 'http://localhost/page';
+
+		// Without `waitUntil`, the store runs on its own; onRequest must still resolve before the body ends
+		const res = await awaitOnRequest(
+			provider.onRequest!(
+				{ ...makeContext(makeRequest(url)), waitUntil: undefined },
+				makeNext({ maxAge: 60, body }),
+			),
+			release,
+		);
+		assert.equal(res.headers.get('X-Astro-Cache'), 'MISS');
+
+		const reader = res.body!.getReader();
+		const first = await reader.read();
+		assert.equal(decoder.decode(first.value), '<head>');
+
+		release();
+		const second = await reader.read();
+		assert.equal(decoder.decode(second.value), '</html>');
+		assert.equal((await reader.read()).done, true);
+	});
+
 	it('stores the page when the visitor disconnects mid-stream', async (t) => {
 		const provider = createProvider();
 		const encoder = new TextEncoder();
