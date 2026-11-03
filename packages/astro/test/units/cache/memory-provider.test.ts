@@ -154,6 +154,29 @@ describe('memory-provider onRequest', () => {
 // #region onRequest: streaming miss
 
 describe('memory-provider streaming miss', () => {
+	/**
+	 * Helper: await an `onRequest` call, rejecting after 1s so a provider that waits for the
+	 * full body fails fast instead of hanging until the runner timeout. On failure, `release`
+	 * ends the held body so nothing is left pending.
+	 */
+	async function awaitOnRequest(
+		pending: Promise<Response>,
+		release: () => void,
+	): Promise<Response> {
+		let timer: ReturnType<typeof setTimeout> | undefined;
+		const timeout = new Promise<never>((_, reject) => {
+			timer = setTimeout(() => reject(new Error('onRequest waited for the full body')), 1000);
+		});
+		try {
+			return await Promise.race([pending, timeout]);
+		} catch (error) {
+			release();
+			throw error;
+		} finally {
+			clearTimeout(timer);
+		}
+	}
+
 	it('streams the body before the render completes', async () => {
 		const provider = createProvider();
 		const encoder = new TextEncoder();
@@ -173,9 +196,9 @@ describe('memory-provider streaming miss', () => {
 		const url = 'http://localhost/page';
 
 		// onRequest must resolve while the body is still held behind `rest`
-		const res1 = await provider.onRequest!(
-			makeContext(makeRequest(url)),
-			makeNext({ maxAge: 60, body }),
+		const res1 = await awaitOnRequest(
+			provider.onRequest!(makeContext(makeRequest(url)), makeNext({ maxAge: 60, body })),
+			release,
 		);
 		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
 
