@@ -113,7 +113,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		attachDataStoreInvalidation(store, restart.container.viteServer, restart.container.settings, {
 			// Vite buffers startup reloads and delivers them to the first browser,
 			// even though it has not loaded any content yet (#18568).
-			notifyClient: () => !initialContentSync,
+			shouldNotifyClient: () => !initialContentSync,
 		});
 	}
 	await attachContentServerListeners(restart.container);

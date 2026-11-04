@@ -143,14 +143,14 @@ export function attachDataStoreInvalidation(
 	store: MutableDataStore,
 	server: ViteDevServer,
 	settings: AstroSettings,
-	{ notifyClient = () => true }: { notifyClient?: () => boolean } = {},
+	{ shouldNotifyClient = () => true }: { shouldNotifyClient?: () => boolean } = {},
 ) {
 	const dataStorePath = fileURLToPath(getDevDataStoreFile(settings));
 	const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 	store.onFileWritten((path) => {
 		if (path === dataStorePath) {
 			markDirectInvalidation(dataStorePath);
-			invalidateDataStore(server, { notifyClient: notifyClient() });
+			invalidateDataStore(server, { notifyClient: shouldNotifyClient() });
 			invalidateAssetImports(server, assetImportsPath);
 		} else if (path === assetImportsPath) {
 			markDirectInvalidation(assetImportsPath);

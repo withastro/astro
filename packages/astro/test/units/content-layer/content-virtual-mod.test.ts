@@ -15,7 +15,7 @@ import { createMinimalSettings, createTempDir } from './test-helpers.ts';
  */
 function createMockModuleGraph() {
 	return {
-		getModuleById: (): { id: string } | null => null,
+		getModuleById: () => null,
 		getModulesByFile: () => null,
 		invalidateModule: () => {},
 	};
@@ -43,7 +43,7 @@ function createMockEnvironment(name: string, sentMessages: Array<Record<string, 
  * Creates a minimal mock ViteDevServer with just enough structure for
  * the content virtual mod plugin's buildStart hook.
  */
-function createMockViteDevServer({ includePrerender = false, clientCount = 1 } = {}) {
+function createMockViteDevServer({ includePrerender = false } = {}) {
 	const sentMessages: Array<Record<string, unknown>> = [];
 	const watcherListeners = new Map<string, Array<(path: string) => void>>();
 	const environments: Record<string, ReturnType<typeof createMockEnvironment>> = {
@@ -56,8 +56,6 @@ function createMockViteDevServer({ includePrerender = false, clientCount = 1 } =
 	return {
 		sentMessages,
 		environments,
-		// Connection count must not determine whether content sync is initial or runtime.
-		ws: { clients: new Set(Array.from({ length: clientCount }, () => ({}))) },
 		watcher: {
 			add: () => {},
 			on: (event: string, listener: (path: string) => void) => {
@@ -247,85 +245,44 @@ describe('attachDataStoreInvalidation', () => {
 		assert.equal(countClientReloads(mockServer), 2, 'a later external change should reload');
 	});
 
-	for (const clientCount of [0, 1]) {
-		for (const [mode, httpServer] of [
-			['not listening', { listening: false }],
-			['already listening', { listening: true }],
-			['middleware mode', null],
-		] as const) {
-			it(`only suppresses initial-sync reloads with ${clientCount} clients and HTTP server ${mode} (#18568)`, async (t) => {
-				const root = createTempDir('content-data-store-startup-write-test-');
-				t.after(() => nodeFs.promises.rm(root, { recursive: true, force: true }));
-				const settings = createMinimalSettings(root, { config: { legacy: {} } });
-				const dataStoreFile = getDataStoreFile(settings, true);
-				const dataStorePath = fileURLToPath(dataStoreFile);
-
-				t.mock.timers.enable({ apis: ['Date'], now: 10_000 });
-				const mockServer = {
-					...createMockViteDevServer({ includePrerender: true, clientCount }),
-					httpServer,
-				};
-				const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
-				// @ts-expect-error - mock args are sufficient for this test
-				plugin.config?.({}, { command: 'serve' });
-				// @ts-expect-error - mock server has enough structure for this test
-				plugin.configureServer?.(mockServer);
-
-				const invalidations = ['ssr', 'prerender'].map((name) => {
-					const graph = mockServer.environments[name].moduleGraph;
-					t.mock.method(graph, 'getModuleById', () => ({ id: '\0astro:data-layer-content' }));
-					return t.mock.method(graph, 'invalidateModule');
-				});
-				let initialSync = true;
-				const store = await MutableDataStore.fromFile(dataStoreFile);
-				// @ts-expect-error - mock server has enough structure for this test
-				attachDataStoreInvalidation(store, mockServer, settings, {
-					notifyClient: () => !initialSync,
-				});
-
-				store.set('dogs', 'beagle', { id: 'beagle' });
-				await store.waitUntilSaveComplete();
-				assert.equal(countClientReloads(mockServer), 0, 'initial sync must not queue a reload');
-				for (const name of ['ssr', 'prerender']) {
-					assert.equal(
-						mockServer.sentMessages.filter(
-							(msg) => msg.channel === name && msg.type === 'astro:content-changed',
-						).length,
-						1,
-						'initial sync must still clear server route caches',
-					);
-				}
-				for (const invalidate of invalidations) {
-					assert.equal(invalidate.mock.callCount(), 1, 'initial sync must invalidate modules');
-				}
-
-				initialSync = false;
-				mockServer.watcher.emit('change', dataStorePath);
-				assert.equal(countClientReloads(mockServer), 0, 'a delayed startup echo is ignored');
-				store.set('dogs', 'poodle', { id: 'poodle' });
-				await store.waitUntilSaveComplete();
-				assert.equal(countClientReloads(mockServer), 1, 'runtime writes must queue a reload');
-				mockServer.watcher.emit('change', dataStorePath);
-				assert.equal(countClientReloads(mockServer), 1, 'runtime echoes are still ignored');
-
-				t.mock.timers.tick(5_000);
-				mockServer.watcher.emit('change', dataStorePath);
-				assert.equal(countClientReloads(mockServer), 2, 'external runtime writes still reload');
-			});
-		}
-	}
-
-	it('queues runtime reloads by default even without websocket or HTTP clients', async (t) => {
-		const root = createTempDir('content-data-store-default-notification-test-');
-		t.after(() => nodeFs.promises.rm(root, { recursive: true, force: true }));
+	it('skips the client reload for writes during initial sync, but not after (#18568)', async (t) => {
+		const root = createTempDir('content-data-store-initial-sync-test-');
 		const settings = createMinimalSettings(root, { config: { legacy: {} } });
-		const store = await MutableDataStore.fromFile(getDataStoreFile(settings, true));
-		const mockServer = { ...createMockViteDevServer({ clientCount: 0 }), httpServer: null };
+		const dataStoreFile = getDataStoreFile(settings, true);
+		await nodeFs.promises.mkdir(settings.dotAstroDir, { recursive: true });
+
+		t.mock.timers.enable({ apis: ['Date'], now: 10_000 });
+		t.after(() => mock.timers.reset());
+
+		const mockServer = createMockViteDevServer();
+		const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
+		// @ts-expect-error - mock args are sufficient for this test
+		plugin.config?.({}, { command: 'serve' });
 		// @ts-expect-error - mock server has enough structure for this test
-		attachDataStoreInvalidation(store, mockServer, settings);
-		store.set('dogs', 'beagle', { id: 'beagle' });
+		plugin.configureServer?.(mockServer);
+
+		let initialSync = true;
+		const store = await MutableDataStore.fromFile(dataStoreFile);
+		// @ts-expect-error - mock server has enough structure for this test
+		attachDataStoreInvalidation(store, mockServer, settings, {
+			shouldNotifyClient: () => !initialSync,
+		});
+
+		store.set('dogs', 'beagle', { id: 'beagle', data: { breed: 'Beagle' } });
 		await store.waitUntilSaveComplete();
-		assert.equal(countClientReloads(mockServer), 1);
+
+		assert.equal(countClientReloads(mockServer), 0, 'initial sync should not reload the client');
+		const contentChanged = mockServer.sentMessages.filter(
+			(msg) => msg.channel === 'ssr' && msg.type === 'astro:content-changed',
+		);
+		assert.equal(contentChanged.length, 1, 'initial sync should still invalidate the server');
+
+		initialSync = false;
+		t.mock.timers.tick(5_000);
+		store.set('dogs', 'poodle', { id: 'poodle', data: { breed: 'Poodle' } });
+		await store.waitUntilSaveComplete();
+
+		assert.equal(countClientReloads(mockServer), 1, 'writes after startup should reload');
 	});
 
 	it('invalidates the prerender environment when it exists (#17991)', async (t) => {

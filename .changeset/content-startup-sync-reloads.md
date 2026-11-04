@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes an unnecessary page reload after initial content sync in development while preserving runtime content reloads before the first HMR connection.
+Fixes an extra page reload on the first page load after starting `astro dev` without an existing `.astro` directory
