@@ -41,7 +41,7 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/prism": "workspace:*",
-    "@markdoc/markdoc": "^0.5.10",
+    "@markdoc/markdoc": "^0.5.11",
     "github-slugger": "^2.0.0",
     "htmlparser2": "^12.0.0",
     "rolldown": "^1.2.13"
@@ -54,7 +54,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "devalue": "^6.0.3",
-    "linkedom": "^0.18.14",
+    "linkedom": "^0.18.15",
     "vite": "^8.3.4"
   },
   "engines": {
