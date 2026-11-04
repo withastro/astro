@@ -21,12 +21,35 @@ function setCspMetaPlaceholder(result: SSRResult): string | undefined {
 	return result._metadata.cspMetaPlaceholder;
 }
 
+const HEAD_OPEN_TAG_RE = /<head(?=[\s>])[^>]*>/i;
+const META_CHARSET_RE = /<meta\s[^>]*\bcharset\s*=[^>]*>/i;
+
+// The placeholder sits where the compiler calls `renderHead()`, at the end of `<head>`. A `<meta>`
+// policy only applies to content parsed after it, so the element is moved to the start of `<head>`
+// (after `<meta charset>`, which must stay within the first 1024 bytes) to cover user head content.
+// See https://github.com/withastro/astro/issues/18606
 function replaceCspMetaPlaceholder(
 	result: SSRResult,
 	placeholder: string | undefined,
 	html: string,
 ): string {
-	return placeholder ? html.replace(placeholder, () => renderCspMetaTag(result)) : html;
+	if (!placeholder) return html;
+	const placeholderIndex = html.indexOf(placeholder);
+	if (placeholderIndex === -1) return html;
+	const metaTag = renderCspMetaTag(result);
+	const beforePlaceholder = html.slice(0, placeholderIndex);
+	const afterPlaceholder = html.slice(placeholderIndex + placeholder.length);
+	const headOpen = HEAD_OPEN_TAG_RE.exec(beforePlaceholder);
+	if (!headOpen) return beforePlaceholder + metaTag + afterPlaceholder;
+	let insertIndex = headOpen.index + headOpen[0].length;
+	const charset = META_CHARSET_RE.exec(beforePlaceholder.slice(insertIndex));
+	if (charset) insertIndex += charset.index + charset[0].length;
+	return (
+		beforePlaceholder.slice(0, insertIndex) +
+		metaTag +
+		beforePlaceholder.slice(insertIndex) +
+		afterPlaceholder
+	);
 }
 
 export async function renderPage(
