@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Updates CLI argument parsing in Astro.
+Updates CLI argument parsing
