@@ -1,6 +1,6 @@
-import type { RouteData, SSRResult } from '../../../types/public/internal.js';
-import { isRoute404, isRoute500 } from '../../../core/routing/internal/route-errors.js';
-import { isPropagatingHint } from '../../../core/head-propagation/resolver.js';
+import type { RenderRouteInfo, SSRResult } from '../../../types.js';
+import { isRoute404, isRoute500 } from '../../core/routing/internal/route-errors.js';
+import { isPropagatingHint } from '../../core/head-propagation/resolver.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
@@ -35,7 +35,7 @@ export async function renderPage(
 	props: any,
 	children: any,
 	streaming: boolean,
-	route?: RouteData,
+	route?: RenderRouteInfo,
 ): Promise<Response> {
 	if (!isAstroComponentFactory(componentFactory)) {
 		const nonAstroMeta = result.componentMetadata.get((componentFactory as any).moduleId);
