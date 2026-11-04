@@ -3,6 +3,8 @@ import type { FilterPattern } from 'vite';
 
 export type RendererContext = {
 	result: SSRResult;
+	/** The `options` of the renderer returned by `preact()` from `@astrojs/preact/renderer`. */
+	options?: RendererOptions;
 };
 
 export type SignalLike = {
@@ -20,7 +22,7 @@ export type AstroPreactAttrs = {
 	['data-preact-island-id']?: string;
 };
 
-export type VirtualModuleOptions = {
+export type RendererOptions = {
 	include?: FilterPattern;
 	exclude?: FilterPattern;
 };

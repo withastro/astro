@@ -20,6 +20,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/vue/",
   "exports": {
     ".": "./dist/index.js",
+    "./renderer": "./dist/renderer.js",
     "./container-renderer": "./dist/container-renderer.js",
     "./editor": "./dist/editor.cjs",
     "./client.js": "./dist/client.js",
@@ -45,6 +46,7 @@
     "vite-plugin-vue-devtools": "^8.2.1"
   },
   "devDependencies": {
+    "@astrojs/vite-plugin-astro": "workspace:*",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
