@@ -3,6 +3,23 @@ import type { AuditRuleWithSelector } from './index.js';
 // A regular expression to match external URLs
 const EXTERNAL_URL_REGEX = /^(?:[a-z+]+:)?\/\//i;
 
+/**
+ * Returns the size in bytes of the image at `src`, preferring the browser's Resource Timing entry
+ * for the request the page already made. Falls back to fetching the image when no entry exists.
+ */
+async function getImageSize(src: string): Promise<number> {
+	// Fetching an SVG that is animating in an <img> freezes the animation in WebKit, so the image is
+	// only fetched again when the browser has no record of its size.
+	// See https://github.com/withastro/astro/issues/18620
+	const entry = performance.getEntriesByName(new URL(src, document.baseURI).href)[0] as
+		| PerformanceResourceTiming
+		| undefined;
+	if (entry?.decodedBodySize) return entry.decodedBodySize;
+
+	const imageData = await fetch(src).then((response) => response.blob());
+	return imageData.size;
+}
+
 export const perf: AuditRuleWithSelector[] = [
 	{
 		code: 'perf-use-image-component',
@@ -23,8 +40,7 @@ export const perf: AuditRuleWithSelector[] = [
 			// Ignore images that are smaller than 20KB, most of the time the image component won't really help with these, or they're used for specific use-cases (pixel tracking, etc.)
 			// Ignore this test for remote images for now, fetching them can be very slow and possibly dangerous
 			if (!EXTERNAL_URL_REGEX.test(src)) {
-				const imageData = await fetch(src).then((response) => response.blob());
-				if (imageData.size < 20480) return false;
+				if ((await getImageSize(src)) < 20480) return false;
 			}
 
 			return true;
@@ -94,8 +110,7 @@ export const perf: AuditRuleWithSelector[] = [
 
 			// Ignore GIFs that are smaller than 100KB, those are typically small enough to not be a problem
 			if (!EXTERNAL_URL_REGEX.test(src)) {
-				const imageData = await fetch(src).then((response) => response.blob());
-				if (imageData.size < 102400) return false;
+				if ((await getImageSize(src)) < 102400) return false;
 			}
 
 			return true;
