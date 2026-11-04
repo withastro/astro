@@ -25,7 +25,8 @@
     "./shiki": "./dist/shiki.js",
     "./timings": "./dist/timings.js",
     "./yaml": "./dist/yaml.js",
-    "./yaml-error": "./dist/yaml-error.js"
+    "./yaml-error": "./dist/yaml-error.js",
+    "./renderer": "./dist/renderer.js"
   },
   "imports": {
     "#shiki-engine": {

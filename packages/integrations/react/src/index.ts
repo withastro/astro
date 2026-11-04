@@ -1,8 +1,11 @@
+import { reexportRenderer } from '@astrojs/internal-helpers/renderer';
 import viteReact, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
 import type { AstroIntegration, AstroRenderer } from 'astro';
+import react, { getReactMajorVersion } from '@astrojs/react-renderer';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
-import react from './renderer.js';
-import { getReactMajorVersion } from './version.js';
+
+const fromRendererPackage = (renderer: AstroRenderer) =>
+	reexportRenderer(renderer, '@astrojs/react-renderer', '@astrojs/react');
 
 export type ReactIntegrationOptions = Pick<
 	ViteReactPluginOptions,
@@ -16,7 +19,7 @@ export type ReactIntegrationOptions = Pick<
 };
 
 /**
- * The React integration: `@vitejs/plugin-react` plus the renderer from `@astrojs/react/renderer`.
+ * The React integration: `@vitejs/plugin-react` plus the renderer from `@astrojs/react-renderer`.
  */
 export default function (options: ReactIntegrationOptions = {}): AstroIntegration {
 	if ('babel' in options) {
@@ -26,12 +29,14 @@ export default function (options: ReactIntegrationOptions = {}): AstroIntegratio
 	}
 	const { include, exclude, compiler, experimentalReactChildren, experimentalDisableStreaming } =
 		options;
-	const reactRenderer = react({
-		include,
-		exclude,
-		experimentalReactChildren,
-		experimentalDisableStreaming,
-	});
+	const reactRenderer = fromRendererPackage(
+		react({
+			include,
+			exclude,
+			experimentalReactChildren,
+			experimentalDisableStreaming,
+		}),
+	);
 
 	return {
 		name: '@astrojs/react',

@@ -3,6 +3,7 @@
   "include": ["./src"],
   "references": [
     { "path": "../../astro/tsconfig.json" },
+    { "path": "../../renderers/react/tsconfig.json" },
     { "path": "../../internal-helpers/tsconfig.json" }
   ]
 }

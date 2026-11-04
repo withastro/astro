@@ -1,4 +1,4 @@
-import react from '@astrojs/react/renderer';
+import react from '@astrojs/react-renderer';
 import astro from '@astrojs/vite-plugin-astro';
 import viteReact from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
