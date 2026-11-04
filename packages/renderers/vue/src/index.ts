@@ -1,6 +1,8 @@
-import type { AstroRenderer } from 'astro';
+import type { AstroRenderer } from '@astrojs/runtime/types';
 import { APP_ENTRYPOINT_MODULE_ID } from './app-entrypoint-id.js';
 import { getContainerRenderer } from './container-renderer.js';
+
+export { APP_ENTRYPOINT_MODULE_ID };
 
 export interface VueRendererOptions {
 	/**
@@ -17,18 +19,22 @@ export interface VueRendererOptions {
  */
 export default function vue({ appEntrypoint }: VueRendererOptions = {}): AstroRenderer {
 	// The entrypoints import the app entrypoint through a virtual module of `astro()`.
-	const notOptimized = ['@astrojs/vue/server.js', 'vue/server-renderer', APP_ENTRYPOINT_MODULE_ID];
+	const notOptimized = [
+		'@astrojs/vue-renderer/server.js',
+		'vue/server-renderer',
+		APP_ENTRYPOINT_MODULE_ID,
+	];
 	return {
 		...getContainerRenderer(),
 		...(appEntrypoint && { appEntrypoint, appEntrypointImporters: /\.vue$/ }),
 		optimizeDeps: {
 			// `@vitejs/plugin-vue` doesn't add `vue`; pre-bundling it up front prevents a re-optimization
 			// when the `vue` import is only encountered later.
-			client: { include: ['@astrojs/vue/client.js', 'vue'], exclude: notOptimized },
+			client: { include: ['@astrojs/vue-renderer/client.js', 'vue'], exclude: notOptimized },
 			server: { include: ['vue'], exclude: notOptimized },
 		},
 		// The server entrypoint imports a virtual module, which Node can't resolve.
-		noExternal: ['@astrojs/vue'],
+		noExternal: ['@astrojs/vue-renderer'],
 	};
 }
 

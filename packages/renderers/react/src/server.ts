@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
+import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from '@astrojs/runtime/types';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { incrementId } from './context.js';
@@ -155,7 +155,7 @@ async function getFormState({
 > {
 	const { request, actionResult } = result;
 
-	if (!actionResult) return undefined;
+	if (!actionResult || !request) return undefined;
 	if (!isFormRequest(request.headers.get('content-type'))) return undefined;
 
 	const { searchParams } = new URL(request.url);

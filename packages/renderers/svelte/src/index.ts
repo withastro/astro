@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import type { AstroRenderer } from 'astro';
+import type { AstroRenderer } from '@astrojs/runtime/types';
 import { crawlFrameworkPkgs } from 'vitefu';
 import { getContainerRenderer } from './container-renderer.js';
 
@@ -14,11 +14,11 @@ export default function svelte(): AstroRenderer {
 		optimizeDeps: {
 			// `@sveltejs/vite-plugin-svelte` v7 force-includes Svelte's SSR runtime (`svelte/server`,
 			// `svelte/internal/server`, ...) into `optimizeDeps` for server environments. Because
-			// Astro's renderer entrypoint (`@astrojs/svelte/server.js`) is resolved as a `noExternal`
-			// dependency, it keeps using the raw transformed copy of that runtime while the user's
-			// compiled components use the pre-bundled copy — two instances of Svelte's server runtime
-			// with separate `ssr_context` module state, which crashes dev SSR. Excluding `svelte` makes
-			// vite-plugin-svelte skip the pre-bundle so every consumer shares one transformed copy.
+			// Astro's renderer entrypoint (`@astrojs/svelte-renderer/server.js`) is resolved as a
+			// `noExternal` dependency, it keeps using the raw transformed copy of that runtime while the
+			// user's compiled components use the pre-bundled copy — two instances of Svelte's server
+			// runtime with separate `ssr_context` module state, which crashes dev SSR. Excluding `svelte`
+			// makes vite-plugin-svelte skip the pre-bundle so every consumer shares one transformed copy.
 			//
 			// See related logic in vite-plugin-svelte:
 			// https://github.com/sveltejs/vite-plugin-svelte/blob/@sveltejs/vite-plugin-svelte@7.1.2/packages/vite-plugin-svelte/src/plugins/setup-optimizer.js#L51-L52

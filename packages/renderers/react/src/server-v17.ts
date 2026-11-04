@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
+import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from '@astrojs/runtime/types';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import StaticHtml from './static-html.js';

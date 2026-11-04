@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import type { AstroRenderer } from 'astro';
+import type { AstroRenderer } from '@astrojs/runtime/types';
 import { crawlFrameworkPkgs } from 'vitefu';
 import { getContainerRenderer } from './container-renderer.js';
 
@@ -13,10 +13,10 @@ export default function solid(): AstroRenderer {
 		...getContainerRenderer(),
 		optimizeDeps: {
 			client: {
-				include: ['@astrojs/solid-js/client.js'],
-				exclude: ['@astrojs/solid-js/server.js'],
+				include: ['@astrojs/solid-js-renderer/client.js'],
+				exclude: ['@astrojs/solid-js-renderer/server.js'],
 			},
-			server: { exclude: ['@astrojs/solid-js/server.js'] },
+			server: { exclude: ['@astrojs/solid-js-renderer/server.js'] },
 		},
 		// Solid component libraries that ship pre-compiled browser artifacts via the `exports.solid`
 		// condition must go through Vite's transform pipeline in server environments. Without this,

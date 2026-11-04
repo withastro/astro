@@ -1,4 +1,4 @@
-import type { NamedSSRLoadedRendererValue } from 'astro';
+import type { NamedSSRLoadedRendererValue } from '@astrojs/runtime/types';
 import {
 	createComponent,
 	generateHydrationScript,

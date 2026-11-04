@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
+import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from '@astrojs/runtime/types';
 import { Component as BaseComponent, h, type VNode } from 'preact';
 import { renderToStringAsync } from 'preact-render-to-string';
 import { getContext, incrementIslandId } from './context.js';

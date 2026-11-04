@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
+import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from '@astrojs/runtime/types';
 import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 import { incrementId } from './context.js';

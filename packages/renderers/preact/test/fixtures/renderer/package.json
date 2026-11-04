@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@astrojs/preact": "workspace:*",
+    "@astrojs/preact-renderer": "workspace:*",
     "@astrojs/runtime": "workspace:*",
     "@astrojs/vite-plugin-astro": "workspace:*",
     "@preact/preset-vite": "^2.10.6",

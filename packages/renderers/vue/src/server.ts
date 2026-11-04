@@ -1,5 +1,5 @@
 import { setup } from './app.js';
-import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
+import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from '@astrojs/runtime/types';
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { incrementId } from './context.js';

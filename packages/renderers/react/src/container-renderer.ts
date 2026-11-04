@@ -1,4 +1,4 @@
-import type { AstroRenderer } from 'astro';
+import type { AstroRenderer } from '@astrojs/runtime/types';
 import {
 	getReactMajorVersion,
 	isSupportedReactVersion,
