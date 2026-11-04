@@ -59,4 +59,22 @@ describe('astro-check - binary', async () => {
 		assert.ok(childProcess.stdout.toString().includes('--tsconfig'));
 		assert.ok(!childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
 	});
+
+	it('Reports invalid choices without a stack trace', async () => {
+		const pkgPath = fileURLToPath(new URL('..', import.meta.url));
+		const binPath = path.join(pkgPath, 'bin', 'astro-check.js');
+		for (const args of [
+			['--minimumSeverity', 'fatal'],
+			['--minimumSeverity', 'error', '--minimumSeverity', 'fatal'],
+		]) {
+			const childProcess = spawnSync('node', [binPath, ...args]);
+
+			assert.strictEqual(childProcess.status, 1);
+			assert.match(
+				childProcess.stderr.toString(),
+				/Invalid value for --minimum-severity: .*Expected one of: error, warning, hint\./,
+			);
+			assert.doesNotMatch(childProcess.stderr.toString(), /^\s+at /m);
+		}
+	});
 });
