@@ -1,0 +1,27 @@
+{
+  "name": "@test/vite-plugin-astro-frameworks",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astrojs/preact": "workspace:*",
+    "@astrojs/react": "workspace:*",
+    "@astrojs/runtime": "workspace:*",
+    "@astrojs/solid-js": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/vite-plugin-astro": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "@preact/preset-vite": "^2.10.6",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@vitejs/plugin-react": "^6.1.2",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "preact": "^11.0.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "solid-js": "^1.9.17",
+    "svelte": "^5.57.2",
+    "vite": "^8.3.4",
+    "vite-plugin-solid": "^2.11.14",
+    "vue": "^3.5.43"
+  }
+}

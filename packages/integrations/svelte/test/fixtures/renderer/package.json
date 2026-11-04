@@ -1,0 +1,15 @@
+{
+  "name": "@test/svelte-renderer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astrojs/runtime": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/vite-plugin-astro": "workspace:*",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@test/svelte-renderer-lib": "workspace:*",
+    "svelte": "^5.57.2",
+    "vite": "^8.3.4"
+  }
+}

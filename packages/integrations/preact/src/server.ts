@@ -1,11 +1,10 @@
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
-import opts from 'astro:preact:opts';
 import { Component as BaseComponent, h, type VNode } from 'preact';
 import { renderToStringAsync } from 'preact-render-to-string';
 import { getContext, incrementIslandId } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
 import StaticHtml from './static-html.js';
-import type { AstroPreactAttrs, RendererContext } from './types.js';
+import type { AstroPreactAttrs, RendererContext, RendererOptions } from './types.js';
 import { createFilter } from '@astrojs/internal-helpers/create-filter';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
@@ -13,7 +12,17 @@ const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w
 let originalConsoleError: typeof console.error;
 let consoleFilterRefs = 0;
 
-const filter = opts?.include || opts?.exclude ? createFilter(opts.include, opts.exclude) : null;
+const filters = new WeakMap<RendererOptions, ((id: string) => boolean) | null>();
+
+function getFilter(opts: RendererOptions | undefined) {
+	if (!opts) return null;
+	let filter = filters.get(opts);
+	if (filter === undefined) {
+		filter = opts.include || opts.exclude ? createFilter(opts.include, opts.exclude) : null;
+		filters.set(opts, filter);
+	}
+	return filter;
+}
 
 function setVNodeMask(vNode: VNode<any>, mask: [number, number]) {
 	// Preact's useId derives IDs from an internal root vnode mask (`_mask`/`__m`).
@@ -35,6 +44,7 @@ async function check(
 	if (Component.name === 'QwikComponent') return false;
 
 	const componentUrl = metadata?.componentUrl;
+	const filter = getFilter(this?.options);
 	if (filter && componentUrl && !filter(componentUrl)) {
 		return false;
 	}
