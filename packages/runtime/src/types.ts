@@ -74,6 +74,52 @@ export interface AstroRenderer {
 	clientEntrypoint?: string | URL;
 	/** Import entrypoint for the server/build/ssr renderer. */
 	serverEntrypoint: string | URL;
+	/**
+	 * Options of the renderer, passed to the `check()` and `renderToStaticMarkup()` functions of
+	 * its server entrypoint as `this.options`. They are serialized into the server code with
+	 * `devalue`: plain data, plus `RegExp`, `Date`, `URL`, `Map` and `Set`.
+	 */
+	options?: unknown;
+	/**
+	 * Dependencies to pre-bundle with Vite's dependency optimizer. The `server` includes apply only to
+	 * server environments that run the optimizer (`optimizeDeps.noDiscovery: false`); the excludes
+	 * apply to every environment of their kind.
+	 */
+	optimizeDeps?: {
+		client?: AstroRendererOptimizeDeps;
+		server?: AstroRendererOptimizeDeps;
+	};
+	/** Packages added to `resolve.dedupe` in every environment. */
+	dedupe?: string[];
+	/**
+	 * Packages added to `resolve.noExternal` in every server environment. A function receives the
+	 * project root and is called once, for lists found by crawling the project's dependencies
+	 * (Svelte and Solid component libraries).
+	 */
+	noExternal?: string[] | ((context: { root: URL }) => string[] | Promise<string[]>);
+	/**
+	 * Inline module script that must run in the browser before any component module, added to the
+	 * `<head>` of every page in dev only (React's Fast Refresh preamble). `__BASE__` is replaced
+	 * with Vite's `base`.
+	 */
+	devHeadScript?: string;
+	/**
+	 * Module of the project that sets up the framework's app (Vue's `appEntrypoint`). Ids starting
+	 * with `.` are resolved against the project root, others by Vite. The entrypoints import
+	 * `virtual:astro:app-entrypoint/<name>`, whose default export is a function that imports this
+	 * module, or `undefined` when no renderer named `<name>` has one.
+	 */
+	appEntrypoint?: string;
+	/**
+	 * Modules whose id matches it import `appEntrypoint` first, so that the styles it imports are
+	 * collected with the components that use them (Vue: `/\.vue$/`).
+	 */
+	appEntrypointImporters?: RegExp;
+}
+
+export interface AstroRendererOptimizeDeps {
+	include?: string[];
+	exclude?: string[];
 }
 
 export interface AstroComponentMetadata {
@@ -118,7 +164,8 @@ export interface SSRLoadedRendererValue {
 	renderHydrationScript?: () => string;
 }
 
-export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientEntrypoint'> {
+export interface SSRLoadedRenderer
+	extends Pick<AstroRenderer, 'name' | 'clientEntrypoint' | 'options'> {
 	ssr: SSRLoadedRendererValue;
 }
 

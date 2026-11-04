@@ -17,6 +17,7 @@
     "./server": "./dist/server/index.js",
     "./client/*": "./dist/internal/client/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
+    "./render": "./dist/render.js",
     "./compiler-runtime": "./dist/compiler/index.js",
     "./types": "./dist/types.js",
     "./_internal/*": "./dist/internal/*"
@@ -37,6 +38,7 @@
     "clsx": "^2.1.1"
   },
   "devDependencies": {
+    "@astrojs/compiler-rs": "^0.5.1",
     "astro-scripts": "workspace:*"
   },
   "keywords": [

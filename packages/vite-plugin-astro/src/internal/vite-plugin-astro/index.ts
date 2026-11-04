@@ -68,8 +68,11 @@ export default function astro({
 	let astroFileToCompileMetadata = new Map<string, CompileMetadata>();
 
 	// Variables for determining if an id starts with /src...
-	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
-	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
+	// `config` may be filled in after the plugin is created, so read it on use.
+	const isBrowserPath = (path: string) => {
+		const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
+		return path.startsWith(srcRootWeb) && srcRootWeb !== '/';
+	};
 	const notAstroComponent = (component: AstroComponent) =>
 		!component.resolvedPath.endsWith('.astro');
 
@@ -106,6 +109,19 @@ export default function astro({
 		{
 			name: 'astro:build',
 			enforce: 'pre', // run transforms before other plugins can
+			config: {
+				// After the `config` hooks of framework plugins, which set the filters read here.
+				order: 'post',
+				handler(userConfig) {
+					const oxc = userConfig.oxc;
+					// A JSX refresh filter (set by `@vitejs/plugin-react` to its `include`/`exclude`) matches
+					// `Foo.astro?astro&type=script&index=0&lang.ts` by its `.ts` ending, and Vite's OXC plugin
+					// then parses every id it matches whose path is not a JS file as JavaScript, which fails on
+					// TypeScript. Without a filter, adding an exclude would create one that matches every id.
+					if (!oxc || (!oxc.jsxRefreshInclude && !oxc.jsxRefreshExclude)) return;
+					return { oxc: { jsxRefreshExclude: [/\.astro(?:\?|$)/] } };
+				},
+			},
 			async configEnvironment(name, viteConfig, opts) {
 				viteConfig.resolve ??= {};
 				// Emulate Vite default fallback for `resolve.conditions` if not set
@@ -211,14 +227,17 @@ export default function astro({
 							return {
 								code: result.code,
 								// `vite.cssScopeTo` is a Vite feature that allows this CSS to be treeshaken
-								// if the Astro component's default export is not used
-								meta: result.isGlobal
-									? undefined
-									: {
-											vite: {
-												cssScopeTo: [filename, 'default'],
+								// if the Astro component's default export is not used. Unscoped requests come
+								// from builds where the component itself is never imported, such as the
+								// client build that emits a server-rendered component's stylesheets.
+								meta:
+									result.isGlobal || query.astroUnscoped
+										? undefined
+										: {
+												vite: {
+													cssScopeTo: [filename, 'default'],
+												},
 											},
-										},
 							};
 						}
 						case 'script': {
