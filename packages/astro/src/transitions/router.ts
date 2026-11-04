@@ -722,6 +722,7 @@ function onPopState(ev: PopStateEvent) {
 	// A traversal abandons the reservation, including when the destination is
 	// stateless. A late fetch must not replace the entry we just traversed to.
 	mostRecentNavigation?.controller.abort();
+	const abandonedEntry = pendingHistoryEntry;
 	if (pendingHistoryEntry !== undefined) {
 		pendingSourceScroll.set(pendingHistoryEntry - 1, { scrollX, scrollY });
 	}
@@ -744,6 +745,16 @@ function onPopState(ev: PopStateEvent) {
 	// Just ignore stateless entries.
 	// The browser will handle navigation fine without our help
 	if (ev.state === null) {
+		return;
+	}
+	// Back from a reservation to its source: the source document was never
+	// swapped out, so there is nothing to load.
+	if (
+		abandonedEntry !== undefined &&
+		ev.state.index === abandonedEntry - 1 &&
+		location.href === originalLocation.href
+	) {
+		currentHistoryIndex = ev.state.index;
 		return;
 	}
 	if (history.state.__astroPending) {

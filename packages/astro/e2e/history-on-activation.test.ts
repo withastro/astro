@@ -144,6 +144,30 @@ test('Back while loading aborts the fetch and Forward retains the requested dest
 	expect(await length(page)).toBe(before + 1);
 });
 
+test('Back while loading returns to the displayed source without reloading it', async ({
+	page,
+}) => {
+	const sourceRequests: string[] = [];
+	page.on('request', (request) => {
+		if (new URL(request.url()).pathname === '/history-activation') {
+			sourceRequests.push(request.url());
+		}
+	});
+	// Swapping in a refetched copy of the source would drop this DOM state.
+	await page.evaluate(() => ((document.querySelector('#source') as any).__kept = true));
+	await holdTwo(page);
+	await page.click('#two');
+	await page.goBack();
+	await expect.poll(() => page.evaluate(() => history.state?.index)).toBe(0);
+	await release(page);
+	await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 200)));
+	expect(sourceRequests).toEqual([]);
+	expect(await page.evaluate(() => (document.querySelector('#source') as any)?.__kept)).toBe(true);
+	await expect(page).toHaveURL(/\/history-activation$/);
+	await page.goForward();
+	await expect(page.locator('#two')).toHaveText('Page 2');
+});
+
 test('synchronous cancellation delegates to the browser without a reserved duplicate', async ({
 	page,
 }) => {
