@@ -40,16 +40,16 @@
   "dependencies": {
     "@vitejs/plugin-vue": "^6.0.10",
     "@vitejs/plugin-vue-jsx": "^5.1.6",
-    "@vue/compiler-sfc": "^3.5.43",
-    "vite": "^8.3.4",
+    "@vue/compiler-sfc": "^3.5.44",
+    "vite": "^8.3.5",
     "vite-plugin-vue-devtools": "^8.2.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
-    "linkedom": "^0.18.13",
-    "vue": "^3.5.43"
+    "linkedom": "^0.18.15",
+    "vue": "^3.5.44"
   },
   "peerDependencies": {
     "astro": "^7.0.0",
