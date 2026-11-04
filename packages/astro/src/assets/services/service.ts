@@ -332,13 +332,17 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		}> = [];
 		if (densities) {
 			// Densities can either be specified as numbers, or descriptors (ex: '1x'), we'll convert them all to numbers
-			const densityValues = densities.map((density) => {
-				if (typeof density === 'number') {
-					return density;
-				} else {
-					return Number.parseFloat(density);
-				}
-			});
+			const densityValues = Array.from(
+				new Set(
+					densities.map((density) => {
+						if (typeof density === 'number') {
+							return density;
+						} else {
+							return Number.parseFloat(density);
+						}
+					}),
+				),
+			);
 
 			// Calculate the widths for each density, rounding to avoid floats.
 			const densityWidths = densityValues

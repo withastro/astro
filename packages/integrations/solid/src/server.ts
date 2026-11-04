@@ -13,6 +13,10 @@ import type { RendererContext } from './types.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
+// Escapes a slot name for use inside a double-quoted HTML attribute value.
+const escapeSlotName = (str: string) =>
+	str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
 type RenderStrategy = 'sync' | 'async';
 
 async function check(
@@ -67,7 +71,7 @@ async function renderToStaticMarkup(
 		const slots: Record<string, any> = {};
 		for (const [key, value] of Object.entries(slotted)) {
 			const name = slotName(key);
-			slots[name] = ssr(`<${tagName} name="${name}">${value}</${tagName}>`);
+			slots[name] = ssr(`<${tagName} name="${escapeSlotName(name)}">${value}</${tagName}>`);
 		}
 		// Note: create newProps to avoid mutating `props` before they are serialized
 		const newProps = {

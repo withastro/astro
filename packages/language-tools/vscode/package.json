@@ -245,28 +245,28 @@
     "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
   },
   "devDependencies": {
-    "@astrojs/language-server": "^2.17.2",
+    "@astrojs/language-server": "^2.17.3",
     "@astrojs/ts-plugin": "^1.10.12",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.10.6",
     "@types/vscode": "^1.101.0",
-    "@volar/language-server": "~2.4.28",
-    "@volar/vscode": "~2.4.28",
+    "@volar/language-server": "~2.4.30",
+    "@volar/vscode": "~2.4.30",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.1.0",
-    "@vscode/vsce": "^4.0.0",
+    "@vscode/vsce": "^4.1.0",
     "kleur": "^4.1.5",
     "mocha": "^12.0.3",
-    "ovsx": "^1.2.0",
-    "rolldown": "^1.2.13",
+    "ovsx": "^1.3.0",
+    "rolldown": "^1.2.16",
     "tsx": "^4.23.15",
     "vscode-languageclient": "^10.1.2",
     "vscode-tmgrammar-test": "^0.1.3",
     "yaml": "^2.9.1"
   },
   "dependencies": {
-    "@astrojs/astro2tsx": "^0.1.2",
+    "@astrojs/astro2tsx": "^0.1.3",
     "prettier": "^3.9.10",
-    "prettier-plugin-astro": "^1.1.1"
+    "prettier-plugin-astro": "^1.1.2"
   }
 }

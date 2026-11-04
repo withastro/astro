@@ -58,6 +58,8 @@ minimumReleaseAgeExclude:
   - wrangler
   - 'satteri'
   - '@bruits/*'
+  # Renovate security update: undici@8.12.2
+  - undici@8.12.2
 peerDependencyRules:
   allowAny:
     - 'astro'
@@ -114,5 +116,5 @@ allowBuilds:
   workerd: false
 
 patchedDependencies:
-  '@volar/language-service@2.4.28': patches/@volar__language-service@2.4.28.patch
-  '@volar/typescript@2.4.28': patches/@volar__typescript@2.4.28.patch
+  '@volar/language-service@2.4.30': patches/@volar__language-service@2.4.30.patch
+  '@volar/typescript@2.4.30': patches/@volar__typescript@2.4.30.patch

@@ -123,19 +123,17 @@ async function renderToStaticMarkup(
 	};
 	let html: string;
 	if (opts.experimentalDisableStreaming) {
-		html = ReactDOM.renderToString(vnode);
+		html = ReactDOM.renderToString(vnode, renderOptions);
 	} else if ('renderToReadableStream' in ReactDOM) {
 		html = await renderToReadableStreamAsync(vnode, renderOptions);
 	} else {
 		html = await renderToPipeableStreamAsync(vnode, renderOptions);
 	}
-	// Strip React 19 auto-injected resource hints (preloads, etc.) from island output.
-	// These should be in <head>, not inside the island.
-	// See: https://github.com/facebook/react/issues/27910
-	html = html.replace(
-		/<link\s[^>]*rel="(?:preload|modulepreload|stylesheet|preconnect|dns-prefetch)"[^>]*>/g,
-		'',
-	);
+	// Preserve React's resource links. Automatic hints and component-authored links
+	// can have identical markup, so filtering the HTML would also remove explicit
+	// stylesheets and preloads (and can break hydration with React 18).
+	// React handles its hoisted resources during hydration.
+	// See: https://github.com/withastro/astro/issues/18418
 	return { html, attrs };
 }
 

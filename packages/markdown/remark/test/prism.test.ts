@@ -11,4 +11,25 @@ describe('prism syntax highlighting', () => {
 
 		assert.ok(!code.includes('is:raw'));
 	});
+
+	it('displays code for unsupported languages as text', async () => {
+		const processor = await createMarkdownProcessor({
+			syntaxHighlight: 'prism',
+		});
+		const { code } = await processor.render('```vue\n<template><b>hi</b></template>\n```');
+
+		assert.match(code, /<pre class="language-vue" data-language="vue">/);
+		assert.ok(!code.includes('<template>'), code);
+		assert.ok(!code.includes('<b>'), code);
+	});
+
+	it('escapes the language in the generated attributes', async () => {
+		const processor = await createMarkdownProcessor({
+			syntaxHighlight: 'prism',
+		});
+		const { code } = await processor.render('```a"b\ntest\n```');
+
+		assert.ok(!code.includes('class="language-a" b'), code);
+		assert.match(code, /<pre class="language-a&#x22;b" data-language="a&#x22;b">/);
+	});
 });

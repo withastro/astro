@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 9.1.2
+
+### Patch Changes
+
+- [`5e47636`](https://github.com/withastro/astro/commit/5e476365378e41aa2745d003b2383d02008d7b44) Thanks [@matthewp](https://github.com/matthewp)! - Escapes slot names when rendering the slot wrapper elements for Svelte components
+
 ## 9.1.1
 
 ### Patch Changes

@@ -15,6 +15,7 @@ import { Fragment, type RenderDestination } from './common.js';
 import {
 	createBufferedRenderer,
 	type RendererFlusher,
+	sanitizeElementName,
 	spreadElementAttributes,
 	voidElementNames,
 } from './util.js';
@@ -171,6 +172,7 @@ export async function renderStreaming(
 
 		// HTML element (e.g. 'div', 'span').
 		if (typeof type === 'string' && type !== ClientOnlyPlaceholder) {
+			const tag = sanitizeElementName(type);
 			const props = vnode.props;
 			// Check for attributes without copying props into a new object.
 			// Markdown/MDX is mostly elements with no attributes (<p>, <li>,
@@ -185,30 +187,30 @@ export async function renderStreaming(
 				}
 			}
 			const children = props?.children;
-			const isVoid = (children == null || children === '') && voidElementNames.test(type);
+			const isVoid = (children == null || children === '') && voidElementNames.test(tag);
 
 			if (!hasAttrs) {
 				// No attributes: skip the props copy and `spreadAttributes` entirely,
 				// and reuse the cached (constant) open/close tag strings for this tag.
-				const key = isVoid ? `${type}/` : type;
+				const key = isVoid ? `${tag}/` : tag;
 				let openTag = openTagCache.get(key);
 				if (openTag === undefined) {
-					openTag = isVoid ? `<${type}/>` : `<${type}>`;
+					openTag = isVoid ? `<${tag}/>` : `<${tag}>`;
 					openTagCache.set(key, openTag);
 				}
 				streamingState.appendStatic(openTag);
 				if (!isVoid) {
 					// Push close tag first so it is emitted after the children.
-					stack.push(closeTagFor(type));
+					stack.push(closeTagFor(tag));
 				}
 			} else {
 				const attrs = spreadElementAttributes(props!);
 				if (isVoid) {
-					streamingState.appendStatic(`<${type}${attrs}/>`);
+					streamingState.appendStatic(`<${tag}${attrs}/>`);
 					return;
 				}
-				streamingState.appendStatic(`<${type}${attrs}>`);
-				stack.push(closeTagFor(type));
+				streamingState.appendStatic(`<${tag}${attrs}>`);
+				stack.push(closeTagFor(tag));
 			}
 
 			if (!isVoid && children != null && children !== '') {
@@ -217,7 +219,7 @@ export async function renderStreaming(
 				// like other element content. `escapeStyleText` only escapes `<`, preserving
 				// quotes CSS commonly relies on while still preventing the value from closing
 				// the `<style>` tag early.
-				if (typeof children === 'string' && type === 'style') {
+				if (typeof children === 'string' && tag === 'style') {
 					stack.push(markHTMLString(escapeStyleText(children)));
 				} else {
 					stack.push(children);

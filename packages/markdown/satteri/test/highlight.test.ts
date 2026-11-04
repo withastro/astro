@@ -42,6 +42,16 @@ describe('satteri highlight', () => {
 		assert.match(code, /class="token /);
 	});
 
+	it('displays prism code for unsupported languages as text', async () => {
+		const processor = await createSatteriMarkdownProcessor({
+			syntaxHighlight: { type: 'prism' },
+		});
+		const { code } = await processor.render('```vue\n<template><b>hi</b></template>\n```');
+		assert.match(code, /<pre class="language-vue" data-language="vue">/);
+		assert.ok(!code.includes('<template>'), code);
+		assert.ok(!code.includes('<b>'), code);
+	});
+
 	it('supports prism excludeLangs', async () => {
 		const processor = await createSatteriMarkdownProcessor({
 			syntaxHighlight: { type: 'prism', excludeLangs: ['js'] },
