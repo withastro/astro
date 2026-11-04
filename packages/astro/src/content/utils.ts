@@ -52,7 +52,11 @@ export const loaderReturnSchema = z.union([
 	),
 ]);
 
-function contentConfigParser(logger: AstroLogger) {
+function contentConfigParser(logger: AstroLogger, collectionMetadata: boolean) {
+	// Descriptors are ignored, so not checked, while `experimental.collectionMetadata` is disabled
+	const descriptors = collectionMetadata
+		? z.record(z.string(), z.unknown()).optional()
+		: z.unknown().optional();
 	return z.object({
 		collections: z.record(
 			z.string(),
@@ -70,12 +74,12 @@ function contentConfigParser(logger: AstroLogger) {
 				z.object({
 					type: z.literal(CONTENT_LAYER_TYPE),
 					schema: z.any().optional(),
-					descriptors: z.record(z.string(), z.unknown()).optional(),
+					descriptors,
 					loader: z.union([
 						z.function(),
 						z.object({
 							name: z.string(),
-							descriptors: z.record(z.string(), z.unknown()).optional(),
+							descriptors,
 							load: z.function({
 								input: [z.custom<LoaderContext>()],
 								output: z.custom<{
@@ -519,7 +523,10 @@ async function loadContentConfig({
 	const configPathname = fileURLToPath(contentPaths.config.url);
 	const unparsedConfig = await environment.runner.import(configPathname);
 
-	const config = contentConfigParser(logger).safeParse(unparsedConfig);
+	const config = contentConfigParser(
+		logger,
+		settings.config.experimental.collectionMetadata,
+	).safeParse(unparsedConfig);
 	if (config.success) {
 		// Generate a digest of the config file so we can invalidate the cache if it changes
 		const hasher = await xxhash();

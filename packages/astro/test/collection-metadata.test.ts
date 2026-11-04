@@ -81,3 +81,13 @@ describe('Collection metadata without the flag', () => {
 		assert.equal(response.status, 500);
 	});
 });
+
+describe('Collection descriptors without the flag', () => {
+	it('are ignored, so not checked', async () => {
+		const fixture = await loadFixture({ root: './fixtures/collection-metadata-disabled/' });
+		// Without the cache, an invalid content config would leave the collection empty
+		await fixture.build({ force: true });
+
+		assert.match(await fixture.readFile('/index.html'), /<p id="count">1<\/p>/);
+	});
+});
