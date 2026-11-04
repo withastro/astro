@@ -7,7 +7,7 @@ import {
 	markHTMLString,
 	stringifyForScript,
 	unescapeHTML,
-} from '../../../dist/runtime/server/escape.js';
+} from '@astrojs/runtime/_internal/server/escape.js';
 
 describe('markHTMLString', () => {
 	it('wraps a string in an HTMLString instance', () => {

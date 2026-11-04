@@ -1,4 +1,5 @@
 import type { AddressInfo } from 'node:net';
+import type { AstroRenderer, ClientDirectiveConfig } from '@astrojs/vite-plugin-astro';
 import type { ViteDevServer, InlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
 import type { AssetsGlobalStaticImagesList, SerializedStaticImage } from '../../assets/types.js';
@@ -27,40 +28,11 @@ export interface RouteOptions {
 	prerender?: boolean;
 }
 
-/* Client Directives */
-type DirectiveHydrate = () => Promise<void>;
-type DirectiveLoad = () => Promise<DirectiveHydrate>;
-
-type DirectiveOptions = {
-	/**
-	 * The component displayName
-	 */
-	name: string;
-	/**
-	 * The attribute value provided
-	 */
-	value: string;
-};
-
-export type ClientDirective = (
-	load: DirectiveLoad,
-	options: DirectiveOptions,
-	el: HTMLElement,
-) => void;
-
-export interface ClientDirectiveConfig {
-	name: string;
-	entrypoint: string | URL;
-}
-
-export interface AstroRenderer {
-	/** Name of the renderer. */
-	name: string;
-	/** Import entrypoint for the client/browser renderer. */
-	clientEntrypoint?: string | URL;
-	/** Import entrypoint for the server/build/ssr renderer. */
-	serverEntrypoint: string | URL;
-}
+export type {
+	AstroRenderer,
+	ClientDirective,
+	ClientDirectiveConfig,
+} from '@astrojs/vite-plugin-astro';
 
 export type AdapterSupportsKind =
 	(typeof AdapterFeatureStability)[keyof typeof AdapterFeatureStability];

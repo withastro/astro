@@ -541,9 +541,15 @@ importers:
       '@astrojs/markdown-satteri':
         specifier: workspace:*
         version: link:../markdown/satteri
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../runtime
       '@astrojs/telemetry':
         specifier: workspace:*
         version: link:../telemetry
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../vite-plugin-astro
       '@capsizecss/unpack':
         specifier: ^4.0.1
         version: 4.0.1
@@ -565,12 +571,6 @@ importers:
       ci-info:
         specifier: ^4.4.0
         version: 4.4.0
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      common-ancestor-path:
-        specifier: ^2.0.0
-        version: 2.0.0
       cookie:
         specifier: ^2.0.1
         version: 2.0.1
@@ -722,6 +722,9 @@ importers:
       cheerio:
         specifier: 1.2.0
         version: 1.2.0
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       eol:
         specifier: ^0.10.0
         version: 0.10.0
@@ -7285,6 +7288,19 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
 
+  packages/runtime:
+    dependencies:
+      '@oslojs/encoding':
+        specifier: ^1.1.0
+        version: 1.1.0
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+    devDependencies:
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
+
   packages/telemetry:
     dependencies:
       ci-info:
@@ -7337,6 +7353,37 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
+
+  packages/vite-plugin-astro:
+    dependencies:
+      '@astrojs/compiler-rs':
+        specifier: ^0.5.1
+        version: 0.5.2
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../internal-helpers
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      common-ancestor-path:
+        specifier: ^2.0.0
+        version: 2.0.0
+      rolldown:
+        specifier: ^1.2.11
+        version: 1.2.16
+      smol-toml:
+        specifier: ^1.9.0
+        version: 1.9.1
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.7
+    devDependencies:
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
+      vite:
+        specifier: ^8.3.3
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
 
   scripts:
     dependencies:

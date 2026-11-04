@@ -1,6 +1,6 @@
 import type { RuntimeFontFileUrlResolver } from '../definitions.js';
-import { MissingGetFontFileRequestUrl } from '../../../core/errors/errors-data.js';
-import { AstroError } from '../../../core/errors/errors.js';
+import { MissingGetFontFileRequestUrl } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 
 /**
  * During SSR, we don't know ahead of time where the server is located.

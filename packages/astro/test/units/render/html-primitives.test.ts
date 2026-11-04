@@ -9,7 +9,7 @@ import {
 	renderElement,
 	toAttributeString,
 	toStyleString,
-} from '../../../dist/runtime/server/render/util.js';
+} from '@astrojs/runtime/_internal/server/render/util.js';
 import {
 	createComponent,
 	Fragment,
