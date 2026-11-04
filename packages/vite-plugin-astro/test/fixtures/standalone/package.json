@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@astrojs/react": "workspace:*",
+    "@astrojs/react-renderer": "workspace:*",
     "@astrojs/runtime": "workspace:*",
     "@astrojs/vite-plugin-astro": "workspace:*",
     "@vitejs/plugin-react": "^6.1.2",

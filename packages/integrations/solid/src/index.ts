@@ -1,8 +1,12 @@
+import { reexportRenderer } from '@astrojs/internal-helpers/renderer';
+import solidRenderer from '@astrojs/solid-js-renderer';
 import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
 import type { PluginOption } from 'vite';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
-import solidRenderer from './renderer.js';
+
+const fromRendererPackage = (renderer: AstroRenderer) =>
+	reexportRenderer(renderer, '@astrojs/solid-js-renderer', '@astrojs/solid-js');
 
 // TODO: keep in sync with https://github.com/thetarnav/solid-devtools/blob/main/packages/main/src/vite/index.ts#L7
 type DevtoolsPluginOptions = {
@@ -70,7 +74,7 @@ export interface Options extends Pick<ViteSolidPluginOptions, 'include' | 'exclu
 }
 
 /**
- * The Solid integration: `vite-plugin-solid` plus the renderer from `@astrojs/solid-js/renderer`.
+ * The Solid integration: `vite-plugin-solid` plus the renderer from `@astrojs/solid-js-renderer`.
  */
 export default function (options: Options = {}): AstroIntegration {
 	return {
@@ -88,7 +92,7 @@ export default function (options: Options = {}): AstroIntegration {
 					!!options.devtools && command === 'dev',
 				);
 
-				addRenderer(solidRenderer());
+				addRenderer(fromRendererPackage(solidRenderer()));
 				updateConfig({
 					vite: getViteConfiguration(options, devtoolsPlugin),
 				});

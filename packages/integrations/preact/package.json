@@ -20,7 +20,6 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/preact/",
   "exports": {
     ".": "./dist/index.js",
-    "./renderer": "./dist/renderer.js",
     "./container-renderer": "./dist/container-renderer.js",
     "./client.js": "./dist/client.js",
     "./client-dev.js": "./dist/client-dev.js",
@@ -33,18 +32,14 @@
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
-    "@preact/preset-vite": "^2.10.6",
-    "@preact/signals": "^2.11.4",
-    "preact-render-to-string": "^6.8.2",
-    "vite": "^8.3.5"
+    "@astrojs/preact-renderer": "workspace:*",
+    "@preact/preset-vite": "^2.10.6"
   },
   "devDependencies": {
-    "@astrojs/vite-plugin-astro": "workspace:*",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "preact": "^11.1.1"

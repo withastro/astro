@@ -1,12 +1,15 @@
+import { reexportRenderer } from '@astrojs/internal-helpers/renderer';
+import vueRenderer, { APP_ENTRYPOINT_MODULE_ID, vueJsxRenderer } from '@astrojs/vue-renderer';
 import type { Options as VueOptions } from '@vitejs/plugin-vue';
 import vue from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
 import type { AstroIntegration, AstroRenderer, HookParameters } from 'astro';
 import type { Plugin, PluginOption } from 'vite';
 import type { VitePluginVueDevToolsOptions } from 'vite-plugin-vue-devtools';
-import { APP_ENTRYPOINT_MODULE_ID } from './app-entrypoint-id.js';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
-import vueRenderer, { vueJsxRenderer } from './renderer.js';
+
+const fromRendererPackage = (renderer: AstroRenderer) =>
+	reexportRenderer(renderer, '@astrojs/vue-renderer', '@astrojs/vue');
 
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;
@@ -91,16 +94,16 @@ function configEnvironmentPlugin(): Plugin {
 
 /**
  * The Vue integration: `@vitejs/plugin-vue` (and `@vitejs/plugin-vue-jsx` with `jsx`) plus the
- * renderers from `@astrojs/vue/renderer`.
+ * renderers from `@astrojs/vue-renderer`.
  */
 export default function (options?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/vue',
 		hooks: {
 			'astro:config:setup': async ({ addRenderer, updateConfig, command }) => {
-				addRenderer(vueRenderer({ appEntrypoint: options?.appEntrypoint }));
+				addRenderer(fromRendererPackage(vueRenderer({ appEntrypoint: options?.appEntrypoint })));
 				if (options?.jsx) {
-					addRenderer(vueJsxRenderer());
+					addRenderer(fromRendererPackage(vueJsxRenderer()));
 				}
 				updateConfig({ vite: await getViteConfiguration(command, options) });
 			},

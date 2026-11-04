@@ -1,9 +1,9 @@
-import preact from '@astrojs/preact/renderer';
-import react from '@astrojs/react/renderer';
-import solid from '@astrojs/solid-js/renderer';
-import svelte from '@astrojs/svelte/renderer';
+import preact from '@astrojs/preact-renderer';
+import react from '@astrojs/react-renderer';
+import solid from '@astrojs/solid-js-renderer';
+import svelte from '@astrojs/svelte-renderer';
 import astro from '@astrojs/vite-plugin-astro';
-import vue from '@astrojs/vue/renderer';
+import vue from '@astrojs/vue-renderer';
 import { preact as vitePreact } from '@preact/preset-vite';
 import { svelte as viteSvelte } from '@sveltejs/vite-plugin-svelte';
 import viteReact from '@vitejs/plugin-react';

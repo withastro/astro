@@ -101,6 +101,10 @@ export default {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
 		},
+		'packages/renderers/*': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			project,
+		},
 		'packages/integrations/cloudflare': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,

@@ -457,9 +457,9 @@ importers:
 
   examples/vite-plugin-astro-hono:
     dependencies:
-      '@astrojs/react':
-        specifier: ^7.1.2
-        version: link:../../packages/integrations/react
+      '@astrojs/react-renderer':
+        specifier: ^0.0.0
+        version: link:../../packages/renderers/react
       '@astrojs/runtime':
         specifier: ^0.0.0
         version: link:../../packages/runtime
@@ -6091,22 +6091,13 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../../internal-helpers
+      '@astrojs/preact-renderer':
+        specifier: workspace:*
+        version: link:../../renderers/preact
       '@preact/preset-vite':
         specifier: ^2.10.6
         version: 2.10.6(@babel/core@7.29.7)(preact@11.1.1)(supports-color@10.2.2)(vite@8.3.5)
-      '@preact/signals':
-        specifier: ^2.11.4
-        version: 2.11.4(preact@11.1.1)
-      preact-render-to-string:
-        specifier: ^6.8.2
-        version: 6.8.2(preact@11.1.1)
-      vite:
-        specifier: ^8.3.5
-        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
     devDependencies:
-      '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
-        version: link:../../vite-plugin-astro
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6117,45 +6108,18 @@ importers:
         specifier: ^11.1.1
         version: 11.1.1(preact-render-to-string@6.8.2)
 
-  packages/integrations/preact/test/fixtures/renderer:
-    dependencies:
-      '@astrojs/preact':
-        specifier: workspace:*
-        version: link:../../..
-      '@astrojs/runtime':
-        specifier: workspace:*
-        version: link:../../../../../runtime
-      '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
-        version: link:../../../../../vite-plugin-astro
-      '@preact/preset-vite':
-        specifier: ^2.10.6
-        version: 2.10.6(@babel/core@7.29.7)(preact@11.1.1)(supports-color@10.2.2)(vite@8.3.5)
-      preact:
-        specifier: ^11.0.1
-        version: 11.1.1(preact-render-to-string@6.8.2)
-      vite:
-        specifier: ^8.3.4
-        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
-
   packages/integrations/react:
     dependencies:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../../internal-helpers
+      '@astrojs/react-renderer':
+        specifier: workspace:*
+        version: link:../../renderers/react
       '@vitejs/plugin-react':
         specifier: ^6.1.2
         version: 6.1.2(@rolldown/plugin-babel@0.3.0)(oxc-transform-react@0.156.0)(vite@8.3.5)
-      ultrahtml:
-        specifier: ^1.7.0
-        version: 1.7.0
-      vite:
-        specifier: ^8.3.5
-        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
     devDependencies:
-      '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
-        version: link:../../vite-plugin-astro
       '@babel/core':
         specifier: ^8.0.10
         version: 8.0.10
@@ -6283,30 +6247,6 @@ importers:
         specifier: ^19.3.1
         version: 19.3.1(react@19.3.1)
 
-  packages/integrations/react/test/fixtures/renderer:
-    dependencies:
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../..
-      '@astrojs/runtime':
-        specifier: workspace:*
-        version: link:../../../../../runtime
-      '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
-        version: link:../../../../../vite-plugin-astro
-      '@vitejs/plugin-react':
-        specifier: ^6.1.2
-        version: 6.1.2(@rolldown/plugin-babel@0.3.0)(oxc-transform-react@0.156.0)(vite@8.3.5)
-      react:
-        specifier: ^19.3.0
-        version: 19.3.1
-      react-dom:
-        specifier: ^19.3.0
-        version: 19.3.1(react@19.3.1)
-      vite:
-        specifier: ^8.3.4
-        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
-
   packages/integrations/sitemap:
     dependencies:
       sitemap:
@@ -6388,19 +6328,19 @@ importers:
 
   packages/integrations/solid:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
+      '@astrojs/solid-js-renderer':
+        specifier: workspace:*
+        version: link:../../renderers/solid-js
       vite:
         specifier: ^8.3.5
         version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
       vite-plugin-solid:
         specifier: ^2.11.15
         version: 2.11.15(solid-js@1.9.18)(supports-color@10.2.2)(vite@8.3.5)
-      vitefu:
-        specifier: ^1.1.3
-        version: 1.1.3(vite@8.3.5)
     devDependencies:
-      '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
-        version: link:../../vite-plugin-astro
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6411,34 +6351,14 @@ importers:
         specifier: ^1.9.18
         version: 1.9.18
 
-  packages/integrations/solid/test/fixtures/renderer:
-    dependencies:
-      '@astrojs/runtime':
-        specifier: workspace:*
-        version: link:../../../../../runtime
-      '@astrojs/solid-js':
-        specifier: workspace:*
-        version: link:../../..
-      '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
-        version: link:../../../../../vite-plugin-astro
-      '@test/solid-renderer-lib':
-        specifier: workspace:*
-        version: link:../renderer-lib
-      solid-js:
-        specifier: ^1.9.17
-        version: 1.9.18
-      vite:
-        specifier: ^8.3.4
-        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
-      vite-plugin-solid:
-        specifier: ^2.11.14
-        version: 2.11.15(solid-js@1.9.18)(supports-color@10.2.2)(vite@8.3.5)
-
-  packages/integrations/solid/test/fixtures/renderer-lib: {}
-
   packages/integrations/svelte:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
+      '@astrojs/svelte-renderer':
+        specifier: workspace:*
+        version: link:../../renderers/svelte
       '@sveltejs/vite-plugin-svelte':
         specifier: ^7.3.1
         version: 7.3.1(svelte@5.57.3)(vite@8.3.5)
@@ -6448,13 +6368,7 @@ importers:
       vite:
         specifier: ^8.3.5
         version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
-      vitefu:
-        specifier: ^1.1.3
-        version: 1.1.3(vite@8.3.5)
     devDependencies:
-      '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
-        version: link:../../vite-plugin-astro
       '@testing-library/svelte':
         specifier: ^5.4.2
         version: 5.4.2(svelte@5.57.3)(vite@8.3.5)(vitest@5.0.5)
@@ -6518,32 +6432,6 @@ importers:
       svelte:
         specifier: ^5.57.3
         version: 5.57.3(@typescript-eslint/types@8.72.1)
-
-  packages/integrations/svelte/test/fixtures/renderer:
-    dependencies:
-      '@astrojs/runtime':
-        specifier: workspace:*
-        version: link:../../../../../runtime
-      '@astrojs/svelte':
-        specifier: workspace:*
-        version: link:../../..
-      '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
-        version: link:../../../../../vite-plugin-astro
-      '@sveltejs/vite-plugin-svelte':
-        specifier: ^7.3.1
-        version: 7.3.1(svelte@5.57.3)(vite@8.3.5)
-      '@test/svelte-renderer-lib':
-        specifier: workspace:*
-        version: link:../renderer-lib
-      svelte:
-        specifier: ^5.57.2
-        version: 5.57.3(@typescript-eslint/types@8.72.1)
-      vite:
-        specifier: ^8.3.4
-        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
-
-  packages/integrations/svelte/test/fixtures/renderer-lib: {}
 
   packages/integrations/svelte/test/fixtures/slot-names:
     dependencies:
@@ -6833,6 +6721,12 @@ importers:
 
   packages/integrations/vue:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
+      '@astrojs/vue-renderer':
+        specifier: workspace:*
+        version: link:../../renderers/vue
       '@vitejs/plugin-vue':
         specifier: ^6.0.10
         version: 6.0.10(vite@8.3.5)(vue@3.5.44)
@@ -6849,9 +6743,6 @@ importers:
         specifier: ^8.2.1
         version: 8.2.1(supports-color@10.2.2)(vite@8.3.5)(vue@3.5.44)
     devDependencies:
-      '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
-        version: link:../../vite-plugin-astro
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6977,27 +6868,6 @@ importers:
         version: link:../../../../../astro
       vue:
         specifier: ^3.5.44
-        version: 3.5.44(typescript@6.0.3)
-
-  packages/integrations/vue/test/fixtures/renderer:
-    dependencies:
-      '@astrojs/runtime':
-        specifier: workspace:*
-        version: link:../../../../../runtime
-      '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
-        version: link:../../../../../vite-plugin-astro
-      '@astrojs/vue':
-        specifier: workspace:*
-        version: link:../../..
-      '@vitejs/plugin-vue':
-        specifier: ^6.0.10
-        version: 6.0.10(vite@8.3.5)(vue@3.5.44)
-      vite:
-        specifier: ^8.3.4
-        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
-      vue:
-        specifier: ^3.5.43
         version: 3.5.44(typescript@6.0.3)
 
   packages/internal-helpers:
@@ -7445,6 +7315,264 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
 
+  packages/renderers/preact:
+    dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../runtime
+      '@preact/signals':
+        specifier: ^2.11.4
+        version: 2.11.4(preact@11.1.1)
+      preact-render-to-string:
+        specifier: ^6.8.2
+        version: 6.8.2(preact@11.1.1)
+    devDependencies:
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../vite-plugin-astro
+      '@preact/preset-vite':
+        specifier: ^2.10.6
+        version: 2.10.6(@babel/core@7.29.7)(preact@11.1.1)(supports-color@10.2.2)(vite@8.3.5)
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+      preact:
+        specifier: ^11.1.1
+        version: 11.1.1(preact-render-to-string@6.8.2)
+      vite:
+        specifier: ^8.3.5
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
+
+  packages/renderers/preact/test/fixtures/renderer:
+    dependencies:
+      '@astrojs/preact-renderer':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../../runtime
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../../../../vite-plugin-astro
+      '@preact/preset-vite':
+        specifier: ^2.10.6
+        version: 2.10.6(@babel/core@7.29.7)(preact@11.1.1)(supports-color@10.2.2)(vite@8.3.5)
+      preact:
+        specifier: ^11.0.1
+        version: 11.1.1(preact-render-to-string@6.8.2)
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
+
+  packages/renderers/react:
+    dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../runtime
+      '@vitejs/plugin-react':
+        specifier: ^6.1.2
+        version: 6.1.2(@rolldown/plugin-babel@0.3.0)(oxc-transform-react@0.156.0)(vite@8.3.5)
+      ultrahtml:
+        specifier: ^1.7.0
+        version: 1.7.0
+    devDependencies:
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../vite-plugin-astro
+      '@types/react':
+        specifier: ^19.3.0
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: ^19.3.0
+        version: 19.3.0(@types/react@19.3.0)
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+      react:
+        specifier: ^19.3.1
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.3.1
+        version: 19.3.1(react@19.3.1)
+      vite:
+        specifier: ^8.3.5
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
+
+  packages/renderers/react/test/fixtures/renderer:
+    dependencies:
+      '@astrojs/react-renderer':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../../runtime
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../../../../vite-plugin-astro
+      '@vitejs/plugin-react':
+        specifier: ^6.1.2
+        version: 6.1.2(@rolldown/plugin-babel@0.3.0)(oxc-transform-react@0.156.0)(vite@8.3.5)
+      react:
+        specifier: ^19.3.0
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.3.0
+        version: 19.3.1(react@19.3.1)
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
+
+  packages/renderers/solid-js:
+    dependencies:
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../runtime
+      vitefu:
+        specifier: ^1.1.3
+        version: 1.1.3(vite@8.3.5)
+    devDependencies:
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../vite-plugin-astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+      solid-js:
+        specifier: ^1.9.18
+        version: 1.9.18
+      vite:
+        specifier: ^8.3.5
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
+      vite-plugin-solid:
+        specifier: ^2.11.15
+        version: 2.11.15(solid-js@1.9.18)(supports-color@10.2.2)(vite@8.3.5)
+
+  packages/renderers/solid-js/test/fixtures/renderer:
+    dependencies:
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../../runtime
+      '@astrojs/solid-js-renderer':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../../../../vite-plugin-astro
+      '@test/solid-renderer-lib':
+        specifier: workspace:*
+        version: link:../renderer-lib
+      solid-js:
+        specifier: ^1.9.17
+        version: 1.9.18
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
+      vite-plugin-solid:
+        specifier: ^2.11.14
+        version: 2.11.15(solid-js@1.9.18)(supports-color@10.2.2)(vite@8.3.5)
+
+  packages/renderers/solid-js/test/fixtures/renderer-lib: {}
+
+  packages/renderers/svelte:
+    dependencies:
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../runtime
+      vitefu:
+        specifier: ^1.1.3
+        version: 1.1.3(vite@8.3.5)
+    devDependencies:
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../vite-plugin-astro
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.3.1
+        version: 7.3.1(svelte@5.57.3)(vite@8.3.5)
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+      svelte:
+        specifier: ^5.57.3
+        version: 5.57.3(@typescript-eslint/types@8.72.1)
+      vite:
+        specifier: ^8.3.5
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
+
+  packages/renderers/svelte/test/fixtures/renderer:
+    dependencies:
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../../runtime
+      '@astrojs/svelte-renderer':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../../../../vite-plugin-astro
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.3.1
+        version: 7.3.1(svelte@5.57.3)(vite@8.3.5)
+      '@test/svelte-renderer-lib':
+        specifier: workspace:*
+        version: link:../renderer-lib
+      svelte:
+        specifier: ^5.57.2
+        version: 5.57.3(@typescript-eslint/types@8.72.1)
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
+
+  packages/renderers/svelte/test/fixtures/renderer-lib: {}
+
+  packages/renderers/vue:
+    dependencies:
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../runtime
+    devDependencies:
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../vite-plugin-astro
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.10
+        version: 6.0.10(vite@8.3.5)(vue@3.5.44)
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+      vite:
+        specifier: ^8.3.5
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
+      vue:
+        specifier: ^3.5.44
+        version: 3.5.44(typescript@6.0.3)
+
+  packages/renderers/vue/test/fixtures/renderer:
+    dependencies:
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../../runtime
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../../../../vite-plugin-astro
+      '@astrojs/vue-renderer':
+        specifier: workspace:*
+        version: link:../../..
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.10
+        version: 6.0.10(vite@8.3.5)(vue@3.5.44)
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
+      vue:
+        specifier: ^3.5.43
+        version: 3.5.44(typescript@6.0.3)
+
   packages/runtime:
     dependencies:
       '@oslojs/encoding':
@@ -7553,27 +7681,27 @@ importers:
 
   packages/vite-plugin-astro/test/fixtures/frameworks:
     dependencies:
-      '@astrojs/preact':
+      '@astrojs/preact-renderer':
         specifier: workspace:*
-        version: link:../../../../integrations/preact
-      '@astrojs/react':
+        version: link:../../../../renderers/preact
+      '@astrojs/react-renderer':
         specifier: workspace:*
-        version: link:../../../../integrations/react
+        version: link:../../../../renderers/react
       '@astrojs/runtime':
         specifier: workspace:*
         version: link:../../../../runtime
-      '@astrojs/solid-js':
+      '@astrojs/solid-js-renderer':
         specifier: workspace:*
-        version: link:../../../../integrations/solid
-      '@astrojs/svelte':
+        version: link:../../../../renderers/solid-js
+      '@astrojs/svelte-renderer':
         specifier: workspace:*
-        version: link:../../../../integrations/svelte
+        version: link:../../../../renderers/svelte
       '@astrojs/vite-plugin-astro':
         specifier: workspace:*
         version: link:../../..
-      '@astrojs/vue':
+      '@astrojs/vue-renderer':
         specifier: workspace:*
-        version: link:../../../../integrations/vue
+        version: link:../../../../renderers/vue
       '@preact/preset-vite':
         specifier: ^2.10.6
         version: 2.10.6(@babel/core@7.29.7)(preact@11.1.1)(supports-color@10.2.2)(vite@8.3.5)
@@ -7613,9 +7741,9 @@ importers:
 
   packages/vite-plugin-astro/test/fixtures/standalone:
     dependencies:
-      '@astrojs/react':
+      '@astrojs/react-renderer':
         specifier: workspace:*
-        version: link:../../../../integrations/react
+        version: link:../../../../renderers/react
       '@astrojs/runtime':
         specifier: workspace:*
         version: link:../../../../runtime

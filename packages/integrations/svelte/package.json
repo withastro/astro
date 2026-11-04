@@ -20,10 +20,9 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/svelte/",
   "exports": {
     ".": "./dist/index.js",
-    "./renderer": "./dist/renderer.js",
     "./container-renderer": "./dist/container-renderer.js",
     "./editor": "./dist/editor.cjs",
-    "./client.js": "./dist/client.svelte.js",
+    "./client.js": "./dist/client.js",
     "./server.js": "./dist/server.js",
     "./svelte-shims.d.ts": "./svelte-shims.d.ts",
     "./package.json": "./package.json"
@@ -39,13 +38,13 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/svelte-renderer": "workspace:*",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "svelte2tsx": "^0.7.62",
-    "vite": "^8.3.5",
-    "vitefu": "^1.1.3"
+    "vite": "^8.3.5"
   },
   "devDependencies": {
-    "@astrojs/vite-plugin-astro": "workspace:*",
     "@testing-library/svelte": "^5.4.2",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",

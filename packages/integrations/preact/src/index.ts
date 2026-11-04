@@ -1,11 +1,15 @@
+import { reexportRenderer } from '@astrojs/internal-helpers/renderer';
 import { fileURLToPath } from 'node:url';
+import preactRenderer from '@astrojs/preact-renderer';
 import { preact, type PreactPluginOptions as VitePreactPluginOptions } from '@preact/preset-vite';
 import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
 import {
 	getContainerRenderer as getContainerRendererImpl,
 	getRenderer,
 } from './container-renderer.js';
-import preactRenderer from './renderer.js';
+
+const fromRendererPackage = (renderer: AstroRenderer) =>
+	reexportRenderer(renderer, '@astrojs/preact-renderer', '@astrojs/preact');
 
 const babelCwd = new URL('../', import.meta.url);
 
@@ -25,7 +29,7 @@ export interface Options extends Pick<VitePreactPluginOptions, 'include' | 'excl
 }
 
 /**
- * The Preact integration: `@preact/preset-vite` plus the renderer from `@astrojs/preact/renderer`.
+ * The Preact integration: `@preact/preset-vite` plus the renderer from `@astrojs/preact-renderer`.
  */
 export default function ({
 	include,
@@ -59,7 +63,7 @@ export default function ({
 				viteConfig.plugins = [preactPlugin];
 
 				addRenderer({
-					...preactRenderer({ include, exclude, compat, devtools }),
+					...fromRendererPackage(preactRenderer({ include, exclude, compat, devtools })),
 					// `client-dev.js` loads `preact/debug` with the first island.
 					clientEntrypoint: getRenderer(command === 'dev').clientEntrypoint,
 				});
