@@ -3595,9 +3595,11 @@ export interface AstroUserConfig<
 		 * @version 7.5
 		 * @description
 		 *
-		 * Enables the `storage` option of build-time content collections, which keeps a collection's
-		 * entries in a storage driver, such as a SQLite database, instead of the data store bundled with
-		 * your site. Pages then read the entries they use one at a time, instead of holding every collection in memory.
+		 * Enables the `storage` option of build-time content collections.
+		 *
+		 * By default, Astro stores collection entries in a data store bundled with your site and
+		 * loaded into memory. A collection that defines `storage` keeps its entries in a storage
+		 * driver (e.g. a SQLite database) instead. Pages then read only the entries they use, one at a time.
 		 *
 		 * ```js
 		 * // astro.config.mjs
@@ -3610,7 +3612,7 @@ export interface AstroUserConfig<
 		 * });
 		 * ```
 		 *
-		 * Then, set `storage` on the collections to keep in a driver. Collections without it stay bundled with your site:
+		 * Then, set `storage` on the collections to keep in a driver:
 		 *
 		 * ```ts
 		 * // src/content.config.ts
@@ -3620,7 +3622,7 @@ export interface AstroUserConfig<
 		 *
 		 * const docs = defineCollection({
 		 *   loader: glob({ pattern: '**\/*.md', base: './src/docs' }),
-		 *   storage: sqlite(),
+		 *   storage: sqlite({ url: 'file:collections.db' }),
 		 * });
 		 *
 		 * export const collections = { docs };
