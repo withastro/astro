@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "sitemap": "^9.0.1",
-    "zod": "^4.6.6"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/xml2js": "^0.4.14",

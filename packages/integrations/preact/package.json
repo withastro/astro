@@ -37,15 +37,15 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@preact/preset-vite": "^2.10.6",
-    "@preact/signals": "^2.11.3",
-    "devalue": "^6.0.2",
-    "preact-render-to-string": "^6.8.0",
-    "vite": "^8.3.4"
+    "@preact/signals": "^2.11.4",
+    "devalue": "^6.0.3",
+    "preact-render-to-string": "^6.8.2",
+    "vite": "^8.3.5"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "preact": "^11.0.1"
+    "preact": "^11.1.1"
   },
   "peerDependencies": {
     "preact": "^10.6.5 || ^11.0.0"
