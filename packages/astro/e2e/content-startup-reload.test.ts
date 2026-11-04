@@ -1,32 +1,41 @@
 import { once } from 'node:events';
+import { rm } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { globalContentLayer } from '../dist/content/instance.js';
-import { type DevServer, testFactory } from './test-utils.ts';
+import { globalContentConfigObserver } from '../dist/content/utils.js';
+import { dev } from '../dist/core/index.js';
+import { createContentStartupFixture } from '../test/test-utils-content-startup.ts';
 
-// This dev-only fixture is in the same package and needs no framework dependencies.
-const test = testFactory(import.meta.url, {
-	root: '../test/fixtures/content-layer-dev-restart/',
-	devToolbar: { enabled: false },
-});
-let devServer: DevServer;
+let root: string;
+let devServer: Awaited<ReturnType<typeof dev>>;
+let origin: string;
 
-test.beforeAll(async ({ astro }) => {
-	devServer = await astro.startDevServer();
+test.beforeAll(async () => {
+	root = await createContentStartupFixture();
+	globalContentLayer.dispose();
+	globalContentConfigObserver.set({ status: 'init' });
+	devServer = await dev({
+		root,
+		logLevel: 'silent',
+		server: { host: '127.0.0.1', port: 0 },
+		vite: { logLevel: 'silent' },
+	});
+	origin = `http://127.0.0.1:${devServer.address.port}/`;
 });
 
 test.afterAll(async () => {
 	await devServer?.stop();
+	globalContentLayer.dispose();
+	if (root) await rm(root, { recursive: true, force: true });
 });
 
 test('queues runtime content reloads before the first HMR connection (#18568)', async ({
 	page,
-	astro,
 }) => {
 	// Consume any earlier buffered message so only the runtime write below can
 	// cause a reload. The server must have no connected clients during the write.
-	const origin = astro.resolveUrl('/');
-	const client = await (await astro.fetch('/@vite/client')).text();
+	const client = await (await fetch(new URL('/@vite/client', origin))).text();
 	const token = /const wsToken = "([^"]+)"/.exec(client)?.[1];
 	expect(token).toBeTruthy();
 	const websocketUrl = new URL(origin);

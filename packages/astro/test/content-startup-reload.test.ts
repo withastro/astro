@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
 import { createServer as createHttpServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -13,43 +13,17 @@ import { attachDataStoreInvalidation } from '../dist/content/vite-plugin-content
 import { createMinimalSettings, createTempDir } from './units/content-layer/test-helpers.ts';
 import { globalContentLayer } from '../dist/content/instance.js';
 import { globalContentConfigObserver } from '../dist/content/utils.js';
+import { createContentStartupFixture } from './test-utils-content-startup.ts';
 
 process.env.ASTRO_TELEMETRY_DISABLED = 'true';
 
-// Use an existing fixture's dependency resolution, but never edit its files or
-// cache. Each run gets its own content, generated files, and optimizer cache.
+// Each run gets its own content, generated files, and optimizer cache outside
+// every other fixture's watcher, including when integration tests run in parallel.
 it('does not queue a startup reload, but reloads on later content writes (#18568)', {
 	timeout: 60_000,
 }, async (t) => {
-	const root = await mkdtemp(
-		fileURLToPath(new URL('./fixtures/content-layer-dev-restart/startup-reload-', import.meta.url)),
-	);
+	const root = await createContentStartupFixture();
 	t.after(() => rm(root, { recursive: true, force: true }));
-	await mkdir(`${root}/src/content/blog`, { recursive: true });
-	await mkdir(`${root}/src/pages`, { recursive: true });
-	await writeFile(`${root}/package.json`, JSON.stringify({ type: 'module' }));
-	await writeFile(`${root}/astro.config.mjs`, 'export default { devToolbar: { enabled: false } };');
-	await writeFile(
-		`${root}/src/content.config.ts`,
-		`
-import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
-export const collections = { blog: defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
-  schema: z.object({ title: z.string() }),
-}) };
-`,
-	);
-	await writeFile(`${root}/src/content/blog/hello.md`, '---\ntitle: Original title\n---\nHello!\n');
-	await writeFile(
-		`${root}/src/pages/index.astro`,
-		`---
-import { getCollection } from 'astro:content';
-const entries = await getCollection('blog');
----
-<html><body>{entries.map(entry => <h1>{entry.data.title}</h1>)}</body></html>
-`,
-	);
 
 	for (const start of ['fresh', 'warm']) {
 		globalContentLayer.dispose();
