@@ -65,7 +65,7 @@ export function parseArgsAsCheckConfig(args: string[]): Flags {
 	return flags as Flags;
 }
 
-export function printHelp() {
+function printHelp() {
 	const optionsHelp = Object.entries(options).map(
 		([name, option]) => `  --${name}  ${'description' in option ? (option.description ?? '') : ''}`,
 	);
@@ -74,18 +74,33 @@ export function printHelp() {
 	);
 }
 
-export function printVersion() {
+function printVersion() {
 	const require = createRequire(import.meta.url);
 	console.info(require('../package.json').version);
 }
 
-export async function check(flags: Partial<Flags> & { watch: true }): Promise<void>;
+export async function check(
+	flags: Partial<Flags> & ({ help: true } | { version: true }),
+): Promise<boolean>;
+export async function check(
+	flags: Partial<Flags> & { watch: true; help?: false; version?: false },
+): Promise<void>;
 export async function check(flags: Partial<Flags> & { watch: false }): Promise<boolean>;
 export async function check(flags: Partial<Flags>): Promise<boolean | void>;
 /**
  * Print diagnostics according to the given flags, and return whether or not the program should exit with an error code.
  */
 export async function check(flags: Partial<Flags>): Promise<boolean | void> {
+	if (flags.help) {
+		printHelp();
+		return false;
+	}
+
+	if (flags.version) {
+		printVersion();
+		return false;
+	}
+
 	const workspaceRoot = path.resolve(flags.root ?? process.cwd());
 	const require = createRequire(import.meta.url);
 	const checker = new AstroCheck(workspaceRoot, require.resolve('typescript'), flags.tsconfig);

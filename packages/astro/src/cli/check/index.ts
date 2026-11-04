@@ -40,18 +40,10 @@ export async function check(flags: Flags): Promise<boolean | void> {
 		return true;
 	}
 
-	const { check: checker, parseArgsAsCheckConfig, printHelp, printVersion } = checkPackage;
+	const { check: checker, parseArgsAsCheckConfig } = checkPackage;
 	const config = parseArgsAsCheckConfig(process.argv);
 
-	if (config.help) {
-		printHelp();
-		return false;
-	}
-
-	if (config.version) {
-		printVersion();
-		return false;
-	}
+	if (config.help || config.version) return checker(config);
 
 	if (!flags.noSync) {
 		// Run sync before check to make sure types are generated.

@@ -1,21 +1,13 @@
 #!/usr/bin/env node
 
 import path from 'node:path';
-import { check, parseArgsAsCheckConfig, printHelp, printVersion } from '../dist/index.js';
+import { check, parseArgsAsCheckConfig } from '../dist/index.js';
 
 const args = parseArgsAsCheckConfig(process.argv);
 
-if (args.help) {
-	printHelp();
-	process.exit(0);
+if (!args.help && !args.version) {
+	console.info(`Getting diagnostics for Astro files in ${path.resolve(args.root)}...`);
 }
-
-if (args.version) {
-	printVersion();
-	process.exit(0);
-}
-
-console.info(`Getting diagnostics for Astro files in ${path.resolve(args.root)}...`);
 
 const result = await check(args);
 

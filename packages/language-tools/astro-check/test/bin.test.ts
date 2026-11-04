@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { spawnSync } from 'node:child_process';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 
 describe('astro-check - binary', async () => {
@@ -41,6 +41,22 @@ describe('astro-check - binary', async () => {
 
 		assert.strictEqual(childProcess.status, 0);
 		assert.match(childProcess.stdout.toString().trim(), /^\d+\.\d+\.\d+/);
+		assert.ok(!childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
+	});
+
+	it('Handles help when called through the package API', async () => {
+		const pkgPath = fileURLToPath(new URL('..', import.meta.url));
+		const indexPath = path.join(pkgPath, 'dist', 'index.js');
+		const script = `
+			import { check, parseArgsAsCheckConfig } from ${JSON.stringify(pathToFileURL(indexPath).href)};
+			await check(parseArgsAsCheckConfig(['node', 'astro', '--watch', '--help']));
+		`;
+		const childProcess = spawnSync('node', ['--input-type=module', '-e', script], {
+			timeout: 5_000,
+		});
+
+		assert.strictEqual(childProcess.status, 0);
+		assert.ok(childProcess.stdout.toString().includes('--tsconfig'));
 		assert.ok(!childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
 	});
 });
