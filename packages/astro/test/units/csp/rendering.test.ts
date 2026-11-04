@@ -413,6 +413,70 @@ describe('CSP Rendering', () => {
 			assert.equal(html.includes('astro-csp-meta'), false);
 		});
 
+		it('places the CSP meta tag after <meta charset> and before head scripts in non-streaming renders', async () => {
+			const pipeline = createCspPipeline({
+				streaming: false,
+				scriptHashes: ['sha256-xyz789'],
+			});
+
+			const Page = createComponent(() => {
+				return render`<html>
+				<head>
+					<meta charset="utf-8">
+					<title>Page Title</title>
+					<script src="data:text/javascript,window.headScriptRan=true"></script>
+					${renderHead()}
+				</head>
+				<body>${maybeRenderHead()}<h1>Hello</h1></body>
+			</html>`;
+			});
+
+			const { html } = await renderPage(Page, pipeline);
+			const charsetIdx = html.indexOf('<meta charset="utf-8">');
+			const cspMetaIdx = html.toLowerCase().indexOf('<meta http-equiv="content-security-policy"');
+			const scriptIdx = html.indexOf(
+				'<script src="data:text/javascript,window.headScriptRan=true">',
+			);
+
+			assert.ok(charsetIdx !== -1, 'Page should contain charset meta tag');
+			assert.ok(cspMetaIdx !== -1, 'Page should contain CSP meta tag');
+			assert.ok(scriptIdx !== -1, 'Page should contain head script tag');
+			assert.ok(charsetIdx < cspMetaIdx, 'CSP meta tag should be placed after <meta charset>');
+			assert.ok(
+				cspMetaIdx < scriptIdx,
+				'CSP meta tag should be placed before head scripts so policy covers them',
+			);
+		});
+
+		it('places the CSP meta tag at the start of <head> when there is no <meta charset>', async () => {
+			const pipeline = createCspPipeline({
+				streaming: false,
+				scriptHashes: ['sha256-xyz789'],
+			});
+
+			const Page = createComponent(() => {
+				return render`<html>
+				<head>
+					<title>No Charset</title>
+					<script src="https://example.com/head-script.js"></script>
+					${renderHead()}
+				</head>
+				<body>${maybeRenderHead()}<h1>Hello</h1></body>
+			</html>`;
+			});
+
+			const { html } = await renderPage(Page, pipeline);
+			const headOpenIdx = html.indexOf('<head>');
+			const cspMetaIdx = html.toLowerCase().indexOf('<meta http-equiv="content-security-policy"');
+			const titleIdx = html.indexOf('<title>No Charset</title>');
+			const scriptIdx = html.indexOf('<script src="https://example.com/head-script.js">');
+
+			assert.ok(cspMetaIdx !== -1, 'Page should contain CSP meta tag');
+			assert.ok(headOpenIdx < cspMetaIdx, 'CSP meta tag should be inside <head>');
+			assert.ok(cspMetaIdx < titleIdx, 'CSP meta tag should come before title');
+			assert.ok(cspMetaIdx < scriptIdx, 'CSP meta tag should come before head scripts');
+		});
+
 		it('should allow injecting custom style resources and hashes via Astro.csp', async () => {
 			const pipeline = createCspPipeline({
 				directives: ["img-src 'self'"],
