@@ -613,6 +613,9 @@ importers:
       magicast:
         specifier: ^0.5.5
         version: 0.5.5
+      mri:
+        specifier: ^1.2.0
+        version: 1.2.0
       mrmime:
         specifier: ^2.0.1
         version: 2.0.1
@@ -682,9 +685,6 @@ importers:
       xxhash-wasm:
         specifier: ^1.1.0
         version: 1.1.0
-      yargs-parser:
-        specifier: ^22.0.0
-        version: 22.0.0
       zod:
         specifier: ^4.6.7
         version: 4.6.7
@@ -713,9 +713,6 @@ importers:
       '@types/picomatch':
         specifier: ^4.0.3
         version: 4.0.3
-      '@types/yargs-parser':
-        specifier: ^21.0.3
-        version: 21.0.3
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
@@ -6885,16 +6882,13 @@ importers:
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
-      yargs:
-        specifier: ^18.2.0
-        version: 18.2.0
+      mri:
+        specifier: ^1.2.0
+        version: 1.2.0
     devDependencies:
       '@types/node':
         specifier: ^22.19.0
         version: 22.19.19
-      '@types/yargs':
-        specifier: ^17.0.35
-        version: 17.0.35
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
@@ -11037,12 +11031,6 @@ packages:
 
   '@types/xml2js@0.4.14':
     resolution: {integrity: sha512-4YnrRemBShWRO2QjvUin8ESA41rH+9nQGLUGZV/1IDhi3SL9OhdpNC/MrulTWuptXKwhx/aDxE7toV0f/ypIXQ==}
-
-  '@types/yargs-parser@21.0.3':
-    resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
-
-  '@types/yargs@17.0.35':
-    resolution: {integrity: sha512-qUHkeCyQFxMXg79wQfTtfndEC+N9ZZg76HJftDJp+qH2tV7Gj4OJi7l+PiWwJ+pWtW8GwSmqsDj/oymhrTWXjg==}
 
   '@typescript-eslint/eslint-plugin@8.72.1':
     resolution: {integrity: sha512-5CokTWXpmbylfFabsbvHC0CAw3XLaGnoa+nFJX5FR592h/LoZsENUE6p/rg5xvkKrFEXz6pYmgI29AgXc2N3BQ==}
@@ -20427,12 +20415,6 @@ snapshots:
   '@types/xml2js@0.4.14':
     dependencies:
       '@types/node': 22.19.19
-
-  '@types/yargs-parser@21.0.3': {}
-
-  '@types/yargs@17.0.35':
-    dependencies:
-      '@types/yargs-parser': 21.0.3
 
   '@typescript-eslint/eslint-plugin@8.72.1(@typescript-eslint/parser@8.72.1)(eslint@10.14.0)(supports-color@10.2.2)(typescript@6.0.3)':
     dependencies:

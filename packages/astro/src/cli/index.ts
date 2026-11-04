@@ -1,4 +1,5 @@
-import yargs from 'yargs-parser';
+import { MriCliArgumentParser } from './infra/mri-cli-argument-parser.js';
+import type { Flags } from './flags.js';
 
 type CLICommand =
 	| 'help'
@@ -16,7 +17,7 @@ type CLICommand =
 	| 'telemetry';
 
 /** Determine which command the user requested */
-function resolveCommand(flags: yargs.Arguments): CLICommand {
+function resolveCommand(flags: Flags): CLICommand {
 	const cmd = flags._[2] as string;
 	if (flags.version) return 'version';
 
@@ -44,7 +45,7 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
  * NOTE: This function provides no error handling, so be sure
  * to present user-friendly error output where the fn is called.
  **/
-async function runCommand(cmd: string, flags: yargs.Arguments) {
+async function runCommand(cmd: string, flags: Flags) {
 	const [
 		{ createLoggerFromFlags },
 		{ piccoloreTextStyler: textStyler },
@@ -258,7 +259,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 
 /** The primary CLI action */
 export async function cli(argv: string[]) {
-	const flags = yargs(argv, { boolean: ['global'], alias: { g: 'global' } });
+	const flags = new MriCliArgumentParser().parse(argv);
 	const cmd = resolveCommand(flags);
 	try {
 		await runCommand(cmd, flags);
