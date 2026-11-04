@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "8.2.10",
+  "version": "8.2.11",
   "type": "module",
   "author": "withastro",
   "license": "MIT",

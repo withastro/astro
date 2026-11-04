@@ -377,7 +377,11 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 				: [globOptions.pattern];
 			const isNegation = (p: string) => p.startsWith('!') && !p.startsWith('!(');
 			const positivePatterns = patterns.filter((p) => !isNegation(p));
-			const negationPatterns = patterns.filter(isNegation).map((p) => p.slice(1));
+			// tinyglobby also skips directories matching a negation, so `!_docs` excludes
+			// everything under `_docs/`. Adding a `/**` variant mirrors that (#18590).
+			const negationPatterns = patterns
+				.filter(isNegation)
+				.flatMap((p) => [p.slice(1), `${p.slice(1)}/**`]);
 			const matchesGlob = (entry: string) =>
 				!entry.startsWith('../') &&
 				picomatch.isMatch(entry, positivePatterns, {

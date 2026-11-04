@@ -17,6 +17,25 @@ const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 // Per the HTML spec, attribute names must not contain ASCII whitespace, ", ', >, /, or =.
 export const INVALID_ATTR_NAME_CHAR = /[\s"'>/=]/;
 
+// An element name starts with an ASCII letter, followed by letters, digits, `-`, `.`, `_`, `:`,
+// or the non-ASCII characters allowed in custom element names. The HTML tokenizer ends a tag name
+// at whitespace, `/`, or `>`, so anything past the valid name would be parsed as attributes.
+const ELEMENT_NAME = /^[a-zA-Z][\w\-.:\u00B7\u00C0-\u{EFFFF}]*/u;
+
+/**
+ * Returns the element name to render for a tag provided as a string (e.g. a dynamic tag),
+ * keeping only the leading part that is a valid element name.
+ */
+export function sanitizeElementName(tag: string): string {
+	const name = ELEMENT_NAME.exec(tag)?.[0];
+	if (name !== undefined && name.length === tag.length) return tag;
+	const trimmed = ELEMENT_NAME.exec(tag.trim())?.[0];
+	if (!trimmed) {
+		throw new Error(`Invalid element name: ${JSON.stringify(tag)}`);
+	}
+	return trimmed;
+}
+
 // converts (most) arbitrary strings to valid JS identifiers
 const toIdent = (k: string) =>
 	k.trim().replace(/(?!^)\b\w|\s+|\W+/g, (match, index) => {

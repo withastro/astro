@@ -1,5 +1,12 @@
 # @astrojs/mdx
 
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`edfbf4a`](https://github.com/withastro/astro/commit/edfbf4ab34ff007ae8f7188af76a023a15c9443d)]:
+  - @astrojs/markdown-satteri@0.4.6
+
 ## 8.1.1
 
 ### Patch Changes
