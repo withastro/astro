@@ -13,5 +13,5 @@ const { createServer: createHttpServer } = await import('node:http');
 const port = Number(process.env.PORT ?? 3000);
 createHttpServer((req, res) => vite.middlewares(req, res, () => listener(req, res))).listen(
 	port,
-	() => console.log(`http://localhost:${port}/`),
+	() => console.info(`http://localhost:${port}/`),
 );

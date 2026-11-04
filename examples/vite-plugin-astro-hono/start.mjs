@@ -9,4 +9,4 @@ server.use('/assets/*', serveStatic({ root: './dist/client' }));
 server.route('/', app);
 
 const port = Number(process.env.PORT ?? 3000);
-serve({ fetch: server.fetch, port }, () => console.log(`http://localhost:${port}/`));
+serve({ fetch: server.fetch, port }, () => console.info(`http://localhost:${port}/`));
