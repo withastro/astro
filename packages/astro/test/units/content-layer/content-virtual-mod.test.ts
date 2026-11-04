@@ -15,7 +15,7 @@ import { createMinimalSettings, createTempDir } from './test-helpers.ts';
  */
 function createMockModuleGraph() {
 	return {
-		getModuleById: () => null,
+		getModuleById: (): { id: string } | null => null,
 		getModulesByFile: () => null,
 		invalidateModule: () => {},
 	};
@@ -56,8 +56,7 @@ function createMockViteDevServer({ includePrerender = false, clientCount = 1 } =
 	return {
 		sentMessages,
 		environments,
-		// Simulate Vite's websocket client set so attachDataStoreInvalidation can
-		// skip full-reload when nobody is connected yet (#18568).
+		// Connection count must not determine whether content sync is initial or runtime.
 		ws: { clients: new Set(Array.from({ length: clientCount }, () => ({}))) },
 		watcher: {
 			add: () => {},
@@ -248,38 +247,85 @@ describe('attachDataStoreInvalidation', () => {
 		assert.equal(countClientReloads(mockServer), 2, 'a later external change should reload');
 	});
 
-	it('does not full-reload the client when a store write happens with no connected clients (#18568)', async (t) => {
-		const root = createTempDir('content-data-store-startup-write-test-');
+	for (const clientCount of [0, 1]) {
+		for (const [mode, httpServer] of [
+			['not listening', { listening: false }],
+			['already listening', { listening: true }],
+			['middleware mode', null],
+		] as const) {
+			it(`only suppresses initial-sync reloads with ${clientCount} clients and HTTP server ${mode} (#18568)`, async (t) => {
+				const root = createTempDir('content-data-store-startup-write-test-');
+				t.after(() => nodeFs.promises.rm(root, { recursive: true, force: true }));
+				const settings = createMinimalSettings(root, { config: { legacy: {} } });
+				const dataStoreFile = getDataStoreFile(settings, true);
+				const dataStorePath = fileURLToPath(dataStoreFile);
+
+				t.mock.timers.enable({ apis: ['Date'], now: 10_000 });
+				const mockServer = {
+					...createMockViteDevServer({ includePrerender: true, clientCount }),
+					httpServer,
+				};
+				const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
+				// @ts-expect-error - mock args are sufficient for this test
+				plugin.config?.({}, { command: 'serve' });
+				// @ts-expect-error - mock server has enough structure for this test
+				plugin.configureServer?.(mockServer);
+
+				const invalidations = ['ssr', 'prerender'].map((name) => {
+					const graph = mockServer.environments[name].moduleGraph;
+					t.mock.method(graph, 'getModuleById', () => ({ id: '\0astro:data-layer-content' }));
+					return t.mock.method(graph, 'invalidateModule');
+				});
+				let initialSync = true;
+				const store = await MutableDataStore.fromFile(dataStoreFile);
+				// @ts-expect-error - mock server has enough structure for this test
+				attachDataStoreInvalidation(store, mockServer, settings, {
+					notifyClient: () => !initialSync,
+				});
+
+				store.set('dogs', 'beagle', { id: 'beagle' });
+				await store.waitUntilSaveComplete();
+				assert.equal(countClientReloads(mockServer), 0, 'initial sync must not queue a reload');
+				for (const name of ['ssr', 'prerender']) {
+					assert.equal(
+						mockServer.sentMessages.filter(
+							(msg) => msg.channel === name && msg.type === 'astro:content-changed',
+						).length,
+						1,
+						'initial sync must still clear server route caches',
+					);
+				}
+				for (const invalidate of invalidations) {
+					assert.equal(invalidate.mock.callCount(), 1, 'initial sync must invalidate modules');
+				}
+
+				initialSync = false;
+				mockServer.watcher.emit('change', dataStorePath);
+				assert.equal(countClientReloads(mockServer), 0, 'a delayed startup echo is ignored');
+				store.set('dogs', 'poodle', { id: 'poodle' });
+				await store.waitUntilSaveComplete();
+				assert.equal(countClientReloads(mockServer), 1, 'runtime writes must queue a reload');
+				mockServer.watcher.emit('change', dataStorePath);
+				assert.equal(countClientReloads(mockServer), 1, 'runtime echoes are still ignored');
+
+				t.mock.timers.tick(5_000);
+				mockServer.watcher.emit('change', dataStorePath);
+				assert.equal(countClientReloads(mockServer), 2, 'external runtime writes still reload');
+			});
+		}
+	}
+
+	it('queues runtime reloads by default even without websocket or HTTP clients', async (t) => {
+		const root = createTempDir('content-data-store-default-notification-test-');
+		t.after(() => nodeFs.promises.rm(root, { recursive: true, force: true }));
 		const settings = createMinimalSettings(root, { config: { legacy: {} } });
-		const dataStoreFile = getDataStoreFile(settings, true);
-		await nodeFs.promises.mkdir(settings.dotAstroDir, { recursive: true });
-
-		t.mock.timers.enable({ apis: ['Date'], now: 10_000 });
-		t.after(() => mock.timers.reset());
-
-		const mockServer = createMockViteDevServer({ clientCount: 0 });
-		const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
-		// @ts-expect-error - mock args are sufficient for this test
-		plugin.config?.({}, { command: 'serve' });
-		// @ts-expect-error - mock server has enough structure for this test
-		plugin.configureServer?.(mockServer);
-
-		const store = await MutableDataStore.fromFile(dataStoreFile);
+		const store = await MutableDataStore.fromFile(getDataStoreFile(settings, true));
+		const mockServer = { ...createMockViteDevServer({ clientCount: 0 }), httpServer: null };
 		// @ts-expect-error - mock server has enough structure for this test
 		attachDataStoreInvalidation(store, mockServer, settings);
-
-		store.set('dogs', 'beagle', { id: 'beagle', data: { breed: 'Beagle' } });
+		store.set('dogs', 'beagle', { id: 'beagle' });
 		await store.waitUntilSaveComplete();
-
-		assert.equal(
-			countClientReloads(mockServer),
-			0,
-			'startup store write with zero clients must not send full-reload',
-		);
-		const contentChanged = mockServer.sentMessages.filter(
-			(msg) => msg.channel === 'ssr' && msg.type === 'astro:content-changed',
-		);
-		assert.equal(contentChanged.length, 1, 'server modules should still be invalidated');
+		assert.equal(countClientReloads(mockServer), 1);
 	});
 
 	it('invalidates the prerender environment when it exists (#17991)', async (t) => {
