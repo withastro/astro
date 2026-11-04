@@ -477,6 +477,65 @@ describe('CSP Rendering', () => {
 			assert.ok(cspMetaIdx < scriptIdx, 'CSP meta tag should come before head scripts');
 		});
 
+		/** Renders the page without streaming and lists its parsed `<head>` elements in order. */
+		async function renderHeadOrder(template: () => any) {
+			const pipeline = createCspPipeline({ streaming: false });
+			const Page = createComponent(template);
+			const { html } = await renderPage(Page, pipeline);
+			const $ = cheerio.load(html);
+			const head = $('head')
+				.children()
+				.toArray()
+				.map((el) => $(el).attr('http-equiv') ?? $(el).attr('charset') ?? el.tagName);
+			return { html, $, head };
+		}
+
+		it('does not place the CSP meta tag inside comments or scripts that contain a <meta charset>', async () => {
+			const { html, $, head } = await renderHeadOrder(
+				() =>
+					render`<html><head><!-- <meta charset="utf-8"> --><script type="application/json" id="data">{"tag":"<meta charset='utf-8'>"}</script><script src="/head.js"></script>${renderHead()}</head><body></body></html>`,
+			);
+
+			assert.equal($('meta[http-equiv="content-security-policy"]').length, 1);
+			assert.deepEqual(head, ['content-security-policy', 'script', 'script']);
+			assert.ok(html.includes('<!-- <meta charset="utf-8"> -->'));
+			assert.equal($('#data').text(), `{"tag":"<meta charset='utf-8'>"}`);
+		});
+
+		it('ignores <head> and <meta charset> text in comments, declarations and quoted attributes', async () => {
+			const { html, $, head } = await renderHeadOrder(
+				() =>
+					render`<!DOCTYPE html><!-- <head> --><!x "<head"><html data-x="a><head>"><head data-y='>'><meta content="x>y" charset="utf-8" /><script src="/head.js"></script>${renderHead()}</head><body></body></html>`,
+			);
+
+			assert.equal($('meta[http-equiv="content-security-policy"]').length, 1);
+			assert.deepEqual(head, ['utf-8', 'content-security-policy', 'script']);
+			assert.ok(
+				html.includes('<!-- <head> --><!x "<head"><html data-x="a><head>"><head data-y=\'>\'>'),
+			);
+		});
+
+		it('places the CSP meta tag before head scripts when <meta charset> is not the first head element', async () => {
+			const { head } = await renderHeadOrder(
+				() =>
+					render`<html><head><script src="/head.js"></script><meta charset="utf-8">${renderHead()}</head><body></body></html>`,
+			);
+
+			assert.deepEqual(head, ['content-security-policy', 'script', 'utf-8']);
+		});
+
+		it('keeps the CSP meta tag where the head content is rendered when <head> is not the first element', async () => {
+			const { html } = await renderHeadOrder(
+				() =>
+					render`<html><title>A <head></title><head><script src="/head.js"></script>${renderHead()}</head><body></body></html>`,
+			);
+
+			assert.match(
+				html,
+				/<script src="\/head.js"><\/script><meta http-equiv="content-security-policy"[^>]*><\/head>/,
+			);
+		});
+
 		it('should allow injecting custom style resources and hashes via Astro.csp', async () => {
 			const pipeline = createCspPipeline({
 				directives: ["img-src 'self'"],

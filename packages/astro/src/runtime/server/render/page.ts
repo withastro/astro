@@ -21,13 +21,129 @@ function setCspMetaPlaceholder(result: SSRResult): string | undefined {
 	return result._metadata.cspMetaPlaceholder;
 }
 
-const HEAD_OPEN_TAG_RE = /<head(?=[\s>])[^>]*>/i;
-const META_CHARSET_RE = /<meta\s[^>]*\bcharset\s*=[^>]*>/i;
+const HTML_WHITESPACE = /[\t\n\f\r ]/;
+const TAG_NAME_END = /[\t\n\f\r />]/;
+const ATTR_NAME_END = /[\t\n\f\r />=]/;
+const UNQUOTED_ATTR_VALUE_END = /[\t\n\f\r >]/;
+
+interface StartTag {
+	name: string;
+	attributes: Map<string, string>;
+	end: number;
+}
+
+/**
+ * Reads the start tag at `start` following the HTML tokenizer rules, so that `>` inside quoted
+ * attribute values does not end the tag. Returns `undefined` if there is no complete start tag
+ * before `limit`.
+ */
+function readStartTag(html: string, start: number, limit: number): StartTag | undefined {
+	if (html[start] !== '<' || !/[a-z]/i.test(html[start + 1] ?? '')) return undefined;
+	let i = start + 1;
+	while (i < limit && !TAG_NAME_END.test(html[i])) i++;
+	const name = html.slice(start + 1, i).toLowerCase();
+	const attributes = new Map<string, string>();
+	while (i < limit) {
+		if (HTML_WHITESPACE.test(html[i]) || html[i] === '/') {
+			i++;
+			continue;
+		}
+		if (html[i] === '>') return { name, attributes, end: i + 1 };
+		const nameStart = i++;
+		while (i < limit && !ATTR_NAME_END.test(html[i])) i++;
+		const attributeName = html.slice(nameStart, i).toLowerCase();
+		while (i < limit && HTML_WHITESPACE.test(html[i])) i++;
+		let value = '';
+		if (html[i] === '=') {
+			i++;
+			while (i < limit && HTML_WHITESPACE.test(html[i])) i++;
+			const quote = html[i];
+			if (quote === '"' || quote === "'") {
+				const close = html.indexOf(quote, i + 1);
+				if (close === -1 || close >= limit) return undefined;
+				value = html.slice(i + 1, close);
+				i = close + 1;
+			} else {
+				const valueStart = i;
+				while (i < limit && !UNQUOTED_ATTR_VALUE_END.test(html[i])) i++;
+				value = html.slice(valueStart, i);
+			}
+		}
+		if (!attributes.has(attributeName)) attributes.set(attributeName, value);
+	}
+	return undefined;
+}
+
+/**
+ * Returns the end of the comment, doctype or other markup declaration at `start`, or `undefined` if
+ * there is none ending before `limit`. These are inert, so content can be inserted around them.
+ */
+function skipMarkupDeclaration(html: string, start: number, limit: number): number | undefined {
+	let end = -1;
+	if (html.startsWith('<!--', start)) {
+		const contentStart = start + 4;
+		if (html[contentStart] === '>') return contentStart + 1;
+		if (html.startsWith('->', contentStart)) return contentStart + 2;
+		const dashEnd = html.indexOf('-->', contentStart);
+		const bangEnd = html.indexOf('--!>', contentStart);
+		if (dashEnd !== -1 && (bangEnd === -1 || dashEnd < bangEnd)) end = dashEnd + 3;
+		else if (bangEnd !== -1) end = bangEnd + 4;
+	} else if (html.startsWith('<!', start) || html.startsWith('<?', start)) {
+		// Doctype or bogus comment, both end at the first `>`.
+		const close = html.indexOf('>', start);
+		if (close !== -1) end = close + 1;
+	}
+	return end !== -1 && end <= limit ? end : undefined;
+}
+
+function isCharsetDeclaration(tag: StartTag): boolean {
+	if (tag.name !== 'meta') return false;
+	if (tag.attributes.has('charset')) return true;
+	return (
+		tag.attributes.get('http-equiv')?.toLowerCase() === 'content-type' &&
+		/charset/i.test(tag.attributes.get('content') ?? '')
+	);
+}
+
+/**
+ * Finds where the CSP `<meta>` must go so the policy covers everything in `<head>`: right after the
+ * `<head>` start tag, or after an encoding declaration that is the first element of `<head>` (it
+ * must stay within the first 1024 bytes). Only the document prologue is read, as tokens rather than
+ * raw text, so markup-like text in comments, attributes or scripts is never mistaken for a tag.
+ * Returns `undefined` when `<head>` is not the first element before `limit`; the policy then stays
+ * where `renderHead()` placed it.
+ */
+function findCspMetaInsertionIndex(html: string, limit: number): number | undefined {
+	let headEnd: number | undefined;
+	let i = 0;
+	while (i < limit) {
+		if (HTML_WHITESPACE.test(html[i])) {
+			i++;
+			continue;
+		}
+		const declarationEnd = skipMarkupDeclaration(html, i, limit);
+		if (declarationEnd !== undefined) {
+			i = declarationEnd;
+			continue;
+		}
+		const tag = readStartTag(html, i, limit);
+		if (headEnd !== undefined) {
+			return tag && isCharsetDeclaration(tag) ? tag.end : headEnd;
+		}
+		if (tag?.name === 'html') {
+			i = tag.end;
+		} else if (tag?.name === 'head') {
+			i = headEnd = tag.end;
+		} else {
+			return undefined;
+		}
+	}
+	return headEnd;
+}
 
 // The placeholder sits where the compiler calls `renderHead()`, at the end of `<head>`. A `<meta>`
 // policy only applies to content parsed after it, so the element is moved to the start of `<head>`
-// (after `<meta charset>`, which must stay within the first 1024 bytes) to cover user head content.
-// See https://github.com/withastro/astro/issues/18606
+// to cover user head content. See https://github.com/withastro/astro/issues/18606
 function replaceCspMetaPlaceholder(
 	result: SSRResult,
 	placeholder: string | undefined,
@@ -37,17 +153,12 @@ function replaceCspMetaPlaceholder(
 	const placeholderIndex = html.indexOf(placeholder);
 	if (placeholderIndex === -1) return html;
 	const metaTag = renderCspMetaTag(result);
-	const beforePlaceholder = html.slice(0, placeholderIndex);
 	const afterPlaceholder = html.slice(placeholderIndex + placeholder.length);
-	const headOpen = HEAD_OPEN_TAG_RE.exec(beforePlaceholder);
-	if (!headOpen) return beforePlaceholder + metaTag + afterPlaceholder;
-	let insertIndex = headOpen.index + headOpen[0].length;
-	const charset = META_CHARSET_RE.exec(beforePlaceholder.slice(insertIndex));
-	if (charset) insertIndex += charset.index + charset[0].length;
+	const insertIndex = findCspMetaInsertionIndex(html, placeholderIndex) ?? placeholderIndex;
 	return (
-		beforePlaceholder.slice(0, insertIndex) +
+		html.slice(0, insertIndex) +
 		metaTag +
-		beforePlaceholder.slice(insertIndex) +
+		html.slice(insertIndex, placeholderIndex) +
 		afterPlaceholder
 	);
 }

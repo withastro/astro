@@ -1,0 +1,20 @@
+---
+const data = { example: '<meta charset="utf-8">' };
+---
+
+<!-- An example <head> in a comment -->
+<html lang="en">
+	<head>
+		<!-- An example <meta charset="utf-8"> in a comment -->
+		<meta charset="utf-8" />
+		<script is:inline type="application/json" id="data" set:html={JSON.stringify(data)} />
+		<script is:inline src="data:text/javascript,window.headScriptRan=true"></script>
+		<title>CSP head placement</title>
+	</head>
+	<body>
+		<script is:inline src="data:text/javascript,window.bodyScriptRan=true"></script>
+		<script>
+			document.body.dataset.bundledScriptRan = 'true';
+		</script>
+	</body>
+</html>
