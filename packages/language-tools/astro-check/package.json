@@ -34,10 +34,11 @@
     "@astrojs/language-server": "^2.17.3",
     "chokidar": "^5.0.0",
     "kleur": "^4.1.5",
-    "mri": "^1.2.0"
+    "yargs": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
+    "@types/yargs": "^17.0.35",
     "astro-scripts": "workspace:*",
     "tinyglobby": "^0.2.17",
     "tsx": "^4.23.15"

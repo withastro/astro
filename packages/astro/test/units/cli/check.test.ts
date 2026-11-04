@@ -4,7 +4,6 @@ import { describe, it } from 'node:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { Writable } from 'node:stream';
 import { promisify } from 'node:util';
 import { exitOnEpipe, flushAndExit } from '../../../dist/cli/flush-and-exit.js';
@@ -12,22 +11,6 @@ import { exitOnEpipe, flushAndExit } from '../../../dist/cli/flush-and-exit.js';
 const execFileAsync = promisify(execFile);
 
 describe('astro check', () => {
-	it('shows help without running diagnostics', async () => {
-		const root = await mkdtemp(
-			join(fileURLToPath(new URL('..', import.meta.url)), 'astro-check-help-'),
-		);
-		const binPath = fileURLToPath(new URL('../../../bin/astro.mjs', import.meta.url));
-		try {
-			const { stdout } = await execFileAsync(process.execPath, [binPath, 'check', '--help'], {
-				cwd: root,
-			});
-			assert.match(stdout, /astro-check \[options\]/);
-			assert.doesNotMatch(stdout, /Getting diagnostics for Astro files in/);
-		} finally {
-			await rm(root, { recursive: true, force: true });
-		}
-	});
-
 	it('returns true (exit code 1) when @astrojs/check and typescript cannot be loaded', async () => {
 		// Outside the monorepo, so neither package resolves from `root`.
 		const root = await mkdtemp(join(tmpdir(), 'astro-check-missing-deps-'));

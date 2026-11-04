@@ -40,18 +40,17 @@ export async function check(flags: Flags): Promise<boolean | void> {
 		return true;
 	}
 
-	const { check: checker, parseArgsAsCheckConfig } = checkPackage;
-	const config = parseArgsAsCheckConfig(process.argv);
-
-	if (config.help || config.version) return checker(config);
-
-	if (!flags.noSync) {
+	if (!flags.noSync && !flags.help) {
 		// Run sync before check to make sure types are generated.
 		// NOTE: In the future, `@astrojs/check` can expose a `before lint` hook so that this works during `astro check --watch` too.
 		// For now, we run this once as usually `astro check --watch` is ran alongside `astro dev` which also calls `astro sync`.
 		const { default: sync } = await import('../../core/sync/index.js');
 		await sync(flagsToAstroInlineConfig(flags));
 	}
+
+	const { check: checker, parseArgsAsCheckConfig } = checkPackage;
+
+	const config = parseArgsAsCheckConfig(process.argv);
 
 	logger.info('check', `Getting diagnostics for Astro files in ${path.resolve(config.root)}...`);
 	return await checker(config);

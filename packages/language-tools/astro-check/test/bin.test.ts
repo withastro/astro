@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { spawnSync } from 'node:child_process';
 import { describe, it } from 'node:test';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 describe('astro-check - binary', async () => {
@@ -32,49 +32,5 @@ describe('astro-check - binary', async () => {
 		assert.strictEqual(childProcess.status, 0);
 		assert.ok(childProcess.stdout.toString().includes('--tsconfig'));
 		assert.ok(!childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
-	});
-
-	it('Prints the package version', async () => {
-		const pkgPath = fileURLToPath(new URL('..', import.meta.url));
-		const binPath = path.join(pkgPath, 'bin', 'astro-check.js');
-		const childProcess = spawnSync('node', [binPath, '--version']);
-
-		assert.strictEqual(childProcess.status, 0);
-		assert.match(childProcess.stdout.toString().trim(), /^\d+\.\d+\.\d+/);
-		assert.ok(!childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
-	});
-
-	it('Handles help when called through the package API', async () => {
-		const pkgPath = fileURLToPath(new URL('..', import.meta.url));
-		const indexPath = path.join(pkgPath, 'dist', 'index.js');
-		const script = `
-			import { check, parseArgsAsCheckConfig } from ${JSON.stringify(pathToFileURL(indexPath).href)};
-			await check(parseArgsAsCheckConfig(['node', 'astro', '--watch', '--help']));
-		`;
-		const childProcess = spawnSync('node', ['--input-type=module', '-e', script], {
-			timeout: 5_000,
-		});
-
-		assert.strictEqual(childProcess.status, 0);
-		assert.ok(childProcess.stdout.toString().includes('--tsconfig'));
-		assert.ok(!childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
-	});
-
-	it('Reports invalid choices without a stack trace', async () => {
-		const pkgPath = fileURLToPath(new URL('..', import.meta.url));
-		const binPath = path.join(pkgPath, 'bin', 'astro-check.js');
-		for (const args of [
-			['--minimumSeverity', 'fatal'],
-			['--minimumSeverity', 'error', '--minimumSeverity', 'fatal'],
-		]) {
-			const childProcess = spawnSync('node', [binPath, ...args]);
-
-			assert.strictEqual(childProcess.status, 1);
-			assert.match(
-				childProcess.stderr.toString(),
-				/Invalid value for --minimum-severity: .*Expected one of: error, warning, hint\./,
-			);
-			assert.doesNotMatch(childProcess.stderr.toString(), /^\s+at /m);
-		}
 	});
 });

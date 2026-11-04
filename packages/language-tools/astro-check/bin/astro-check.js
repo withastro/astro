@@ -3,17 +3,9 @@
 import path from 'node:path';
 import { check, parseArgsAsCheckConfig } from '../dist/index.js';
 
-let args;
-try {
-	args = parseArgsAsCheckConfig(process.argv);
-} catch (error) {
-	console.error(error instanceof Error ? error.message : String(error));
-	process.exit(1);
-}
+const args = parseArgsAsCheckConfig(process.argv);
 
-if (!args.help && !args.version) {
-	console.info(`Getting diagnostics for Astro files in ${path.resolve(args.root)}...`);
-}
+console.info(`Getting diagnostics for Astro files in ${path.resolve(args.root)}...`);
 
 const result = await check(args);
 
