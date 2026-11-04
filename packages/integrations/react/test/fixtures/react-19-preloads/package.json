@@ -2,8 +2,8 @@
   "name": "@fixture/react-19-preloads",
   "type": "module",
   "dependencies": {
-    "astro": "latest",
-    "@astrojs/react": "latest",
+    "astro": "workspace:*",
+    "@astrojs/react": "workspace:*",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   }
