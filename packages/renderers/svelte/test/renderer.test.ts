@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import astro from '@astrojs/vite-plugin-astro';
 import { svelte as viteSvelte } from '@sveltejs/vite-plugin-svelte';
 import { createBuilder, createServer, type InlineConfig, type ViteDevServer } from 'vite';
-import svelte from '../dist/renderer.js';
+import svelte from '../dist/index.js';
 
 const root = new URL('./fixtures/renderer/', import.meta.url);
 
@@ -26,7 +26,7 @@ const config: InlineConfig = {
 	},
 };
 
-describe('@astrojs/svelte/renderer: dev', () => {
+describe('@astrojs/svelte-renderer: dev', () => {
 	let server: ViteDevServer;
 
 	before(async () => {
@@ -64,7 +64,7 @@ describe('@astrojs/svelte/renderer: dev', () => {
 	});
 });
 
-describe('@astrojs/svelte/renderer: build', () => {
+describe('@astrojs/svelte-renderer: build', () => {
 	let html: string;
 
 	before(async () => {

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import astro from '@astrojs/vite-plugin-astro';
 import { preact as vitePreact } from '@preact/preset-vite';
 import { createBuilder, createServer, type InlineConfig, type ViteDevServer } from 'vite';
-import preact, { type PreactRendererOptions } from '../dist/renderer.js';
+import preact, { type PreactRendererOptions } from '../dist/index.js';
 
 const root = new URL('./fixtures/renderer/', import.meta.url);
 
@@ -42,7 +42,7 @@ async function startServer(options?: PreactRendererOptions) {
 	return { server, render };
 }
 
-describe('@astrojs/preact/renderer: dev', () => {
+describe('@astrojs/preact-renderer: dev', () => {
 	let server: ViteDevServer;
 	let render: () => Promise<string>;
 
@@ -65,7 +65,7 @@ describe('@astrojs/preact/renderer: dev', () => {
 	});
 });
 
-describe('@astrojs/preact/renderer: options', () => {
+describe('@astrojs/preact-renderer: options', () => {
 	it('passes include and exclude to the server renderer', async () => {
 		const { server, render } = await startServer({ exclude: ['**/Counter.jsx'] });
 		try {
@@ -93,7 +93,7 @@ describe('@astrojs/preact/renderer: options', () => {
 	});
 });
 
-describe('@astrojs/preact/renderer: build', () => {
+describe('@astrojs/preact-renderer: build', () => {
 	let html: string;
 
 	before(async () => {

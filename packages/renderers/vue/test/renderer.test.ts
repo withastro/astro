@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import astro from '@astrojs/vite-plugin-astro';
 import viteVue from '@vitejs/plugin-vue';
 import { createBuilder, createServer, type InlineConfig, type ViteDevServer } from 'vite';
-import vue from '../dist/renderer.js';
+import vue from '../dist/index.js';
 
 const root = new URL('./fixtures/renderer/', import.meta.url);
 
@@ -24,7 +24,7 @@ const config: InlineConfig = {
 	},
 };
 
-describe('@astrojs/vue/renderer: dev', () => {
+describe('@astrojs/vue-renderer: dev', () => {
 	let server: ViteDevServer;
 	let mod: RenderModule;
 
@@ -64,7 +64,7 @@ describe('@astrojs/vue/renderer: dev', () => {
 	});
 });
 
-describe('@astrojs/vue/renderer: build', () => {
+describe('@astrojs/vue-renderer: build', () => {
 	let html: string;
 	let plain: string;
 

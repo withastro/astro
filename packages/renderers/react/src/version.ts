@@ -25,16 +25,16 @@ export function isSupportedReactVersion(
 
 export const versionsConfig = {
 	17: {
-		server: '@astrojs/react/server-v17.js',
-		client: '@astrojs/react/client-v17.js',
+		server: '@astrojs/react-renderer/server-v17.js',
+		client: '@astrojs/react-renderer/client-v17.js',
 	},
 	18: {
-		server: '@astrojs/react/server.js',
-		client: '@astrojs/react/client.js',
+		server: '@astrojs/react-renderer/server.js',
+		client: '@astrojs/react-renderer/client.js',
 	},
 	19: {
-		server: '@astrojs/react/server.js',
-		client: '@astrojs/react/client.js',
+		server: '@astrojs/react-renderer/server.js',
+		client: '@astrojs/react-renderer/client.js',
 	},
 };
 

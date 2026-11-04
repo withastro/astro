@@ -1,8 +1,10 @@
 import viteReact from '@vitejs/plugin-react';
-import type { AstroRenderer } from 'astro';
+import type { AstroRenderer } from '@astrojs/runtime/types';
 import { getRenderer } from './container-renderer.js';
 import type { RendererOptions } from './types.js';
 import { getReactVersionConfig } from './version.js';
+
+export { getReactMajorVersion } from './version.js';
 
 export type ReactRendererOptions = RendererOptions;
 

@@ -1,4 +1,4 @@
-import type { SSRResult } from 'astro';
+import type { SSRResult } from '@astrojs/runtime/types';
 export type RendererContext = {
 	result: SSRResult;
 };

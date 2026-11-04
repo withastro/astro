@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import astro from '@astrojs/vite-plugin-astro';
 import { createBuilder, createServer, type InlineConfig, type ViteDevServer } from 'vite';
 import viteSolid from 'vite-plugin-solid';
-import solid from '../dist/renderer.js';
+import solid from '../dist/index.js';
 
 const root = new URL('./fixtures/renderer/', import.meta.url);
 
@@ -24,7 +24,7 @@ const config: InlineConfig = {
 	},
 };
 
-describe('@astrojs/solid-js/renderer: dev', () => {
+describe('@astrojs/solid-js-renderer: dev', () => {
 	let server: ViteDevServer;
 
 	before(async () => {
@@ -43,7 +43,7 @@ describe('@astrojs/solid-js/renderer: dev', () => {
 	it('server-renders islands that hydrate with the Solid client entrypoint', async () => {
 		const html = await render();
 		assert.match(html, /<astro-island[^>]*><button[^>]*>count: <!--\$-->3<!--\/-->/);
-		assert.match(html, /<astro-island[^>]*renderer-url="[^"]*solid\/dist\/client\.js"/);
+		assert.match(html, /<astro-island[^>]*renderer-url="[^"]*solid-js\/dist\/client\.js"/);
 	});
 
 	it('bundles the Solid libraries among the dependencies of the project', async () => {
@@ -53,7 +53,7 @@ describe('@astrojs/solid-js/renderer: dev', () => {
 	});
 });
 
-describe('@astrojs/solid-js/renderer: build', () => {
+describe('@astrojs/solid-js-renderer: build', () => {
 	let html: string;
 
 	before(async () => {

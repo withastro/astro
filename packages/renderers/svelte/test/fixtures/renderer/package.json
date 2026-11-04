@@ -5,7 +5,7 @@
   "type": "module",
   "dependencies": {
     "@astrojs/runtime": "workspace:*",
-    "@astrojs/svelte": "workspace:*",
+    "@astrojs/svelte-renderer": "workspace:*",
     "@astrojs/vite-plugin-astro": "workspace:*",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@test/svelte-renderer-lib": "workspace:*",

@@ -1,4 +1,4 @@
-import type { SSRResult } from 'astro';
+import type { SSRResult } from '@astrojs/runtime/types';
 
 const contexts = new WeakMap<SSRResult, { currentIndex: number; readonly id: string }>();
 

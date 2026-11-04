@@ -1,4 +1,4 @@
-import type { AstroRenderer } from 'astro';
+import type { AstroRenderer } from '@astrojs/runtime/types';
 import { getRenderer } from './container-renderer.js';
 import type { RendererOptions } from './types.js';
 
@@ -20,11 +20,11 @@ export interface PreactRendererOptions extends RendererOptions {
 export default function preact(options: PreactRendererOptions = {}): AstroRenderer {
 	const { include, exclude, compat, devtools } = options;
 	const clientDependencies = [
-		'@astrojs/preact/client.js',
+		'@astrojs/preact-renderer/client.js',
 		'preact',
 		'preact/jsx-runtime',
 		'preact/hooks',
-		'@astrojs/preact > @preact/signals',
+		'@astrojs/preact-renderer > @preact/signals',
 	];
 	return {
 		...getRenderer(false),

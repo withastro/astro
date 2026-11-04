@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import astro from '@astrojs/vite-plugin-astro';
 import viteReact from '@vitejs/plugin-react';
 import { createBuilder, createServer, type InlineConfig, type ViteDevServer } from 'vite';
-import react, { type ReactRendererOptions } from '../dist/renderer.js';
+import react, { type ReactRendererOptions } from '../dist/index.js';
 
 const root = new URL('./fixtures/renderer/', import.meta.url);
 
@@ -26,7 +26,7 @@ function config(options?: ReactRendererOptions): InlineConfig {
 	};
 }
 
-describe('@astrojs/react/renderer: dev', () => {
+describe('@astrojs/react-renderer: dev', () => {
 	let server: ViteDevServer;
 
 	before(async () => {
@@ -62,7 +62,7 @@ describe('@astrojs/react/renderer: dev', () => {
 	});
 });
 
-describe('@astrojs/react/renderer: options', () => {
+describe('@astrojs/react-renderer: options', () => {
 	let server: ViteDevServer;
 
 	before(async () => {
@@ -85,7 +85,7 @@ describe('@astrojs/react/renderer: options', () => {
 	});
 });
 
-describe('@astrojs/react/renderer: build', () => {
+describe('@astrojs/react-renderer: build', () => {
 	let html: string;
 
 	before(async () => {

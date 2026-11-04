@@ -1,9 +1,9 @@
-import type { SSRResult } from 'astro';
-import type { FilterPattern } from 'vite';
+import type { SSRResult } from '@astrojs/runtime/types';
+import type { FilterPattern } from '@astrojs/internal-helpers/create-filter';
 
 export type RendererContext = {
 	result: SSRResult;
-	/** The `options` of the renderer returned by `preact()` from `@astrojs/preact/renderer`. */
+	/** The `options` of the renderer returned by `preact()` from `@astrojs/preact-renderer`. */
 	options?: RendererOptions;
 };
 
