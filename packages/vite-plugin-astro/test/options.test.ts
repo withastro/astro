@@ -5,7 +5,6 @@ import { AstroPluginOptionsSchema } from '../dist/index.js';
 describe('AstroPluginOptionsSchema', () => {
 	it('applies defaults', () => {
 		assert.deepEqual(AstroPluginOptionsSchema.parse({}), {
-			srcDir: './src',
 			publicDir: './public',
 			compressHTML: 'jsx',
 			trailingSlash: 'ignore',

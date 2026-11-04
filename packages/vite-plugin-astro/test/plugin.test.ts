@@ -18,14 +18,13 @@ describe('astro()', () => {
 				logLevel: 'silent',
 				root: rootPath,
 				base: '/docs/',
-				plugins: [astro({ srcDir: './source', site: 'https://example.com' })],
+				plugins: [astro({ publicDir: './static', site: 'https://example.com' })],
 			},
 			'serve',
 		);
 		assert.deepEqual(getAstroApi(config).config, {
 			root,
-			srcDir: new URL('./source/', root),
-			publicDir: new URL('./public/', root),
+			publicDir: new URL('./static/', root),
 			base: '/docs/',
 			site: 'https://example.com',
 			compressHTML: 'jsx',
@@ -42,18 +41,18 @@ describe('astro()', () => {
 	});
 
 	it('resolves the shared config before configResolved hooks of plugins listed earlier', async () => {
-		let srcDir: URL | undefined;
+		let publicDir: URL | undefined;
 		const feature = {
 			name: 'feature',
 			configResolved(config: ResolvedConfig) {
-				srcDir = getAstroApi(config).config.srcDir;
+				publicDir = getAstroApi(config).config.publicDir;
 			},
 		};
 		await resolveConfig(
 			{ configFile: false, logLevel: 'silent', root: rootPath, plugins: [feature, astro()] },
 			'serve',
 		);
-		assert.equal(srcDir?.href, new URL('./src/', root).href);
+		assert.equal(publicDir?.href, new URL('./public/', root).href);
 	});
 
 	it('exposes renderers and client directives', () => {

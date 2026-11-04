@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import type { CompileConfig } from '../core/compile/index.js';
@@ -21,7 +22,6 @@ export type { AstroPluginMetadata };
 
 /** The project configuration the `.astro` compile plugin reads. `AstroConfig` satisfies it. */
 export interface AstroCompileConfig extends CompileConfig, FileInfoConfig {
-	srcDir: URL;
 	publicDir: URL;
 }
 
@@ -67,11 +67,11 @@ export default function astro({
 	// call `buildStart` (test bug)
 	let astroFileToCompileMetadata = new Map<string, CompileMetadata>();
 
-	// Variables for determining if an id starts with /src...
+	// Whether a root-relative `<script src>` points at a file in `publicDir`, which cannot be bundled.
 	// `config` may be filled in after the plugin is created, so read it on use.
-	const isBrowserPath = (path: string) => {
-		const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
-		return path.startsWith(srcRootWeb) && srcRootWeb !== '/';
+	const isPublicFile = (src: string) => {
+		const pathname = src.replace(/[?#].*$/, '').slice(1);
+		return pathname !== '' && fs.existsSync(new URL(pathname, config.publicDir));
 	};
 	const notAstroComponent = (component: AstroComponent) =>
 		!component.resolvedPath.endsWith('.astro');
@@ -259,7 +259,7 @@ export default function astro({
 
 							if (script.type === 'external') {
 								const src = script.src!;
-								if (src.startsWith('/') && !isBrowserPath(src)) {
+								if (src.startsWith('/') && isPublicFile(src)) {
 									const publicDir =
 										config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
 									throw new Error(
