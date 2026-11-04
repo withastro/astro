@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../../../types/public/internal.js';
+import type { SSRResult } from '../../../../types.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';

@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../../types/public/internal.js';
+import type { SSRResult } from '../../../types.js';
 import { HTMLString, markHTMLString, unescapeHTML } from '../escape.js';
 import { renderChild } from './any.js';
 import { renderTemplate } from './astro/render-template.js';

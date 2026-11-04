@@ -1,11 +1,11 @@
 import { clsx } from 'clsx';
-import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type {
 	AstroComponentMetadata,
-	RouteData,
+	RenderRouteInfo,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../../types/public/internal.js';
+} from '../../../types.js';
 import { escapeHTML, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
@@ -526,7 +526,7 @@ export async function renderComponentToString(
 	props: Record<string | number, any>,
 	slots: any = {},
 	isPage = false,
-	route?: RouteData,
+	route?: RenderRouteInfo,
 ): Promise<string> {
 	let str = '';
 	let renderedFirstPageChunk = false;

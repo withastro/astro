@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../../types/public/internal.js';
+import type { SSRResult } from '../../../types.js';
 import type { AstroVNode } from '../../../jsx-runtime/index.js';
 import { isVNode } from '../../../jsx-runtime/index.js';
 import {

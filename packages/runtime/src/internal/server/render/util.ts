@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import type { SSRElement } from '../../../types/public/internal.js';
+import type { SSRElement } from '../../../types.js';
 import { HTMLString, markHTMLString, stringifyForScript } from '../escape.js';
 import { isPromise } from '../util.js';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';

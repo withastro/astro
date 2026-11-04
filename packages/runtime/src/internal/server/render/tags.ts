@@ -1,5 +1,4 @@
-import type { StylesheetAsset } from '../../../core/app/types.js';
-import type { SSRElement, SSRResult } from '../../../types/public/internal.js';
+import type { SSRElement, SSRResult, StylesheetAsset } from '../../../types.js';
 import { renderElement } from './util.js';
 
 export function renderScriptElement({ props, children }: SSRElement) {

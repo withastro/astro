@@ -1,5 +1,5 @@
 import { AstroJSX, type AstroVNode, isVNode } from '../../jsx-runtime/index.js';
-import type { SSRResult } from '../../types/public/internal.js';
+import type { SSRResult } from '../../types.js';
 import { escapeStyleText } from './escape.js';
 import {
 	escapeHTML,
@@ -7,7 +7,7 @@ import {
 	markHTMLString,
 	spreadAttributes,
 	voidElementNames,
-} from './index.js';
+} from '../../server/index.js';
 import { sanitizeElementName } from './render/util.js';
 import { isAstroComponentFactory } from './render/astro/factory.js';
 import { renderComponentToString } from './render/component.js';

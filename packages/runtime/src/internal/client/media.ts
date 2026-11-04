@@ -1,4 +1,4 @@
-import type { ClientDirective } from '../../types/public/integrations.js';
+import type { ClientDirective } from '../../types.js';
 
 /**
  * Hydrate this component when a matching media query is found

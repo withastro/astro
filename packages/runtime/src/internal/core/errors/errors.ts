@@ -1,4 +1,3 @@
-import type { $ZodError } from 'zod/v4/core';
 import { codeFrame } from './printer.js';
 
 interface ErrorProperties {
@@ -129,23 +128,6 @@ export class AggregateError extends AstroError {
 	static is(err: unknown): err is AggregateError {
 		return (err as AggregateError)?.type === 'AggregateError';
 	}
-}
-
-const astroConfigZodErrors = new WeakSet<$ZodError>();
-
-/**
- * Check if an error is a ZodError from an AstroConfig validation.
- * Used to suppress formatting a ZodError if needed.
- */
-export function isAstroConfigZodError(error: unknown): error is $ZodError {
-	return astroConfigZodErrors.has(error as $ZodError);
-}
-
-/**
- * Track that a ZodError comes from an AstroConfig validation.
- */
-export function trackAstroConfigZodError(error: $ZodError): void {
-	astroConfigZodErrors.add(error);
 }
 
 /**

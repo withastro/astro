@@ -1,8 +1,7 @@
 // NOTE: Although this entrypoint is exported, it is internal API and may change at any time.
 
-export { createComponent } from './astro-component.js';
-export { createAstro } from './astro-global.js';
-export { renderEndpoint } from './endpoint.js';
+export { createComponent } from '../internal/server/astro-component.js';
+export { createAstro } from '../internal/server/astro-global.js';
 export {
 	escapeHTML,
 	HTMLBytes,
@@ -10,15 +9,15 @@ export {
 	isHTMLString,
 	markHTMLString,
 	unescapeHTML,
-} from './escape.js';
+} from '../internal/server/escape.js';
 
-export { renderJSX } from './jsx.js';
+export { renderJSX } from '../internal/server/jsx.js';
 export type {
 	AstroComponentFactory,
 	AstroComponentInstance,
 	ComponentSlots,
 	RenderInstruction,
-} from './render/index.js';
+} from '../internal/server/render/index.js';
 export {
 	addAttribute,
 	chunkToString,
@@ -41,13 +40,13 @@ export {
 	renderToString,
 	renderUniqueStylesheet,
 	voidElementNames,
-} from './render/index.js';
-export type { ServerIslandComponent } from './render/server-islands.js';
-export { templateEnter, templateExit } from './render/template-depth.js';
-export { createTransitionScope, renderTransition } from './transition.js';
+} from '../internal/server/render/index.js';
+export type { ServerIslandComponent } from '../internal/server/render/server-islands.js';
+export { templateEnter, templateExit } from '../internal/server/render/template-depth.js';
+export { createTransitionScope, renderTransition } from '../internal/server/transition.js';
 
-import { markHTMLString } from './escape.js';
-import { addAttribute, Renderer } from './render/index.js';
+import { markHTMLString } from '../internal/server/escape.js';
+import { addAttribute, Renderer } from '../internal/server/render/index.js';
 
 export function mergeSlots(...slotted: unknown[]) {
 	const slots: Record<string, () => any> = {};

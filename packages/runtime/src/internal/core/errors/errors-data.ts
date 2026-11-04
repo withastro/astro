@@ -2,7 +2,10 @@
 // Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
-import type { $ZodError } from 'zod/v4/core';
+/** The part of a schema validation error (a `ZodError`) that the messages below read. */
+interface SchemaValidationError {
+	issues: ReadonlyArray<{ path: ReadonlyArray<PropertyKey>; message: string }>;
+}
 
 export interface ErrorData {
 	name: string;
@@ -781,7 +784,7 @@ export const IncompatibleDescriptorOptions = {
  * @description
  * Astro could not find an image you imported. Often, this is simply caused by a typo in the path.
  *
- * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `./`
+ * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `../../../core/errors/`
  */
 export const ImageNotFound = {
 	name: 'ImageNotFound',
@@ -1167,7 +1170,7 @@ export const InvalidGlob = {
 	name: 'InvalidGlob',
 	title: 'Invalid glob pattern.',
 	message: (globPattern: string) =>
-		`Invalid glob pattern: \`${globPattern}\`. Glob patterns must start with './', '../' or '/'.`,
+		`Invalid glob pattern: \`${globPattern}\`. Glob patterns must start with '../../../core/errors/', '../../../core/' or '/'.`,
 	hint: 'See https://docs.astro.build/en/guides/imports/#glob-patterns for more information on supported glob patterns.',
 } satisfies ErrorData;
 /**
@@ -1795,7 +1798,7 @@ export const GetEntryDeprecationError = {
 export const InvalidContentEntryFrontmatterError = {
 	name: 'InvalidContentEntryFrontmatterError',
 	title: 'Content entry frontmatter does not match schema.',
-	message(collection: string, entryId: string, error: $ZodError) {
+	message(collection: string, entryId: string, error: SchemaValidationError) {
 		return [
 			`**${String(collection)} → ${String(
 				entryId,
@@ -1822,7 +1825,7 @@ export const InvalidContentEntryFrontmatterError = {
 export const InvalidContentEntryDataError = {
 	name: 'InvalidContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: $ZodError) {
+	message(collection: string, entryId: string, error: SchemaValidationError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
 			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
@@ -1928,7 +1931,7 @@ export const ContentLoaderReturnsInvalidId = {
 export const ContentEntryDataError = {
 	name: 'ContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: $ZodError) {
+	message(collection: string, entryId: string, error: SchemaValidationError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
 			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),

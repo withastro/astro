@@ -1,4 +1,5 @@
-import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
+/** Query flag marking content render entries whose head content propagates to the page. */
+export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAssets';
 
 /**
  * True when a module id is a propagated-assets boundary.

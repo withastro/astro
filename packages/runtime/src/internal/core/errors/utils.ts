@@ -1,10 +1,3 @@
-import type { YAMLParseError } from '@astrojs/internal-helpers/yaml';
-import type { TomlError } from 'smol-toml';
-import type { ErrorPayload as ViteErrorPayload } from 'vite';
-import type { SSRError } from '../../types/public/internal.js';
-
-export { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
-
 /**
  * Get the line and character based on the offset
  * @param offset The index of the position
@@ -74,38 +67,6 @@ function getLineOffsets(text: string) {
 	return lineOffsets;
 }
 
-/** Format YAML exceptions as Vite errors */
-export function formatYAMLParseError(e: YAMLParseError): ViteErrorPayload['err'] {
-	const position = e.linePos?.[0];
-	const loc = position
-		? {
-				line: position.line,
-				column: position.col - 1,
-			}
-		: undefined;
-	return {
-		name: e.name,
-		loc,
-		message: e.message,
-		stack: e.stack ?? '',
-	};
-}
-
-export function isTOMLError(err: unknown): err is TomlError {
-	return err instanceof Error && err.name === 'TomlError';
-}
-
-/** Format TOML exceptions as Vite errors */
-export function formatTOMLError(e: TomlError): ViteErrorPayload['err'] {
-	return {
-		name: e.name,
-		id: e.name,
-		loc: { line: e.line + 1, column: e.column },
-		message: e.message,
-		stack: e.stack ?? '',
-	};
-}
-
 /** Coalesce any throw variable to an Error instance. */
 export function createSafeError(err: any): Error {
 	if (err instanceof Error || (err?.name && err.message)) {
@@ -113,7 +74,7 @@ export function createSafeError(err: any): Error {
 	} else {
 		const error = new Error(JSON.stringify(err));
 
-		(error as SSRError).hint =
+		(error as Error & { hint?: string }).hint =
 			`To get as much information as possible from your errors, make sure to throw Error objects instead of \`${typeof err}\`. See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error for more information.`;
 
 		return error;

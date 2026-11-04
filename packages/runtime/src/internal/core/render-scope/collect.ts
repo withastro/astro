@@ -1,10 +1,13 @@
-import type { SerializedStaticImage } from '../../assets/types.js';
-import type { AstroLogger } from '../logger/core.js';
-import { getInstalledRenderScope, type RenderCollectors } from './scope.js';
+import {
+	getInstalledRenderScope,
+	type RenderCollectorScope,
+	type RenderCollectors,
+	type StaticImageRecord,
+} from './scope.js';
 
-export interface CollectedPrerenderMetadata {
+export interface CollectedPrerenderMetadata<TImage extends StaticImageRecord = StaticImageRecord> {
 	contentEntryKeys: string[];
-	staticImages: SerializedStaticImage[];
+	staticImages: TImage[];
 	referencedImages: string[];
 }
 
@@ -29,11 +32,14 @@ let warnedNoScope = false;
  * floating promise carrying the async context past buffering) mutates only the
  * abandoned store, never the returned metadata.
  */
-export async function collectPrerenderMetadata<T>(
+export async function collectPrerenderMetadata<
+	T,
+	TImage extends StaticImageRecord = StaticImageRecord,
+>(
 	fn: () => Promise<T>,
-	logger?: AstroLogger,
+	logger?: { warn(label: 'build', message: string): void },
 	options: CollectPrerenderMetadataOptions = {},
-): Promise<{ value: T; metadata: CollectedPrerenderMetadata | undefined }> {
+): Promise<{ value: T; metadata: CollectedPrerenderMetadata<TImage> | undefined }> {
 	const scope = getInstalledRenderScope();
 	if (!scope) {
 		if (logger && !warnedNoScope) {
@@ -47,12 +53,12 @@ export async function collectPrerenderMetadata<T>(
 		}
 		return { value: await fn(), metadata: undefined };
 	}
-	const store: RenderCollectors = {
+	const store: RenderCollectors<TImage> = {
 		contentEntries: new Set(),
 		staticImages: options.staticImages === false ? undefined : [],
 		referencedImages: new Set(),
 	};
-	const value = await scope.run(store, fn);
+	const value = await (scope as RenderCollectorScope<TImage>).run(store, fn);
 	return {
 		value,
 		metadata: {

@@ -5,8 +5,7 @@ import {
 	encodeHexLowerCase,
 	encodeHexUpperCase,
 } from '@oslojs/encoding';
-import type { CspAlgorithm } from '../types/public/index.js';
-import { ALGORITHMS, type CspHash } from './csp/config.js';
+import { ALGORITHMS, type CspAlgorithm, type CspHash } from './csp/sources.js';
 
 // Chose this algorithm for no particular reason, can change.
 // This algo does check against text manipulation though. See

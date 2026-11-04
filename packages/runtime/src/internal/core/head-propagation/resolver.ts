@@ -1,4 +1,4 @@
-import type { PropagationHint, SSRResult } from '../../types/public/internal.js';
+import type { PropagationHint, SSRResult } from '../../../types.js';
 
 /**
  * Resolves the effective propagation hint for a component.
