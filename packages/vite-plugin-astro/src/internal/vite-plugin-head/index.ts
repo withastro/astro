@@ -1,37 +1,30 @@
 import type * as vite from 'vite';
 import type { DevEnvironment } from 'vite';
+import { PROPAGATED_ASSET_FLAG } from '@astrojs/runtime/_internal/core/head-propagation/boundary.js';
 import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
-} from '../core/head-propagation/graph.js';
-import { getTopLevelPageModuleInfos } from '../core/build/graph.js';
-import type { BuildInternals } from '../core/build/internal.js';
-import { PROPAGATED_ASSET_FLAG } from '../content/consts.js';
-import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
-import { getAstroMetadata } from '../vite-plugin-astro/index.js';
+} from '@astrojs/runtime/_internal/core/head-propagation/graph.js';
+import type { SSRComponentMetadata } from '@astrojs/runtime/types';
+import { getAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import {
+	RESOLVED_VIRTUAL_COMPONENT_METADATA,
+	VIRTUAL_COMPONENT_METADATA,
+} from '../../vite-plugin-head/const.js';
 
-/**
- * A dev-only virtual module that exposes accumulated component metadata (containsHead, propagation)
- * as a serialized array that can be statically imported.
- *
- * This exists to serve environments that cannot do live module graph traversal at request time —
- * specifically the non-runnable dev environment (`core/environment/dev-nonrunnable.ts`), used by
- * adapters like Cloudflare that run requests through their own server runtime rather than Vite's
- * runner. That environment cannot call `getComponentMetadata()` (which requires a `ModuleLoader`),
- * so it imports this virtual module instead to get equivalent metadata.
- *
- * The runnable dev environment does NOT use this module; it calls `getComponentMetadata()`
- * directly, which traverses the live Vite module graph and produces more accurate per-request data.
- *
- * The virtual module is invalidated whenever metadata propagation runs (on transform, resolveId)
- * and on file add/unlink, ensuring it stays fresh during HMR.
- */
-const VIRTUAL_COMPONENT_METADATA = 'virtual:astro:component-metadata';
-const RESOLVED_VIRTUAL_COMPONENT_METADATA = `\0${VIRTUAL_COMPONENT_METADATA}`;
+export interface HeadPluginOptions {
+	/**
+	 * Names of the dev environments whose module graphs are tracked.
+	 *
+	 * @default every environment whose `consumer` is `server`
+	 */
+	environments?: readonly string[];
+}
 
-export default function configHeadVitePlugin(): vite.Plugin {
+export default function configHeadVitePlugin({
+	environments: environmentNames,
+}: HeadPluginOptions = {}): vite.Plugin {
 	// Adapters like `@astrojs/cloudflare` load page modules in the `prerender`
 	// environment; default dev uses `ssr`. Track both so propagation covers either.
 	let environments: DevEnvironment[] = [];
@@ -124,10 +117,11 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		enforce: 'pre',
 		apply: 'serve',
 		configureServer(devServer) {
-			environments = [
-				devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
-				devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.prerender],
-			].filter((e): e is DevEnvironment => !!e);
+			environments = (
+				environmentNames
+					? environmentNames.map((name) => devServer.environments[name])
+					: Object.values(devServer.environments).filter((e) => e.config.consumer === 'server')
+			).filter((e): e is DevEnvironment => !!e);
 			devServer.watcher.on('add', invalidateComponentMetadataModule);
 			devServer.watcher.on('unlink', invalidateComponentMetadataModule);
 			devServer.watcher.on('change', invalidateComponentMetadataModule);
@@ -225,84 +219,6 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 
 			invalidateComponentMetadataModule();
-		},
-	};
-}
-
-export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
-	return {
-		name: 'astro:head-metadata-build',
-		applyToEnvironment(environment) {
-			return (
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
-			);
-		},
-		generateBundle(_opts, bundle) {
-			const map: SSRResult['componentMetadata'] = internals.componentMetadata;
-			const moduleIds = new Set<string>();
-			// Explicit runtime entries (`createComponent({ propagation: 'self' })`).
-			const selfPropagationSeeds = new Set<string>();
-			// Head propagation hint seeds (content render entries with ?astroPropagatedAssets).
-			const commentPropagationSeeds = new Set<string>();
-			function getOrCreateMetadata(id: string): SSRComponentMetadata {
-				if (map.has(id)) return map.get(id)!;
-				const metadata: SSRComponentMetadata = {
-					propagation: 'none',
-					containsHead: false,
-				};
-				map.set(id, metadata);
-				return metadata;
-			}
-
-			for (const [, output] of Object.entries(bundle)) {
-				if (output.type !== 'chunk') continue;
-				for (const [id] of Object.entries(output.modules)) {
-					moduleIds.add(id);
-					const modinfo = this.getModuleInfo(id);
-
-					// <head> tag in the tree
-					if (modinfo) {
-						const meta = getAstroMetadata(modinfo);
-						if (meta?.containsHead) {
-							for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
-								let metadata = getOrCreateMetadata(pageInfo.id);
-								metadata.containsHead = true;
-							}
-						}
-						if (meta?.propagation === 'self') {
-							selfPropagationSeeds.add(id);
-						}
-					}
-
-					// Head propagation (aka bubbling)
-					// Modules with the ?astroPropagatedAssets query param are content render
-					// entries that need head propagation. We identify them by their module ID
-					// rather than scanning source code, which avoids an unfiltered transform
-					// hook that would run on every module in the build.
-					if (id.includes(PROPAGATED_ASSET_FLAG)) {
-						commentPropagationSeeds.add(id);
-					}
-				}
-			}
-
-			// Build once, then compute all ancestors from both seed kinds.
-			const importerGraph = buildImporterGraphFromModuleInfo(moduleIds, (id) =>
-				this.getModuleInfo(id),
-			);
-			const allPropagationSeeds = new Set([...selfPropagationSeeds, ...commentPropagationSeeds]);
-			const allAncestors = computeInTreeAncestors({
-				seeds: allPropagationSeeds,
-				importerGraph,
-			});
-
-			for (const id of allAncestors) {
-				const metadata = getOrCreateMetadata(id);
-				// Preserve explicit `self`; only promote others to `in-tree`.
-				if (metadata.propagation !== 'self') {
-					metadata.propagation = 'in-tree';
-				}
-			}
 		},
 	};
 }

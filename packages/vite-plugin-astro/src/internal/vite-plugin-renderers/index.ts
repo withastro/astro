@@ -1,22 +1,28 @@
-import type { ConfigEnv, Plugin as VitePlugin } from 'vite';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import { hasNonPrerenderedRoute } from '../core/routing/helpers.js';
-import type { ServerIslandsState } from '../core/server-islands/shared-state.js';
-import type { AstroSettings, RoutesList } from '../types/astro.js';
+import type { Environment, Plugin as VitePlugin } from 'vite';
+import type { AstroRenderer } from '@astrojs/runtime/types';
+import {
+	ASTRO_RENDERERS_MODULE_ID,
+	RESOLVED_ASTRO_RENDERERS_MODULE_ID,
+} from '../../vite-plugin-renderers/const.js';
 
-export const ASTRO_RENDERERS_MODULE_ID = 'virtual:astro:renderers';
-const RESOLVED_ASTRO_RENDERERS_MODULE_ID = `\0${ASTRO_RENDERERS_MODULE_ID}`;
+export { ASTRO_RENDERERS_MODULE_ID };
 
-interface PluginOptions {
-	settings: AstroSettings;
-	routesList: RoutesList;
-	serverIslandsState: ServerIslandsState;
-	command: ConfigEnv['command'];
+export interface RenderersPluginOptions {
+	renderers: AstroRenderer[];
+	/**
+	 * Return `true` to emit an empty renderer list for an environment that never renders framework
+	 * components, so their server code is left out of its bundle.
+	 */
+	skipRenderers?: (environment: Environment) => boolean;
 }
 
-export default function vitePluginRenderers(options: PluginOptions): VitePlugin {
-	const renderers = options.settings.renderers;
-
+/**
+ * Serves `virtual:astro:renderers`, which exports the loaded renderers as `renderers`.
+ */
+export default function vitePluginRenderers({
+	renderers,
+	skipRenderers,
+}: RenderersPluginOptions): VitePlugin {
 	return {
 		name: 'astro:plugin-renderers',
 		enforce: 'pre',
@@ -39,16 +45,7 @@ export default function vitePluginRenderers(options: PluginOptions): VitePlugin 
 				id: new RegExp(`^${RESOLVED_ASTRO_RENDERERS_MODULE_ID}$`),
 			},
 			handler() {
-				if (
-					options.command === 'build' &&
-					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr &&
-					renderers.length > 0 &&
-					!options.serverIslandsState.hasIslands() &&
-					!hasNonPrerenderedRoute(options.routesList.routes, {
-						includeEndpoints: false,
-						includeExternal: true,
-					})
-				) {
+				if (renderers.length > 0 && skipRenderers?.(this.environment)) {
 					return { code: `export const renderers = [];` };
 				}
 

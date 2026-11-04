@@ -1,12 +1,15 @@
 import type { HmrContext } from 'vite';
-import type { AstroLogger } from '../core/logger/core.js';
 import type { CompileAstroResult } from './compile.js';
-import { parseAstroRequest } from './query.js';
+import { parseAstroRequest } from '../../vite-plugin-astro/query.js';
 import type { CompileMetadata } from './types.js';
-import { frontmatterRE } from './utils.js';
+import { frontmatterRE } from '../../vite-plugin-astro/utils.js';
+
+export interface HmrLogger {
+	debug(label: 'watch', message: string): void;
+}
 
 interface HandleHotUpdateOptions {
-	logger: AstroLogger;
+	logger: HmrLogger;
 	compile: (
 		code: string,
 		filename: string,

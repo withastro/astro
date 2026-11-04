@@ -1,9 +1,13 @@
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
-import type { AstroConfig } from '../../types/public/config.js';
-import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
-import { normalizePath } from '../viteUtils.js';
+import {
+	AstroErrorData,
+	CSSError,
+	positionAt,
+} from '@astrojs/runtime/_internal/core/errors/index.js';
+import { normalizePath } from '../../internal/core/vite-id.js';
+import type { CompileConfig } from '../../internal/core/compile/compile.js';
 import type { CompileCssResult } from './types.js';
 
 export type PartialCompileCssResult = Pick<CompileCssResult, 'isGlobal' | 'dependencies'>;
@@ -141,7 +145,7 @@ export function createStylePreprocessor({
 }: {
 	filename: string;
 	viteConfig: ResolvedConfig;
-	astroConfig: AstroConfig;
+	astroConfig: Pick<CompileConfig, 'base'>;
 	cssPartialCompileResults: Partial<CompileCssResult>[];
 	cssTransformErrors: Error[];
 }): PreprocessStyleFn {
