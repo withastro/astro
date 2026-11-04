@@ -1,18 +1,17 @@
 #!/usr/bin/env node
 
 import path from 'node:path';
-import { check, parseArgsAsCheckConfig } from '../dist/index.js';
-import { options } from '../dist/options.js';
+import { check, parseArgsAsCheckConfig, printHelp, printVersion } from '../dist/index.js';
 
 const args = parseArgsAsCheckConfig(process.argv);
 
 if (args.help) {
-	const optionsHelp = Object.entries(options).map(
-		([name, option]) => `  --${name}  ${option.description ?? ''}`,
-	);
-	console.info(
-		['astro-check [options]', '', 'Options:', ...optionsHelp, '  -h, --help  Show help'].join('\n'),
-	);
+	printHelp();
+	process.exit(0);
+}
+
+if (args.version) {
+	printVersion();
 	process.exit(0);
 }
 

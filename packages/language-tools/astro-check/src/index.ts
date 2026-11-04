@@ -19,7 +19,7 @@ type FlagValue<Option> = Option extends { type: 'boolean' }
 
 export type Flags = {
 	[Key in keyof typeof options]: FlagValue<(typeof options)[Key]>;
-} & { help?: boolean };
+} & { help?: boolean; version?: boolean };
 
 function camelCase(option: string): string {
 	return option.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
@@ -37,7 +37,7 @@ export function parseArgsAsCheckConfig(args: string[]): Flags {
 	const boolean = entries.flatMap(([name, option]) =>
 		'type' in option && option.type === 'boolean' ? [name, kebabCase(name)] : [],
 	);
-	boolean.push('help', 'h');
+	boolean.push('help', 'h', 'version', 'v');
 	const string = entries.flatMap(([name, option]) =>
 		('type' in option && option.type === 'string') || 'choices' in option
 			? [name, kebabCase(name)]
@@ -46,6 +46,7 @@ export function parseArgsAsCheckConfig(args: string[]): Flags {
 	const alias = Object.fromEntries([
 		...entries.flatMap(([name, option]) => ('alias' in option ? [[option.alias, name]] : [])),
 		['h', 'help'],
+		['v', 'version'],
 	]);
 	const parsed = mri(args.slice(2), { boolean, string, alias });
 	const flags = Object.fromEntries(
@@ -62,6 +63,20 @@ export function parseArgsAsCheckConfig(args: string[]): Flags {
 	}
 
 	return flags as Flags;
+}
+
+export function printHelp() {
+	const optionsHelp = Object.entries(options).map(
+		([name, option]) => `  --${name}  ${'description' in option ? (option.description ?? '') : ''}`,
+	);
+	console.info(
+		['astro-check [options]', '', 'Options:', ...optionsHelp, '  -h, --help  Show help'].join('\n'),
+	);
+}
+
+export function printVersion() {
+	const require = createRequire(import.meta.url);
+	console.info(require('../package.json').version);
 }
 
 export async function check(flags: Partial<Flags> & { watch: true }): Promise<void>;

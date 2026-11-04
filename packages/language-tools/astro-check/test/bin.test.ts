@@ -33,4 +33,14 @@ describe('astro-check - binary', async () => {
 		assert.ok(childProcess.stdout.toString().includes('--tsconfig'));
 		assert.ok(!childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
 	});
+
+	it('Prints the package version', async () => {
+		const pkgPath = fileURLToPath(new URL('..', import.meta.url));
+		const binPath = path.join(pkgPath, 'bin', 'astro-check.js');
+		const childProcess = spawnSync('node', [binPath, '--version']);
+
+		assert.strictEqual(childProcess.status, 0);
+		assert.match(childProcess.stdout.toString().trim(), /^\d+\.\d+\.\d+/);
+		assert.ok(!childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
+	});
 });
