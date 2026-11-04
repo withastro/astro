@@ -265,10 +265,9 @@ export function normalizeRewritePathname(
 		}
 	}
 
-	// Ensure pathname starts with '/' when needed
-	if (!pathname.startsWith('/') && shouldAppendSlash && urlPathname.endsWith('/')) {
-		pathname = prependForwardSlash(pathname);
-	}
+	// Route patterns always start with '/'. Stripping a base that ends in
+	// '/' must not leave a relative pathname, regardless of trailingSlash.
+	pathname = prependForwardSlash(pathname);
 
 	// If config.build.format = 'file' then pathname includes .html, so we need to remove it
 	if (buildFormat === 'file') {
