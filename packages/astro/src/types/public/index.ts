@@ -26,6 +26,7 @@ export type {
 	CollectionStorageDescriptor,
 	CollectionStorageDriver,
 	CollectionStorageDriverFactory,
+	CollectionStorageHandle,
 	CollectionStorageReader,
 	CollectionStorageSnapshot,
 	CollectionStorageWriter,

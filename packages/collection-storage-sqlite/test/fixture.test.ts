@@ -19,4 +19,11 @@ describe('SQLite collection storage in a build', () => {
 		assert.match(html, /<h1>Introduction<\/h1>/);
 		assert.match(html, /Stored in SQLite\./);
 	});
+
+	it('lets integrations delete the snapshot of a static build', () => {
+		const { snapshot, readAtRuntime, remaining } = (globalThis as any).sqliteBuildDone;
+
+		assert.equal(readAtRuntime, false);
+		assert.equal(remaining.includes(snapshot), false);
+	});
 });
