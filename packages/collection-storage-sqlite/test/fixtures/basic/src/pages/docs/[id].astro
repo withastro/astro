@@ -1,0 +1,14 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const docs = await getCollection({ name: 'docs', content: false });
+	return docs.map((doc) => ({ params: { id: doc.id } }));
+}
+
+const entry = await getEntry('docs', Astro.params.id);
+const { Content } = await render(entry!);
+---
+
+<h1>{entry!.data.title}</h1>
+<Content />
