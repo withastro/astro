@@ -10,7 +10,10 @@ import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../
 import { globalContentLayer } from '../../content/instance.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
-import { createViteDriverLoader } from '../../content/storage-sync.js';
+import {
+	createViteDriverLoader,
+	type LoadCollectionStorageDriver,
+} from '../../content/storage-sync.js';
 import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
@@ -73,7 +76,7 @@ export default async function sync(
 	});
 	await runHookConfigDone({ settings, logger });
 
-	return await syncInternal({
+	await syncInternal({
 		settings,
 		logger,
 		mode: 'production',
@@ -115,6 +118,14 @@ export async function clearContentLayerCache({
 	}
 }
 
+export interface SyncResult {
+	/**
+	 * Creates the drivers of collections with a storage driver, reusing the ones the content sync
+	 * created. Undefined when content was skipped.
+	 */
+	loadStorageDriver?: LoadCollectionStorageDriver;
+}
+
 /**
  * Generates TypeScript types for all Astro modules. This sets up a `src/env.d.ts` file for type inferencing,
  * and defines the `astro:content` module for the Content Collections API.
@@ -130,13 +141,14 @@ export async function syncInternal({
 	force,
 	command,
 	watcher,
-}: SyncOptions): Promise<void> {
+}: SyncOptions): Promise<SyncResult> {
 	const isDev = command === 'dev';
 	if (force) {
 		await clearContentLayerCache({ settings, logger, fs, isDev });
 	}
 
 	const timerStart = performance.now();
+	let loadStorageDriver: LoadCollectionStorageDriver | undefined;
 
 	if (!skip?.content) {
 		// Create the Vite server once and keep it alive for both content config loading
@@ -163,15 +175,16 @@ export async function syncInternal({
 			}
 			if (!store) {
 				logger.error('content', 'Failed to load content store');
-				return;
+				return {};
 			}
 
+			loadStorageDriver = createViteDriverLoader(tempViteServer);
 			const contentLayer = globalContentLayer.init({
 				settings,
 				logger,
 				store,
 				watcher,
-				loadStorageDriver: createViteDriverLoader(tempViteServer),
+				loadStorageDriver,
 				writesStoredCollections: command !== 'sync',
 				// Dev servers sync through here too when they restart
 				dev: command === 'dev',
@@ -207,6 +220,7 @@ export async function syncInternal({
 
 	writeInjectedTypes(settings, fs);
 	logger.info('types', `Generated ${colors.dim(getTimeStat(timerStart, performance.now()))}`);
+	return { loadStorageDriver };
 }
 
 function getTsReference(type: 'path' | 'types', value: string) {

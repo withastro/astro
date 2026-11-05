@@ -77,6 +77,22 @@ describe('Collection storage drivers', () => {
 		assert.match(server, /Alice/);
 	});
 
+	it('passes a handle per storage descriptor to astro:build:done', async () => {
+		const manifest = JSON.parse(
+			fs.readFileSync(new URL('./.astro/collection-storage.json', fixture.config.root), 'utf-8'),
+		);
+		const handles = (globalThis as any).collectionStorageHandles;
+
+		assert.equal(handles.length, 1);
+		assert.deepEqual(handles[0].collections, ['docs', 'guides']);
+		assert.equal(handles[0].snapshot, manifest.drivers[0].snapshot);
+		// The test adapter renders pages on demand
+		assert.equal(handles[0].readAtRuntime, true);
+		// The fixture's driver doesn't list or delete snapshots
+		assert.equal(handles[0].listSnapshots, undefined);
+		assert.equal(handles[0].deleteSnapshot, undefined);
+	});
+
 	it('writes a new snapshot on every build', async () => {
 		const driverDir = new URL('./.astro/json-driver/', fixture.config.root);
 		const snapshotsBefore = fs.readdirSync(driverDir);

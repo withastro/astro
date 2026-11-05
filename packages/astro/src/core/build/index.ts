@@ -23,6 +23,9 @@ import type { AstroLogger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { getPrerenderDefault } from '../../prerender/utils.js';
+import { createStorageHandles, readsSnapshotsAtRuntime } from '../../content/storage-handles.js';
+import type { LoadCollectionStorageDriver } from '../../content/storage-sync.js';
+import type { BuildDoneCollections } from '../../types/public/integrations.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
@@ -124,6 +127,8 @@ export class AstroBuilder {
 	private routesList: RoutesList;
 	private timer: Record<string, number>;
 	private sync: boolean;
+	/** Creates storage drivers, reusing the ones the content sync created. */
+	private loadStorageDriver?: LoadCollectionStorageDriver;
 	private force: boolean;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
@@ -188,7 +193,7 @@ export class AstroBuilder {
 
 		if (this.sync) {
 			const { syncInternal } = await import('../sync/index.js');
-			await buildPhase('content sync', () =>
+			const { loadStorageDriver } = await buildPhase('content sync', () =>
 				syncInternal({
 					mode: this.mode,
 					settings: this.settings,
@@ -197,6 +202,7 @@ export class AstroBuilder {
 					command: 'build',
 				}),
 			);
+			this.loadStorageDriver = loadStorageDriver;
 		}
 
 		return { viteConfig };
@@ -279,14 +285,27 @@ export class AstroBuilder {
 			this.settings.fontsHttpServer = null;
 		}
 
+		const routes = Object.values(allPages)
+			.flat()
+			.map((pageData) => pageData.route);
+		const collections: BuildDoneCollections = {};
+		// Builds that skip the content sync write no snapshots
+		if (this.settings.config.experimental.collectionStorageDrivers && this.loadStorageDriver) {
+			collections.storage = await createStorageHandles({
+				fs,
+				dotAstroDir: this.settings.dotAstroDir,
+				loadDriver: this.loadStorageDriver,
+				readAtRuntime: readsSnapshotsAtRuntime(this.settings, routes),
+			});
+		}
+
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			settings: this.settings,
 			dir: outputDirectories.client,
 			pages: pageNames,
-			routes: Object.values(allPages)
-				.flat()
-				.map((pageData) => pageData.route),
+			routes,
+			collections,
 			logger: this.logger,
 		});
 

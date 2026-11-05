@@ -62,6 +62,27 @@ export interface CollectionStorageDriver {
 	deleteSnapshot?(snapshot: string): Promise<void>;
 }
 
+/**
+ * The snapshots a build wrote with one storage descriptor, passed to the `astro:build:done`
+ * hook in `collections.storage`. Integrations use it to delete the snapshots of earlier builds.
+ */
+export interface CollectionStorageHandle {
+	/** The collections kept with this storage descriptor. */
+	collections: string[];
+	/** The snapshot this build wrote. */
+	snapshot: string;
+	/** Whether pages rendered on demand read `snapshot`. When `false`, nothing reads it after the build. */
+	readAtRuntime: boolean;
+	/** Returns the committed snapshots. Present when the driver implements `listSnapshots()`. */
+	listSnapshots?(): Promise<CollectionStorageSnapshot[]>;
+	/**
+	 * Deletes a snapshot and its entries. Present when the driver implements `deleteSnapshot()`.
+	 *
+	 * @throws {AstroError} When asked to delete `snapshot` while `readAtRuntime` is `true`.
+	 */
+	deleteSnapshot?(snapshot: string): Promise<void>;
+}
+
 /** A committed snapshot, as listed by `listSnapshots()`. */
 export interface CollectionStorageSnapshot {
 	snapshot: string;
