@@ -68,6 +68,7 @@ export async function copyDependenciesToFunction(
 	},
 	// we want to pass the caching by reference, and not by value
 	cache: object,
+	trace?: typeof import('@vercel/nft').nodeFileTrace,
 ): Promise<{
 	handler: string;
 }> {
@@ -83,7 +84,7 @@ export async function copyDependenciesToFunction(
 	// and that trips up `@vercel/nft` itself during the adapter build. Using a
 	// dynamic import helps prevent the issue.
 	// TODO: investigate why
-	const { nodeFileTrace } = await import('@vercel/nft');
+	const nodeFileTrace = trace ?? (await import('@vercel/nft')).nodeFileTrace;
 	// NFT turns dynamic path segments into asset globs, relative to `base`. In a workspace, `base`
 	// is the workspace root, which NFT also uses as `process.cwd()`, so a glob anchored there starts
 	// with `**` and walks unrelated packages. Globs rooted in a subdirectory don't match that prefix.

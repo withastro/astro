@@ -33,7 +33,7 @@ describe('copyDependenciesToFunction', () => {
 		const root = await fs.mkdtemp(join(tmpdir(), 'astro-vercel-nft-'));
 		try {
 			const entryPath = join(root, 'entry.mjs');
-			await fs.writeFile(entryPath, `import './${'a'.repeat(256)}';`);
+			await fs.writeFile(entryPath, '');
 			const { logs, logger } = createLogger();
 
 			await copyDependenciesToFunction(
@@ -46,6 +46,14 @@ describe('copyDependenciesToFunction', () => {
 					root: pathToFileURL(root + sep),
 				},
 				{},
+				async () => ({
+					fileList: new Set(['entry.mjs']),
+					esmFileList: new Set(),
+					reasons: new Map(),
+					warnings: new Set([
+						new Error('Failed to resolve dependency ENAMETOOLONG: name too long'),
+					]),
+				}),
 			);
 
 			assert.ok(
