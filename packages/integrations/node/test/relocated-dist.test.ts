@@ -7,7 +7,6 @@ import { fileURLToPath } from 'node:url';
 import nodejs from '../dist/index.js';
 import { type Fixture, loadFixture } from './test-utils.ts';
 
-const fixtureDir = new URL('./fixtures/relocated-dist/', import.meta.url);
 const distDir = new URL('./fixtures/relocated-dist/dist/', import.meta.url);
 const relocatedDir = new URL('./fixtures/relocated-dist/relocated/', import.meta.url);
 const relocatedDistDir = new URL('./dist/', relocatedDir);
