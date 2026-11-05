@@ -67,6 +67,36 @@ describe('Collection metadata', () => {
 	});
 });
 
+describe('Collections in astro:build:done', () => {
+	before(async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/collection-metadata/',
+			adapter: testAdapter(),
+			outDir: './dist/collection-metadata-build-done/',
+		});
+		await fixture.build({});
+	});
+
+	it('passes the metadata and entries of build-time collections', () => {
+		const { metadata, docs, docsWithContent, products } = (globalThis as any).buildDoneCollections;
+
+		assert.deepEqual(
+			metadata.map(({ name }: { name: string }) => name),
+			['docs', 'guides', 'notes', 'authors'],
+		);
+		assert.deepEqual(
+			docs.map(({ id }: { id: string }) => id),
+			['intro'],
+		);
+		assert.equal('body' in docs[0], false);
+		assert.equal('rendered' in docs[0], false);
+		assert.equal(typeof docsWithContent[0].body, 'string');
+		assert.ok(docsWithContent[0].rendered.html);
+		// Live collections have no entries at build time
+		assert.deepEqual(products, []);
+	});
+});
+
 describe('Collection metadata in Markdown plugins', () => {
 	let app: App;
 
@@ -130,6 +160,10 @@ describe('Collection metadata without the flag', () => {
 		});
 		await fixture.build({});
 		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('passes no collections to astro:build:done', () => {
+		assert.equal((globalThis as any).buildDoneCollections, undefined);
 	});
 
 	it('throws from getCollectionsMetadata()', async () => {
