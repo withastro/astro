@@ -75,6 +75,44 @@ describe('generateSitemap', () => {
 	});
 
 	describe('i18n', () => {
+		it('does not treat a page named like an Object.prototype property as a locale', () => {
+			const items = generateSitemap(
+				[
+					`${site}/`,
+					`${site}/es/`,
+					`${site}/constructor/`,
+					`${site}/es/constructor/`,
+					`${site}/toString/`,
+				],
+				site,
+				{
+					i18n: {
+						defaultLocale: 'en',
+						locales: {
+							en: 'en-US',
+							es: 'es-ES',
+						},
+					},
+				},
+			);
+
+			const rootLinks = [
+				{ url: `${site}/`, lang: 'en-US' },
+				{ url: `${site}/es/`, lang: 'es-ES' },
+			];
+			const constructorLinks = [
+				{ url: `${site}/constructor/`, lang: 'en-US' },
+				{ url: `${site}/es/constructor/`, lang: 'es-ES' },
+			];
+			const byUrl = new Map(items.map((item) => [item.url, item.links]));
+
+			assert.deepEqual(byUrl.get(`${site}/`), rootLinks);
+			assert.deepEqual(byUrl.get(`${site}/es/`), rootLinks);
+			assert.deepEqual(byUrl.get(`${site}/constructor/`), constructorLinks);
+			assert.deepEqual(byUrl.get(`${site}/es/constructor/`), constructorLinks);
+			assert.equal(byUrl.get(`${site}/toString/`), undefined);
+		});
+
 		it('works', () => {
 			const items = generateSitemap(
 				[
