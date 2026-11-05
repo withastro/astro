@@ -82,6 +82,8 @@ export function spreadAttributes(
 	let output = '';
 	// If the compiler passes along a scoped class, merge with existing props or inject it
 	if (scopedClassName) {
+		// Merge into a copy: the spread object may outlive this render (e.g. an imported constant)
+		values = { ...values };
 		if (typeof values.class !== 'undefined') {
 			values.class += ` ${scopedClassName}`;
 		} else if (typeof values['class:list'] !== 'undefined') {

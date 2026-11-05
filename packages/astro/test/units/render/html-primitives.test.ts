@@ -17,6 +17,7 @@ import {
 	renderComponent,
 	renderHTMLElement,
 	renderSlot,
+	spreadAttributes,
 	unescapeHTML,
 } from '../../../dist/runtime/server/index.js';
 import { createTestApp, createPage } from '../mocks.ts';
@@ -547,5 +548,30 @@ describe('renders the components top-down', async () => {
 		const response = await app.render(new Request('http://example.com/order'));
 		const $ = cheerio.load(await response.text());
 		assert.equal($('#rendered-order').text(), 'Rendered order: A, B');
+	});
+});
+
+describe('spreadAttributes with a scoped class', () => {
+	it('does not mutate the spread object across renders', () => {
+		const withoutClass = { 'data-example': '' };
+		const withClass = { class: 'foo' };
+		const withClassList = { 'class:list': ['foo'] };
+		for (let i = 0; i < 2; i++) {
+			assert.equal(
+				String(spreadAttributes(withoutClass, 'attrs', { class: 'astro-abc' })),
+				' data-example class="astro-abc"',
+			);
+			assert.equal(
+				String(spreadAttributes(withClass, 'attrs', { class: 'astro-abc' })),
+				' class="foo astro-abc"',
+			);
+			assert.equal(
+				String(spreadAttributes(withClassList, 'attrs', { class: 'astro-abc' })),
+				' class="foo astro-abc"',
+			);
+		}
+		assert.deepEqual(withoutClass, { 'data-example': '' });
+		assert.deepEqual(withClass, { class: 'foo' });
+		assert.deepEqual(withClassList, { 'class:list': ['foo'] });
 	});
 });
