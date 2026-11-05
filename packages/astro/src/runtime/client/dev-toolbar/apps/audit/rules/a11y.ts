@@ -414,6 +414,11 @@ export const a11y: AuditRuleWithSelector[] = [
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
 			if (isHiddenByClosedDetails(element)) return false;
+			// Elements that are not rendered or are excluded from the accessibility tree
+			// don't need an accessible name. `visibility` is inherited, so this also covers
+			// hidden ancestors such as a closed dropdown menu.
+			if (window.getComputedStyle(element).visibility !== 'visible') return false;
+			if (element.closest('[aria-hidden="true"]')) return false;
 
 			// innerText is used to ignore hidden text
 			const innerText = element.innerText?.trim();
