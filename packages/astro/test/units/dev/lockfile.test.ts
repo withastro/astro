@@ -290,14 +290,16 @@ describe('isLockFileProcessAlive', () => {
 		assert.equal(await isLockFileProcessAlive(data, async () => ({ pid: childPid })), true);
 	});
 
-	it('keeps the PID-only result when process inspection fails', async () => {
+	it('treats the lock as stale when process inspection fails and cmdline is unavailable', async () => {
 		const data = { ...validData, pid: childPid };
 
 		assert.equal(
 			await isLockFileProcessAlive(data, async () => {
 				throw Object.assign(new Error('spawn ps ENOENT'), { code: 'ENOENT' });
 			}),
-			true,
+			// On Linux a /proc cmdline fallback may still confirm Astro; for this stubbed
+			// non-Astro child the command is not Astro, so either path must return false.
+			false,
 		);
 	});
 

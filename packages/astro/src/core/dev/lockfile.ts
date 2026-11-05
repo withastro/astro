@@ -1,4 +1,11 @@
-import { existsSync, readFileSync, unlinkSync, writeFileSync, mkdirSync } from 'node:fs';
+import {
+	existsSync,
+	readFileSync,
+	unlinkSync,
+	writeFileSync,
+	mkdirSync,
+} from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { getProcessInfo } from 'tinyps';
 import type { ResolvedServerUrls } from 'vite';
@@ -116,8 +123,25 @@ interface ProcessInfo {
 type ProcessLookup = (pid: number) => Promise<ProcessInfo | undefined>;
 
 /**
+ * Read `/proc/<pid>/cmdline` on Linux when `ps`-based lookup fails (BusyBox on Alpine).
+ */
+async function readLinuxProcessCommand(pid: number): Promise<string | undefined> {
+	if (process.platform !== 'linux') {
+		return undefined;
+	}
+	try {
+		const cmdline = await readFile(`/proc/${pid}/cmdline`, 'utf8');
+		const command = cmdline.replace(/\0/g, ' ').trim();
+		return command.length > 0 ? command : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+/**
  * Check whether the live process recorded in a lock file is still Astro.
- * If the command cannot be inspected, keep the existing PID-only behavior.
+ * When the command cannot be confirmed (e.g. BusyBox `ps` on Alpine), treat the
+ * lock as stale so a recycled PID cannot block `astro dev`. (#18634)
  */
 export async function isLockFileProcessAlive(
 	data: LockFileData,
@@ -142,7 +166,12 @@ export async function isLockFileProcessAlive(
 		}
 		return processInfo.command === undefined || isAstroCommand(processInfo.command);
 	} catch {
-		return true;
+		const cmdline = await readLinuxProcessCommand(data.pid);
+		if (cmdline !== undefined) {
+			return isAstroCommand(cmdline);
+		}
+		// Cannot confirm the process is Astro — do not block startup.
+		return false;
 	}
 }
 
