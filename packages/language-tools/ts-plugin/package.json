@@ -30,9 +30,9 @@
     "@astrojs/compiler": "^2.13.1",
     "@astrojs/yaml2ts": "^0.2.4",
     "@jridgewell/sourcemap-codec": "^1.6.0",
-    "@volar/language-core": "~2.4.28",
-    "@volar/typescript": "~2.4.28",
-    "vscode-languageserver-textdocument": "^1.0.15"
+    "@volar/language-core": "~2.4.30",
+    "@volar/typescript": "~2.4.30",
+    "vscode-languageserver-textdocument": "^1.0.16"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",

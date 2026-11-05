@@ -849,4 +849,56 @@ describe('Glob Loader watcher', () => {
 		);
 		assert.equal(entries[0].body?.trim(), 'Updated');
 	});
+
+	it('ignores changed files inside a directory excluded by a negation pattern', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content');
+		mkdirSync(join(contentDir, 'blog'), { recursive: true });
+		mkdirSync(join(contentDir, '_docs', 'sub'), { recursive: true });
+		const postPath = join(contentDir, 'blog', 'post.md');
+		const docPath = join(contentDir, '_docs', 'x.md');
+		const nestedDocPath = join(contentDir, '_docs', 'sub', 'y.md');
+		writeFileSync(postPath, '---\ntitle: Post\n---\nPost');
+		writeFileSync(docPath, '---\ntitle: X\n---\nX');
+		writeFileSync(nestedDocPath, '---\ntitle: Y\n---\nY');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+		const watcher = Object.assign(new EventEmitter(), { add: () => {} });
+
+		const collections = {
+			docs: defineCollection({
+				loader: glob({ pattern: ['**/*.md', '!_docs'], base: 'src/content' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+			watcher: watcher as any,
+		});
+
+		await contentLayer.sync();
+		assert.deepEqual(
+			store.values('docs').map((e) => e.id),
+			['blog/post'],
+		);
+
+		watcher.emit('change', docPath);
+		watcher.emit('change', nestedDocPath);
+		await new Promise((resolve) => setTimeout(resolve, 100));
+
+		assert.deepEqual(
+			store.values('docs').map((e) => e.id),
+			['blog/post'],
+		);
+	});
 });

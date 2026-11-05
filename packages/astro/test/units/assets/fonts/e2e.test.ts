@@ -111,6 +111,61 @@ async function run({ fonts: _fonts }: { fonts: Array<FontFamily> }) {
 	return { fontFileById, fontDataByCssVariable, componentDataByCssVariable };
 }
 
+// These tests hit the live Fontsource API, so they only assert on the structure of the result.
+// Exact output (CSS, hashes, metrics) is covered by the unit tests in core.test.ts.
+type Result = Awaited<ReturnType<typeof run>>;
+
+const FONTSOURCE_URL = /^https:\/\/cdn\.jsdelivr\.net\/fontsource\/fonts\/roboto@/;
+
+function assertRobotoFaces(result: Result, faces: Array<{ weight: string; style: string }>) {
+	const fontData = result.fontDataByCssVariable['--font-roboto'];
+	assert.deepStrictEqual(
+		fontData.map(({ weight, style, subset }) => ({ weight, style, subset })),
+		faces.map((face) => ({ ...face, subset: 'latin' })),
+	);
+	for (const { weight, style, src } of fontData) {
+		const id = src[0].url.slice(1);
+		assert.match(id, new RegExp(`^font-roboto-${weight}-${style}-latin-.+\\.woff2$`));
+		assert.match(result.fontFileById.get(id)!.url, FONTSOURCE_URL);
+	}
+
+	const { css, preloads } = result.componentDataByCssVariable.get('--font-roboto')!;
+	// Faces that are merged into the same CSS variable share a single font family name
+	assert.equal(new Set(css.match(/font-family:Roboto-\w+;/g)).size, 1);
+	assert.match(css, /:root\{--font-roboto:Roboto-\w+,.*sans-serif;\}/);
+	assert.deepStrictEqual(
+		preloads.map(({ url }) => url),
+		fontData.map(({ src }) => src[0].url),
+	);
+}
+
+function assertLocalFont(result: Result) {
+	const localId =
+		Array.from(result.fontFileById.keys()).find((e) => e.startsWith('font-test-400-normal-')) ?? '';
+	assert.equal(
+		result.fontFileById.get(localId)?.url,
+		fileURLToPath(new URL('./data/fonts/test.woff2', import.meta.url)),
+	);
+	assert.deepStrictEqual(result.fontDataByCssVariable['--font-test'], [
+		{
+			src: [{ format: 'woff2', tech: undefined, url: `/${localId}` }],
+			style: 'normal',
+			subset: undefined,
+			weight: '400',
+		},
+	]);
+	assert.ok(result.componentDataByCssVariable.get('--font-test')!.css.includes(`/${localId}`));
+}
+
+const localFamily = {
+	name: 'Test',
+	cssVariable: '--font-test',
+	provider: fontProviders.local(),
+	options: {
+		variants: [{ src: ['./test.woff2'], weight: '400', style: 'normal' }],
+	} as any,
+} satisfies FontFamily;
+
 describe('Fonts E2E', () => {
 	it('works', async () => {
 		const result = await run({
@@ -121,126 +176,15 @@ describe('Fonts E2E', () => {
 					provider: fontProviders.fontsource(),
 					weights: ['700'],
 				},
-				{
-					name: 'Test',
-					cssVariable: '--font-test',
-					provider: fontProviders.local(),
-					options: {
-						variants: [{ src: ['./test.woff2'], weight: '400', style: 'normal' }],
-					} as any,
-				},
+				localFamily,
 			],
 		});
-		const localOriginalUrl = fileURLToPath(new URL('./data/fonts/test.woff2', import.meta.url));
-		const localUrl =
-			Array.from(result.fontFileById.keys()).find((e) => e.startsWith('font-test-400-normal-')) ??
-			'';
-		assert.deepStrictEqual(result, {
-			fontFileById: new Map([
-				[
-					'font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
-					{
-						init: undefined,
-						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-700-italic.woff2',
-					},
-				],
-				[
-					'font-roboto-700-normal-latin-62f255dcb8a4f627.woff2',
-					{
-						init: undefined,
-						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-700-normal.woff2',
-					},
-				],
-				[
-					localUrl,
-					{
-						init: undefined,
-						url: localOriginalUrl,
-					},
-				],
-			]),
-			fontDataByCssVariable: {
-				'--font-roboto': [
-					{
-						src: [
-							{
-								format: 'woff2',
-								tech: undefined,
-								url: '/font-roboto-700-normal-latin-62f255dcb8a4f627.woff2',
-							},
-						],
-						style: 'normal',
-						subset: 'latin',
-						weight: '700',
-					},
-					{
-						src: [
-							{
-								format: 'woff2',
-								tech: undefined,
-								url: '/font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
-							},
-						],
-						style: 'italic',
-						subset: 'latin',
-						weight: '700',
-					},
-				],
-				'--font-test': [
-					{
-						src: [
-							{
-								format: 'woff2',
-								tech: undefined,
-								url: `/${localUrl}`,
-							},
-						],
-						style: 'normal',
-						subset: undefined,
-						weight: '400',
-					},
-				],
-			},
-			componentDataByCssVariable: new Map([
-				[
-					'--font-roboto',
-					{
-						css: '@font-face{font-family:Roboto-5aa148eb18e50555;src:url("/font-roboto-700-normal-latin-62f255dcb8a4f627.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:700;font-style:normal;}@font-face{font-family:Roboto-5aa148eb18e50555;src:url("/font-roboto-700-italic-latin-f291476ed7fdb908.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:700;font-style:italic;}@font-face{font-family:"Roboto-5aa148eb18e50555 fallback: Arial Bold";src:local("Arial Bold");font-display:swap;font-weight:700;font-style:normal;size-adjust:94.2014%;ascent-override:98.4841%;descent-override:25.9169%;line-gap-override:0%;}@font-face{font-family:"Roboto-5aa148eb18e50555 fallback: Arial Bold";src:local("Arial Bold");font-display:swap;font-weight:700;font-style:italic;size-adjust:94.2014%;ascent-override:98.4841%;descent-override:25.9169%;line-gap-override:0%;}:root{--font-roboto:Roboto-5aa148eb18e50555,"Roboto-5aa148eb18e50555 fallback: Arial Bold",sans-serif;}',
-						preloads: [
-							{
-								style: 'normal',
-								subset: 'latin',
-								type: 'woff2',
-								url: '/font-roboto-700-normal-latin-62f255dcb8a4f627.woff2',
-								weight: '700',
-							},
-							{
-								style: 'italic',
-								subset: 'latin',
-								type: 'woff2',
-								url: '/font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
-								weight: '700',
-							},
-						],
-					},
-				],
-				[
-					'--font-test',
-					{
-						css: `@font-face{font-family:Test-83734b6f7f25f14b;src:url("/${localUrl}") format("woff2");font-display:swap;font-weight:400;font-style:normal;}@font-face{font-family:"Test-83734b6f7f25f14b fallback: Arial";src:local("Arial");font-display:swap;font-weight:400;font-style:normal;size-adjust:99.7809%;ascent-override:92.9771%;descent-override:24.4677%;line-gap-override:0%;}:root{--font-test:Test-83734b6f7f25f14b,"Test-83734b6f7f25f14b fallback: Arial",sans-serif;}`,
-						preloads: [
-							{
-								style: 'normal',
-								subset: undefined,
-								type: 'woff2',
-								url: `/${localUrl}`,
-								weight: '400',
-							},
-						],
-					},
-				],
-			]),
-		});
+		assert.equal(result.fontFileById.size, 3);
+		assertRobotoFaces(result, [
+			{ weight: '700', style: 'normal' },
+			{ weight: '700', style: 'italic' },
+		]);
+		assertLocalFont(result);
 	});
 
 	it('merges families when possible', async () => {
@@ -260,126 +204,15 @@ describe('Fonts E2E', () => {
 					weights: [700],
 					styles: ['italic'],
 				},
-				{
-					name: 'Test',
-					cssVariable: '--font-test',
-					provider: fontProviders.local(),
-					options: {
-						variants: [{ src: ['./test.woff2'], weight: '400', style: 'normal' }],
-					} as any,
-				},
+				localFamily,
 			],
 		});
-		const localOriginalUrl = fileURLToPath(new URL('./data/fonts/test.woff2', import.meta.url));
-		const localUrl =
-			Array.from(result.fontFileById.keys()).find((e) => e.startsWith('font-test-400-normal-')) ??
-			'';
-		assert.deepStrictEqual(result, {
-			fontFileById: new Map([
-				[
-					'font-roboto-500-normal-latin-0f94d1c6c8982360.woff2',
-					{
-						init: undefined,
-						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-500-normal.woff2',
-					},
-				],
-				[
-					'font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
-					{
-						init: undefined,
-						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-700-italic.woff2',
-					},
-				],
-				[
-					localUrl,
-					{
-						init: undefined,
-						url: localOriginalUrl,
-					},
-				],
-			]),
-			fontDataByCssVariable: {
-				'--font-roboto': [
-					{
-						src: [
-							{
-								format: 'woff2',
-								tech: undefined,
-								url: '/font-roboto-500-normal-latin-0f94d1c6c8982360.woff2',
-							},
-						],
-						style: 'normal',
-						subset: 'latin',
-						weight: '500',
-					},
-					{
-						src: [
-							{
-								format: 'woff2',
-								tech: undefined,
-								url: '/font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
-							},
-						],
-						style: 'italic',
-						subset: 'latin',
-						weight: '700',
-					},
-				],
-				'--font-test': [
-					{
-						src: [
-							{
-								format: 'woff2',
-								tech: undefined,
-								url: `/${localUrl}`,
-							},
-						],
-						style: 'normal',
-						subset: undefined,
-						weight: '400',
-					},
-				],
-			},
-			componentDataByCssVariable: new Map([
-				[
-					'--font-roboto',
-					{
-						css: '@font-face{font-family:Roboto-b114abed7fe44c2b;src:url("/font-roboto-500-normal-latin-0f94d1c6c8982360.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:500;font-style:normal;}@font-face{font-family:Roboto-b114abed7fe44c2b;src:url("/font-roboto-700-italic-latin-f291476ed7fdb908.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:700;font-style:italic;}@font-face{font-family:"Roboto-b114abed7fe44c2b fallback: Arial";src:local("Arial");font-display:swap;font-weight:500;font-style:normal;size-adjust:100.6572%;ascent-override:92.1677%;descent-override:24.2547%;line-gap-override:0%;}@font-face{font-family:"Roboto-b114abed7fe44c2b fallback: Arial Bold";src:local("Arial Bold");font-display:swap;font-weight:700;font-style:italic;size-adjust:93.4893%;ascent-override:99.2343%;descent-override:26.1143%;line-gap-override:0%;}:root{--font-roboto:Roboto-b114abed7fe44c2b,"Roboto-b114abed7fe44c2b fallback: Arial","Roboto-b114abed7fe44c2b fallback: Arial Bold",sans-serif;}',
-						preloads: [
-							{
-								style: 'normal',
-								subset: 'latin',
-								type: 'woff2',
-								url: '/font-roboto-500-normal-latin-0f94d1c6c8982360.woff2',
-								weight: '500',
-							},
-							{
-								style: 'italic',
-								subset: 'latin',
-								type: 'woff2',
-								url: '/font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
-								weight: '700',
-							},
-						],
-					},
-				],
-				[
-					'--font-test',
-					{
-						css: `@font-face{font-family:Test-83734b6f7f25f14b;src:url("/${localUrl}") format("woff2");font-display:swap;font-weight:400;font-style:normal;}@font-face{font-family:"Test-83734b6f7f25f14b fallback: Arial";src:local("Arial");font-display:swap;font-weight:400;font-style:normal;size-adjust:99.7809%;ascent-override:92.9771%;descent-override:24.4677%;line-gap-override:0%;}:root{--font-test:Test-83734b6f7f25f14b,"Test-83734b6f7f25f14b fallback: Arial",sans-serif;}`,
-						preloads: [
-							{
-								style: 'normal',
-								subset: undefined,
-								type: 'woff2',
-								url: `/${localUrl}`,
-								weight: '400',
-							},
-						],
-					},
-				],
-			]),
-		});
+		assert.equal(result.fontFileById.size, 3);
+		assertRobotoFaces(result, [
+			{ weight: '500', style: 'normal' },
+			{ weight: '700', style: 'italic' },
+		]);
+		assertLocalFont(result);
 	});
 
 	it('resolves fontsource fonts with "Variable" suffix (#18143)', async () => {
@@ -402,7 +235,7 @@ describe('Fonts E2E', () => {
 		assert.match(fontId, /^font-inter/, 'Font ID should reference Inter');
 		assert.match(
 			fontFile.url,
-			/fontsource\/fonts\/inter:vf@latest\//,
+			/fontsource\/fonts\/inter:vf@/,
 			'URL should reference the variable font',
 		);
 
