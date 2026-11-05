@@ -15,6 +15,37 @@ import type { Options, RequestHandler } from './types.js';
 const PRERENDERED_ROUTE_TYPES: ReadonlyArray<RouteType> = ['page', 'endpoint'];
 
 /**
+ * Shared across every `createAppHandler` call so standalone mode (which builds
+ * the handler twice) does not register duplicate `unhandledRejection` listeners
+ * with separate AsyncLocalStorage stores. (#18624)
+ */
+const requestContext = new AsyncLocalStorage<{
+	url: string;
+	logger: { error: (message: string) => void };
+}>();
+const abortedRequestErrors = new WeakSet<Error>();
+let unhandledRejectionListenerInstalled = false;
+
+function installUnhandledRejectionListener() {
+	if (unhandledRejectionListenerInstalled) return;
+	unhandledRejectionListenerInstalled = true;
+	process.on('unhandledRejection', (reason) => {
+		const store = requestContext.getStore();
+		if (!store) {
+			const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
+			// No request-scoped logger is available outside a handler; keep prior behavior
+			// for truly global rejections by writing to stderr and marking failure.
+			console.error(`Unhandled rejection outside request context\n${error}`);
+			process.exitCode = 1;
+			return;
+		}
+		if (reason instanceof Error && abortedRequestErrors.has(reason)) return;
+		const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
+		store.logger.error(`Unhandled rejection while rendering ${store.url}\n${error}`);
+	});
+}
+
+/**
  * Read a prerendered error page from disk and return it as a Response.
  * Returns undefined if the file doesn't exist or can't be read.
  */
@@ -58,21 +89,7 @@ async function readErrorPageFromDisk(
  */
 export function createAppHandler(app: BaseApp, options: Options): RequestHandler {
 	const logger = app.adapterLogger;
-	const requestContext = new AsyncLocalStorage<string>();
-	const abortedRequestErrors = new WeakSet<Error>();
-
-	process.on('unhandledRejection', (reason) => {
-		const requestUrl = requestContext.getStore();
-		if (!requestUrl) {
-			const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
-			logger.error(`Unhandled rejection outside request context\n${error}`);
-			process.exitCode = 1;
-			return;
-		}
-		if (reason instanceof Error && abortedRequestErrors.has(reason)) return;
-		const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
-		logger.error(`Unhandled rejection while rendering ${requestUrl}\n${error}`);
-	});
+	installUnhandledRejectionListener();
 
 	const client = resolveClientDir(options);
 
@@ -130,7 +147,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 				routeData = app.match(request);
 			}
 			if (routeData) {
-				await requestContext.run(request.url, async () => {
+				await requestContext.run({ url: request.url, logger }, async () => {
 					const response = await app.render(request, {
 						addCookieHeader: true,
 						locals,
@@ -145,7 +162,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 				if (cleanup) cleanup();
 				return next();
 			} else {
-				await requestContext.run(request.url, async () => {
+				await requestContext.run({ url: request.url, logger }, async () => {
 					const response = await app.render(request, {
 						addCookieHeader: true,
 						prerenderedErrorPageFetch,
