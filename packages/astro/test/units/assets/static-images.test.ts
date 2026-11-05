@@ -87,6 +87,18 @@ describe('resolveStaticImage', () => {
 		);
 		assert.match(url, /\.webp\?dpl=123$/);
 	});
+
+	it('records SVG component sources as cloneable metadata', () => {
+		const svgMetadata = { src: '/_astro/icon.abc123.svg', width: 32, height: 32, format: 'svg' };
+		const svgComponent = Object.assign(() => {}, svgMetadata);
+		const { image } = resolveStaticImage(
+			{ src: svgComponent as unknown as ImageMetadata, width: 32, height: 32 },
+			['src', 'width', 'height'],
+			'/project/src/assets/icon.svg',
+			options,
+		);
+		assert.deepEqual(structuredClone(image).transform.src, svgMetadata);
+	});
 });
 
 describe('createImageAsset', () => {

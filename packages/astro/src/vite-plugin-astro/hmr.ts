@@ -24,6 +24,9 @@ export async function handleHotUpdate(
 	// If any `ctx.file` is part of a CSS dependency of any Astro file, invalidate its `astroFileToCompileMetadata`
 	// so the next transform of the Astro file or Astro script/style virtual module will re-generate it
 	for (const [astroFile, compileData] of astroFileToCompileMetadata) {
+		// PostCSS plugins such as `@unocss/postcss` can list the component itself as a dependency
+		// of its own style. Edits to `ctx.file` are handled below, which needs its metadata (#18406).
+		if (astroFile === ctx.file) continue;
 		const isUpdatedFileCssDep = compileData.css.some((css) => css.dependencies?.includes(ctx.file));
 		if (isUpdatedFileCssDep) {
 			astroFileToCompileMetadata.delete(astroFile);

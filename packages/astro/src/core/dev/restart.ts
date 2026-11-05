@@ -113,7 +113,11 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 		// onto the existing server so Vite's restartServer() uses the new plugins.
 		container.viteServer.config = await vite.resolveConfig(newViteConfig, 'serve');
 
+		const previousEnvironments = container.viteServer.environments;
 		await container.viteServer.restart();
+		if (container.viteServer.environments !== previousEnvironments) {
+			releasePreviousEnvironments(previousEnvironments);
+		}
 
 		container.settings = settings;
 		return settings;
@@ -133,6 +137,20 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 		return error;
 	} finally {
 		container.restartInFlight = false;
+	}
+}
+
+function releasePreviousEnvironments(environments: Record<string, vite.Environment>) {
+	for (const environment of Object.values(environments)) {
+		if (environment.mode !== 'dev') continue;
+		const { moduleGraph } = environment as vite.DevEnvironment;
+		moduleGraph.urlToModuleMap.clear();
+		moduleGraph.idToModuleMap.clear();
+		moduleGraph.etagToModuleMap.clear();
+		moduleGraph.fileToModulesMap.clear();
+		(
+			moduleGraph as unknown as { _unresolvedUrlToModuleMap?: Map<unknown, unknown> }
+		)._unresolvedUrlToModuleMap?.clear();
 	}
 }
 

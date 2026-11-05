@@ -2,7 +2,7 @@ import { exec } from '../exec.js';
 
 // Packages that integrations install (directly or transitively) whose build scripts must run.
 const BUILD_DEPENDENCIES: Record<string, string[]> = {
-	cloudflare: ['workerd'],
+	'@astrojs/cloudflare': ['workerd'],
 };
 
 /** Runs `pnpm` with the given arguments and resolves with its stdout. */
@@ -34,11 +34,13 @@ export interface PnpmBuildApproval {
  * @see https://github.com/pnpm/pnpm/issues/13872 (`--allow-build` merges since v11.23.0)
  */
 export async function getPnpmBuildApproval(
-	integrationIds: string[],
+	integrationPackageNames: string[],
 	getVersion: () => Promise<string | undefined>,
 	runPnpm: RunPnpm,
 ): Promise<PnpmBuildApproval> {
-	const packages = [...new Set(integrationIds.flatMap((id) => BUILD_DEPENDENCIES[id] ?? []))];
+	const packages = [
+		...new Set(integrationPackageNames.flatMap((name) => BUILD_DEPENDENCIES[name] ?? [])),
+	];
 	if (packages.length === 0) return { flags: [] };
 	const [major, minor] = ((await getVersion()) ?? '').split('.').map((n) => Number.parseInt(n, 10));
 	if (!(major >= 11)) return { flags: [] };

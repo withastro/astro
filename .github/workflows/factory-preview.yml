@@ -95,7 +95,7 @@ jobs:
         if: steps.changed.outputs.dirs != ''
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24.21.0
+          node-version: 24.22.2
           # Explicitly disable cache — a fresh install on every run avoids
           # the risk of a poisoned cache being used during the publish step
           # which has access to the OIDC id-token.

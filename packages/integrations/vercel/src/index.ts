@@ -688,7 +688,7 @@ function isAcceptedPattern(pattern: any): pattern is RemotePattern {
 	return true;
 }
 
-type Runtime = `nodejs${string}.x`;
+type Runtime = `nodejs${string}.x` | `bun${string}.x`;
 
 class VercelBuilder {
 	readonly NTF_CACHE = {};
@@ -795,7 +795,11 @@ class VercelBuilder {
 	}
 }
 
-function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
+export function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
+	if (process.versions.bun) {
+		const major = process.versions.bun.split('.')[0]; // '1.3.9' --> '1'
+		return `bun${major}.x`;
+	}
 	const version = process.version.slice(1); // 'v18.19.0' --> '18.19.0'
 	const major = version.split('.')[0]; // '18.19.0' --> '18'
 	const support = SUPPORTED_NODE_VERSIONS[major];

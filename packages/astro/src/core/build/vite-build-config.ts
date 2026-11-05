@@ -51,6 +51,7 @@ export interface CreateViteBuildConfigOptions {
 export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.InlineConfig {
 	const { settings, viteConfig, routes, plugins, builder, isRolldownInput } = opts;
 	const legacyAdapter = !settings.adapter || isLegacyAdapter(settings.adapter);
+	const userTreeshake = viteConfig.build?.rolldownOptions?.treeshake;
 
 	// Separate Astro-managed environment keys from user-defined ones so that the
 	// managed environments always appear last (and in a fixed order) in the object.
@@ -83,6 +84,21 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 				...viteConfig.build?.rolldownOptions,
 				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
 				preserveEntrySignatures: 'exports-only',
+				// Compiled components declare `const $$Foo = $$createComponent(...)` at the top level.
+				// Without marking the call pure, Rolldown keeps it and reports the component's default
+				// export as rendered even when unused (e.g. re-exported from a barrel file), so Vite's
+				// `cssScopeTo` check keeps the component's scoped styles. https://github.com/withastro/astro/issues/18491
+				treeshake:
+					userTreeshake === false
+						? false
+						: {
+								...(typeof userTreeshake === 'object' ? userTreeshake : {}),
+								manualPureFunctions: [
+									...((typeof userTreeshake === 'object' && userTreeshake.manualPureFunctions) ||
+										[]),
+									'$$createComponent',
+								],
+							},
 				checks: {
 					...viteConfig.build?.rolldownOptions?.checks,
 					// Disable Rolldown's built-in plugin timing warnings. These fire by default

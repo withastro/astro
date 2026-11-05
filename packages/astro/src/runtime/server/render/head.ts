@@ -30,21 +30,25 @@ function deduplicateElements(elements: any[]): any[] {
 	});
 }
 
+export function renderCspMetaTag(result: SSRResult): string {
+	return renderElement(
+		'meta',
+		{
+			props: {
+				'http-equiv': 'content-security-policy',
+				content: renderCspContent(result),
+			},
+			children: '',
+		},
+		false,
+	);
+}
+
 export function renderAllHeadContent(result: SSRResult) {
 	result._metadata.hasRenderedHead = true;
 	let content = '';
 	if (result.shouldInjectCspMetaTags && result.cspDestination === 'meta') {
-		content += renderElement(
-			'meta',
-			{
-				props: {
-					'http-equiv': 'content-security-policy',
-					content: renderCspContent(result),
-				},
-				children: '',
-			},
-			false,
-		);
+		content += result._metadata.cspMetaPlaceholder ?? renderCspMetaTag(result);
 	}
 	const styles = deduplicateElements(Array.from(result.styles)).map((style) =>
 		style.props.rel === 'stylesheet' ? renderElement('link', style) : renderElement('style', style),
