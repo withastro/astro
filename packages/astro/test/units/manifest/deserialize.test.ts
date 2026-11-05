@@ -10,6 +10,8 @@ import {
 } from '../../../dist/core/build/plugins/plugin-manifest.js';
 import type { SerializedSSRManifest } from '../../../dist/core/app/types.js';
 
+type InternalSerializedSSRManifest = SerializedSSRManifest & { absoluteServerDir?: string };
+
 /** A valid 32-byte AES key so `decodeKey` does not throw before the assertions run. */
 const encodedKey = Buffer.from(new Uint8Array(32)).toString('base64');
 
@@ -18,8 +20,8 @@ const encodedKey = Buffer.from(new Uint8Array(32)).toString('base64');
  * default to what `toPortableManifest` produces: relative to the server entry directory.
  */
 function createSerializedManifest(
-	overrides: Partial<SerializedSSRManifest> = {},
-): SerializedSSRManifest {
+	overrides: Partial<InternalSerializedSSRManifest> = {},
+): InternalSerializedSSRManifest {
 	return {
 		adapterName: 'test-adapter',
 		routes: [],
@@ -38,7 +40,7 @@ function createSerializedManifest(
 		buildServerDir: './',
 		absoluteServerDir: 'file:///build/project/dist/server/',
 		...overrides,
-	} as unknown as SerializedSSRManifest;
+	} as unknown as InternalSerializedSSRManifest;
 }
 
 describe('deserializeManifest - portable directories', () => {
@@ -189,7 +191,10 @@ describe('adjustManifestPathsForChunk', () => {
 			'chunks/_manifest.mjs',
 		);
 
-		assert.equal(adjusted.absoluteServerDir, 'file:///build/project/dist/server/chunks/');
+		assert.equal(
+			(adjusted as InternalSerializedSSRManifest).absoluteServerDir,
+			'file:///build/project/dist/server/chunks/',
+		);
 	});
 });
 
@@ -238,7 +243,10 @@ describe('toPortableManifest', () => {
 	it('records the absolute build server directory as a fallback', () => {
 		const result = toPortableManifest(createSerializedManifest(), createOptions());
 
-		assert.equal(result.absoluteServerDir, new URL('project/dist/server/', root).href);
+		assert.equal(
+			(result as InternalSerializedSSRManifest).absoluteServerDir,
+			new URL('project/dist/server/', root).href,
+		);
 	});
 
 	it('recovers the configured directories on a runtime with an opaque entry URL', () => {
