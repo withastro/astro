@@ -19,6 +19,7 @@ import {
 	renderTemplate,
 } from '../../../dist/runtime/server/index.js';
 import { renderComponentToString } from '../../../dist/runtime/server/render/component.js';
+import { defaultLogger } from '../test-utils.ts';
 
 // #region Helpers
 
@@ -51,6 +52,7 @@ async function createStubResult(overrides: Partial<SSRResult> = {}): Promise<SSR
 		compressHTML: false,
 		partial: false,
 		pathname: '/',
+		logger: defaultLogger,
 		cookies: undefined,
 		getServerIslandNameMap: async () =>
 			new Map([

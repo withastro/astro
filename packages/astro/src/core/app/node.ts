@@ -303,13 +303,8 @@ export async function writeResponse(source: Response, destination: ServerRespons
 			// Cancelling the reader may reject not just because of
 			// an error in the ReadableStream's cancel callback, but
 			// also because of an error anywhere in the stream.
-			reader.cancel().catch((err) => {
-				console.error(
-					'There was an uncaught error in the middle of the stream while rendering %s.',
-					destination.req.url,
-					err,
-				);
-			});
+			// Page render errors are logged by the renderer.
+			reader.cancel().catch(() => {});
 		});
 		let result = await reader.read();
 		while (!result.done) {
@@ -317,7 +312,6 @@ export async function writeResponse(source: Response, destination: ServerRespons
 			result = await reader.read();
 		}
 		destination.end();
-		// the error will be logged by the "on end" callback above
 	} catch (err) {
 		destination.write('Internal server error', () => {
 			err instanceof Error ? destination.destroy(err) : destination.destroy();

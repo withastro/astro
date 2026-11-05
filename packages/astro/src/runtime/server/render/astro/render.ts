@@ -58,6 +58,13 @@ async function renderStreamToString(
 	return str;
 }
 
+// A streamed render fails after its Response has been returned, so the error cannot become
+// an error page and is logged here, whoever reads the body.
+// See https://github.com/withastro/astro/issues/18625
+function logStreamingError(result: SSRResult, err: any) {
+	result.logger.error(null, err?.stack || err?.message || String(err));
+}
+
 /**
  * Renders a component tree to a `ReadableStream` using the streaming engine.
  */
@@ -115,6 +122,7 @@ async function renderStreamToStream(
 							file: route?.component,
 						});
 					}
+					logStreamingError(result, e);
 
 					// Report the error on the next microtask, so the chunks already written synchronously flush first
 					setTimeout(() => controller.error(e), 0);
@@ -267,6 +275,7 @@ async function renderStreamToAsyncIterable(
 
 	renderResult
 		.catch((err) => {
+			logStreamingError(result, err);
 			error = err;
 		})
 		.finally(() => {
