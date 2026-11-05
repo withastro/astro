@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 11.1.10
+
+### Patch Changes
+
+- [#18563](https://github.com/withastro/astro/pull/18563) [`8a92f7c`](https://github.com/withastro/astro/commit/8a92f7c7cc2df893a23ba0d75e40d2825741761d) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes on-demand routes receiving an empty request body on Node.js 26 when `staticHeaders` is enabled
+
 ## 11.1.9
 
 ### Patch Changes

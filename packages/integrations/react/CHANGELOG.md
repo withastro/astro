@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 7.1.3
+
+### Patch Changes
+
+- [#18535](https://github.com/withastro/astro/pull/18535) [`b21d724`](https://github.com/withastro/astro/commit/b21d72469403c7bac8b0000829dd3582d135a174) Thanks [@praveen-kumary](https://github.com/praveen-kumary)! - Preserves component-rendered resource links, including stylesheets, preloads, and modulepreloads, in React island output. Automatic React resource hints are also preserved so that authored links are not removed during server rendering.
+
 ## 7.1.2
 
 ### Patch Changes

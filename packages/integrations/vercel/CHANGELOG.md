@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 11.0.19
+
+### Patch Changes
+
+- [#18631](https://github.com/withastro/astro/pull/18631) [`3106e0a`](https://github.com/withastro/astro/commit/3106e0ad80573b507ee64ce38ff9310a5924c2bf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes Vercel builds that crash on unrecognized NFT dependency-resolution warnings
+
 ## 11.0.18
 
 ### Patch Changes
