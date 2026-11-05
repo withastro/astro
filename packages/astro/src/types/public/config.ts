@@ -1291,6 +1291,8 @@ export interface AstroUserConfig<
 						 * ```
 						 *
 						 * This applies to `script-src`. When you also scope `script` resources or hashes to `script-src-elem` (using `kind: "element"`), `strict-dynamic` is inherited by `script-src-elem` so that dynamically injected `<script>` elements continue to work.
+						 *
+						 * Because browsers ignore `'self'` under `'strict-dynamic'`, Astro adds the hash of every script it bundles to `script-src` and renders a `<script type="importmap">` in the `<head>` that lists each script's [`integrity`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap#integrity_metadata_map). This lets bundled scripts, the modules they import, and hydrated islands load. It requires browsers that support import map integrity metadata (Chrome 127, Firefox 138, Safari 18).
 						 */
 						strictDynamic?: boolean;
 					};

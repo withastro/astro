@@ -50,6 +50,14 @@ export function renderAllHeadContent(result: SSRResult) {
 	if (result.shouldInjectCspMetaTags && result.cspDestination === 'meta') {
 		content += result._metadata.cspMetaPlaceholder ?? renderCspMetaTag(result);
 	}
+	// Browsers ignore an import map that comes after the first module script or `import()`.
+	if (result.importMapContent) {
+		content += renderElement(
+			'script',
+			{ props: { type: 'importmap' }, children: result.importMapContent },
+			false,
+		);
+	}
 	const styles = deduplicateElements(Array.from(result.styles)).map((style) =>
 		style.props.rel === 'stylesheet' ? renderElement('link', style) : renderElement('style', style),
 	);

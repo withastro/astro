@@ -25,6 +25,7 @@ import {
 	getStyleResources,
 	shouldTrackCspHashes,
 	trackScriptHashes,
+	trackScriptIntegrity,
 	trackStyleHashes,
 } from '../../csp/common.js';
 import { partitionByKind } from '../../csp/runtime.js';
@@ -146,7 +147,13 @@ async function createManifest(
 
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
-	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
+	const manifest = await buildManifest(
+		buildOpts,
+		internals,
+		Array.from(staticFiles),
+		encodedKey,
+		clientStatics,
+	);
 	return manifest;
 }
 
@@ -200,6 +207,7 @@ async function buildManifest(
 	internals: BuildInternals,
 	staticFiles: string[],
 	encodedKey: string,
+	clientFiles: Set<string>,
 ): Promise<SerializedSSRManifest> {
 	const { settings } = opts;
 
@@ -348,7 +356,6 @@ async function buildManifest(
 				internals,
 				settings,
 				algorithm,
-				clientRoot: opts.outputDirectories.client,
 			})),
 		];
 		const styleHashes = [
@@ -358,9 +365,23 @@ async function buildManifest(
 				internals,
 				settings,
 				algorithm,
-				clientRoot: opts.outputDirectories.client,
 			})),
 		];
+
+		let importMapContent: string | undefined;
+		if (getStrictDynamic(cspConfig)) {
+			const scriptIntegrity = await trackScriptIntegrity({
+				settings,
+				algorithm,
+				clientRoot: opts.outputDirectories.client,
+				clientFiles,
+				assetQueryString,
+			});
+			if (scriptIntegrity) {
+				importMapContent = scriptIntegrity.importMapContent;
+				scriptHashes.push(...scriptIntegrity.hashes);
+			}
+		}
 
 		// When both CSP and clientPrerender are enabled, generate a static speculation rules
 		// script whose hash can be included in the CSP policy. Dynamic per-URL injection would
@@ -401,6 +422,7 @@ async function buildManifest(
 			scriptDirective,
 			styleDirective,
 			speculationRulesContent,
+			importMapContent,
 		};
 	}
 

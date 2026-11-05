@@ -231,6 +231,46 @@ describe('CSP', () => {
 		assert.deepEqual(parsed.get('style-src-attr'), ["'unsafe-inline'"]);
 	});
 
+	it('should emit an import map with integrity for every script when strictDynamic is enabled', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			outDir: './dist/csp-strict-dynamic',
+			security: { csp: { scriptDirective: { strictDynamic: true } } },
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/react/index.html');
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		const importMap = $('script[type="importmap"]');
+		assert.equal(importMap.length, 1);
+		assert.ok(importMap.prev().is(meta), 'import map is rendered right after the CSP meta tag');
+		const scriptSrc = meta.attr('content')!.split(';')[0];
+		assert.ok(scriptSrc.includes(`'${await generateCspDigest(importMap.text(), 'SHA-256')}'`));
+
+		const { integrity } = JSON.parse(importMap.text());
+		const island = $('astro-island');
+		const scripts = (await fixture.readdir('/_astro')).filter((file) => file.endsWith('.js'));
+		assert.ok(scripts.length > 0);
+		for (const file of scripts) {
+			const digest = await generateCspDigest(await fixture.readFile(`/_astro/${file}`), 'SHA-256');
+			assert.equal(integrity[`/_astro/${file}`], digest);
+			assert.ok(scriptSrc.includes(`'${digest}'`), `${file} hash is in script-src`);
+		}
+		assert.ok(integrity[island.attr('component-url')!]);
+		assert.ok(integrity[island.attr('renderer-url')!]);
+	});
+
+	it('should not emit an import map when strictDynamic is disabled', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			outDir: './dist/csp-csp/',
+		});
+		await fixture.build();
+		const $ = cheerio.load(await fixture.readFile('/react/index.html'));
+		assert.equal($('script[type="importmap"]').length, 0);
+	});
+
 	it('should return CSP header inside a hook', async () => {
 		let routeToHeaders: Map<string, { headers: Headers }> | undefined;
 		fixture = await loadFixture({

@@ -6,6 +6,7 @@ import { ISLAND_STYLES } from '../../runtime/server/astro-island-styles.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
 import type { BuildInternals } from '../build/internal.js';
+import { createAssetLink } from '../render/ssr-element.js';
 import { generateCspDigest } from '../encryption.js';
 import type { CspDirective, CspHash, CspHashEntry, CspResourceEntry } from './config.js';
 
@@ -96,14 +97,12 @@ interface TrackCspHashesOptions {
 	internals: BuildInternals;
 	settings: AstroSettings;
 	algorithm: CspAlgorithm;
-	clientRoot: URL;
 }
 
 export async function trackStyleHashes({
 	internals,
 	settings,
 	algorithm,
-	clientRoot,
 }: TrackCspHashesOptions): Promise<CspHash[]> {
 	const clientStyleHashes: CspHash[] = [];
 	for (const [_, page] of internals.pagesByViteID.entries()) {
@@ -111,13 +110,6 @@ export async function trackStyleHashes({
 			if (style.sheet.type === 'inline') {
 				clientStyleHashes.push(await generateCspDigest(style.sheet.content, algorithm));
 			}
-		}
-	}
-
-	for (const clientAsset in internals.clientChunksAndAssets) {
-		const contents = readFileSync(fileURLToPath(new URL(clientAsset, clientRoot)), 'utf-8');
-		if (clientAsset.endsWith('.css') || clientAsset.endsWith('.css')) {
-			clientStyleHashes.push(await generateCspDigest(contents, algorithm));
 		}
 	}
 
@@ -132,7 +124,6 @@ export async function trackScriptHashes({
 	internals,
 	settings,
 	algorithm,
-	clientRoot,
 }: TrackCspHashesOptions): Promise<CspHash[]> {
 	const clientScriptHashes: CspHash[] = [];
 
@@ -142,13 +133,6 @@ export async function trackScriptHashes({
 
 	for (const directiveContent of Array.from(settings.clientDirectives.values())) {
 		clientScriptHashes.push(await generateCspDigest(directiveContent, algorithm));
-	}
-
-	for (const clientAsset in internals.clientChunksAndAssets) {
-		const contents = readFileSync(fileURLToPath(new URL(clientAsset, clientRoot)), 'utf-8');
-		if (clientAsset.endsWith('.js') || clientAsset.endsWith('.mjs')) {
-			clientScriptHashes.push(await generateCspDigest(contents, algorithm));
-		}
 	}
 
 	for (const script of settings.scripts) {
@@ -164,4 +148,66 @@ export async function trackScriptHashes({
 	}
 
 	return clientScriptHashes;
+}
+
+interface TrackScriptIntegrityOptions {
+	settings: AstroSettings;
+	algorithm: CspAlgorithm;
+	clientRoot: URL;
+	/** Paths of the files in the client output directory, relative to `clientRoot`. */
+	clientFiles: Iterable<string>;
+	/** Query string the adapter appends to rendered asset URLs (`assetQueryParams`). */
+	assetQueryString?: string;
+}
+
+interface ScriptIntegrity {
+	/** JSON content of a `<script type="importmap">` whose `integrity` map covers every client script. */
+	importMapContent: string;
+	/** Hashes of every client script and of the import map itself, for `script-src`. */
+	hashes: CspHash[];
+}
+
+/**
+ * Hashes every JavaScript file Astro emitted under `build.assets` in the client output.
+ *
+ * Under `'strict-dynamic'`, browsers ignore `'self'`, so module scripts (`<script src>`, the chunks
+ * they import, and the `import()` calls of islands) load only when their hash is in `script-src` and
+ * the browser has integrity metadata for the request. An import map `integrity` entry provides that
+ * metadata for every module request, including the root `<script src>`.
+ *
+ * Returns `undefined` when the client output has no scripts.
+ */
+export async function trackScriptIntegrity({
+	settings,
+	algorithm,
+	clientRoot,
+	clientFiles,
+	assetQueryString,
+}: TrackScriptIntegrityOptions): Promise<ScriptIntegrity | undefined> {
+	const assetsDir = `${settings.config.build.assets}/`;
+	const scripts = Array.from(clientFiles)
+		.filter((file) => file.startsWith(assetsDir) && (file.endsWith('.js') || file.endsWith('.mjs')))
+		.sort();
+	if (scripts.length === 0) {
+		return undefined;
+	}
+
+	const integrity: Record<string, string> = {};
+	const hashes: CspHash[] = [];
+	for (const file of scripts) {
+		const contents = readFileSync(fileURLToPath(new URL(file, clientRoot)), 'utf-8');
+		const hash = await generateCspDigest(contents, algorithm);
+		const url = createAssetLink(file, settings.config.base, settings.config.build.assetsPrefix);
+		integrity[url] = hash;
+		// Import map keys match exact URLs. Rendered tags carry the adapter's query string, while
+		// chunks imported by other chunks are requested without it.
+		if (assetQueryString) {
+			integrity[`${url}?${assetQueryString}`] = hash;
+		}
+		hashes.push(hash);
+	}
+
+	const importMapContent = JSON.stringify({ integrity });
+	hashes.push(await generateCspDigest(importMapContent, algorithm));
+	return { importMapContent, hashes };
 }
