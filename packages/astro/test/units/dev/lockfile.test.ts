@@ -301,6 +301,21 @@ describe('isLockFileProcessAlive', () => {
 		);
 	});
 
+	it('treats a non-Astro Linux process as stale when ps is unusable', {
+		skip: process.platform !== 'linux',
+	}, async () => {
+		const data = { ...validData, pid: childPid };
+		const originalPath = process.env.PATH;
+		// Without a working `ps` (e.g. BusyBox on Alpine), tinyps throws. (#18634)
+		process.env.PATH = mkdtempSync(join(tmpdir(), 'astro-no-ps-'));
+		try {
+			assert.equal(await isLockFileProcessAlive(data), false);
+		} finally {
+			rmSync(process.env.PATH, { recursive: true, force: true });
+			process.env.PATH = originalPath;
+		}
+	});
+
 	it('treats a Linux thread ID as stale without killing its owning process', {
 		skip: process.platform !== 'linux',
 	}, async () => {

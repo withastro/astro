@@ -116,12 +116,32 @@ interface ProcessInfo {
 type ProcessLookup = (pid: number) => Promise<ProcessInfo | undefined>;
 
 /**
+ * Look up a process by PID. On Linux, reads `/proc/<pid>` directly, falling back to tinyps
+ * when `/proc` cannot be read.
+ * Returns `undefined` for a thread ID, matching `ps -A`, which lists only processes.
+ */
+async function findProcess(pid: number): Promise<ProcessInfo | undefined> {
+	// BusyBox `ps` (Alpine) rejects the options tinyps passes, so the lookup always throws there. (#18634)
+	if (process.platform === 'linux') {
+		try {
+			const status = readFileSync(`/proc/${pid}/status`, 'utf-8');
+			if (/^Tgid:\s*(\d+)$/m.exec(status)?.[1] !== String(pid)) {
+				return undefined;
+			}
+			const cmdline = readFileSync(`/proc/${pid}/cmdline`, 'utf-8');
+			return { pid, command: cmdline.split('\0').join(' ').trim() };
+		} catch {}
+	}
+	return getProcessInfo(pid);
+}
+
+/**
  * Check whether the live process recorded in a lock file is still Astro.
  * If the command cannot be inspected, keep the existing PID-only behavior.
  */
 export async function isLockFileProcessAlive(
 	data: LockFileData,
-	find: ProcessLookup = getProcessInfo,
+	find: ProcessLookup = findProcess,
 ): Promise<boolean> {
 	// The current process cannot be the server recorded in the lock file — it hasn't
 	// started one yet. In Docker containers the PID namespace resets on restart, so the
