@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 14.4.5
+
+### Patch Changes
+
+- [#18562](https://github.com/withastro/astro/pull/18562) [`9055de2`](https://github.com/withastro/astro/commit/9055de2295c8a3b7503e39252cbb97e4bcbed095) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the passthrough `/_image` endpoint returning a 404 instead of `304 Not Modified` when the browser revalidates a cached local image with `If-None-Match`. Revalidation supports weak ETags, tag lists, and wildcard conditions for local and allowed remote images while preserving image-type validation.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.4.4
 
 ### Patch Changes

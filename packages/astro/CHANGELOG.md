@@ -1,5 +1,33 @@
 # astro
 
+## 7.4.6
+
+### Patch Changes
+
+- [#18565](https://github.com/withastro/astro/pull/18565) [`cd09986`](https://github.com/withastro/astro/commit/cd0998612eb9f48946991479d68590a1407ee5e0) Thanks [@praveen-kumary](https://github.com/praveen-kumary)! - Avoids attributing client-only components or scripts to unrelated pages importing `astro:i18n` by bounding top-level page graph traversal at virtual page entries
+
+- [#18608](https://github.com/withastro/astro/pull/18608) [`babd96d`](https://github.com/withastro/astro/commit/babd96d1f16b8ea5a699693fb725a759d9fa03de) Thanks [@umeraamir69](https://github.com/umeraamir69)! - Fixes an extra page reload on the first page load after starting `astro dev` without an existing `.astro` directory
+
+- [#18589](https://github.com/withastro/astro/pull/18589) [`402c0fa`](https://github.com/withastro/astro/commit/402c0fae01d251c97298c255804008ff566802f9) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `astro check` exiting with code 0 when `@astrojs/check` or `typescript` is not installed. The command now exits with code 1 so CI fails instead of silently skipping type checking.
+
+- [#18503](https://github.com/withastro/astro/pull/18503) [`54fcdd5`](https://github.com/withastro/astro/commit/54fcdd5dedc982a77f1590e26247d57dd1802da9) Thanks [@SwastikTripathi](https://github.com/SwastikTripathi)! - Preserves the last-modified date of cached font files and unchanged public files when copying them into the build output. Public-file timestamp preservation respects the resolved public-directory configuration, follows source symlinks, and avoids backdating files overwritten by build plugins.
+
+- [#18605](https://github.com/withastro/astro/pull/18605) [`76cd239`](https://github.com/withastro/astro/commit/76cd2398642bd77b61b9880dcfc7b78d513cb048) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `glob()` loader adding files from a folder excluded with a negation pattern such as `!_docs` when they change during `astro dev`
+
+- [#18432](https://github.com/withastro/astro/pull/18432) [`ed60d82`](https://github.com/withastro/astro/commit/ed60d82935d5768c3fcf67ce508e1f4edbfe25d6) Thanks [@alexmv](https://github.com/alexmv)! - Improves the `MissingSharp` error to include the reason Sharp failed to load, such as its prebuilt binaries not supporting the current CPU
+
+- [#18474](https://github.com/withastro/astro/pull/18474) [`59543c3`](https://github.com/withastro/astro/commit/59543c3ad52e7141bcd6365cd70e8b51f18ccbd4) Thanks [@miottid](https://github.com/miottid)! - Fixes i18n fallback for on-demand rendered pages. A locale-prefixed request for a page that only exists in the fallback locale (for example `/de/about` with `fallback: { de: 'en' }`) was answered with status `302` and no `Location` header. Such requests are now rewritten or redirected to the fallback locale according to `i18n.routing.fallbackType`, including encoded paths and sites with a configured `base`. Query strings are preserved, and explicit page statuses and redirects are left unchanged.
+
+- [#18541](https://github.com/withastro/astro/pull/18541) [`cfa2d2b`](https://github.com/withastro/astro/commit/cfa2d2b9e36ad610f6e7c27643e9157be3584a79) Thanks [@ump45nose](https://github.com/ump45nose)! - Fixes `matchAllRoutes` to consider `fallbackRoutes`, matching `matchRoute` and the production router. Dev-server i18n fallback requests now resolve to the source route's metadata instead of the 404 route, and SSR-only fallback candidates can fall through the prerender handler.
+
+- [#18602](https://github.com/withastro/astro/pull/18602) [`d856064`](https://github.com/withastro/astro/commit/d8560645033aac84fe61d4f4b3462f55a9d2eb89) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `astro check` losing the end of its output, including the `Result` summary, when stdout is piped to a slow reader. When the reader closes the pipe early, for example `astro check | head`, `astro check` now exits with code 1 instead of crashing with an `EPIPE` stack trace.
+
+- [#18574](https://github.com/withastro/astro/pull/18574) [`da0f149`](https://github.com/withastro/astro/commit/da0f149de58001fa5564d083acbae34e7b4a1b1f) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes an unnecessary full page reload in `astro dev` when a content loader calls `store.clear()` or `store.delete()` and the content store has no asset imports
+
+- [#18570](https://github.com/withastro/astro/pull/18570) [`e71c038`](https://github.com/withastro/astro/commit/e71c038f31194280b44515bf53cf449a5313baf9) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes pages using `<ClientRouter />` briefly showing the top of the page on reload before jumping back to the previous scroll position. Full reloads now use the browser's native scroll restoration.
+
+- [#18531](https://github.com/withastro/astro/pull/18531) [`f75553b`](https://github.com/withastro/astro/commit/f75553b8bbe6cb9b72d8fda0059198ab3330f089) Thanks [@praveen-kumary](https://github.com/praveen-kumary)! - Fixes an unhandled `TypeError: Cannot convert undefined or null to object` when calling `route.generate()` without arguments on static routes
+
 ## 7.4.5
 
 ### Patch Changes
