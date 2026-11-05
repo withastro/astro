@@ -680,6 +680,12 @@ describe('isParentDirectory', () => {
 			['src/components/Button', 'src/components'], // Parent longer
 			['/home/user', '/home'], // Reversed relationship
 
+			// Case-variant directories are distinct on case-sensitive filesystems
+			['/app/dist/client', '/app/DIST/client/secret.png'],
+			['/app/dist/client/', '/app/dist/CLIENT/secret.png'],
+			['/srv/app/dist', '/srv/App/dist/file.png'],
+			['src/components', 'SRC/components/Button.astro'],
+
 			// Different drives on Windows
 			['C:\\Users', 'D:\\Users'],
 			['C:\\', 'D:\\'],
