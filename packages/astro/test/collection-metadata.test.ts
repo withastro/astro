@@ -67,6 +67,42 @@ describe('Collection metadata', () => {
 	});
 });
 
+for (const collectionStorage of ['single-file', 'chunked'] as const) {
+	describe(`Collections in astro:build:done, with a ${collectionStorage} data store`, () => {
+		before(async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/collection-metadata/',
+				adapter: testAdapter(),
+				outDir: `./dist/collection-metadata-build-done-${collectionStorage}/`,
+				experimental: { collectionMetadata: true, collectionStorage },
+			});
+			await fixture.build({ force: true });
+		});
+
+		it('passes the metadata and entries of build-time collections', () => {
+			const { metadata, docs, docsWithContent, products } = (globalThis as any)
+				.buildDoneCollections;
+
+			assert.deepEqual(
+				metadata.map(({ name }: { name: string }) => name),
+				['docs', 'guides', 'notes', 'authors'],
+			);
+			assert.deepEqual(
+				docs.map(({ id }: { id: string }) => id),
+				['intro'],
+			);
+			// Each call returns new objects, so the change the fixture's integration made isn't seen
+			assert.notEqual(docs[0].data.title, 'Changed by an integration');
+			assert.equal('body' in docs[0], false);
+			assert.equal('rendered' in docs[0], false);
+			assert.equal(typeof docsWithContent[0].body, 'string');
+			assert.ok(docsWithContent[0].rendered.html);
+			// Live collections have no entries at build time
+			assert.deepEqual(products, []);
+		});
+	});
+}
+
 describe('Collection metadata in Markdown plugins', () => {
 	let app: App;
 
@@ -130,6 +166,10 @@ describe('Collection metadata without the flag', () => {
 		});
 		await fixture.build({});
 		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('passes no collections to astro:build:done', () => {
+		assert.equal((globalThis as any).buildDoneCollections, undefined);
 	});
 
 	it('throws from getCollectionsMetadata()', async () => {

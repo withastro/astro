@@ -23,6 +23,8 @@ import type { AstroLogger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { getPrerenderDefault } from '../../prerender/utils.js';
+import { createBuildCollections } from '../../content/build-collections.js';
+import type { BuildDoneCollections } from '../../types/public/integrations.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
@@ -279,6 +281,10 @@ export class AstroBuilder {
 			this.settings.fontsHttpServer = null;
 		}
 
+		const collections: BuildDoneCollections = this.settings.config.experimental.collectionMetadata
+			? createBuildCollections({ fs, settings: this.settings })
+			: {};
+
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			settings: this.settings,
@@ -287,6 +293,7 @@ export class AstroBuilder {
 			routes: Object.values(allPages)
 				.flat()
 				.map((pageData) => pageData.route),
+			collections,
 			logger: this.logger,
 		});
 
