@@ -103,14 +103,27 @@ export default function astro(options: AstroPluginOptions = {}, cli?: AstroPlugi
 					} satisfies AstroCompileConfig);
 				},
 			},
-			configEnvironment(name, environmentOptions) {
-				const consumer = environmentOptions.consumer ?? (name === 'client' ? 'client' : 'server');
-				if (consumer !== 'server') return;
-				// Vite processes the runtime rather than externalizing it, so that compiled components,
-				// `virtual:astro:render-setup` and `renderToString()` share one copy of it (resolved by
-				// the hook below), and a build bundles it. This package is processed too, so that its
-				// re-exports of the runtime resolve to that copy.
-				return { resolve: { noExternal: [PLUGIN_NAME, RUNTIME_NAME] } };
+			configEnvironment: {
+				// After other plugins, to drop the externals they add.
+				order: 'post',
+				handler(name, environmentOptions) {
+					const consumer = environmentOptions.consumer ?? (name === 'client' ? 'client' : 'server');
+					if (consumer !== 'server') return;
+					// Vite processes the runtime rather than externalizing it, so that compiled components,
+					// `virtual:astro:render-setup` and `renderToString()` share one copy of it (resolved by
+					// the hook below), and a build bundles it. This package is processed too, so that its
+					// re-exports of the runtime resolve to that copy.
+					// An explicit `external` wins over `noExternal`: in dev, vitefu-based plugins such as
+					// `@sveltejs/vite-plugin-svelte` externalize the dependencies of packages that depend on
+					// their framework, among them the runtime as a dependency of a renderer package.
+					const external = environmentOptions.resolve?.external;
+					if (Array.isArray(external)) {
+						environmentOptions.resolve!.external = external.filter(
+							(id) => id !== PLUGIN_NAME && id !== RUNTIME_NAME,
+						);
+					}
+					return { resolve: { noExternal: [PLUGIN_NAME, RUNTIME_NAME] } };
+				},
 			},
 			resolveId: {
 				filter: { id: /^@astrojs\/runtime(?:\/|$)/ },
