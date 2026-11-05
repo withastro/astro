@@ -62,7 +62,12 @@ describe('relocated build output', () => {
 	});
 
 	after(async () => {
-		server.kill();
+		if (server.exitCode === null && server.signalCode === null) {
+			await new Promise<void>((resolve) => {
+				server.once('exit', () => resolve());
+				server.kill();
+			});
+		}
 		fs.rmSync(relocatedDir, { recursive: true, force: true });
 		await fixture.clean();
 	});

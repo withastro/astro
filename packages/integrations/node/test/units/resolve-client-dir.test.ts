@@ -56,7 +56,7 @@ describe('resolveClientDir', () => {
 		const resolved = resolveClientDir({
 			...baseOptions,
 			client: '../client',
-			server: `${sharedDir}/`,
+			server: `${serverFolder}/`,
 		});
 
 		assert.equal(path.resolve(resolved), path.resolve(sharedDir, '../client'));
