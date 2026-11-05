@@ -63,7 +63,7 @@ export async function copyDependenciesToFunction(
 		outDir: URL;
 		includeFiles: URL[];
 		excludeFiles: URL[];
-		logger: AstroIntegrationLogger;
+		logger: Pick<AstroIntegrationLogger, 'info' | 'debug' | 'warn'>;
 		root: URL;
 	},
 	// we want to pass the caching by reference, and not by value
