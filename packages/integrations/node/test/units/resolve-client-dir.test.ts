@@ -51,4 +51,14 @@ describe('resolveClientDir', () => {
 
 		assert.equal(path.resolve(resolved), path.resolve(sharedDir, '../assets/client'));
 	});
+
+	it('resolves the client directory when the server path ends with a slash', () => {
+		const resolved = resolveClientDir({
+			...baseOptions,
+			client: '../client',
+			server: `${sharedDir}/`,
+		});
+
+		assert.equal(path.resolve(resolved), path.resolve(sharedDir, '../client'));
+	});
 });

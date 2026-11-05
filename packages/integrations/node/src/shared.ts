@@ -21,9 +21,10 @@ export function resolveClientDir(options: Options) {
 	// such as "../client". options.server is the server directory basename, used below.
 	const rel = options.client;
 	const serverFolder = options.server;
+	const normalizedServerFolder = serverFolder.replace(/\/+$/, '');
 	let serverEntryFolderURL = path.dirname(import.meta.url);
 	let previous = '';
-	while (!serverEntryFolderURL.endsWith(serverFolder)) {
+	while (!serverEntryFolderURL.endsWith(normalizedServerFolder)) {
 		// Guard against infinite loop
 		if (serverEntryFolderURL === previous) {
 			throw new Error(
