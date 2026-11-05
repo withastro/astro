@@ -37,7 +37,7 @@ describe('relocated build output', () => {
 			process.execPath,
 			[fileURLToPath(new URL('./server/entry.mjs', relocatedDistDir))],
 			{
-				cwd: fileURLToPath(fixtureDir),
+				cwd: fileURLToPath(relocatedDir),
 				env: {
 					...process.env,
 					ASTRO_NODE_AUTOSTART: 'enabled',

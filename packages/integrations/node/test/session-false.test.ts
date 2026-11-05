@@ -61,6 +61,7 @@ describe('@astrojs/node session: false', () => {
 	it('still wires filesystem storage by default', async () => {
 		const { session, logs } = await runConfigSetup(undefined);
 		assert.ok(session?.driver, 'expected the default filesystem driver to be wired');
+		assert.equal(session.driver.config.base, '.astro/sessions');
 		assert.equal(
 			logs.some((message) => message.includes('Enabling sessions with filesystem storage')),
 			true,

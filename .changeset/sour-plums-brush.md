@@ -4,18 +4,15 @@
 '@astrojs/mdx': minor
 ---
 
-Adds support for portable build output. The `dist/` directory can be moved to a different
-machine or directory and run with `node dist/server/entry.mjs` without rebuilding.
+Adds support for moving server-rendered `dist/` output to another machine or directory. Run it
+with `node dist/server/entry.mjs` without rebuilding.
 
-Astro stores directory paths in the SSR manifest relative to the server entry and resolves
-them at runtime, so the built output no longer embeds the build machine's absolute directory
-and image paths. Two absolute values remain: the manifest records the build-time server
-directory as a fallback for runtimes without a filesystem, and public `file` exports such as
-`AstroInstance.file` and `MarkdownInstance.file` stay absolute.
+Astro resolves internal manifest paths relative to the server entry at runtime. Public
+`AstroInstance.file` and `MarkdownInstance.file` values remain absolute source paths.
 
-`@astrojs/node` stores the session base relative to the project root and resolves it at
-runtime, and locates the client directory relative to the server entry. `@astrojs/mdx`
-normalizes compiled output paths to match the manifest keys.
+The Node adapter keeps its default filesystem session storage under the relocated project root
+and locates static files relative to the server entry. MDX pages continue to work with portable
+output.
 
 #### Upgrading
 

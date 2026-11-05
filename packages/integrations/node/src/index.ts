@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { writeJson } from '@astrojs/internal-helpers/fs';
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteToHeaders } from 'astro';
 import { AstroError } from 'astro/errors';
-import { PORTABLE_SESSION_BASE_FLAG, STATIC_HEADERS_FILE } from './shared.js';
+import { STATIC_HEADERS_FILE } from './shared.js';
 import type { NodeAppHeadersJson, Options, UserOptions } from './types.js';
 import { sessionDrivers } from 'astro/config';
 import { createConfigPlugin } from './vite-plugin-config.js';
@@ -52,12 +52,10 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						// the project root, so keep the absolute path.
 						driver = sessionDrivers.fsLite({ base: absBase });
 					} else {
-						// Stored relative to the project root and resolved at runtime by `server.ts`.
-						const rootBase = path.relative(fileURLToPath(config.root), absBase);
+						const relativeBase = path.relative(fileURLToPath(config.root), absBase);
 						driver = sessionDrivers.fsLite({
-							base: rootBase.split(path.sep).join('/'),
+							base: relativeBase.split(path.sep).join('/'),
 						});
-						driver.config = { ...driver.config, [PORTABLE_SESSION_BASE_FLAG]: true };
 					}
 					session = {
 						driver,
