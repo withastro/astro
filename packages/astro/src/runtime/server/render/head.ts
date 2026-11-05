@@ -44,20 +44,28 @@ export function renderCspMetaTag(result: SSRResult): string {
 	);
 }
 
+/**
+ * Renders the CSP integrity import map the first time it is called for a page,
+ * and returns an empty string afterwards or when there is no import map.
+ */
+export function renderImportMap(result: SSRResult): string {
+	if (!result.importMapContent) return '';
+	const importMap = renderElement(
+		'script',
+		{ props: { type: 'importmap' }, children: result.importMapContent },
+		false,
+	);
+	result.importMapContent = undefined;
+	return importMap;
+}
+
 export function renderAllHeadContent(result: SSRResult) {
 	result._metadata.hasRenderedHead = true;
 	let content = '';
 	if (result.shouldInjectCspMetaTags && result.cspDestination === 'meta') {
 		content += result._metadata.cspMetaPlaceholder ?? renderCspMetaTag(result);
 	}
-	// Browsers ignore an import map that comes after the first module script or `import()`.
-	if (result.importMapContent) {
-		content += renderElement(
-			'script',
-			{ props: { type: 'importmap' }, children: result.importMapContent },
-			false,
-		);
-	}
+	content += renderImportMap(result);
 	const styles = deduplicateElements(Array.from(result.styles)).map((style) =>
 		style.props.rel === 'stylesheet' ? renderElement('link', style) : renderElement('style', style),
 	);

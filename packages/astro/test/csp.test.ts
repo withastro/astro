@@ -259,6 +259,12 @@ describe('CSP', () => {
 		}
 		assert.ok(integrity[island.attr('component-url')!]);
 		assert.ok(integrity[island.attr('renderer-url')!]);
+
+		const $head = cheerio.load(await fixture.readFile('/head-script/index.html'));
+		const headScripts = $head('head script');
+		assert.equal(headScripts.first().attr('type'), 'importmap');
+		assert.equal(headScripts.filter('[type="importmap"]').length, 1);
+		assert.equal(headScripts.filter('[type="module"]').length, 1);
 	});
 
 	it('should not emit an import map when strictDynamic is disabled', async () => {
