@@ -1,3 +1,4 @@
+import type { DataEntry } from '../../content/data-store.js';
 import type { CollectionMetadata } from '../../content/metadata.js';
 import type { AddressInfo } from 'node:net';
 import type { ViteDevServer, InlineConfig } from 'vite';
@@ -426,6 +427,19 @@ export type HookParameters<
 	Fn = AstroIntegration['hooks'][Hook],
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
+/** The content collections of a build, passed to `astro:build:done`. */
+export interface BuildDoneCollections {
+	/** The metadata of the build-time collections. Requires `experimental.collectionMetadata`. */
+	metadata?: CollectionMetadata[];
+	/**
+	 * Returns the entries of a build-time collection, as the build's sync wrote them: plain data,
+	 * with references and images unresolved. With `content: false`, entries are returned without
+	 * `body` and `rendered`. Each call reads the collection from the data store, and returns new
+	 * objects. Requires `experimental.collectionMetadata`.
+	 */
+	entries?(name: string, options?: { content?: boolean }): Promise<DataEntry[]>;
+}
+
 export interface BaseIntegrationHooks {
 	'astro:config:setup': (options: {
 		config: AstroConfig;
@@ -490,6 +504,8 @@ export interface BaseIntegrationHooks {
 		/** The resolved Vite client output directory for this build. */
 		dir: URL;
 		assets: Map<string, URL[]>;
+		/** The content collections of the build. Each field requires an experimental flag. */
+		collections: BuildDoneCollections;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 	'astro:route:setup': (options: {
