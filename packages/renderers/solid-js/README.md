@@ -1,6 +1,8 @@
 # @astrojs/solid-js-renderer
 
-The Solid renderer of Astro components: it server-renders Solid components used in `.astro` files and hydrates them as islands. It is plain data for `astro()` from [`@astrojs/vite-plugin-astro`](../../vite-plugin-astro/), in a Vite project without the `astro` CLI. Astro projects use [`@astrojs/solid-js`](../../integrations/solid/), which registers this renderer.
+The Solid renderer of Astro components. Use it with [`@astrojs/vite-plugin-astro`](https://github.com/withastro/astro/blob/main/packages/vite-plugin-astro) to server-render Solid components used in `.astro` files and hydrate them as islands.
+
+You don't need this package when using Astro without the Vite plugin. Astro projects use [`@astrojs/solid-js`](https://github.com/withastro/astro/blob/main/packages/integrations/solid), which registers this renderer itself.
 
 ```js
 // vite.config.js
