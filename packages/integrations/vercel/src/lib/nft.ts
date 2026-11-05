@@ -30,6 +30,7 @@ export function handleDependencyWarning(
 ): void {
 	const match = /Cannot find module '(.+?)' loaded from (.+)/.exec(error.message);
 	if (!match) {
+		// NFT returns resolved files alongside warnings, so a failed resolution does not invalidate the rest of the trace.
 		logger.warn(error.message);
 		return;
 	}
