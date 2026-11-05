@@ -14,6 +14,13 @@ import type { Options, RequestHandler } from './types.js';
 
 const PRERENDERED_ROUTE_TYPES: ReadonlyArray<RouteType> = ['page', 'endpoint'];
 
+// Shared by every handler in the process so that the single `unhandledRejection`
+// listener can see the request context of whichever handler served the request.
+// The standalone entrypoint creates more than one handler (#18624).
+const requestContext = new AsyncLocalStorage<string>();
+const abortedRequestErrors = new WeakSet<Error>();
+let unhandledRejectionListenerRegistered = false;
+
 /**
  * Read a prerendered error page from disk and return it as a Response.
  * Returns undefined if the file doesn't exist or can't be read.
@@ -58,21 +65,22 @@ async function readErrorPageFromDisk(
  */
 export function createAppHandler(app: BaseApp, options: Options): RequestHandler {
 	const logger = app.adapterLogger;
-	const requestContext = new AsyncLocalStorage<string>();
-	const abortedRequestErrors = new WeakSet<Error>();
 
-	process.on('unhandledRejection', (reason) => {
-		const requestUrl = requestContext.getStore();
-		if (!requestUrl) {
+	if (!unhandledRejectionListenerRegistered) {
+		unhandledRejectionListenerRegistered = true;
+		process.on('unhandledRejection', (reason) => {
+			const requestUrl = requestContext.getStore();
+			if (!requestUrl) {
+				const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
+				logger.error(`Unhandled rejection outside request context\n${error}`);
+				process.exitCode = 1;
+				return;
+			}
+			if (reason instanceof Error && abortedRequestErrors.has(reason)) return;
 			const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
-			logger.error(`Unhandled rejection outside request context\n${error}`);
-			process.exitCode = 1;
-			return;
-		}
-		if (reason instanceof Error && abortedRequestErrors.has(reason)) return;
-		const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
-		logger.error(`Unhandled rejection while rendering ${requestUrl}\n${error}`);
-	});
+			logger.error(`Unhandled rejection while rendering ${requestUrl}\n${error}`);
+		});
+	}
 
 	const client = resolveClientDir(options);
 
