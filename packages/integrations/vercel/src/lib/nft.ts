@@ -23,6 +23,32 @@ export function findCommonAncestor(rootPath: string, entryPath: string): string 
 	return ancestor;
 }
 
+export function handleDependencyWarning(
+	error: Error,
+	entryPath: string,
+	logger: Pick<AstroIntegrationLogger, 'debug' | 'warn'>,
+): void {
+	const match = /Cannot find module '(.+?)' loaded from (.+)/.exec(error.message);
+	if (!match) {
+		logger.warn(error.message);
+		return;
+	}
+
+	const [, module, file] = match;
+	if (module === '@astrojs/') return;
+	if (module === 'sharp') return;
+
+	if (entryPath === file) {
+		logger.debug(
+			`[@astrojs/vercel] The module "${module}" couldn't be resolved. This may not be a problem, but it's worth checking.`,
+		);
+	} else {
+		logger.debug(
+			`[@astrojs/vercel] The module "${module}" inside the file "${file}" couldn't be resolved. This may not be a problem, but it's worth checking.`,
+		);
+	}
+}
+
 export async function copyDependenciesToFunction(
 	{
 		entry,
@@ -69,23 +95,7 @@ export async function copyDependenciesToFunction(
 
 	for (const error of result.warnings) {
 		if (error.message.startsWith('Failed to resolve dependency')) {
-			const [, module, file] = /Cannot find module '(.+?)' loaded from (.+)/.exec(error.message)!;
-
-			// The import(astroRemark) sometimes fails to resolve, but it's not a problem
-			if (module === '@astrojs/') continue;
-
-			// Sharp is always external and won't be able to be resolved, but that's also not a problem
-			if (module === 'sharp') continue;
-
-			if (entryPath === file) {
-				logger.debug(
-					`[@astrojs/vercel] The module "${module}" couldn't be resolved. This may not be a problem, but it's worth checking.`,
-				);
-			} else {
-				logger.debug(
-					`[@astrojs/vercel] The module "${module}" inside the file "${file}" couldn't be resolved. This may not be a problem, but it's worth checking.`,
-				);
-			}
+			handleDependencyWarning(error, entryPath, logger);
 		}
 		// parse errors are likely not js and can safely be ignored,
 		// such as this html file in "main" meant for nw instead of node:
