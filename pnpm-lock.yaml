@@ -5926,6 +5926,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/node/test/fixtures/missing-env:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/node/test/fixtures/node-middleware:
     dependencies:
       '@astrojs/node':
