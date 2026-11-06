@@ -211,6 +211,34 @@ describe('getRssString', () => {
 		assert.ok(str.includes('https://example.com/php<'));
 	});
 
+	it('should keep the query string and hash of item links intact', async () => {
+		const str = await getRssString({
+			title,
+			description,
+			items: [
+				{ ...phpFeedItem, link: '/php?utm_source=rss', commentsUrl: '/php/#comments' },
+				{ ...web1FeedItem, link: '/web1#intro' },
+			],
+			site,
+		});
+
+		assert.ok(str.includes('<link>https://example.com/php/?utm_source=rss</link>'));
+		assert.ok(str.includes('<comments>https://example.com/php/#comments</comments>'));
+		assert.ok(str.includes('<link>https://example.com/web1/#intro</link>'));
+	});
+
+	it('should keep the query string of item links intact without a trailing slash', async () => {
+		const str = await getRssString({
+			title,
+			description,
+			items: [{ ...phpFeedItem, link: '/php/?utm_source=rss' }],
+			site,
+			trailingSlash: false,
+		});
+
+		assert.ok(str.includes('<link>https://example.com/php?utm_source=rss</link>'));
+	});
+
 	it('Deprecated import.meta.glob mapping still works', async () => {
 		const globResult = {
 			'./posts/php.md': () =>
