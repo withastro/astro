@@ -19,6 +19,7 @@ import {
 import type { RenderedContent } from './data-store.js';
 import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
 import { writeFileAtomic } from './data-store-writer.js';
+import { runHookCollectionsResolved } from '../integrations/hooks.js';
 import { getCollectionsMetadata } from './metadata.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import {
@@ -55,6 +56,7 @@ export class ContentLayer {
 	#markdownRenderer?: MarkdownRenderer;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
+	#lastResolvedConfigDigest?: string;
 
 	#queue: PQueue;
 
@@ -287,7 +289,7 @@ export class ContentLayer {
 			this.#watcher?.removeAllTrackedListeners();
 		}
 
-		await this.#writeCollectionsMetadata(contentConfig.config.collections);
+		await this.#resolveCollectionsMetadata(contentConfig.config);
 
 		const backwardsCompatEnabled =
 			this.#settings.config.legacy?.collectionsBackwardsCompat ?? false;
@@ -371,10 +373,17 @@ export class ContentLayer {
 	}
 
 	/**
-	 * Writes the metadata of the build-time collections for `getCollectionsMetadata()`, or
-	 * removes it when `experimental.collectionMetadata` is disabled.
+	 * Writes the metadata of the build-time collections for `getCollectionsMetadata()`, and
+	 * passes it to the `astro:collections:resolved` hook once per content config. Removes it
+	 * when `experimental.collectionMetadata` is disabled.
 	 */
-	async #writeCollectionsMetadata(collections: Record<string, { type?: string }>) {
+	async #resolveCollectionsMetadata({
+		collections,
+		digest,
+	}: {
+		collections: Record<string, { type?: string }>;
+		digest?: string;
+	}) {
 		const file = new URL(COLLECTIONS_METADATA_FILE, this.#settings.dotAstroDir);
 		if (!this.#settings.config.experimental.collectionMetadata) {
 			await fs.rm(file, { force: true });
@@ -386,11 +395,17 @@ export class ContentLayer {
 			),
 		);
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
+		const metadata = getCollectionsMetadata(buildTimeCollections, 'build-time');
 		// Unchanged metadata is not written, so development doesn't reload pages for nothing
-		await writeFileAtomic(
-			file,
-			JSON.stringify(getCollectionsMetadata(buildTimeCollections, 'build-time')),
-		);
+		await writeFileAtomic(file, JSON.stringify(metadata));
+		if (digest === undefined || digest !== this.#lastResolvedConfigDigest) {
+			this.#lastResolvedConfigDigest = digest;
+			await runHookCollectionsResolved({
+				collections: metadata,
+				settings: this.#settings,
+				logger: this.#logger,
+			});
+		}
 	}
 
 	/**

@@ -1,3 +1,4 @@
+import type { CollectionMetadata } from '../content/metadata.js';
 import fsMod from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
@@ -694,6 +695,26 @@ export async function runHookRoutesResolved({
 					toIntegrationResolvedRoute(route, settings.config.trailingSlash),
 				),
 			}),
+		});
+	}
+}
+
+export async function runHookCollectionsResolved({
+	collections,
+	settings,
+	logger,
+}: {
+	collections: CollectionMetadata[];
+	settings: AstroSettings;
+	logger: AstroLogger;
+}) {
+	for (const integration of settings.config.integrations) {
+		await runHookInternal({
+			integration,
+			hookName: 'astro:collections:resolved',
+			logger,
+			// Copies, so that an integration can't change the metadata given to the others
+			params: () => ({ collections: structuredClone(collections) }),
 		});
 	}
 }
