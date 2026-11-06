@@ -280,7 +280,6 @@ async function renderStreamToAsyncIterable(
 
 	renderResult
 		.catch((err) => {
-			logStreamingError(result, err);
 			error = err;
 		})
 		.finally(() => {
