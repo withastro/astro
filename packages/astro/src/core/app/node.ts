@@ -271,6 +271,8 @@ function wireAbortController(req: NodeRequest, controller: AbortController): voi
  * @param source WhatWG Response
  * @param destination NodeJS ServerResponse
  */
+const STREAM_ERROR_LOGGED = Symbol.for('astro.streamErrorLogged');
+
 export async function writeResponse(source: Response, destination: ServerResponse) {
 	const { status, headers, body, statusText } = source;
 	// HTTP/2 doesn't support statusMessage
@@ -303,7 +305,12 @@ export async function writeResponse(source: Response, destination: ServerRespons
 			// Cancelling the reader may reject not just because of
 			// an error in the ReadableStream's cancel callback, but
 			// also because of an error anywhere in the stream.
+			// Page render errors are logged by the renderer; errors from custom streams (e.g. endpoints)
+			// are not handled by the renderer and must still be logged here.
 			reader.cancel().catch((err) => {
+				if (err && typeof err === 'object' && (err as any)[STREAM_ERROR_LOGGED]) {
+					return;
+				}
 				console.error(
 					'There was an uncaught error in the middle of the stream while rendering %s.',
 					destination.req.url,
@@ -317,7 +324,6 @@ export async function writeResponse(source: Response, destination: ServerRespons
 			result = await reader.read();
 		}
 		destination.end();
-		// the error will be logged by the "on end" callback above
 	} catch (err) {
 		destination.write('Internal server error', () => {
 			err instanceof Error ? destination.destroy(err) : destination.destroy();

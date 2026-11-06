@@ -9,6 +9,8 @@ import {
 import { App } from '../../../dist/core/app/app.js';
 import { createTestApp, createPage, createRouteData } from '../mocks.ts';
 import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
+import { setLogger } from '../../../dist/core/logger/manifest-logger.js';
+import { SpyLogger } from '../test-utils.ts';
 
 import type { SSRManifest, RouteInfo } from '../../../dist/core/app/types.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
@@ -162,6 +164,35 @@ describe('Streaming', () => {
 		assert.equal(response.status, 500);
 		const text = await response.text();
 		assert.equal(text, '');
+	});
+
+	it('logs an error thrown after the page started streaming through the configured logger', async () => {
+		const FailsLater = createComponent(async () => {
+			await wait(15);
+			throw new Error('Failed after streaming started');
+		});
+		const MidStreamErrorPage = createComponent((result) => {
+			return render`<html><body><h1>Already sent</h1>${renderComponent(result, 'FailsLater', FailsLater, {})}</body></html>`;
+		});
+
+		const routeData = createRouteData({ route: '/mid-stream-error' });
+		const manifest = createManifest({
+			routes: [createRouteInfo(routeData) as RouteInfo],
+			pageMap: new Map([
+				[routeData.component, async () => ({ page: async () => ({ default: MidStreamErrorPage }) })],
+			]) as unknown as ReturnType<typeof createManifest>['pageMap'],
+		});
+		const logger = new SpyLogger();
+		setLogger(manifest as unknown as SSRManifest, logger);
+		const app = new App(manifest as unknown as SSRManifest);
+
+		const response = await app.render(new Request('http://example.com/mid-stream-error'));
+		assert.equal(response.status, 200);
+		await assert.rejects(response.text(), /Failed after streaming started/);
+
+		const errors = logger.logs.filter((log) => log.level === 'error');
+		assert.equal(errors.length, 1);
+		assert.match(errors[0].message, /Failed after streaming started/);
 	});
 });
 
