@@ -40,26 +40,28 @@ export async function projectName(
 		});
 
 		ctx.cwd = name!.trim();
-		ctx.projectName = toValidName(name!);
+		ctx.projectName = toValidName(nameFromPath(name!));
 		if (ctx.dryRun) {
 			await info('--dry-run', 'Skipping project naming');
 			return;
 		}
 	} else {
-		let name = ctx.cwd;
-		if (name === '.' || name === './') {
-			const parts = process.cwd().split(path.sep);
-			name = parts[parts.length - 1];
-		} else if (name.startsWith('./') || name.startsWith('../')) {
-			const parts = name.split('/');
-			name = parts[parts.length - 1];
-		}
-		ctx.projectName = toValidName(name);
+		ctx.projectName = toValidName(nameFromPath(ctx.cwd));
 	}
 
 	if (!ctx.cwd) {
 		ctx.exit(1);
 	}
+}
+
+/** Use the last segment of a project path as its name, keeping scoped names like `@scope/name` whole */
+function nameFromPath(projectPath: string) {
+	const name = projectPath.trim();
+	if (/^@[^/\\]+\/[^/\\]+$/.test(name)) {
+		return name;
+	}
+	// `path.resolve` handles `.`, `./`, `..` and trailing separators, and `.\` on Windows
+	return path.basename(path.resolve(name));
 }
 
 async function checkCwd(cwd: string | undefined) {
