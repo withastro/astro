@@ -3,6 +3,7 @@
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { SSRManifestCSP } from '../../core/app/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
+import type { AstroLogger } from '../../core/logger/core.js';
 import type { Slots } from '../../core/render/slots.js';
 import type { AstroComponentInstance, ServerIslandComponent } from '../../runtime/server/index.js';
 import type { Params } from './common.js';
@@ -224,6 +225,10 @@ export interface SSRResult {
 	 * Only used for logging
 	 */
 	pathname: string;
+	/**
+	 * Reports errors thrown after the response has started streaming, which can no longer become an error response.
+	 */
+	logger: AstroLogger;
 	cookies: AstroCookies | undefined;
 	getServerIslandNameMap: () => Promise<Map<string, string>>;
 	trailingSlash: AstroConfig['trailingSlash'];
