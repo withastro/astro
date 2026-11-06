@@ -52,7 +52,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24.22.2
+          node-version: 26.13.0
           # Explicitly disable cache — a fresh install on every run avoids
           # the risk of a poisoned cache being used during the publish step
           # which has access to the OIDC id-token.
