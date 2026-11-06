@@ -30,6 +30,7 @@ import type {
 	AstroIntegration,
 	AstroRenderer,
 	BaseIntegrationHooks,
+	BuildDoneCollections,
 	HookParameters,
 	IntegrationResolvedRoute,
 	RouteOptions,
@@ -621,10 +622,18 @@ type RunHookBuildDone = {
 	dir: URL;
 	pages: string[];
 	routes: RouteData[];
+	collections: BuildDoneCollections;
 	logger: AstroLogger;
 };
 
-export async function runHookBuildDone({ settings, dir, pages, routes, logger }: RunHookBuildDone) {
+export async function runHookBuildDone({
+	settings,
+	dir,
+	pages,
+	routes,
+	collections,
+	logger,
+}: RunHookBuildDone) {
 	await fsMod.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of settings.config.integrations) {
@@ -638,6 +647,11 @@ export async function runHookBuildDone({ settings, dir, pages, routes, logger }:
 				assets: new Map(
 					routes.filter((r) => r.distURL !== undefined).map((r) => [r.route, r.distURL!]),
 				),
+				// Copies the metadata, so that an integration can't change the one given to the others
+				collections: {
+					...collections,
+					metadata: collections.metadata && structuredClone(collections.metadata),
+				},
 			}),
 		});
 	}
