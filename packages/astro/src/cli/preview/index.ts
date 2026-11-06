@@ -4,7 +4,7 @@ import { checkExistingServer, removeLockFile, writeLockFile } from '../../core/d
 import { resolveRoot } from '../../core/config/config.js';
 import { printHelp } from '../../core/messages/runtime.js';
 import previewServer from '../../core/preview/index.js';
-import { isRunByAgent, supportsAgentAutoBackgrounding } from '../agent.js';
+import { isBackgroundEnvEnabled, isRunByAgent, supportsAgentAutoBackgrounding } from '../agent.js';
 import { isIgnoreLock } from '../dev/index.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { background, logs, previewServerCommand, status, stop } from '../server.js';
@@ -161,7 +161,7 @@ export async function preview({ flags }: PreviewOptions) {
 			port: server.port,
 			url: serverUrl,
 			urls: server.urls,
-			background: !!process.env.ASTRO_PREVIEW_BACKGROUND,
+			background: isBackgroundEnvEnabled(process.env.ASTRO_PREVIEW_BACKGROUND),
 			startedAt: new Date().toISOString(),
 		},
 		'preview',
