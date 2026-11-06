@@ -74,8 +74,18 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 			return () => {
 				// NOTE: the `base` is stripped from `req.url` for post middlewares
 
-				server.middlewares.use((req, _res, next) => {
+				server.middlewares.use((req, res, next) => {
 					const pathname = cleanUrl(req.url!);
+
+					// `fileURLToPath` below throws on malformed percent-encoding. Reject it as
+					// a client error, matching the 400 the App pipeline returns for the same input.
+					try {
+						decodeURI(pathname);
+					} catch {
+						res.writeHead(400, 'Bad Request');
+						res.end();
+						return;
+					}
 
 					// Vite doesn't handle /foo/ if /foo.html exists, we handle it anyways
 					if (pathname.endsWith('/')) {

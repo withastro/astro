@@ -67,9 +67,11 @@ export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.N
 		let pathname: string;
 		try {
 			pathname = decodeURI(url.pathname);
-		} catch (e) {
-			/* malformed uri */
-			return next(e);
+		} catch {
+			// Malformed percent-encoding is a client error, matching the 400 the App
+			// pipeline returns for the same input.
+			res.writeHead(400, 'Bad Request');
+			return res.end();
 		}
 
 		const decision = evaluateTrailingSlash(pathname, url.search, trailingSlash);
