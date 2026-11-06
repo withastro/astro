@@ -23,6 +23,11 @@ export type {
 } from '../../assets/types.js';
 export type { ContainerRenderer } from '../../container/index.js';
 export type {
+	CollectionDescriptors,
+	CollectionMetadata,
+	JSONValue,
+} from '../../content/metadata.js';
+export type {
 	AssetsPrefix,
 	NodeAppHeadersJson,
 	RouteInfo,

@@ -12,11 +12,14 @@ import type { ContentEntryType, RefreshContentOptions } from '../types/public/co
 import {
 	ASSET_IMPORTS_FILE,
 	COLLECTIONS_MANIFEST_FILE,
+	COLLECTIONS_METADATA_FILE,
 	CONTENT_LAYER_TYPE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
 import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
+import { writeFileAtomic } from './data-store-writer.js';
+import { getCollectionsMetadata } from './metadata.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import {
 	type ContentObservable,
@@ -284,6 +287,8 @@ export class ContentLayer {
 			this.#watcher?.removeAllTrackedListeners();
 		}
 
+		await this.#writeCollectionsMetadata(contentConfig.config.collections);
+
 		const backwardsCompatEnabled =
 			this.#settings.config.legacy?.collectionsBackwardsCompat ?? false;
 
@@ -363,6 +368,29 @@ export class ContentLayer {
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
 		}
+	}
+
+	/**
+	 * Writes the metadata of the build-time collections for `getCollectionsMetadata()`, or
+	 * removes it when `experimental.collectionMetadata` is disabled.
+	 */
+	async #writeCollectionsMetadata(collections: Record<string, { type?: string }>) {
+		const file = new URL(COLLECTIONS_METADATA_FILE, this.#settings.dotAstroDir);
+		if (!this.#settings.config.experimental.collectionMetadata) {
+			await fs.rm(file, { force: true });
+			return;
+		}
+		const buildTimeCollections = Object.fromEntries(
+			Object.entries(collections).filter(
+				([, collection]) => collection.type === CONTENT_LAYER_TYPE,
+			),
+		);
+		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
+		// Unchanged metadata is not written, so development doesn't reload pages for nothing
+		await writeFileAtomic(
+			file,
+			JSON.stringify(getCollectionsMetadata(buildTimeCollections, 'build-time')),
+		);
 	}
 
 	/**
