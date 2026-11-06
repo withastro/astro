@@ -27,12 +27,10 @@
   "author": "withastro",
   "license": "MIT",
   "dependencies": {
-    "@astrojs/compiler": "^2.13.1",
+    "@astrojs/astro2tsx": "^0.1.3",
     "@astrojs/yaml2ts": "^0.2.4",
-    "@jridgewell/sourcemap-codec": "^1.6.0",
     "@volar/language-core": "~2.4.30",
-    "@volar/typescript": "~2.4.30",
-    "vscode-languageserver-textdocument": "^1.0.16"
+    "@volar/typescript": "~2.4.30"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
@@ -44,5 +42,8 @@
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "vscode-uri": "^3.2.0"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   }
 }

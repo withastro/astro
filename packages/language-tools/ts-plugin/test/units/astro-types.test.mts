@@ -188,3 +188,16 @@ suite('Astro type injection', () => {
 		);
 	});
 });
+
+suite('Astro TSX conversion', () => {
+	test('excludes script and style contents from the virtual TSX', () => {
+		const input =
+			'<script>const scriptMarker = true;</script><style>.styleMarker { color: red }</style><div>{Astro.url}</div>';
+		const { virtualFile } = astro2tsx(input, 'Page.astro');
+		const code = virtualFile.snapshot.getText(0, virtualFile.snapshot.getLength());
+
+		assert.ok(code.includes('Astro.url'));
+		assert.ok(!code.includes('scriptMarker'));
+		assert.ok(!code.includes('styleMarker'));
+	});
+});

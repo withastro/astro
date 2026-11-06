@@ -7030,24 +7030,18 @@ importers:
 
   packages/language-tools/ts-plugin:
     dependencies:
-      '@astrojs/compiler':
-        specifier: ^2.13.1
-        version: 2.13.1
+      '@astrojs/astro2tsx':
+        specifier: ^0.1.3
+        version: 0.1.3(@emnapi/runtime@1.11.3)
       '@astrojs/yaml2ts':
         specifier: ^0.2.4
         version: link:../yaml2ts
-      '@jridgewell/sourcemap-codec':
-        specifier: ^1.6.0
-        version: 1.6.0
       '@volar/language-core':
         specifier: ~2.4.30
         version: 2.4.30
       '@volar/typescript':
         specifier: ~2.4.30
         version: 2.4.30(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)(typescript@6.0.3)
-      vscode-languageserver-textdocument:
-        specifier: ^1.0.16
-        version: 1.0.16
     devDependencies:
       '@types/mocha':
         specifier: ^10.0.10
@@ -7480,9 +7474,6 @@ packages:
   '@astrojs/compiler-rs@0.5.2':
     resolution: {integrity: sha512-IvwYLB8t1M86rKO4oPdBi9GP4gzXcgrVlNgocjwos1jeeUuEIV8d9Crn1PvYD/5IKteWOxpIHomf7e8iYlkE+Q==}
     engines: {node: '>=22.12.0'}
-
-  '@astrojs/compiler@2.13.1':
-    resolution: {integrity: sha512-f3FN83d2G/v32ipNClRKgYv30onQlMZX1vCeZMjPsMMPl1mDpmbl0+N5BYo4S/ofzqJyS5hvwacEo0CCVDn/Qg==}
 
   '@atcute/atproto@4.0.3':
     resolution: {integrity: sha512-BNylfO7nK0yYBpSpnGhOYgrJTeZWrXHPrb6tOQmp9A3Am0epctIWm6/5lPC4ZNPHpUbwr5w/LzH/v7kjAoKEDg==}
@@ -16848,8 +16839,6 @@ snapshots:
   '@astrojs/compiler-rs@0.5.2':
     dependencies:
       '@astrojs/compiler-binding': 0.5.2
-
-  '@astrojs/compiler@2.13.1': {}
 
   '@atcute/atproto@4.0.3':
     dependencies:
