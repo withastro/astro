@@ -93,6 +93,19 @@ describe('Static headers', () => {
 		);
 	});
 
+	it('each page gets its own CSP headers, with or without a trailing slash', async () => {
+		const csp = async (pathname: string) => {
+			const res = await fetch(`http://${server.host}:${server.port}${pathname}`);
+			return res.headers.get('Content-Security-Policy');
+		};
+		const index = await csp('/');
+		const one = await csp('/one');
+
+		// Only the index renders the server island, so the two policies differ.
+		assert.notEqual(index, one);
+		assert.equal(await csp('/one/'), one);
+	});
+
 	it('passes the request body through to on-demand routes', async () => {
 		const res = await fetch(`http://${server.host}:${server.port}/echo`, {
 			method: 'POST',
