@@ -33,8 +33,74 @@ function safeConvertToTSX(content: string, filename: string): ConvertToTsxResult
 	}
 }
 
+function usePublicComponentName(tsx: ConvertToTsxResult): ConvertToTsxResult {
+	const range = tsx.generatedComponentExport;
+	if (!range) return tsx;
+
+	const exportStatement = tsx.code.slice(range.start, range.end);
+	const exportMatch = /^export \{ (\S+) as (\S+) \};\n$/.exec(exportStatement);
+	if (!exportMatch) return tsx;
+
+	const [, generatedName, publicName] = exportMatch;
+	if (generatedName === publicName) return tsx;
+
+	const defaultExport = `export default function ${generatedName}`;
+	const defaultExportStart = tsx.code.lastIndexOf(defaultExport);
+	if (defaultExportStart === -1) return tsx;
+
+	const replacements = [
+		{
+			start: defaultExportStart + 'export default function '.length,
+			length: generatedName.length,
+			text: publicName,
+		},
+		{
+			start: range.start + exportStatement.indexOf(generatedName),
+			length: generatedName.length,
+			text: publicName,
+		},
+	].sort((a, b) => a.start - b.start);
+
+	let code = tsx.code;
+	for (const replacement of [...replacements].reverse()) {
+		code =
+			code.slice(0, replacement.start) +
+			replacement.text +
+			code.slice(replacement.start + replacement.length);
+	}
+
+	function mapOffset(offset: number) {
+		let shift = 0;
+		for (const replacement of replacements) {
+			const end = replacement.start + replacement.length;
+			if (offset < replacement.start) break;
+			if (offset < end) {
+				return (
+					replacement.start + shift + Math.min(offset - replacement.start, replacement.text.length)
+				);
+			}
+			shift += replacement.text.length - replacement.length;
+		}
+		return offset + shift;
+	}
+
+	return {
+		...tsx,
+		code,
+		mappings: tsx.mappings.map(([generatedOffset, generatedLength, ...rest]) => {
+			const start = mapOffset(generatedOffset);
+			const end = mapOffset(generatedOffset + generatedLength);
+			return [start, end - start, ...rest] as ConvertToTsxResult['mappings'][number];
+		}),
+		generatedComponentExport: {
+			start: mapOffset(range.start),
+			end: mapOffset(range.end),
+		},
+	};
+}
+
 export function astro2tsx(input: string, fileName: string) {
-	const tsx = safeConvertToTSX(input, fileName);
+	const tsx = usePublicComponentName(safeConvertToTSX(input, fileName));
 
 	return {
 		virtualFile: getVirtualFileTSX(tsx),

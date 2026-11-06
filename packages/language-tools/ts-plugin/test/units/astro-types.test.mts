@@ -201,3 +201,64 @@ suite('Astro TSX conversion', () => {
 		assert.ok(!code.includes('styleMarker'));
 	});
 });
+
+suite('Astro TSX auto-imports', () => {
+	test('does not suggest the generated component name', () => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-ts-plugin-auto-import-'));
+		const src = path.join(root, 'src');
+		fs.mkdirSync(src, { recursive: true });
+
+		const astroFile = path.join(src, 'Footer.astro');
+		const virtualFileName = `${astroFile}.tsx`;
+		const scriptFileName = path.join(src, 'temp.ts');
+		const { virtualFile } = astro2tsx('<footer>Footer</footer>', astroFile);
+		fs.writeFileSync(
+			virtualFileName,
+			virtualFile.snapshot.getText(0, virtualFile.snapshot.getLength()),
+		);
+		fs.writeFileSync(scriptFileName, 'import Foo');
+
+		const files = [virtualFileName, scriptFileName];
+		const host: ts.LanguageServiceHost = {
+			getScriptFileNames: () => files,
+			getScriptVersion: () => '0',
+			getScriptSnapshot: (fileName) => {
+				if (!fs.existsSync(fileName)) return undefined;
+				return ts.ScriptSnapshot.fromString(fs.readFileSync(fileName, 'utf8'));
+			},
+			getCurrentDirectory: () => root,
+			getCompilationSettings: () => ({
+				allowJs: true,
+				jsx: ts.JsxEmit.Preserve,
+				module: ts.ModuleKind.ESNext,
+				moduleResolution: ts.ModuleResolutionKind.Bundler,
+				target: ts.ScriptTarget.ESNext,
+			}),
+			getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
+			fileExists: (fileName) => fs.existsSync(fileName),
+			readFile: (fileName) => fs.readFileSync(fileName, 'utf8'),
+			readDirectory: ts.sys.readDirectory,
+			directoryExists: ts.sys.directoryExists,
+			getDirectories: ts.sys.getDirectories,
+			useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
+			getNewLine: () => ts.sys.newLine,
+		};
+
+		try {
+			const service = ts.createLanguageService(host);
+			const completions = service.getCompletionsAtPosition(scriptFileName, 10, {
+				includeCompletionsForImportStatements: true,
+				includeCompletionsForModuleExports: true,
+				includeCompletionsWithInsertText: true,
+			});
+			const componentNames = completions?.entries
+				.filter((entry) => entry.source?.includes('Footer.astro'))
+				.map((entry) => entry.name);
+
+			assert.ok(componentNames?.includes('Footer'));
+			assert.ok(!componentNames?.includes('FooterAstroComponent'));
+		} finally {
+			fs.rmSync(root, { recursive: true, force: true });
+		}
+	});
+});
