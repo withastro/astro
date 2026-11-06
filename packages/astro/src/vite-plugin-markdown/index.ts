@@ -3,6 +3,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isFrontmatterValid } from '@astrojs/internal-helpers/frontmatter';
 import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import type { Plugin } from 'vite';
+import {
+	type CollectionFilesApi,
+	COLLECTION_FILES_PLUGIN_NAME,
+} from '@astrojs/internal-helpers/collections';
 import { MARKDOWN_CONTENT_ENTRY_FLAG } from '../content/consts.js';
 import { hasContentFlag, safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -31,10 +35,16 @@ const astroErrorModulePath = normalizePath(
 
 export default function markdown({ settings, logger }: AstroPluginOptions): Plugin {
 	let renderer: Promise<MarkdownRenderer> | undefined;
+	let collectionFiles: CollectionFilesApi | undefined;
 
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
+		configResolved(resolved) {
+			collectionFiles = resolved.plugins.find(
+				(plugin) => plugin.name === COLLECTION_FILES_PLUGIN_NAME,
+			)?.api;
+		},
 		buildEnd() {
 			renderer = undefined;
 		},
@@ -92,6 +102,10 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				const renderResult = await (await renderer).render(raw.content, {
 					fileURL,
 					frontmatter: raw.frontmatter,
+					// Only content collection entries belong to a collection, not pages or direct imports
+					collection: hasContentFlag(id, MARKDOWN_CONTENT_ENTRY_FLAG)
+						? collectionFiles?.getCollection(fileId)
+						: undefined,
 				});
 
 				// Improve error message for invalid astro frontmatter

@@ -1,4 +1,8 @@
 import type { SSRError } from 'astro';
+import {
+	COLLECTION_FILES_PLUGIN_NAME,
+	type CollectionFilesApi,
+} from '@astrojs/internal-helpers/collections';
 import type { MarkdownProcessor, MdxRenderer } from 'astro/markdown';
 import type { Plugin } from 'vite';
 import type { ResolvedMdxOptions } from './index.js';
@@ -14,6 +18,7 @@ export interface VitePluginMdxOptions {
 export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 	let mdxRenderer: MdxRenderer | undefined;
 	let sourcemapEnabled: boolean;
+	let collectionFiles: CollectionFilesApi | undefined;
 
 	return {
 		name: '@mdx-js/rolldown',
@@ -23,6 +28,10 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 		},
 		configResolved(resolved) {
 			sourcemapEnabled = !!resolved.build.sourcemap;
+			// Older versions of Astro don't provide the collection of files
+			collectionFiles = resolved.plugins.find(
+				(plugin) => plugin.name === COLLECTION_FILES_PLUGIN_NAME,
+			)?.api;
 
 			// HACK: Remove the `astro:jsx` plugin if defined as we handle the JSX transformation ourselves
 			const jsxPluginIndex = resolved.plugins.findIndex((p) => p.name === 'astro:jsx');
@@ -55,7 +64,11 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 					if (!mdxRenderer) {
 						mdxRenderer = await resolveMdxRenderer(opts, sourcemapEnabled);
 					}
-					const result = await mdxRenderer.process(content, id, frontmatter);
+					const result = await mdxRenderer.process(content, id, frontmatter, {
+						// Entries and direct imports of a file share its compiled module, so both see the
+						// collection of the file
+						collection: collectionFiles?.getCollection(id),
+					});
 					return {
 						code: result.code,
 						map: result.map ?? null,
