@@ -124,6 +124,13 @@ export interface BuildInternals {
 	ssrAssetsPerEnvironment: Map<AstroEnvironmentNames, Set<string>>;
 
 	/**
+	 * Server build assets emitted with emitServerAsset(). They stay in the
+	 * server output (they are never moved to the client) and are not static
+	 * files, however they are referenced.
+	 */
+	serverOnlyAssets: Set<string>;
+
+	/**
 	 * Chunks extracted during build that need post-build injection (manifest, content).
 	 * Populated by top-level buildApp, consumed by post plugin.
 	 */
@@ -196,6 +203,7 @@ export function createBuildInternals(): BuildInternals {
 		loggerEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
 		ssrAssetsPerEnvironment: new Map(),
+		serverOnlyAssets: new Set(),
 	};
 }
 
