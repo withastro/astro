@@ -492,6 +492,7 @@ export class FetchState implements AstroFetchState {
 		const state = this;
 		const result: SSRResult = {
 			base: manifest.base,
+			serverIslandRoutePrefix: manifest.serverIslandRoutePrefix,
 			userAssetsBase: manifest.userAssetsBase,
 			cancelled: false,
 			clientDirectives,

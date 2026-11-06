@@ -12,6 +12,7 @@ function fakeConfig(overrides = {}): AstroConfig {
 	return {
 		site: 'https://example.com',
 		base: '/',
+		serverIslands: { routePrefix: '/_server-islands/' },
 		trailingSlash: 'ignore',
 		output: 'static',
 		compressHTML: true,
@@ -56,6 +57,7 @@ describe('getConfigHashInput', () => {
 			'redirects',
 			'scopedStyleStrategy',
 			'security',
+			'serverIslands',
 			'site',
 			'trailingSlash',
 			'vite',
@@ -84,6 +86,13 @@ describe('getConfigHashInput', () => {
 describe('computeConfigHash', () => {
 	it('is stable across runs for equal config', async () => {
 		assert.equal(await computeConfigHash(fakeConfig()), await computeConfigHash(fakeConfig()));
+	});
+
+	it('changes when the server island prefix changes', async () => {
+		assert.notEqual(
+			await computeConfigHash(fakeConfig()),
+			await computeConfigHash(fakeConfig({ serverIslands: { routePrefix: '/_custom-islands/' } })),
+		);
 	});
 
 	it('is stable when object key order differs', async () => {
@@ -148,6 +157,7 @@ describe('config schema coverage guard', () => {
 	const INCLUDED = [
 		'site',
 		'base',
+		'serverIslands',
 		'trailingSlash',
 		'output',
 		'compressHTML',

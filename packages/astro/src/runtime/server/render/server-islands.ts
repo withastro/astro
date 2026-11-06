@@ -196,7 +196,7 @@ export class ServerIslandComponent {
 
 		const hostId = await this.getHostId();
 		const slash = this.result.base.endsWith('/') ? '' : '/';
-		let serverIslandUrl = `${this.result.base}${slash}_server-islands/${componentId}${this.result.trailingSlash === 'always' ? '/' : ''}`;
+		let serverIslandUrl = `${this.result.base}${slash}${this.result.serverIslandRoutePrefix.slice(1)}${componentId}${this.result.trailingSlash === 'always' ? '/' : ''}`;
 
 		// Determine if its safe to use a GET request
 		const potentialSearchParams = createSearchParams(

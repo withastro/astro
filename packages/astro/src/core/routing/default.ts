@@ -5,7 +5,7 @@ import { createManifestMemo } from '../manifest/memo.js';
 import {
 	createEndpoint as createServerIslandEndpoint,
 	SERVER_ISLAND_COMPONENT,
-	SERVER_ISLAND_ROUTE,
+	getServerIslandRoute,
 } from '../server-islands/endpoint.js';
 import { DEFAULT_404_ROUTE, default404Instance } from './internal/astro-designed-error-pages.js';
 
@@ -30,7 +30,7 @@ export function createDefaultRoutes(manifest: SSRManifest): DefaultRouteParams[]
 		{
 			instance: createServerIslandEndpoint(manifest),
 			matchesComponent: (filePath) => filePath.href === new URL(SERVER_ISLAND_COMPONENT, root).href,
-			route: SERVER_ISLAND_ROUTE,
+			route: getServerIslandRoute(manifest.serverIslandRoutePrefix),
 			component: SERVER_ISLAND_COMPONENT,
 		},
 	];

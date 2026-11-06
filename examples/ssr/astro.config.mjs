@@ -11,4 +11,7 @@ export default defineConfig({
 		mode: 'standalone',
 	}),
 	integrations: [svelte()],
+	serverIslands: {
+		routePrefix: "/app1/override_server-islands/"
+	}
 });

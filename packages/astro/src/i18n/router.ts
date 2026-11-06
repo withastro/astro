@@ -27,6 +27,7 @@ export interface I18nRouterOptions {
 	locales: SSRManifestI18n['locales'];
 	/** Base path from manifest */
 	base: SSRManifest['base'];
+	serverIslandRoutePrefix?: SSRManifest['serverIslandRoutePrefix'];
 	/** Domain mapping (domain -> locale[]) */
 	domains?: Record<string, string[]>;
 }
@@ -63,6 +64,7 @@ export class I18nRouter {
 	#defaultLocale: string;
 	#locales: Locales;
 	#base: string;
+	#serverIslandRoutePrefix: string;
 	#domains?: Record<string, string[]>;
 
 	constructor(options: I18nRouterOptions) {
@@ -71,6 +73,7 @@ export class I18nRouter {
 		this.#locales = options.locales;
 		// Normalize base to not have trailing slash (except for root '/')
 		this.#base = options.base === '/' ? '/' : removeTrailingForwardSlash(options.base || '');
+		this.#serverIslandRoutePrefix = options.serverIslandRoutePrefix ?? '/_server-islands/';
 		this.#domains = options.domains;
 	}
 
@@ -133,7 +136,7 @@ export class I18nRouter {
 		}
 
 		// Skip server islands
-		if (pathname.includes('/_server-islands/')) {
+		if (pathname.includes(this.#serverIslandRoutePrefix)) {
 			return true;
 		}
 
