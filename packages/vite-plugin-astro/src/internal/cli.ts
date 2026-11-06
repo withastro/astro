@@ -8,6 +8,9 @@ import type { InjectedScript } from './vite-plugin-scripts/index.js';
  * What the `astro` CLI passes to `astro()` besides its options: the values a plain Vite project
  * does not have (the full Astro config, the CLI logger, user preferences, integrations' scripts)
  * and the module ids that projects depending only on `astro` can resolve.
+ *
+ * With it, `astro()` leaves out the render API modules (`virtual:astro:render-setup`, the
+ * client directives and component assets modules): the CLI renders pages itself.
  */
 export interface AstroPluginCli
 	extends Pick<

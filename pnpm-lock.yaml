@@ -7288,6 +7288,9 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
     devDependencies:
+      '@astrojs/compiler-rs':
+        specifier: ^0.5.1
+        version: 0.5.2
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
@@ -7359,6 +7362,12 @@ importers:
       common-ancestor-path:
         specifier: ^2.0.0
         version: 2.0.0
+      devalue:
+        specifier: ^6.0.2
+        version: 6.0.3
+      magic-string:
+        specifier: ^1.4.2
+        version: 1.4.5
       rolldown:
         specifier: ^1.2.11
         version: 1.2.16
@@ -7372,6 +7381,30 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
+      vite:
+        specifier: ^8.3.3
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)
+
+  packages/vite-plugin-astro/test/fixtures/standalone:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../runtime
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../..
+      '@vitejs/plugin-react':
+        specifier: ^6.1.2
+        version: 6.1.2(@rolldown/plugin-babel@0.3.0)(oxc-transform-react@0.156.0)(vite@8.3.5)
+      react:
+        specifier: ^19.3.0
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.3.0
+        version: 19.3.1(react@19.3.1)
       vite:
         specifier: ^8.3.3
         version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(tsx@4.23.15)(yaml@2.9.1)

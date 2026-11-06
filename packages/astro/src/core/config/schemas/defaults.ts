@@ -5,6 +5,7 @@ import type { AstroUserConfig } from '../../../types/public/config.js';
 export const ASTRO_CONFIG_DEFAULTS = {
 	...ASTRO_PLUGIN_DEFAULTS,
 	root: '.',
+	srcDir: './src',
 	outDir: './dist',
 	cacheDir: './node_modules/.astro',
 	base: '/',
