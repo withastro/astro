@@ -7012,8 +7012,8 @@ importers:
         specifier: ^0.1.3
         version: 0.1.3(@emnapi/runtime@1.11.3)
       vscode-jsonrpc:
-        specifier: ^9.0.3
-        version: 9.0.3
+        specifier: ^10.0.0
+        version: 10.0.0
     devDependencies:
       '@types/node':
         specifier: ^22.19.0
