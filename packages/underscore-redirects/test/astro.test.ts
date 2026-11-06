@@ -28,6 +28,65 @@ describe('Astro', () => {
 		assert.equal(redirects.definitions.length, 2);
 	});
 
+	it('Generates correct pattern for compound dynamic segments', () => {
+		const route = {
+			pattern: '/post-[id]',
+			pathname: undefined,
+			segments: [
+				[
+					{ content: 'post-', dynamic: false, spread: false },
+					{ content: 'id', dynamic: true, spread: false },
+				],
+			],
+			type: 'page',
+			isPrerendered: false,
+			origin: 'internal',
+		} as unknown as IntegrationResolvedRoute;
+
+		const redirects = createRedirectsFromAstroRoutes({
+			config: {
+				build: { format: 'directory' },
+			} as AstroConfig,
+			routeToDynamicTargetMap: new Map([[route, '']]),
+			dir: new URL(import.meta.url),
+			buildOutput: 'server',
+			assets: new Map(),
+		});
+
+		assert.equal(redirects.definitions[0].input, '/post-:id');
+	});
+
+	it('Generates correct pattern for multi-part dynamic segments', () => {
+		const route = {
+			pattern: '/[year]-[month]-[slug]',
+			pathname: undefined,
+			segments: [
+				[
+					{ content: 'year', dynamic: true, spread: false },
+					{ content: '-', dynamic: false, spread: false },
+					{ content: 'month', dynamic: true, spread: false },
+					{ content: '-', dynamic: false, spread: false },
+					{ content: 'slug', dynamic: true, spread: false },
+				],
+			],
+			type: 'page',
+			isPrerendered: false,
+			origin: 'internal',
+		} as unknown as IntegrationResolvedRoute;
+
+		const redirects = createRedirectsFromAstroRoutes({
+			config: {
+				build: { format: 'directory' },
+			} as AstroConfig,
+			routeToDynamicTargetMap: new Map([[route, '']]),
+			dir: new URL(import.meta.url),
+			buildOutput: 'server',
+			assets: new Map(),
+		});
+
+		assert.equal(redirects.definitions[0].input, '/:year-:month-:slug');
+	});
+
 	it('Generates correct paths for root', () => {
 		assert.deepEqual(getTrailingSlashPaths('/', 'ignore'), ['/']);
 		assert.deepEqual(getTrailingSlashPaths('/', 'always'), ['/']);
