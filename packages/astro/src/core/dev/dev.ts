@@ -7,6 +7,7 @@ import { getMajor, getMinor, getPatch, isGreaterThan } from 'verkit';
 import type * as vite from 'vite';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
 import { globalContentLayer } from '../../content/instance.js';
+import { createViteDriverLoader } from '../../content/storage-sync.js';
 import { attachContentServerListeners, attachDataStoreInvalidation } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
@@ -128,6 +129,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			logger,
 			watcher: restart.container.viteServer.watcher,
 			store,
+			loadStorageDriver: createViteDriverLoader(restart.container.viteServer),
 		});
 		contentLayer.watchContentConfig();
 		await contentLayer.sync();

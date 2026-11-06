@@ -2,6 +2,7 @@ import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import { globalContentLayer } from '../../content/instance.js';
+import { createViteDriverLoader } from '../../content/storage-sync.js';
 import { attachContentServerListeners } from '../../content/server-listeners.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
@@ -250,6 +251,7 @@ export async function createContainerWithAutomaticRestart({
 			logger,
 			watcher: restart.container.viteServer.watcher,
 			store: previousContentLayer.store,
+			loadStorageDriver: createViteDriverLoader(restart.container.viteServer),
 		});
 		contentLayer.watchContentConfig();
 		// A loader error must not reject the watcher callback that triggered the

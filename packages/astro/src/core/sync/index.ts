@@ -10,6 +10,7 @@ import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../
 import { globalContentLayer } from '../../content/instance.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
+import { createViteDriverLoader } from '../../content/storage-sync.js';
 import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
@@ -170,6 +171,7 @@ export async function syncInternal({
 				logger,
 				store,
 				watcher,
+				loadStorageDriver: createViteDriverLoader(tempViteServer),
 			});
 			if (watcher) {
 				contentLayer.watchContentConfig();
