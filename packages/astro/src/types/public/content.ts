@@ -1,3 +1,4 @@
+import type { CollectionMetadata } from '@astrojs/internal-helpers/collections';
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import type { DataEntry, RenderedContent } from '../../content/data-store.js';
 import type { LiveCollectionError } from '../../content/loaders/errors.js';
@@ -101,7 +102,18 @@ export type DataEntryModule = {
 	};
 };
 
-export type ContentEntryRenderFunction = (entry: DataEntry) => Promise<RenderedContent>;
+export interface ContentEntryRenderOptions {
+	/**
+	 * The metadata of the collection the entry belongs to, to pass to Markdown plugins. Set
+	 * when `experimental.collectionMetadata` is enabled.
+	 */
+	collection?: CollectionMetadata;
+}
+
+export type ContentEntryRenderFunction = (
+	entry: DataEntry,
+	options?: ContentEntryRenderOptions,
+) => Promise<RenderedContent>;
 
 export interface ContentEntryType {
 	extensions: string[];

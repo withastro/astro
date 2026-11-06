@@ -17,8 +17,18 @@ const guides = defineCollection({
 	descriptors: { version: 2, audience: ['beginners'] },
 });
 
+const notes = defineCollection({
+	loader: {
+		name: 'notes-loader',
+		descriptors: { library: 'notes' },
+		load: async ({ store, renderMarkdown }) => {
+			store.set({ id: 'first', data: {}, rendered: await renderMarkdown('A note.') });
+		},
+	},
+});
+
 const authors = defineCollection({
 	loader: () => [{ id: 'alice', name: 'Alice' }],
 });
 
-export const collections = { docs, guides, authors };
+export const collections = { docs, guides, notes, authors };
