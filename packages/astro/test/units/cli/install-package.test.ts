@@ -37,4 +37,30 @@ describe('getPackage', () => {
 			await rm(projectDir, { recursive: true, force: true });
 		}
 	});
+
+	it('rethrows errors from an installed package that fails to load', async () => {
+		const projectDir = join(tmpdir(), `astro-test-getpackage-throws-${Date.now()}`);
+		const pkgDir = join(projectDir, 'node_modules', 'fake-throwing-pkg');
+
+		try {
+			await mkdir(pkgDir, { recursive: true });
+			await writeFile(
+				join(pkgDir, 'package.json'),
+				JSON.stringify({
+					name: 'fake-throwing-pkg',
+					version: '1.0.0',
+					main: 'index.js',
+					type: 'module',
+				}),
+			);
+			await writeFile(join(pkgDir, 'index.js'), "throw new Error('init failed');\n");
+
+			await assert.rejects(
+				getPackage('fake-throwing-pkg', defaultLogger, { cwd: projectDir, optional: true }),
+				/init failed/,
+			);
+		} finally {
+			await rm(projectDir, { recursive: true, force: true });
+		}
+	});
 });

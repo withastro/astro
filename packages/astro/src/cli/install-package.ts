@@ -36,13 +36,17 @@ export async function getPackage<T>(
 	options: GetPackageOptions,
 	otherDeps: string[] = [],
 ): Promise<T | undefined> {
+	let resolved: string | undefined;
 	try {
 		// Try to resolve with `createRequire` first to prevent ESM caching of the package
 		// if it errors and fails here
-		const resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
+		resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
 		const packageImport = await import(pathToFileURL(resolved).href);
 		return packageImport as T;
-	} catch {
+	} catch (err) {
+		// The package is installed but failed to load, so surface the real error instead of
+		// prompting to install it. See https://github.com/withastro/astro/issues/18642
+		if (resolved) throw err;
 		if (options.optional) return undefined;
 		let message = `To continue, Astro requires the following dependency to be installed: ${bold(
 			packageName,

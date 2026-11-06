@@ -6913,6 +6913,9 @@ importers:
       '@astrojs/yaml2ts':
         specifier: ^0.2.4
         version: link:../yaml2ts
+      '@emnapi/runtime':
+        specifier: 1.11.3
+        version: 1.11.3
       '@volar/kit':
         specifier: ~2.4.30
         version: 2.4.30(typescript@6.0.3)
@@ -7014,6 +7017,9 @@ importers:
       '@astrojs/astro2tsx':
         specifier: ^0.1.3
         version: 0.1.3(@emnapi/runtime@1.11.3)
+      '@emnapi/runtime':
+        specifier: 1.11.3
+        version: 1.11.3
       vscode-jsonrpc:
         specifier: ^9.0.3
         version: 9.0.3
