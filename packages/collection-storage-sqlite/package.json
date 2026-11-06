@@ -1,0 +1,47 @@
+{
+  "name": "@astrojs/collection-storage-sqlite",
+  "description": "Keep Astro content collections in a SQLite or libSQL database",
+  "version": "0.0.1",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/collection-storage-sqlite"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://docs.astro.build/en/reference/experimental-flags/",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublish": "pnpm build",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\""
+  },
+  "devDependencies": {
+    "@libsql/client": "^0.18.0",
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*"
+  },
+  "peerDependencies": {
+    "@libsql/client": "^0.18.0",
+    "astro": "^7.5.0"
+  },
+  "keywords": [
+    "astro",
+    "content-collections",
+    "sqlite",
+    "libsql"
+  ],
+  "publishConfig": {
+    "provenance": true
+  }
+}
