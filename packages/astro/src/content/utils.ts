@@ -26,6 +26,7 @@ import {
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
+import { validateCollectionStorage } from './storage.js';
 
 const entryTypeSchema = z
 	.object({
@@ -70,6 +71,12 @@ function contentConfigParser(logger: AstroLogger) {
 				z.object({
 					type: z.literal(CONTENT_LAYER_TYPE),
 					schema: z.any().optional(),
+					storage: z
+						.object({
+							entrypoint: z.union([z.string(), z.instanceof(URL)]),
+							config: z.record(z.string(), z.unknown()).optional(),
+						})
+						.optional(),
 					loader: z.union([
 						z.function(),
 						z.object({
@@ -519,6 +526,10 @@ async function loadContentConfig({
 
 	const config = contentConfigParser(logger).safeParse(unparsedConfig);
 	if (config.success) {
+		validateCollectionStorage(
+			config.data.collections,
+			settings.config.experimental.collectionStorageDrivers,
+		);
 		// Generate a digest of the config file so we can invalidate the cache if it changes
 		const hasher = await xxhash();
 		const digest = hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));

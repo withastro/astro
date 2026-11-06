@@ -63,6 +63,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		redirectPage: false,
 		parallelPrerender: false,
 		collectionStorage: 'single-file',
+		collectionStorageDrivers: false,
 	},
 } satisfies AstroUserConfig & {
 	server: { open: boolean };
