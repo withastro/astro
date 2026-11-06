@@ -38,6 +38,8 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/vue-renderer": "workspace:*",
     "@vitejs/plugin-vue": "^6.0.10",
     "@vitejs/plugin-vue-jsx": "^5.1.6",
     "@vue/compiler-sfc": "^3.5.44",

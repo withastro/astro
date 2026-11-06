@@ -1,9 +1,12 @@
+import { reexportRenderer } from '@astrojs/internal-helpers/renderer';
+import solidRenderer from '@astrojs/solid-js-renderer';
 import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
-import { fileURLToPath } from 'node:url';
-import type { PluginOption, Plugin } from 'vite';
+import type { PluginOption } from 'vite';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
-import { crawlFrameworkPkgs } from 'vitefu';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
+
+const fromRendererPackage = (renderer: AstroRenderer) =>
+	reexportRenderer(renderer, '@astrojs/solid-js-renderer', '@astrojs/solid-js');
 
 // TODO: keep in sync with https://github.com/thetarnav/solid-devtools/blob/main/packages/main/src/vite/index.ts#L7
 type DevtoolsPluginOptions = {
@@ -46,12 +49,8 @@ async function getDevtoolsPlugin(logger: AstroIntegrationLogger, retrieve: boole
 function getViteConfiguration(
 	{ include, exclude }: Options,
 	devtoolsPlugin: DevtoolsPlugin | null,
-	solidNoExternal: string[],
 ) {
-	const plugins: PluginOption[] = [
-		solid({ include, exclude, ssr: true }),
-		configEnvironmentPlugin(solidNoExternal),
-	];
+	const plugins: PluginOption[] = [solid({ include, exclude, ssr: true })];
 
 	if (devtoolsPlugin) {
 		plugins.push(devtoolsPlugin({ autoname: true }));
@@ -74,13 +73,15 @@ export interface Options extends Pick<ViteSolidPluginOptions, 'include' | 'exclu
 	devtools?: boolean;
 }
 
+/**
+ * The Solid integration: `vite-plugin-solid` plus the renderer from `@astrojs/solid-js-renderer`.
+ */
 export default function (options: Options = {}): AstroIntegration {
 	return {
 		name: '@astrojs/solid-js',
 		hooks: {
 			'astro:config:setup': async ({
 				command,
-				config,
 				addRenderer,
 				updateConfig,
 				injectScript,
@@ -91,23 +92,9 @@ export default function (options: Options = {}): AstroIntegration {
 					!!options.devtools && command === 'dev',
 				);
 
-				// Solid component libraries that ship pre-compiled browser
-				// artifacts via the `exports.solid` condition must go through
-				// Vite's transform pipeline in non-client environments.
-				// Without this, Node resolves those packages via the `default`
-				// condition, which picks up browser-only code that crashes
-				// during prerendering.
-				const solidPackages = await crawlFrameworkPkgs({
-					root: fileURLToPath(config.root),
-					isBuild: false,
-					isFrameworkPkgByJson(pkgJson) {
-						return !!pkgJson.peerDependencies?.['solid-js'];
-					},
-				});
-
-				addRenderer(getContainerRendererImpl());
+				addRenderer(fromRendererPackage(solidRenderer()));
 				updateConfig({
-					vite: getViteConfiguration(options, devtoolsPlugin, solidPackages.ssr.noExternal),
+					vite: getViteConfiguration(options, devtoolsPlugin),
 				});
 
 				if (devtoolsPlugin) {
@@ -126,28 +113,6 @@ export default function (options: Options = {}): AstroIntegration {
 					);
 				}
 			},
-		},
-	};
-}
-
-function configEnvironmentPlugin(solidNoExternal: string[]): Plugin {
-	return {
-		name: '@astrojs/solid:config-environment',
-		configEnvironment(environmentName) {
-			if (environmentName === 'client') {
-				return {
-					optimizeDeps: {
-						include: ['@astrojs/solid-js/client.js'],
-						exclude: ['@astrojs/solid-js/server.js'],
-					},
-				};
-			}
-			return {
-				resolve: { noExternal: solidNoExternal },
-				optimizeDeps: {
-					exclude: ['@astrojs/solid-js/server.js'],
-				},
-			};
 		},
 	};
 }
