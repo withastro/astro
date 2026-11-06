@@ -29,6 +29,7 @@ import {
 	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX,
 	RESOLVED_DATA_STORE_VIRTUAL_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
+	STORED_COLLECTIONS_FILE,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import type { MutableDataStore } from './mutable-data-store.js';
@@ -75,22 +76,23 @@ function invalidateDataStore(viteServer: ViteDevServer, { notifyClient = true } 
 		const environment = viteServer.environments[name];
 		if (!environment) continue;
 
-		const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
-		if (module) {
-			// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
-			environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
-		}
-		// Also invalidate the module in the runner's evaluation cache.
-		// Server-side invalidation only clears `transformResult`, but the runner
-		// may still hold a stale evaluated result. When the runner's `fetchModule`
-		// call triggers a fresh server transform, the transform re-populates
-		// `transformResult` before the runner checks it, causing a false cache hit.
-		if (isRunnableDevEnvironment(environment)) {
-			const runnerModule = environment.runner.evaluatedModules.getModuleById(
-				RESOLVED_DATA_STORE_VIRTUAL_ID,
-			);
-			if (runnerModule) {
-				environment.runner.evaluatedModules.invalidateModule(runnerModule);
+		// The storage drivers module carries the snapshot of the collections with a storage driver
+		for (const id of [RESOLVED_DATA_STORE_VIRTUAL_ID, RESOLVED_COLLECTION_STORAGE_VIRTUAL_ID]) {
+			const module = environment.moduleGraph.getModuleById(id);
+			if (module) {
+				// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
+				environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
+			}
+			// Also invalidate the module in the runner's evaluation cache.
+			// Server-side invalidation only clears `transformResult`, but the runner
+			// may still hold a stale evaluated result. When the runner's `fetchModule`
+			// call triggers a fresh server transform, the transform re-populates
+			// `transformResult` before the runner checks it, causing a false cache hit.
+			if (isRunnableDevEnvironment(environment)) {
+				const runnerModule = environment.runner.evaluatedModules.getModuleById(id);
+				if (runnerModule) {
+					environment.runner.evaluatedModules.invalidateModule(runnerModule);
+				}
 			}
 		}
 		// Signal the runner to clear its route cache so that getStaticPaths()
@@ -198,6 +200,9 @@ export function astroContentVirtualModPlugin({
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
 				devServer.watcher.add(assetImportsPath);
+				devServer.watcher.add(
+					fileURLToPath(new URL(STORED_COLLECTIONS_FILE, settings.dotAstroDir)),
+				);
 				// Manually invalidate the data store to avoid a race condition in file watching.
 				// Skip client reload since no browser has loaded content yet at startup.
 				invalidateDataStore(devServer, { notifyClient: false });
@@ -433,16 +438,24 @@ export function astroContentVirtualModPlugin({
 			devServer = server;
 			const dataStorePath = fileURLToPath(dataStoreFile);
 			const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
+			const storedCollectionsPath = fileURLToPath(
+				new URL(STORED_COLLECTIONS_FILE, settings.dotAstroDir),
+			);
 
 			server.watcher.on('add', (addedPath) => {
 				if (addedPath === dataStorePath && !isDirectInvalidationEcho(dataStorePath)) {
 					invalidateDataStore(server);
 					invalidateAssetImports(server, assetImportsPath);
+				} else if (addedPath === storedCollectionsPath) {
+					invalidateDataStore(server);
 				}
 			});
 
 			server.watcher.on('change', (changedPath) => {
-				if (changedPath === dataStorePath) {
+				if (changedPath === storedCollectionsPath) {
+					// A new snapshot of the collections with a storage driver was written
+					invalidateDataStore(server);
+				} else if (changedPath === dataStorePath) {
 					if (isDirectInvalidationEcho(dataStorePath)) {
 						return;
 					}

@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
-import { type App, type Fixture, loadFixture } from './test-utils.ts';
+import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 function readFilesRecursively(dir: URL): string {
 	return fs
@@ -107,5 +107,50 @@ describe('The content option without collection storage drivers', () => {
 	it('is rejected by the types', () => {
 		// Fails if an `@ts-expect-error` in src/type-checks.ts is unused
 		execSync('npx tsc --noEmit', { cwd: fileURLToPath(fixture.config.root), stdio: 'pipe' });
+	});
+});
+
+describe('Collection storage drivers in development', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+
+	before(async () => {
+		process.env.JSON_DRIVER_SECRET = 'json-driver-secret';
+		fixture = await loadFixture({ root: './fixtures/collection-storage/' });
+		devServer = await fixture.startDevServer({});
+	});
+
+	after(async () => {
+		await devServer?.stop();
+		fixture.resetAllFiles();
+	});
+
+	async function waitForTitle(path: string, title: string) {
+		const deadline = Date.now() + 10_000;
+		while (true) {
+			const $ = cheerio.load(await (await fixture.fetch(path)).text());
+			if ($('#title').text() === title) return $;
+			if (Date.now() > deadline) assert.fail(`${path} never showed "${title}"`);
+			await new Promise((resolve) => setTimeout(resolve, 200));
+		}
+	}
+
+	it('reads stored collections through the driver', async () => {
+		const $ = await waitForTitle('/docs/intro', 'Introduction');
+
+		assert.equal($('article h1').text(), 'Stored introduction');
+	});
+
+	it('rewrites the snapshot of the dev server when a stored entry changes', async () => {
+		const manifestFile = new URL('./.astro/collection-storage.json', fixture.config.root);
+		const { snapshot } = JSON.parse(fs.readFileSync(manifestFile, 'utf-8')).drivers[0];
+
+		await fixture.editFile('/src/docs/intro.md', (content) =>
+			content.replace('title: Introduction', 'title: Updated introduction'),
+		);
+		await waitForTitle('/docs/intro', 'Updated introduction');
+
+		const updated = JSON.parse(fs.readFileSync(manifestFile, 'utf-8')).drivers[0];
+		assert.equal(updated.snapshot, snapshot);
 	});
 });
