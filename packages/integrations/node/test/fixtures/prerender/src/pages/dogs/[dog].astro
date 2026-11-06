@@ -1,0 +1,15 @@
+---
+export const prerender = true
+
+export function getStaticPaths() {
+  return [
+    { params: { dog: "clifford" }},
+    { params: { dog: "rover" }},
+    { params: { dog: "spot" }},
+  ];
+}
+
+const { dog } = Astro.params;
+---
+
+<h1>Good dog, {dog}!</h1>

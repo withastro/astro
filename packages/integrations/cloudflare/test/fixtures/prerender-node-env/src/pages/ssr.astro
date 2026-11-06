@@ -1,0 +1,19 @@
+---
+export const prerender = false;
+
+const hasCf = Astro.request.cf ? 'true' : 'false';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>SSR page</title>
+		<style>
+			body { background: red; color: white; }
+		</style>
+	</head>
+	<body>
+		<h1>SSR</h1>
+		<p id="has-cf">{hasCf}</p>
+	</body>
+</html>

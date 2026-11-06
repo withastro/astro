@@ -1,0 +1,14 @@
+[
+  {
+    "id": "falcon-9",
+    "name": "Falcon 9",
+    "manufacturer": "SpaceX",
+    "image": "shuttle.jpg"
+  },
+  {
+    "id": "saturn-v",
+    "name": "Saturn V",
+    "manufacturer": "NASA",
+    "image": "./shuttle.jpg"
+  }
+]

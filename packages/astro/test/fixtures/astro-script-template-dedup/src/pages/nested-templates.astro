@@ -1,0 +1,15 @@
+---
+import Counter from '../components/Counter.astro';
+---
+
+<html>
+	<head><title>Nested templates</title></head>
+	<body>
+		<template id="outer">
+			<template id="inner">
+				<Counter />
+			</template>
+		</template>
+		<Counter />
+	</body>
+</html>

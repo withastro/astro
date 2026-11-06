@@ -1,0 +1,170 @@
+import npath from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import {
+	appendForwardSlash,
+	collapseDuplicateTrailingSlashes,
+	hasFileExtension,
+	joinPaths,
+	removeLeadingForwardSlash,
+	removeTrailingForwardSlash,
+} from '../../core/path.js';
+import type { AstroConfig } from '../../types/public/config.js';
+import type { RouteData, RouteType } from '../../types/public/internal.js';
+import { STATUS_CODE_PAGES } from '../constants.js';
+
+const FALLBACK_OUT_DIR_NAME = './.astro/';
+
+export function pathToDirectoryURL(path: string): URL {
+	return new URL(appendForwardSlash(pathToFileURL(path).href));
+}
+
+export function getOutFolder({
+	outRoot,
+	buildFormat,
+	pathname,
+	routeData,
+}: {
+	outRoot: URL;
+	buildFormat: NonNullable<AstroConfig['build']>['format'];
+	pathname: string;
+	routeData: RouteData;
+}): URL {
+	const routeType = routeData.type;
+
+	// This is the root folder to write to.
+	switch (routeType) {
+		case 'endpoint':
+			return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+		case 'fallback':
+		case 'page':
+		case 'redirect':
+			switch (buildFormat) {
+				case 'directory': {
+					if (STATUS_CODE_PAGES.has(pathname)) {
+						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+					}
+					return new URL('.' + appendForwardSlash(pathname), outRoot);
+				}
+				case 'file': {
+					const d = pathname === '' ? pathname : npath.dirname(pathname);
+					return new URL('.' + appendForwardSlash(d), outRoot);
+				}
+				case 'preserve': {
+					let dir;
+					// If the pathname is '' then this is the root index.html
+					// If this is an index route, the folder should be the pathname, not the parent
+					if (pathname === '' || routeData.isIndex) {
+						dir = pathname;
+					} else {
+						dir = npath.dirname(pathname);
+					}
+					return new URL('.' + appendForwardSlash(dir), outRoot);
+				}
+			}
+	}
+}
+
+export function getOutFile(
+	buildFormat: NonNullable<AstroConfig['build']>['format'],
+	outFolder: URL,
+	pathname: string,
+	routeData: RouteData,
+): URL {
+	const routeType = routeData.type;
+	switch (routeType) {
+		case 'endpoint':
+			return new URL(npath.basename(pathname), outFolder);
+		case 'page':
+		case 'fallback':
+		case 'redirect':
+			switch (buildFormat) {
+				case 'directory': {
+					if (STATUS_CODE_PAGES.has(pathname)) {
+						const baseName = npath.basename(pathname);
+						return new URL('./' + (baseName || 'index') + '.html', outFolder);
+					}
+					return new URL('./index.html', outFolder);
+				}
+				case 'file': {
+					const baseName = npath.basename(pathname);
+					return new URL('./' + (baseName || 'index') + '.html', outFolder);
+				}
+				case 'preserve': {
+					let baseName = npath.basename(pathname);
+					// If there is no base name this is the root route.
+					// If this is an index route, the name should be `index.html`.
+					if (!baseName || routeData.isIndex) {
+						baseName = 'index';
+					}
+					return new URL(`./${baseName}.html`, outFolder);
+				}
+			}
+	}
+}
+
+/**
+ * Ensures the `outDir` is within `process.cwd()`. If not it will fall back to `<cwd>/.astro`.
+ * This is used for static `ssrBuild` so the output can access node_modules when we import
+ * the output files. A hardcoded fallback dir is fine as it would be cleaned up after build.
+ */
+export function getOutDirWithinCwd(outDir: URL): URL {
+	if (fileURLToPath(outDir).startsWith(process.cwd())) {
+		return outDir;
+	} else {
+		return new URL(FALLBACK_OUT_DIR_NAME, pathToFileURL(process.cwd() + npath.sep));
+	}
+}
+
+export function getUrlForPath(
+	pathname: string,
+	base: string,
+	origin: string,
+	format: AstroConfig['build']['format'],
+	trailingSlash: AstroConfig['trailingSlash'],
+	routeType: RouteType,
+	isIndex: boolean,
+): URL {
+	/**
+	 * Examples:
+	 * pathname: /, /foo
+	 * base: /
+	 */
+
+	let ending: string;
+	// For `preserve`, non-index routes output as flat `.html` files (like `file`),
+	// while index routes output as `dir/index.html` (like `directory`).
+	const effectiveFormat = format === 'preserve' ? (isIndex ? 'directory' : 'file') : format;
+	switch (effectiveFormat) {
+		case 'directory': {
+			ending = trailingSlash === 'never' ? '' : '/';
+			break;
+		}
+		case 'file':
+		default: {
+			ending = '.html';
+			break;
+		}
+	}
+	let buildPathname: string;
+	if (pathname === '/' || pathname === '') {
+		if (effectiveFormat === 'file') {
+			buildPathname = joinPaths(base, 'index.html');
+		} else {
+			buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
+		}
+	} else if (routeType === 'endpoint') {
+		const buildPathRelative = removeLeadingForwardSlash(pathname);
+		let endpointPathname = joinPaths(base, buildPathRelative);
+		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
+			endpointPathname = appendForwardSlash(endpointPathname);
+		} else if (trailingSlash === 'never') {
+			endpointPathname = removeTrailingForwardSlash(endpointPathname);
+		}
+		buildPathname = endpointPathname;
+	} else {
+		const buildPathRelative =
+			removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
+		buildPathname = joinPaths(base, buildPathRelative);
+	}
+	return new URL(buildPathname, origin);
+}

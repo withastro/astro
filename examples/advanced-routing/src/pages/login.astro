@@ -1,0 +1,111 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { actions } from 'astro:actions';
+
+const result = Astro.getActionResult(actions.login);
+if (result && !result.error) {
+	return Astro.redirect('/dashboard');
+}
+---
+
+<Layout title="Login">
+	<h1>Login</h1>
+	{result?.error && <p class="error">Login failed. Please try again.</p>}
+	<p>You were redirected here because you don't have a session cookie.</p>
+	<p>
+		The auth middleware in <code>src/app.ts</code> runs <em>before</em>
+		<code>astro()</code>, so the dashboard page is never even rendered for unauthenticated requests.
+	</p>
+	<div class="form-card">
+		<form method="POST" action={actions.login.queryString}>
+			<div class="field">
+				<label for="email">Email</label>
+				<input
+					type="email"
+					id="email"
+					name="email"
+					placeholder="you@example.com"
+					value="user@example.com"
+				/>
+			</div>
+			<div class="field">
+				<label for="password">Password</label>
+				<input type="password" id="password" name="password" value="password" />
+			</div>
+			<button type="submit">Sign in</button>
+		</form>
+	</div>
+</Layout>
+
+<style>
+	h1 {
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin-bottom: 1rem;
+	}
+
+	p {
+		color: #8b8fa3;
+		line-height: 1.6;
+		margin-bottom: 1rem;
+	}
+
+	code {
+		background: #1a1d27;
+		border: 1px solid #2a2d3a;
+		padding: 0.15em 0.4em;
+		border-radius: 4px;
+		font-size: 0.85em;
+	}
+
+	.form-card {
+		background: #1a1d27;
+		border: 1px solid #2a2d3a;
+		border-radius: 8px;
+		padding: 1.5rem;
+		margin-top: 1.5rem;
+	}
+
+	.field {
+		margin-bottom: 1rem;
+	}
+
+	label {
+		display: block;
+		font-size: 0.875rem;
+		color: #8b8fa3;
+		margin-bottom: 0.375rem;
+	}
+
+	input {
+		width: 100%;
+		padding: 0.5rem 0.75rem;
+		background: #0f1117;
+		border: 1px solid #2a2d3a;
+		border-radius: 6px;
+		color: #e1e4ed;
+		font-size: 0.875rem;
+		outline: none;
+		transition: border-color 0.15s;
+	}
+
+	input:focus {
+		border-color: #6366f1;
+	}
+
+	button {
+		padding: 0.5rem 1rem;
+		background: #6366f1;
+		color: white;
+		border: none;
+		border-radius: 6px;
+		font-size: 0.875rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: background 0.15s;
+	}
+
+	button:hover {
+		background: #818cf8;
+	}
+</style>

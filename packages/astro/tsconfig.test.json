@@ -1,0 +1,22 @@
+{
+  "extends": "../../configs/tsconfig.test.json",
+  "include": [
+    "test/units/**/*.ts",
+    "test/*.ts",
+    "e2e/*.ts",
+    "./performance/*.mjs",
+    "./performance/scripts/*.mjs",
+    "package.json"
+  ],
+  "exclude": ["test/units/_temp-fixtures/**", "test/fixtures/**", "e2e/fixtures/**"],
+  "files": [
+    // Extra files that aren't included in the "include" glob patterns, but are still needed for tests.
+    "./test/fixtures/multiple-jsx-renderers/renderers/woof/index.mjs",
+    "./test/fixtures/multiple-jsx-renderers/renderers/meow/index.mjs",
+    "./test/fixtures/before-hydration/deps.mjs"
+  ],
+  "compilerOptions": {
+    "types": ["vite/client", "node"]
+  },
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "../../scripts/tsconfig.json" }]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@test/astro-cloudflare-static",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "astro build"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

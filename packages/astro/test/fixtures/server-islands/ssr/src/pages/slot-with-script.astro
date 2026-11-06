@@ -1,0 +1,15 @@
+---
+import Wrapper from '../components/Wrapper.astro';
+import ScriptedCounter from '../components/ScriptedCounter.astro';
+---
+<html>
+<head>
+  <title>Slot with script</title>
+</head>
+<body>
+  <Wrapper server:defer>
+    <ScriptedCounter slot="content" />
+    <div slot="fallback">Loading...</div>
+  </Wrapper>
+</body>
+</html>

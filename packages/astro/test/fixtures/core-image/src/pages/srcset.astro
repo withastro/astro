@@ -1,0 +1,77 @@
+---
+import { Image } from "astro:assets";
+import image from "../assets/penguin2.jpg";
+import image600x400 from "../assets/walrus_600x400.jpg";
+---
+
+<div id="local-3-images">
+	<!--
+		In this example, only three images should be generated :
+		- The base image
+		- The 1.5x image
+		- The 2x image
+	-->
+	<Image src={image} width={image.width / 2} densities={[1.5, 2]} alt="" />
+</div>
+
+<div id="remote-3-images">
+	<!--
+		In this example, only three images should be generated :
+		- The base image
+		- The 1.5x image
+		- The 2x image
+	-->
+	<Image src={"https://avatars.githubusercontent.com/u/622227?s=64"} width={32} height={32} densities={[1.5, 2]} alt="" />
+</div>
+
+<div id="local-1x">
+	<!--
+		In this example, only one image should be generated :
+		- The base image, 1x density should be the same as the base image
+	-->
+	<Image src={image} width={image.width / 2} densities={[1]} alt="" />
+</div>
+
+<div id="remote-1x">
+	<!--
+		In this example, only one image should be generated :
+		- The base image, 1x density should be the same as the base image
+	-->
+	<Image src={"https://avatars.githubusercontent.com/u/622227?s=64"} width={32} height={32} densities={[1]} alt="" />
+</div>
+
+<div id="local-2-widths">
+	<!--
+		In this example, only two images should be generated :
+		- The base image
+		- The 2x image
+	-->
+	<Image src={image} width={image.width / 2} widths={[image.width]} alt="" />
+</div>
+
+<div id="remote-2-widths">
+	<!--
+		In this example, only two images should be generated :
+		- The base image
+		- The 2x image
+	-->
+	<Image src={"https://avatars.githubusercontent.com/u/622227?s=64"} width={32} height={32} widths={[64]} alt="" />
+</div>
+
+<div id="local-2x-original-wh">
+	<!--
+		In this example, only two image should be generated :
+		- The base, 300x200 and webp image
+		- The 2x, 600x400 and webp image
+	-->
+	<Image src={image600x400} width={image600x400.width / 2} densities={[2]} alt="" />
+</div>
+
+<div id="local-2x-original-whf">
+	<!--
+		In this example, only two image should be generated :
+		- The base, 300x200 and jpg image
+		- The 2x, 600x400 and jpg image
+	-->
+	<Image src={image600x400} width={image600x400.width / 2} densities={[2]} format="jpg" alt="" />
+</div>

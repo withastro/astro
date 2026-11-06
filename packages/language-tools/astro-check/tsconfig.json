@@ -1,0 +1,5 @@
+{
+  "extends": "../../../configs/tsconfig.base.json",
+  "files": ["./bin/astro-check.js"],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }]
+}

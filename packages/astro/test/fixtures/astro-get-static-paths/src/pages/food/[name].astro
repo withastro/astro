@@ -1,0 +1,37 @@
+---
+export async function getStaticPaths() {
+	// Should cause warnings;
+	const { generator, site } = Astro;
+	return [
+		{
+			params: { name: 'tacos' },
+			props: { generator, site }
+		},
+		{
+			params: { name: 'potatoes' },
+			props: { generator, site }
+		},
+		{
+			params: { name: 'spaghetti' },
+			props: { generator, site }
+		}
+	]
+}
+
+// Shouldn't cause warnings;
+Astro.site;
+Astro.generator;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Food</title>
+	</head>
+	<body>
+		<p id="url">{ Astro.url.pathname }</p>
+		<p id="generator">{Astro.props.generator}</p>
+		<p id="site">{Astro.props.site}</p>
+	</body>
+</html>

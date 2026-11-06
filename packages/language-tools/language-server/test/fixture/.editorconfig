@@ -1,0 +1,5 @@
+root = true
+
+# Scoped to editorConfig.astro. Ensure other files are not affected by this configuration.
+[editorConfig.astro]
+end_of_line = crlf

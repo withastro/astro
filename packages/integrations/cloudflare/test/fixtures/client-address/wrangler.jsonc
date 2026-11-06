@@ -1,0 +1,5 @@
+{
+  "name": "test-client-address",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-01-28"
+}
