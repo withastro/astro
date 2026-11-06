@@ -78,6 +78,10 @@ const attributesPage = createComponent(() => {
     <div id="hidden-false"${addAttribute(false, 'hidden')} />
     <div id="hidden-string-empty"${addAttribute('', 'hidden')} />
 
+    <section id="headingreset-true"${addAttribute(true, 'headingreset')}></section>
+    <section id="headingreset-false"${addAttribute(false, 'headingreset')}></section>
+    <section id="headingreset-string-empty"${addAttribute('', 'headingreset')}></section>
+
     <span id="boolean-attr-true"${addAttribute(true, 'allowfullscreen')} />
     <span id="boolean-attr-false"${addAttribute(false, 'allowfullscreen')} />
     <span id="boolean-attr-string-truthy"${addAttribute('foo', 'allowfullscreen')} />
@@ -208,6 +212,9 @@ describe('Attributes', async () => {
 			'hidden-true': { attribute: 'hidden', value: 'hidden' },
 			'hidden-false': { attribute: 'hidden', value: undefined },
 			'hidden-string-empty': { attribute: 'hidden', value: 'hidden' },
+			'headingreset-true': { attribute: 'headingreset', value: '' },
+			'headingreset-false': { attribute: 'headingreset', value: undefined },
+			'headingreset-string-empty': { attribute: 'headingreset', value: undefined },
 			'boolean-attr-true': { attribute: 'allowfullscreen', value: '' },
 			'boolean-attr-false': { attribute: 'allowfullscreen', value: undefined },
 			'boolean-attr-string-truthy': { attribute: 'allowfullscreen', value: '' },
@@ -239,6 +246,7 @@ describe('Attributes', async () => {
 			'hidden="until-found" should preserve the attribute value',
 		);
 		assert.ok(!html.includes('allowfullscreen='), 'boolean attributes should not have values');
+		assert.ok(!html.includes('headingreset='), 'headingreset should not have a value');
 		assert.ok(
 			!/id="data-attr-string-falsy"\s+data-foobar=/.test(html),
 			"data attributes should not have values if it's an empty string",

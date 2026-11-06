@@ -547,6 +547,20 @@ declare namespace astroHTML.JSX {
 			| undefined
 			| null;
 		exportparts?: string | undefined | null;
+		headingoffset?:
+			| 0
+			| 1
+			| 2
+			| 3
+			| 4
+			| 5
+			| 6
+			| 7
+			| 8
+			| `${0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`
+			| undefined
+			| null;
+		headingreset?: boolean | string | undefined | null;
 		hidden?: boolean | string | undefined | null;
 		id?: string | undefined | null;
 		inert?: boolean | string | undefined | null;
