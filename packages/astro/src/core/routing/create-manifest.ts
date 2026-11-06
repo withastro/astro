@@ -105,6 +105,18 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
 	return true;
 }
 
+/**
+ * Returns a key that is equal for two routes exactly when all of their segments
+ * are semantically equal (see `isSemanticallyEqualSegment`).
+ */
+function getSemanticSegmentsKey(segments: RoutePart[][]) {
+	return JSON.stringify(
+		segments.map((segment) =>
+			segment.map((part) => (part.dynamic ? [1, part.spread] : [0, part.spread, part.content])),
+		),
+	);
+}
+
 type RoutingSettings = Pick<
 	AstroSettings,
 	'config' | 'injectedRoutes' | 'pageExtensions' | 'buildOutput'
@@ -754,11 +766,32 @@ export async function createRoutesList(
 	}
 	await Promise.all(promises);
 
-	// Report route collisions
-	for (const [index, higherRoute] of routes.entries()) {
-		for (const lowerRoute of routes.slice(index + 1)) {
-			detectRouteCollision(higherRoute, lowerRoute, config, logger);
+	// Report route collisions. `detectRouteCollision` only warns for routes with the same
+	// route string or with semantically equal segments, so only pairs within those groups
+	// are checked, in the same order as checking every pair.
+	const groups = new Map<string, number[]>();
+	for (const [index, route] of routes.entries()) {
+		for (const key of [
+			`route:${route.route}`,
+			`segments:${getSemanticSegmentsKey(route.segments)}`,
+		]) {
+			const group = groups.get(key);
+			if (group) group.push(index);
+			else groups.set(key, [index]);
 		}
+	}
+	const pairs = new Set<number>();
+	for (const group of groups.values()) {
+		for (let i = 0; i < group.length; i++) {
+			for (let j = i + 1; j < group.length; j++) {
+				pairs.add(group[i] * routes.length + group[j]);
+			}
+		}
+	}
+	for (const pair of [...pairs].sort((a, b) => a - b)) {
+		const higherRoute = routes[Math.floor(pair / routes.length)];
+		const lowerRoute = routes[pair % routes.length];
+		detectRouteCollision(higherRoute, lowerRoute, config, logger);
 	}
 
 	const i18n = settings.config.i18n;
