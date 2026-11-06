@@ -1,4 +1,5 @@
 import { isRunnableDevEnvironment, type EnvironmentModuleNode, type Plugin } from 'vite';
+import { inlineRE, rawRE } from '../vite-plugin-astro-server/util.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { RESOLVED_MODULE_DEV_CSS_PREFIX } from '../vite-plugin-css/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
@@ -6,10 +7,8 @@ import { isAstroServerEnvironment } from '../environments.js';
 
 const STYLE_EXT_REGEX = /\.(?:css|less|sass|scss|styl|stylus|pcss|postcss|sss)$/i;
 const STYLE_COMPONENT_EXT_REGEX = /\.(astro|svelte|vue)$/i;
-const RAW_QUERY_REGEX = /(?:\?|&)raw(?:&|$)/;
 
 function hasStyleExtension(id: string): boolean {
-	// Style module IDs may include Vite query params such as ?used or ?direct.
 	return STYLE_EXT_REGEX.test(id.split('?')[0]);
 }
 
@@ -21,39 +20,28 @@ function isComponentStyleModule(id: string): boolean {
 	return query.get('type') === 'style' && query.has(extensionMatch[1].toLowerCase());
 }
 
-// Whether a style module comes from a file (e.g. global.css, styles.scss)
-// or from a component request (e.g. *.astro?astro&type=style, *.svelte?svelte&type=style).
+function isCssStringModule(id: string): boolean {
+	return hasStyleExtension(id) && (rawRE.test(id) || inlineRE.test(id));
+}
+
 type StyleModuleType = 'file' | 'component';
 
 function getStyleModuleType(mod: EnvironmentModuleNode): StyleModuleType | undefined {
-	// CSS imported with ?raw is a JS string export, so SSR importers need to be invalidated
-	// instead of relying on Vite's client-side CSS HMR handling.
-	if (mod.id && RAW_QUERY_REGEX.test(mod.id) && hasStyleExtension(mod.id)) return;
 	if (mod.id && isComponentStyleModule(mod.id)) return 'component';
 	if (mod.file && hasStyleExtension(mod.file)) return 'file';
-	// CSS modules and other style files may have query params in their id (e.g. ?used, ?direct)
 	return mod.id && hasStyleExtension(mod.id) ? 'file' : undefined;
 }
 
-function hasClientStyleModuleByFile(
-	moduleGraph: { getModulesByFile?(file: string): Set<EnvironmentModuleNode> | undefined },
-	mod: EnvironmentModuleNode,
-	styleType: StyleModuleType,
-): boolean {
-	if (mod.file == null || moduleGraph.getModulesByFile == null) return false;
+function getClientStyleModuleId(id: string, styleType: StyleModuleType): string {
+	if (styleType === 'file') return id;
 
-	const fileModules = moduleGraph.getModulesByFile(mod.file);
-	if (fileModules == null) return false;
-
-	for (const fileMod of fileModules) {
-		if (fileMod.id == null) continue;
-		if (styleType === 'component') {
-			if (isComponentStyleModule(fileMod.id)) return true;
-		} else if (!RAW_QUERY_REGEX.test(fileMod.id) && hasStyleExtension(fileMod.id)) {
-			return true;
-		}
-	}
-	return false;
+	// SSR CSS collection may add `inline`, while client CSS HMR uses the remaining request ID.
+	const [filename, rawQuery] = id.split('?', 2);
+	const clientQuery = rawQuery
+		.split('&')
+		.filter((parameter) => parameter !== 'inline')
+		.join('&');
+	return clientQuery ? `${filename}?${clientQuery}` : filename;
 }
 
 /**
@@ -77,15 +65,18 @@ export default function hmrReload(): Plugin {
 				const invalidatedModules = new Set<EnvironmentModuleNode>();
 				for (const mod of modules) {
 					if (mod.id == null) continue;
-					const styleType = getStyleModuleType(mod);
-					const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
+					const isCssString = isCssStringModule(mod.id);
+					const styleType = isCssString ? undefined : getStyleModuleType(mod);
+					// CSS string exports need SSR invalidation rather than client-side CSS HMR.
+					const clientModule = isCssString
+						? null
+						: server.environments.client.moduleGraph.getModuleById(
+								styleType ? getClientStyleModuleId(mod.id, styleType) : mod.id,
+							);
 					if (styleType) {
 						hasStyleModules = true;
 						// No client module means nothing will apply the CSS update client-side, so force a reload.
-						if (
-							clientModule == null &&
-							!hasClientStyleModuleByFile(server.environments.client.moduleGraph, mod, styleType)
-						) {
+						if (clientModule == null) {
 							this.environment.moduleGraph.invalidateModule(
 								mod,
 								invalidatedModules,
