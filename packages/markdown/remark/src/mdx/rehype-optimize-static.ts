@@ -4,6 +4,7 @@ import { SKIP, visit } from 'estree-util-visit';
 import type { Element, RootContent, RootContentMap } from 'hast';
 import { toHtml } from 'hast-util-to-html';
 import type { MdxJsxFlowElementHast, MdxJsxTextElementHast } from 'mdast-util-mdx-jsx';
+import { visit as visitHast } from 'unist-util-visit';
 
 // Alias as the main hast node
 type Node = RootContent;
@@ -57,6 +58,14 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 		const elementStack: Node[] = [];
 		// Metadata used by `findElementGroups` later
 		const elementMetadatas = new WeakMap<OptimizableNode, ElementMetadata>();
+		// Parent nodes whose children are in the SVG namespace, so serializing those children
+		// keeps SVG attribute names (e.g. `marker-end` instead of `markerEnd`)
+		const svgSpaceParents = new WeakSet<Node>();
+
+		const serialize = (nodes: Node[], parent: Node) => {
+			inlineScriptStyleSetHtml(nodes);
+			return toHtml(nodes, { space: svgSpaceParents.has(parent) ? 'svg' : 'html' });
+		};
 
 		/**
 		 * A non-static node causes all its parents to be non-optimizable
@@ -81,6 +90,17 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 
 				// Mutate `node` as a normal hast element node if it's a plain MDX node, e.g. `<kbd>something</kbd>`
 				simplifyPlainMdxComponentNode(node, ignoreElementNames);
+
+				const name =
+					node.type === 'element' ? node.tagName : isMdxComponentNode(node) ? node.name : null;
+				if (
+					name === 'svg' ||
+					(name != null &&
+						name !== 'foreignObject' &&
+						svgSpaceParents.has(parents[parents.length - 1]))
+				) {
+					svgSpaceParents.add(node);
+				}
 
 				// For nodes that are not static, eliminate all elements in the `elementStack` from the
 				// `allPossibleElements` set.
@@ -144,10 +164,10 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 				el.attributes.push({
 					type: 'mdxJsxAttribute',
 					name: 'set:html',
-					value: toHtml(el.children),
+					value: serialize(el.children, el),
 				});
 			} else {
-				el.properties['set:html'] = toHtml(el.children);
+				el.properties['set:html'] = serialize(el.children, el);
 			}
 			el.children = [];
 		}
@@ -164,7 +184,7 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 					{
 						type: 'mdxJsxAttribute',
 						name: 'set:html',
-						value: toHtml(group.children),
+						value: serialize(group.children, group.parent),
 					},
 				],
 				children: [],
@@ -238,6 +258,23 @@ function findElementGroups(
 	}
 
 	return elementGroups;
+}
+
+/**
+ * Moves the `set:html` property that `rehypeCollapseScriptStyle` adds to `<script>`/`<style>`
+ * elements back into a text child, so `toHtml` serializes it as the element content instead
+ * of as an attribute. Mutates `nodes` in place.
+ */
+function inlineScriptStyleSetHtml(nodes: Node[]) {
+	for (const node of nodes) {
+		visitHast(node, 'element', (el: Element) => {
+			const value = el.properties['set:html'];
+			if ((el.tagName === 'script' || el.tagName === 'style') && typeof value === 'string') {
+				delete el.properties['set:html'];
+				el.children = [{ type: 'text', value }];
+			}
+		});
+	}
 }
 
 function isMdxComponentNode(node: Node): node is MdxJsxFlowElementHast | MdxJsxTextElementHast {

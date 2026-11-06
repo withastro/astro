@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { compile as _compile, type CompileOptions } from '@mdx-js/mdx';
+import { compile as _compile, type CompileOptions, nodeTypes } from '@mdx-js/mdx';
+import rehypeRaw from 'rehype-raw';
+import { rehypeCollapseScriptStyle } from '../dist/mdx/rehype-collapse-script-style.js';
 import { rehypeOptimizeStatic } from '../dist/mdx/rehype-optimize-static.js';
 
 async function compile(mdxCode: string, options?: Readonly<CompileOptions>) {
@@ -83,5 +85,36 @@ foo <strong>bar</strong> baz
 <p>foo <strong>bar</strong> baz</p>
 <strong>qux</strong>" />`,
 		);
+	});
+
+	describe('raw HTML from remark plugins', () => {
+		const svg =
+			'<svg viewBox="0 0 100 20"><style>.a>b{stroke:red}</style><defs><marker id="m"><path d="M0 0L10 5"/></marker></defs><path d="M5 10H90" marker-end="url(#m)"/></svg>';
+
+		// Mirrors the MDX processor: raw HTML is parsed by rehype-raw and literal
+		// script/style content is collapsed before the optimizer runs
+		function compileWithRawSvg(optimizeOptions?: { ignoreElementNames?: string[] }) {
+			return compile('hello', {
+				remarkPlugins: [() => (tree: any) => void tree.children.push({ type: 'html', value: svg })],
+				rehypePlugins: [
+					[rehypeRaw, { passThrough: nodeTypes }],
+					rehypeCollapseScriptStyle,
+					[rehypeOptimizeStatic, optimizeOptions],
+				],
+			});
+		}
+
+		it('serializes collapsed style content as element content', async () => {
+			const jsx = await compileWithRawSvg();
+			assert.match(jsx, /<style>\.a>b\{stroke:red\}<\/style>/);
+			assert.doesNotMatch(jsx, /set:html=\\?"\.a/);
+			assert.match(jsx, /marker-end=/);
+		});
+
+		it('keeps SVG attribute names when serializing children of an svg', async () => {
+			const jsx = await compileWithRawSvg({ ignoreElementNames: ['style'] });
+			assert.match(jsx, /marker-end=/);
+			assert.doesNotMatch(jsx, /markerEnd/);
+		});
 	});
 });
