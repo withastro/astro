@@ -1,5 +1,5 @@
-import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
-import type { RouteData, SSRResult } from '../../../../types/public/internal.js';
+import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import type { RenderRouteInfo, SSRResult } from '../../../../types.js';
 import { isPromise } from '../../util.js';
 import {
 	chunkToByteArray,
@@ -65,7 +65,7 @@ async function renderStreamToStream(
 	result: SSRResult,
 	templateResult: any,
 	isPage: boolean,
-	route?: RouteData,
+	route?: RenderRouteInfo,
 ): Promise<ReadableStream> {
 	let renderedFirstPageChunk = false;
 
@@ -136,7 +136,7 @@ async function renderStreamToAsyncIterable(
 	result: SSRResult,
 	templateResult: any,
 	isPage: boolean,
-	_route?: RouteData,
+	_route?: RenderRouteInfo,
 ): Promise<AsyncIterable<Uint8Array>> {
 	let renderedFirstPageChunk = false;
 	let error: Error | null = null;
@@ -288,7 +288,7 @@ export async function renderToString(
 	props: any,
 	children: any,
 	isPage = false,
-	route?: RouteData,
+	route?: RenderRouteInfo,
 ): Promise<string | Response> {
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,
@@ -311,7 +311,7 @@ export async function renderToReadableStream(
 	props: any,
 	children: any,
 	isPage = false,
-	route?: RouteData,
+	route?: RenderRouteInfo,
 ): Promise<ReadableStream | Response> {
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,
@@ -332,7 +332,7 @@ async function callComponentAsTemplateResultOrResponse(
 	componentFactory: AstroComponentFactory,
 	props: any,
 	children: any,
-	route?: RouteData,
+	route?: RenderRouteInfo,
 ) {
 	const factoryResult = await componentFactory(result, props, children);
 
@@ -382,7 +382,7 @@ export async function renderToAsyncIterable(
 	props: any,
 	children: any,
 	isPage = false,
-	route?: RouteData,
+	route?: RenderRouteInfo,
 ): Promise<AsyncIterable<Uint8Array> | Response> {
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,

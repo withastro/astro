@@ -1,5 +1,5 @@
-import { encryptString, generateCspDigest } from '../../../core/encryption.js';
-import type { SSRResult } from '../../../types/public/internal.js';
+import { encryptString, generateCspDigest } from '../../core/encryption.js';
+import type { SSRResult } from '../../../types.js';
 import { markHTMLString, stringifyForScript } from '../escape.js';
 import { renderChild } from './any.js';
 import { createThinHead, type ThinHead } from './astro/head-and-content.js';

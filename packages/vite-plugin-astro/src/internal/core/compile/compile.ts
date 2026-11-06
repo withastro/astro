@@ -6,21 +6,48 @@ import {
 	type TransformResult,
 } from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
-import type { AstroConfig } from '../../types/public/config.js';
-import type { AstroError } from '../errors/errors.js';
-import { AggregateError, CompilerError } from '../errors/errors.js';
-import { AstroErrorData } from '../errors/index.js';
-import { normalizePath, resolvePath } from '../viteUtils.js';
-import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
-import type { CompileCssResult } from './types.js';
+import type { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
+import { AggregateError, CompilerError } from '@astrojs/runtime/_internal/core/errors/errors.js';
+import { AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
+import { resolvePath } from '@astrojs/internal-helpers/mdx';
+import { normalizePath } from '../vite-id.js';
+import {
+	createStylePreprocessor,
+	type PartialCompileCssResult,
+} from '../../../core/compile/style.js';
+import type { CompileCssResult } from '../../../core/compile/types.js';
+
+/**
+ * The project configuration the compiler reads. `AstroConfig` satisfies it.
+ */
+export interface CompileConfig {
+	root: URL;
+	site?: string;
+	base: string;
+	compressHTML: boolean | 'jsx';
+	scopedStyleStrategy: 'where' | 'class' | 'attribute';
+	devToolbar: { enabled: boolean };
+}
 
 export interface CompileProps {
-	astroConfig: AstroConfig;
+	astroConfig: CompileConfig;
 	viteConfig: ResolvedConfig;
 	toolbarEnabled: boolean;
 	filename: string;
 	source: string;
 	inlineComponentAssets?: boolean;
+	/**
+	 * Module that compiled components import their runtime from.
+	 *
+	 * @default 'astro/compiler-runtime'
+	 */
+	internalURL?: string;
+	/**
+	 * Stylesheet imported by components that use built-in `transition:animate` animations.
+	 *
+	 * @default 'astro/components/viewtransitions.css'
+	 */
+	transitionsAnimationURL?: string;
 }
 
 export interface CompileResult extends Omit<TransformResult, 'css'> {
@@ -34,6 +61,8 @@ export async function compile({
 	filename,
 	source,
 	inlineComponentAssets,
+	internalURL = 'astro/compiler-runtime',
+	transitionsAnimationURL = 'astro/components/viewtransitions.css',
 }: CompileProps): Promise<CompileResult> {
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
 	const cssTransformErrors: AstroError[] = [];
@@ -57,12 +86,12 @@ export async function compile({
 			inlineComponentAssets,
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',
-			internalURL: 'astro/compiler-runtime',
+			internalURL,
 			// TODO: remove in Astro v8
 			astroGlobalArgs: JSON.stringify(astroConfig.site),
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
-			transitionsAnimationURL: 'astro/components/viewtransitions.css',
+			transitionsAnimationURL,
 			// Source annotations only serve the dev toolbar. Vitest also runs Vite in `serve`,
 			// so skip them in `test` mode to keep rendered markup (e.g. from the Container API)
 			// free of machine-specific paths. See https://github.com/withastro/astro/issues/18162

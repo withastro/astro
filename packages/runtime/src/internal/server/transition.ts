@@ -1,12 +1,12 @@
 import cssesc from '../../transitions/cssesc.js';
-import { fade, slide } from '../../transitions/index.js';
-import type { SSRResult } from '../../types/public/internal.js';
+import { fade, slide } from '../transitions/index.js';
+import type { SSRResult } from '../../types.js';
 import type {
 	TransitionAnimation,
 	TransitionAnimationPair,
 	TransitionAnimationValue,
 	TransitionDirectionalAnimations,
-} from '../../types/public/view-transitions.js';
+} from '../types/public/view-transitions.js';
 import { escapeStyleText, markHTMLString } from './escape.js';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();

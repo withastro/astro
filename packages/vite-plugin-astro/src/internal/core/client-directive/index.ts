@@ -1,2 +1,1 @@
-export { buildClientDirectiveEntrypoint } from './build.js';
-export { getDefaultClientDirectives } from './default.js';
+export { buildClientDirectiveEntrypoint } from '../../../core/client-directive/build.js';

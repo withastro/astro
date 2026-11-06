@@ -1,8 +1,8 @@
-import idlePrebuilt from '../../runtime/client/idle.prebuilt.js';
-import loadPrebuilt from '../../runtime/client/load.prebuilt.js';
-import mediaPrebuilt from '../../runtime/client/media.prebuilt.js';
-import onlyPrebuilt from '../../runtime/client/only.prebuilt.js';
-import visiblePrebuilt from '../../runtime/client/visible.prebuilt.js';
+import idlePrebuilt from '../../client/idle.prebuilt.js';
+import loadPrebuilt from '../../client/load.prebuilt.js';
+import mediaPrebuilt from '../../client/media.prebuilt.js';
+import onlyPrebuilt from '../../client/only.prebuilt.js';
+import visiblePrebuilt from '../../client/visible.prebuilt.js';
 
 export function getDefaultClientDirectives() {
 	return new Map([

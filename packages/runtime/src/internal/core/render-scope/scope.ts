@@ -1,17 +1,22 @@
-import type { SerializedStaticImage } from '../../assets/types.js';
+/** The identity of a recorded image transform; `collectPrerenderMetadata()` dedupes records by it. */
+export interface StaticImageRecord {
+	originalPath: string;
+	hash: string;
+}
 
 /**
  * The per-render store. One instance is created per collecting render and is
  * reachable only through the installed {@link RenderCollectorScope} while that
  * render's async execution is in scope. Fields are optional so record helpers
  * tolerate stores created by a different astro module instance (or version)
- * that only knows a subset of collectors.
+ * that only knows a subset of collectors. `TImage` is the image record type of the
+ * package that records images (`SerializedStaticImage` in `astro`).
  */
-export interface RenderCollectors {
+export interface RenderCollectors<TImage extends StaticImageRecord = StaticImageRecord> {
 	/** Root-relative `filePath`s of the content entries rendered. */
 	contentEntries?: Set<string>;
 	/** Every image transform resolved, repeats included. */
-	staticImages?: SerializedStaticImage[];
+	staticImages?: TImage[];
 	/** Absolute source paths of images referenced without a transform. */
 	referencedImages?: Set<string>;
 }
@@ -20,9 +25,9 @@ export interface RenderCollectors {
  * Structurally satisfied by `AsyncLocalStorage<RenderCollectors>` — deliberate:
  * installing an ALS instance directly IS the only shipped implementation.
  */
-export interface RenderCollectorScope {
-	run<T>(store: RenderCollectors, fn: () => T): T;
-	getStore(): RenderCollectors | undefined;
+export interface RenderCollectorScope<TImage extends StaticImageRecord = StaticImageRecord> {
+	run<T>(store: RenderCollectors<TImage>, fn: () => T): T;
+	getStore(): RenderCollectors<TImage> | undefined;
 }
 
 /**
