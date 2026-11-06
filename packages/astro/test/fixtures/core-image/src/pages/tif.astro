@@ -1,0 +1,7 @@
+---
+import { Image } from "astro:assets";
+import image from "../assets/image.tif";
+---
+
+<Image src={image} alt="a TIFF image" />
+<span id="format">{image.format}</span>
