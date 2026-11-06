@@ -88,6 +88,62 @@ describe('handleHotUpdate', () => {
 		});
 	});
 
+	it('returns style modules for a style-only change when the file is its own CSS dependency', async () => {
+		const file = '/src/components/Target.astro';
+		const oldCode = '<div>same</div>\n<style>.t { --gen: 0; }</style>';
+		const newCode = '<div>same</div>\n<style>.t { --gen: 1; }</style>';
+
+		const astroFileToCompileMetadata = new Map();
+		astroFileToCompileMetadata.set(file, {
+			originalCode: oldCode,
+			css: [{ code: '.t { --gen: 0; }', dependencies: [file] }],
+			scripts: [],
+		});
+
+		const styleModule = { id: file + '?astro&type=style&index=0&lang.css' };
+		const mainModule = { id: file };
+		const ctx = createHmrTestContext({ file, newCode, modules: [mainModule, styleModule] });
+		const compile = async (code: string, filename: string) => {
+			astroFileToCompileMetadata.set(filename, {
+				originalCode: code,
+				css: [{ code: '.t { --gen: 1; }', dependencies: [file] }],
+				scripts: [],
+			});
+			return {};
+		};
+
+		const result = await handleHotUpdate(ctx as any, {
+			logger: defaultLogger,
+			compile: compile as any,
+			astroFileToCompileMetadata,
+		});
+
+		assert.deepEqual(result, [styleModule]);
+		assert.equal(astroFileToCompileMetadata.get(file)?.originalCode, newCode);
+	});
+
+	it('deletes compile metadata of other Astro files that depend on the updated file', async () => {
+		const file = '/src/styles/shared.css';
+		const dependent = '/src/components/Dependent.astro';
+
+		const astroFileToCompileMetadata = new Map();
+		astroFileToCompileMetadata.set(dependent, {
+			originalCode: '<style>@import "../styles/shared.css";</style>',
+			css: [{ code: '', dependencies: [file] }],
+			scripts: [],
+		});
+
+		const ctx = createHmrTestContext({ file, newCode: '.a { color: blue; }' });
+
+		await handleHotUpdate(ctx as any, {
+			logger: defaultLogger,
+			compile: async () => ({}) as any,
+			astroFileToCompileMetadata,
+		});
+
+		assert.equal(astroFileToCompileMetadata.has(dependent), false);
+	});
+
 	it('deletes compile metadata when only frontmatter changes', async () => {
 		const file = '/src/components/Target.astro';
 		const oldCode = '---\nconst x = 1;\n---\n<div>same</div>\n<style>.t { color: red; }</style>';

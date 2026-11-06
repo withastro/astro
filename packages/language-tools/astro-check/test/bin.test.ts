@@ -20,4 +20,17 @@ describe('astro-check - binary', async () => {
 		assert.ok(childProcess.stdout.toString().includes('1 warning'));
 		assert.ok(childProcess.stdout.toString().includes('1 hint'));
 	});
+
+	it('Parses the first command-line argument', async () => {
+		const pkgPath = fileURLToPath(new URL('..', import.meta.url));
+		const binPath = path.join(pkgPath, 'bin', 'astro-check.js');
+		const fixturePath = path.join(pkgPath, 'test', 'fixture');
+		const childProcess = spawnSync('node', [binPath, '--help'], {
+			cwd: fixturePath,
+		});
+
+		assert.strictEqual(childProcess.status, 0);
+		assert.ok(childProcess.stdout.toString().includes('--tsconfig'));
+		assert.ok(!childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
+	});
 });

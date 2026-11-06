@@ -1,5 +1,36 @@
 # @astrojs/vercel
 
+## 11.0.20
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+
+## 11.0.19
+
+### Patch Changes
+
+- [#18631](https://github.com/withastro/astro/pull/18631) [`3106e0a`](https://github.com/withastro/astro/commit/3106e0ad80573b507ee64ce38ff9310a5924c2bf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes Vercel builds that crash on unrecognized NFT dependency-resolution warnings
+
+## 11.0.18
+
+### Patch Changes
+
+- [#18554](https://github.com/withastro/astro/pull/18554) [`3ef9fea`](https://github.com/withastro/astro/commit/3ef9fea973c3a21c65a320407fbb2cf4e947b495) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes NFT tracing so dynamic path segments no longer glob the whole workspace, which could include unrelated files in function bundles for monorepo projects
+
+## 11.0.17
+
+### Patch Changes
+
+- [#18085](https://github.com/withastro/astro/pull/18085) [`785473b`](https://github.com/withastro/astro/commit/785473bc2e18a3dff3f278f812024f1b1ac19411) Thanks [@nikolas-sapa](https://github.com/nikolas-sapa)! - Fix redirects never matching on Vercel when `trailingSlash: 'always'` is set. Redirect sources now include the trailing slash so they match the normalized request path. Sources whose last segment contains a dot are left unslashed, and dynamic or spread sources emit both the slashed and unslashed form, because Vercel only normalizes paths without a dot.
+
+## 11.0.16
+
+### Patch Changes
+
+- [#18411](https://github.com/withastro/astro/pull/18411) [`48ec171`](https://github.com/withastro/astro/commit/48ec171f7bed5dbd5477a4fd5216ef5b53a2eb3a) Thanks [@matthewp](https://github.com/matthewp)! - Uses the Vercel Bun runtime for serverless functions when the project is built with Bun (e.g. `bunx --bun astro build`)
+
 ## 11.0.15
 
 ### Patch Changes

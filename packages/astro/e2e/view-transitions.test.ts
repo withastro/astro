@@ -4,6 +4,8 @@ import { type DevServer, testFactory, waitForHydrate, warmupDevServer } from './
 declare global {
 	interface Window {
 		preloads: string[];
+		restoredScrollY?: number;
+		initialScrollRestoration?: ScrollRestoration;
 		clientSideRouterForTestsParkedHere?: (
 			url: string,
 			options?: { history?: 'auto' | 'replace' | 'push' },
@@ -353,6 +355,71 @@ test.describe('View Transitions', () => {
 
 		const newScrollY = await page.evaluate(() => window.scrollY);
 		expect(oldScrollY).toEqual(newScrollY);
+	});
+
+	test('Scroll position restored instantly with smooth scroll-behavior', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/smooth-scroll'));
+		await expect(page.locator('#smooth-scroll')).toBeVisible();
+
+		await page.evaluate(() => window.scrollTo({ top: 2000, behavior: 'instant' }));
+		await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(2000);
+
+		await page.click('#click-one');
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+
+		// Read scrollY synchronously after the router restores it, before a smooth scroll could progress
+		await page.evaluate(() =>
+			document.addEventListener(
+				'astro:after-swap',
+				() => (window.restoredScrollY = window.scrollY),
+				{ once: true },
+			),
+		);
+		await page.goBack();
+		await expect.poll(() => page.evaluate(() => window.restoredScrollY)).toBe(2000);
+	});
+
+	test('Reload leaves scroll restoration to the browser', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await expect(page.locator('#longpage')).toBeInViewport();
+
+		await page.evaluate(() => window.scrollTo({ top: 1000, behavior: 'instant' }));
+		await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(1000);
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
+
+		// Capture the mode the browser sees at document start, before the router's module runs
+		await page.addInitScript(() => {
+			window.initialScrollRestoration = history.scrollRestoration;
+		});
+		await page.reload();
+		await expect(page.locator('#longpage')).toBeAttached();
+
+		expect(await page.evaluate(() => window.initialScrollRestoration)).toBe('auto');
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
+	});
+
+	test('History navigation after a cancelled unload restores manual scroll restoration', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await expect(page.locator('#longpage')).toBeInViewport();
+		await page.click('#click-one');
+		await expect(page.locator('#one')).toBeVisible();
+
+		// Simulate a `beforeunload` that doesn't end in an unload (e.g. a cancelled prompt)
+		await page.evaluate(() => window.dispatchEvent(new Event('beforeunload')));
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('auto');
+
+		await page.goBack();
+		await expect(page.locator('#longpage')).toBeVisible();
+		await page.goForward();
+		await expect(page.locator('#one')).toBeVisible();
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
 	});
 
 	test('Fragment scroll position restored on back button', async ({ page, astro }) => {

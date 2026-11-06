@@ -1,4 +1,6 @@
 import * as assert from 'node:assert/strict';
+import { createServer, type Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { after, before, describe, it } from 'node:test';
 import { passthroughImageService } from 'astro/config';
 import * as cheerio from 'cheerio';
@@ -18,6 +20,7 @@ describe('CompileImageService', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/compile-image-service/',
+			image: { domains: ['127.0.0.1'] },
 		});
 	});
 
@@ -48,13 +51,29 @@ describe('CompileImageService', () => {
 
 	describe('preview', () => {
 		let previewServer: PreviewServer;
+		let sourceServer: Server;
+		let sourceOrigin: string;
 		before(async () => {
+			sourceServer = createServer((req, res) => {
+				res.setHeader('Content-Type', req.url === '/text' ? 'text/plain' : 'image/png');
+				if (req.url !== '/no-etag') res.setHeader('ETag', 'W/"remote,tag"');
+				res.end('remote image bytes');
+			});
+			await new Promise<void>((resolve) => sourceServer.listen(0, '127.0.0.1', resolve));
+			sourceOrigin = `http://127.0.0.1:${(sourceServer.address() as AddressInfo).port}`;
 			await fixture.build();
-			previewServer = await fixture.preview();
+			previewServer = await fixture.preview({ server: { port: 0 } });
+			// The adapter returns the requested port, not the actual bound port.
+			// Read the latter so parallel checkouts cannot send tests to each other.
+			const server = (previewServer as PreviewServer & { server: Server }).server;
+			fixture.config.server.port = (server.address() as AddressInfo).port;
 		});
 
 		after(async () => {
-			await previewServer.stop();
+			await previewServer?.stop();
+			await new Promise<void>((resolve, reject) =>
+				sourceServer.close((err) => (err ? reject(err) : resolve())),
+			);
 		});
 
 		it('forbids http://', async () => {
@@ -86,6 +105,102 @@ describe('CompileImageService', () => {
 			assert.equal(res.status, 200);
 			const blob = await res.blob();
 			assert.equal(blob.type, 'image/jpeg');
+		});
+
+		it('returns 304 for local images when If-None-Match matches the ETag', async () => {
+			const url = '/_image?href=/_astro/placeholder.gLBdjEDe.jpg&f=jpg';
+			const first = await fixture.fetch(url);
+			assert.equal(first.status, 200);
+			const etag = first.headers.get('ETag');
+			assert.ok(etag, 'Expected an ETag on the /_image response');
+
+			const res = await fixture.fetch(url, { headers: { 'If-None-Match': etag } });
+			assert.equal(res.status, 304);
+			assert.equal(res.headers.get('ETag'), etag);
+			assert.equal(await res.text(), '');
+			assert.equal(res.headers.get('Cache-Control'), first.headers.get('Cache-Control'));
+		});
+
+		for (const [name, conditional] of [
+			['weak tags', (etag: string) => `W/${etag}`],
+			['a list of tags', (etag: string) => `"other", W/${etag}, "last"`],
+			['wildcard', () => '*'],
+		] as const) {
+			it(`revalidates local images with ${name}`, async () => {
+				const url = '/_image?href=/_astro/placeholder.gLBdjEDe.jpg&f=jpg';
+				const first = await fixture.fetch(url);
+				const etag = first.headers.get('ETag')!;
+				assert.ok(etag);
+				await first.arrayBuffer();
+				const res = await fixture.fetch(url, { headers: { 'If-None-Match': conditional(etag) } });
+				assert.equal(res.status, 304);
+				assert.equal(res.headers.get('ETag'), etag);
+				assert.equal(await res.text(), '');
+			});
+		}
+
+		it('returns the full image for a non-matching validator, including Range requests', async () => {
+			const url = '/_image?href=/_astro/placeholder.gLBdjEDe.jpg&f=jpg';
+			const first = await fixture.fetch(url);
+			const body = Buffer.from(await first.arrayBuffer());
+			const headerCases: HeadersInit[] = [
+				{ 'If-None-Match': '"other"', Range: 'bytes=0-9', 'If-Range': '"other"' },
+				{ Range: 'bytes=0-9' },
+				{ 'If-None-Match': '"other"', 'If-Modified-Since': 'Wed, 01 Jan 2031 00:00:00 GMT' },
+			];
+			for (const headers of headerCases) {
+				const res = await fixture.fetch(url, { headers });
+				assert.equal(res.status, 200);
+				assert.deepEqual(Buffer.from(await res.arrayBuffer()), body);
+				assert.equal(res.headers.get('Content-Range'), null);
+			}
+		});
+
+		it('returns full images for date-only conditions without advertising Last-Modified', async () => {
+			const res = await fixture.fetch('/_image?href=/_astro/placeholder.gLBdjEDe.jpg&f=jpg', {
+				headers: { 'If-Modified-Since': 'Wed, 01 Jan 2031 00:00:00 GMT' },
+			});
+			assert.equal(res.status, 200);
+			assert.equal(res.headers.get('Last-Modified'), null);
+			assert.ok((await res.arrayBuffer()).byteLength > 0);
+		});
+
+		it('revalidates allowed remote images using weak comparison and lists', async () => {
+			const url = `/_image?href=${encodeURIComponent(`${sourceOrigin}/image`)}`;
+			const first = await fixture.fetch(url);
+			assert.equal(first.status, 200);
+			assert.equal(await first.text(), 'remote image bytes');
+			assert.equal(first.headers.get('ETag'), 'W/"remote,tag"');
+			const res = await fixture.fetch(url, {
+				headers: { 'If-None-Match': '"other", "remote,tag"' },
+			});
+			assert.equal(res.status, 304);
+			assert.equal(res.headers.get('ETag'), first.headers.get('ETag'));
+			assert.equal(await res.text(), '');
+		});
+
+		it('handles wildcard for a remote image without an ETag, but not for text', async () => {
+			for (const [path, status] of [
+				['/no-etag', 304],
+				['/text', 403],
+			] as const) {
+				const res = await fixture.fetch(
+					`/_image?href=${encodeURIComponent(`${sourceOrigin}${path}`)}`,
+					{
+						headers: { 'If-None-Match': '*' },
+					},
+				);
+				assert.equal(res.status, status);
+			}
+		});
+
+		it('does not return 304 for missing or non-image sources even with wildcard', async () => {
+			for (const href of ['/missing.png', '/favicon.svg.missing', '/']) {
+				const res = await fixture.fetch(`/_image?href=${href}`, {
+					headers: { 'If-None-Match': '*' },
+				});
+				assert.ok([403, 404].includes(res.status), `${href}: ${res.status}`);
+			}
 		});
 	});
 });
@@ -183,7 +298,9 @@ describe('CompileImageService build-time image generation', () => {
 	 * @param mode    `'compile'` or `'custom'`.
 	 * @param service `'default'` removes the user `image.service` (Astro's default
 	 *                Sharp service applies), `'sharp'` swaps in a Sharp-backed user
-	 *                service, and `'user'` keeps the fixture's Sharp-free service.
+	 *                service and makes the on-demand `api.ts` route call `getImage()`
+	 *                so the worker uses the service at runtime, and `'user'` keeps the
+	 *                fixture's Sharp-free service.
 	 */
 	async function buildFixture(
 		mode: 'compile' | 'custom',
@@ -213,6 +330,24 @@ describe('CompileImageService build-time image generation', () => {
 			},
 			false,
 		);
+		// Unused components are tree-shaken from the worker, so the Sharp chain is only
+		// bundled when an on-demand route actually uses the image service.
+		const resetApi =
+			service === 'sharp'
+				? await fixture.editFile(
+						'src/pages/api.ts',
+						[
+							"import { getImage } from 'astro:assets';",
+							"import testImage from '../assets/test.jpg';",
+							'',
+							'export const prerender = false;',
+							'',
+							'export const GET = async () => new Response((await getImage({ src: testImage, width: 50 })).src);',
+							'',
+						].join('\n'),
+						false,
+					)
+				: undefined;
 
 		try {
 			await fixture.build();
@@ -222,6 +357,7 @@ describe('CompileImageService build-time image generation', () => {
 			};
 		} finally {
 			resetConfig();
+			resetApi?.();
 		}
 	}
 

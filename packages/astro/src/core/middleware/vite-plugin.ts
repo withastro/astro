@@ -99,7 +99,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 					const code = `
 				${
 					userMiddlewareIsPresent
-						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
+						? `import { onRequest as userOnRequest } from ${JSON.stringify(resolvedMiddlewareId)};`
 						: ''
 				}
 import { sequence } from 'astro:middleware';
@@ -131,7 +131,7 @@ function createMiddlewareImports(
 	let index = 0;
 	for (const entrypoint of entrypoints) {
 		const name = `_${prefix}_${index}`;
-		importsRaw += `import { onRequest as ${name} } from '${normalizePath(entrypoint)}';\n`;
+		importsRaw += `import { onRequest as ${name} } from ${JSON.stringify(normalizePath(entrypoint))};\n`;
 		sequenceRaw += `${index > 0 ? ',' : ''}${name}`;
 		index++;
 	}

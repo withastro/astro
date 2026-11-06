@@ -66,14 +66,23 @@ export async function transformStream(
 			? undefined
 			: defaultQuality;
 
-	return (
-		await images
-			.input(body)
-			.transform({
-				width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
-				height: params.has('h') ? Number.parseInt(params.get('h')!) : undefined,
-				fit: params.get('fit') as ImageTransform['fit'],
-			})
-			.output({ quality, format: outputFormat })
-	).response();
+	try {
+		return (
+			await images
+				.input(body)
+				.transform({
+					width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
+					height: params.has('h') ? Number.parseInt(params.get('h')!) : undefined,
+					fit: params.get('fit') as ImageTransform['fit'],
+				})
+				.output({ quality, format: outputFormat })
+		).response();
+	} catch (error) {
+		// The binding throws 9412 when the source bytes aren't an image, which a public
+		// `/_image?href=` can always request: a bad request, not a server error.
+		if (error instanceof Error && error.message.startsWith('IMAGES_TRANSFORM_ERROR 9412')) {
+			return new Response('Source is not an image', { status: 400 });
+		}
+		throw error;
+	}
 }

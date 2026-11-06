@@ -1,5 +1,32 @@
 # @astrojs/react
 
+## 7.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+
+## 7.1.3
+
+### Patch Changes
+
+- [#18535](https://github.com/withastro/astro/pull/18535) [`b21d724`](https://github.com/withastro/astro/commit/b21d72469403c7bac8b0000829dd3582d135a174) Thanks [@praveen-kumary](https://github.com/praveen-kumary)! - Preserves component-rendered resource links, including stylesheets, preloads, and modulepreloads, in React island output. Automatic React resource hints are also preserved so that authored links are not removed during server rendering.
+
+## 7.1.2
+
+### Patch Changes
+
+- [#18482](https://github.com/withastro/astro/pull/18482) [`9c88994`](https://github.com/withastro/astro/commit/9c889945820781a336217aa84a507e320445aabd) Thanks [@wrostomMM](https://github.com/wrostomMM)! - Fixes duplicate `React.useId()` values across components when `experimentalDisableStreaming` is enabled
+
+## 7.1.1
+
+### Patch Changes
+
+- [#18475](https://github.com/withastro/astro/pull/18475) [`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab) Thanks [@ematipico](https://github.com/ematipico)! - Bumps the minimum supported Node.js version to 22.23.4, which includes the fixes from the [October 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+  
+  This is a patch release because the [Node.js support and upgrade policy](https://docs.astro.build/en/upgrade-astro/#nodejs-support-and-upgrade-policies) allows the Core team to raise the minimum Maintenance LTS version in a patch release when a disclosed and fixed Node.js security flaw affects Astro.
+
 ## 7.1.0
 
 ### Minor Changes

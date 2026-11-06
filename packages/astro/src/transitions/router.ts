@@ -74,11 +74,13 @@ if (inBrowser) {
 		// Here we reloaded a page with history state
 		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
-		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
+		scrollTo({ left: history.state.scrollX, top: history.state.scrollY, behavior: 'instant' });
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser address bar or via a link from extern,
 		// it needs a state in the history
 		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+	}
+	if (transitionEnabledOnThisPage()) {
 		history.scrollRestoration = 'manual';
 	}
 }
@@ -211,7 +213,7 @@ const moveToLocation = (
 	}
 
 	if (historyState) {
-		scrollTo(historyState.scrollX, historyState.scrollY);
+		scrollTo({ left: historyState.scrollX, top: historyState.scrollY, behavior: 'instant' });
 	} else {
 		if (to.hash) {
 			// because we are already on the target page ...
@@ -361,6 +363,10 @@ async function transition(
 			? 'replace'
 			: 'push';
 
+	// The `beforeunload` handler switches to 'auto', and nothing undoes that when the unload doesn't
+	// happen (cancelled prompt, download). Reset it on every router navigation, before any history entry is pushed.
+	history.scrollRestoration = 'manual';
+
 	if (navigationType !== 'traverse') {
 		updateScrollPosition({ scrollX, scrollY });
 	}
@@ -472,11 +478,11 @@ async function transition(
 	async function abortAndRecreateMostRecentTransition(): Promise<Transition> {
 		if (mostRecentTransition) {
 			if (mostRecentTransition.viewTransition) {
-				try {
-					mostRecentTransition.viewTransition.skipTransition();
-				} catch {
-					// might throw AbortError DOMException. Ignored on purpose.
-				}
+				// skipTransition() does not throw; it rejects viewTransition.ready with
+				// an AbortError. Silence that rejection before calling skipTransition()
+				// so it does not surface as an unhandled promise rejection.
+				mostRecentTransition.viewTransition.ready.catch(() => {});
+				mostRecentTransition.viewTransition.skipTransition();
 				try {
 					// UpdateCallbackDone might already been settled, i.e. if the previous transition finished updating the DOM.
 					// Could not take long, we wait for it to avoid parallel updates
@@ -644,6 +650,16 @@ if (inBrowser) {
 		originalLocation = new URL(location.href);
 		addEventListener('popstate', onPopState);
 		addEventListener('load', onPageLoad);
+		// The router restores scroll itself only for the navigations it handles. A full reload or a
+		// cross-document return to this entry should use the browser's native restoration, which
+		// applies before the first paint, unlike the router's module script. See #18569.
+		// Firefox ignores a mode change made in `pagehide`, so it has to happen in `beforeunload`.
+		addEventListener('beforeunload', () => {
+			history.scrollRestoration = 'auto';
+		});
+		addEventListener('pageshow', (ev) => {
+			if (ev.persisted && transitionEnabledOnThisPage()) history.scrollRestoration = 'manual';
+		});
 		// There's not a good way to record scroll position before a history back
 		// navigation, so we will record it when the user has stopped scrolling.
 		if ('onscrollend' in window) addEventListener('scrollend', onScrollEnd);

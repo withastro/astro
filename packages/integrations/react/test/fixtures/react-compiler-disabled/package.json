@@ -5,9 +5,9 @@
   "dependencies": {
     "@astrojs/react": "workspace:*",
     "astro": "workspace:*",
-    "oxc-transform-react": "^0.153.0",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
+    "oxc-transform-react": "^0.156.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "react-compiler-runtime": "^1.0.0"
   }
 }

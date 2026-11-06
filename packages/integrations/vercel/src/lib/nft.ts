@@ -1,4 +1,4 @@
-import { dirname, isAbsolute, relative as relativePath, sep } from 'node:path';
+import { dirname, isAbsolute, relative as relativePath, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { copyFilesToFolder } from '@astrojs/internal-helpers/fs';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
@@ -23,6 +23,33 @@ export function findCommonAncestor(rootPath: string, entryPath: string): string 
 	return ancestor;
 }
 
+export function handleDependencyWarning(
+	error: Error,
+	entryPath: string,
+	logger: Pick<AstroIntegrationLogger, 'debug' | 'warn'>,
+): void {
+	const match = /Cannot find module '(.+?)' loaded from (.+)/.exec(error.message);
+	if (!match) {
+		// NFT returns resolved files alongside warnings, so a failed resolution does not invalidate the rest of the trace.
+		logger.warn(error.message);
+		return;
+	}
+
+	const [, module, file] = match;
+	if (module === '@astrojs/') return;
+	if (module === 'sharp') return;
+
+	if (entryPath === file) {
+		logger.debug(
+			`[@astrojs/vercel] The module "${module}" couldn't be resolved. This may not be a problem, but it's worth checking.`,
+		);
+	} else {
+		logger.debug(
+			`[@astrojs/vercel] The module "${module}" inside the file "${file}" couldn't be resolved. This may not be a problem, but it's worth checking.`,
+		);
+	}
+}
+
 export async function copyDependenciesToFunction(
 	{
 		entry,
@@ -36,11 +63,12 @@ export async function copyDependenciesToFunction(
 		outDir: URL;
 		includeFiles: URL[];
 		excludeFiles: URL[];
-		logger: AstroIntegrationLogger;
+		logger: Pick<AstroIntegrationLogger, 'info' | 'debug' | 'warn'>;
 		root: URL;
 	},
 	// we want to pass the caching by reference, and not by value
 	cache: object,
+	trace?: typeof import('@vercel/nft').nodeFileTrace,
 ): Promise<{
 	handler: string;
 }> {
@@ -56,31 +84,20 @@ export async function copyDependenciesToFunction(
 	// and that trips up `@vercel/nft` itself during the adapter build. Using a
 	// dynamic import helps prevent the issue.
 	// TODO: investigate why
-	const { nodeFileTrace } = await import('@vercel/nft');
+	const nodeFileTrace = trace ?? (await import('@vercel/nft')).nodeFileTrace;
+	// NFT turns dynamic path segments into asset globs, relative to `base`. In a workspace, `base`
+	// is the workspace root, which NFT also uses as `process.cwd()`, so a glob anchored there starts
+	// with `**` and walks unrelated packages. Globs rooted in a subdirectory don't match that prefix.
+	const ignoreWorkspaceGlobs = resolve(fileURLToPath(base)) !== resolve(fileURLToPath(root));
 	const result = await nodeFileTrace([entryPath], {
 		base: fileURLToPath(base),
+		ignore: (file) => ignoreWorkspaceGlobs && file.startsWith('**'),
 		cache,
 	});
 
 	for (const error of result.warnings) {
 		if (error.message.startsWith('Failed to resolve dependency')) {
-			const [, module, file] = /Cannot find module '(.+?)' loaded from (.+)/.exec(error.message)!;
-
-			// The import(astroRemark) sometimes fails to resolve, but it's not a problem
-			if (module === '@astrojs/') continue;
-
-			// Sharp is always external and won't be able to be resolved, but that's also not a problem
-			if (module === 'sharp') continue;
-
-			if (entryPath === file) {
-				logger.debug(
-					`[@astrojs/vercel] The module "${module}" couldn't be resolved. This may not be a problem, but it's worth checking.`,
-				);
-			} else {
-				logger.debug(
-					`[@astrojs/vercel] The module "${module}" inside the file "${file}" couldn't be resolved. This may not be a problem, but it's worth checking.`,
-				);
-			}
+			handleDependencyWarning(error, entryPath, logger);
 		}
 		// parse errors are likely not js and can safely be ignored,
 		// such as this html file in "main" meant for nw instead of node:
