@@ -74,25 +74,32 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 			return () => {
 				// NOTE: the `base` is stripped from `req.url` for post middlewares
 
-				server.middlewares.use((req, _res, next) => {
+				server.middlewares.use((req, res, next) => {
 					const pathname = cleanUrl(req.url!);
 
-					// Vite doesn't handle /foo/ if /foo.html exists, we handle it anyways
-					if (pathname.endsWith('/')) {
-						const pathnameWithoutSlash = pathname.slice(0, -1);
-						const htmlPath = fileURLToPath(outDir + pathnameWithoutSlash + '.html');
-						if (fs.existsSync(htmlPath)) {
-							req.url = pathnameWithoutSlash + '.html';
-							return next();
+					try {
+						// Vite doesn't handle /foo/ if /foo.html exists, we handle it anyways
+						if (pathname.endsWith('/')) {
+							const pathnameWithoutSlash = pathname.slice(0, -1);
+							const htmlPath = fileURLToPath(outDir + pathnameWithoutSlash + '.html');
+							if (fs.existsSync(htmlPath)) {
+								req.url = pathnameWithoutSlash + '.html';
+								return next();
+							}
 						}
-					}
-					// Vite doesn't handle /foo if /foo/index.html exists, we handle it anyways
-					else {
-						const htmlPath = fileURLToPath(outDir + pathname + '/index.html');
-						if (fs.existsSync(htmlPath)) {
-							req.url = pathname + '/index.html';
-							return next();
+						// Vite doesn't handle /foo if /foo/index.html exists, we handle it anyways
+						else {
+							const htmlPath = fileURLToPath(outDir + pathname + '/index.html');
+							if (fs.existsSync(htmlPath)) {
+								req.url = pathname + '/index.html';
+								return next();
+							}
 						}
+					} catch {
+						// Malformed percent-encoding in the path makes fileURLToPath throw. (#18650)
+						res.statusCode = 400;
+						res.end('Bad Request');
+						return;
 					}
 
 					next();
