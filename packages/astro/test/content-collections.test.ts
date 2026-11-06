@@ -325,6 +325,69 @@ describe('Content Collections', () => {
 		});
 	});
 
+	describe('With an invalid schema', () => {
+		it('Throws for a collection schema that is not a Standard Schema validator', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-empty-dir/',
+				outDir: './dist/content-collections-invalid-schema/',
+			});
+			const reset = await fixture.editFile(
+				'src/content.config.ts',
+				`import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+
+const blog = defineCollection({
+	loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+	schema: { title: 'string' },
+});
+
+export const collections = { blog };
+`,
+			);
+			let error: string | undefined;
+			try {
+				await fixture.build({ force: true });
+			} catch (e) {
+				error = (e as Error).message;
+			} finally {
+				reset();
+			}
+			assert.match(error!, /\*\*blog\*\* collection is not a valid schema/);
+		});
+
+		it('Throws for a loader schema that is not a Standard Schema validator', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-empty-dir/',
+				outDir: './dist/content-collections-invalid-loader-schema/',
+			});
+			const reset = await fixture.editFile(
+				'src/content.config.ts',
+				`import { defineCollection } from 'astro:content';
+
+const posts = defineCollection({
+	type: 'content_layer',
+	loader: {
+		name: 'invalid-schema-loader',
+		load: async () => {},
+		schema: { title: 'string' },
+	},
+});
+
+export const collections = { posts };
+`,
+			);
+			let error: string | undefined;
+			try {
+				await fixture.build({ force: true });
+			} catch (e) {
+				error = (e as Error).message;
+			} finally {
+				reset();
+			}
+			assert.match(error!, /\*\*posts\*\* collection is not a valid schema/);
+		});
+	});
+
 	describe('SSR integration', () => {
 		let app: App;
 
@@ -357,6 +420,22 @@ describe('Content Collections', () => {
 				const body = await response.text();
 				const $ = cheerio.load(body);
 				assert.equal($('h1').text(), blogSlugToContents[slug].title);
+			}
+		});
+
+		// Guards the build above: `heroImage` is resolved by `astro/content/image`, which
+		// imports Node builtins. If that module ever ended up in the `astro:content` runtime
+		// bundle, `preventNodeBuiltinDependencyPlugin` would have failed the build. Asserting
+		// the resolved dimensions keeps the field from silently becoming a no-op guard.
+		it('Resolves image() fields at sync time without bundling Node builtins', async () => {
+			for (const slug of Object.keys(blogSlugToContents)) {
+				const request = new Request('http://example.com/posts/' + slug);
+				const response = await app.render(request);
+				const body = await response.text();
+				const $ = cheerio.load(body);
+				assert.equal($('#hero').attr('data-width'), '1');
+				assert.equal($('#hero').attr('data-height'), '1');
+				assert.equal($('#hero').attr('data-format'), 'png');
 			}
 		});
 

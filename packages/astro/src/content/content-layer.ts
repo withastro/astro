@@ -2,7 +2,7 @@ import { existsSync, promises as fs } from 'node:fs';
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
 import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
-import type { FSWatcher } from 'vite';
+import type { FSWatcher, ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -26,6 +26,11 @@ import {
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
+import {
+	attachContentImageResolver,
+	createViteImageSourceResolver,
+	type ImageSourceResolver,
+} from './image-context.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
 export interface ContentLayerOptions {
@@ -34,6 +39,8 @@ export interface ContentLayerOptions {
 	logger: AstroLogger;
 	watcher?: FSWatcher;
 	contentConfigObserver?: ContentObservable;
+	/** Used to resolve image sources (Vite aliases included) while parsing entries. */
+	viteServer?: ViteDevServer;
 }
 
 type CollectionLoader<TData> = () =>
@@ -52,6 +59,7 @@ export class ContentLayer {
 	#markdownRenderer?: MarkdownRenderer;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
+	#viteServer?: ViteDevServer;
 
 	#queue: PQueue;
 
@@ -60,12 +68,14 @@ export class ContentLayer {
 		logger,
 		store,
 		watcher,
+		viteServer,
 		contentConfigObserver = globalContentConfigObserver,
 	}: ContentLayerOptions) {
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;
 		this.#contentConfigObserver = contentConfigObserver;
+		this.#viteServer = viteServer;
 		if (watcher) {
 			this.#watcher = createWatcherWrapper(watcher);
 		}
@@ -190,6 +200,13 @@ export class ContentLayer {
 	}
 
 	async #doSync(options: RefreshContentOptions) {
+		const imageResolver = this.#viteServer
+			? createViteImageSourceResolver(this.#viteServer)
+			: undefined;
+		return await this.#doSyncInner(options, imageResolver);
+	}
+
+	async #doSyncInner(options: RefreshContentOptions, imageResolver?: ImageSourceResolver) {
 		let contentConfig = this.#contentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 
@@ -326,10 +343,10 @@ export class ContentLayer {
 								id,
 								collection: name,
 								unvalidatedData: data,
-								_internal: {
-									rawData: undefined,
-									filePath,
-								},
+								_internal: attachContentImageResolver(
+									{ rawData: undefined, filePath },
+									imageResolver,
+								),
 							},
 							{ ...collection, schema },
 							false,

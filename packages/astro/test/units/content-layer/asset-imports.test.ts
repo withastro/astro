@@ -76,19 +76,23 @@ function assertImagesResolve(entries: Array<any>) {
 	for (const entry of entries) {
 		const src = SRCS[entry.id];
 
-		// 7.2.3 stores the plain src and records where the image fields live,
-		// instead of keeping an `__ASTRO_IMAGE_`-prefixed string in the data.
-		assert.equal(entry.data.image, src, `${entry.id}: stored src`);
-		assert.equal(entry.data.banner.image, src, `${entry.id}: stored nested src`);
+		// `image()` stores an object carrying the plain src (plus any dimensions it
+		// could probe), and records where the image fields live, instead of keeping
+		// an `__ASTRO_IMAGE_`-prefixed string in the data.
+		assert.equal(entry.data.image.src, src, `${entry.id}: stored src`);
+		assert.equal(entry.data.banner.image.src, src, `${entry.id}: stored nested src`);
 		assert.deepEqual(
 			entry.imageImports,
 			EXPECTED_IMAGE_PATHS,
 			`${entry.id}: image field paths must be recorded on the entry`,
 		);
 
+		// Resolution merges the resolved metadata over the stored object rather than
+		// replacing it, so fields added by transforms downstream of `image()` survive.
+		// That means a new object, equal to but not identical with the resolved metadata.
 		const data: any = resolveEntryData(entry, map);
-		assert.equal(data.image, RESOLVED, `${entry.id}: image must resolve to ImageMetadata`);
-		assert.equal(
+		assert.deepEqual(data.image, RESOLVED, `${entry.id}: image must resolve to ImageMetadata`);
+		assert.deepEqual(
 			data.banner.image,
 			RESOLVED,
 			`${entry.id}: nested image must resolve to ImageMetadata`,

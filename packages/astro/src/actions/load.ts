@@ -1,5 +1,5 @@
 import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
-import type { $ZodType } from 'zod/v4/core';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { ActionNotFoundError } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import { createAsyncManifestMemo } from '../core/manifest/memo.js';
@@ -28,7 +28,7 @@ export function clearActions(manifest: SSRManifest): void {
 export async function getAction(
 	manifest: SSRManifest,
 	path: string,
-): Promise<ActionClient<unknown, ActionAccept, $ZodType>> {
+): Promise<ActionClient<unknown, ActionAccept, StandardSchemaV1>> {
 	const pathKeys = path.split('.').map((key) => decodeURIComponent(key));
 	let { server } = await getActions(manifest);
 

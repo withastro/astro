@@ -11,3 +11,4 @@ export {
 export * as AstroErrorData from './errors-data.js';
 export { createSafeError, positionAt } from './utils.js';
 export { errorMap } from './zod-error-map.js';
+export { formatIssuePath, formatSchemaIssues, isStandardSchema } from './standard-schema.js';
