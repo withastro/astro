@@ -260,7 +260,7 @@
     "ovsx": "^1.3.0",
     "rolldown": "^1.2.16",
     "tsx": "^4.23.15",
-    "vscode-languageclient": "^10.1.2",
+    "vscode-languageclient": "^11.0.0",
     "vscode-tmgrammar-test": "^0.1.3",
     "yaml": "^2.9.1"
   },
