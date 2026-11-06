@@ -7,7 +7,7 @@ settings:
 
 overrides:
   '@types/node@22': ^22.19.0
-  '@volar/vscode>vscode-languageclient': ^10.1.2
+  '@volar/vscode>vscode-languageclient': ^11.0.0
   docs>@lunariajs/core: https://pkg.pr.new/lunariajs/lunaria/@lunariajs/core@502ada46073a7f0b003949d78870cefb9290a54f
 
 patchedDependencies:
@@ -16371,6 +16371,10 @@ packages:
     resolution: {integrity: sha512-cOv5SMvtAhfVeo5m2r9L2rVHAD0J5CFOsmvH1WgNmPaI61VYjJNc3XUDLOKeFSDtWoAXIEoK6KetuBEL/3hErg==}
     engines: {vscode: ^1.91.0}
 
+  vscode-languageclient@11.0.0:
+    resolution: {integrity: sha512-kVyeGLfyd1M74PbMNPfFkgRnhMYgnt6YGc5uXr/tNMzCpfZ0wFtfiqmqX1M05kkdNgV0HSozEUPvgggJbyIAYw==}
+    engines: {vscode: ^1.91.0}
+
   vscode-languageserver-protocol@3.17.5:
     resolution: {integrity: sha512-mb1bvRJN8SVznADSGWM9u/b07H7Ecg0I3OgXDuLdn307rl/J3A9YD6/eYOssqhecL27hK1IPZAsaqh00i/Jljg==}
 
@@ -20756,7 +20760,7 @@ snapshots:
   '@volar/vscode@2.4.30':
     dependencies:
       path-browserify: 1.0.1
-      vscode-languageclient: 10.1.2
+      vscode-languageclient: 11.0.0
       vscode-nls: 5.2.0
 
   '@vscode/emmet-helper@2.11.0':
@@ -26655,6 +26659,13 @@ snapshots:
       semver: 7.8.5
       vscode-languageserver-protocol: 3.18.4
       vscode-languageserver-textdocument: 1.0.15
+
+  vscode-languageclient@11.0.0:
+    dependencies:
+      minimatch: 10.2.6
+      semver: 7.8.5
+      vscode-languageserver-protocol: 3.18.5
+      vscode-languageserver-textdocument: 1.0.16
 
   vscode-languageserver-protocol@3.17.5:
     dependencies:
