@@ -774,6 +774,48 @@ describe('node', () => {
 				assert.equal(result.url, 'https://myapp.example.com/');
 			});
 
+			it('ignores non-http(s) x-forwarded-proto when allowedDomains mixes patterns with and without protocol', () => {
+				const allowedDomains = [
+					{ hostname: 'localhost' },
+					{ hostname: 'example.com', protocol: 'https' },
+				];
+				for (const forwardedProto of ['ftp', 'ws', 'file', 'evil']) {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+							headers: {
+								host: 'localhost',
+								'x-forwarded-proto': forwardedProto,
+							},
+						},
+						{ allowedDomains },
+					);
+					assert.equal(result.url, 'http://localhost/', `x-forwarded-proto: ${forwardedProto}`);
+				}
+			});
+
+			it('accepts http(s) x-forwarded-proto when allowedDomains mixes patterns with and without protocol', () => {
+				const allowedDomains = [
+					{ hostname: 'localhost' },
+					{ hostname: 'example.com', protocol: 'https' },
+				];
+				for (const forwardedProto of ['http', 'https']) {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+							headers: {
+								host: 'localhost',
+								'x-forwarded-proto': forwardedProto,
+							},
+						},
+						{ allowedDomains },
+					);
+					assert.equal(result.url, `${forwardedProto}://localhost/`);
+				}
+			});
+
 			it('constructs correct URL behind reverse proxy with all forwarded headers', () => {
 				// Simulates: Reverse proxy terminates TLS, connects to Astro via HTTP,
 				// forwards original protocol/host/port via X-Forwarded-* headers
