@@ -1,6 +1,5 @@
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
 import type { APIContext } from '../types/public/context.js';
-import { getPathByLocale } from './index.js';
 
 /**
  * Fallback routing decision types
@@ -83,10 +82,7 @@ export function computeFallbackRoute(options: ComputeFallbackRouteOptions): Fall
 	}
 
 	// Get the fallback locale
-	const fallbackLocale = fallback[urlLocale];
-
-	// Get the path for the fallback locale (handles granular locales)
-	const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
+	const pathFallbackLocale = fallback[urlLocale];
 
 	// Replace the locale segment by index so that earlier segments whose text
 	// happens to contain the locale code as a substring are left alone (#17907).
