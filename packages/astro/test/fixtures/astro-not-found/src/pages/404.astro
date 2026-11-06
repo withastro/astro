@@ -1,0 +1,17 @@
+---
+interface Props {
+	error?: {
+		message?: string;
+		title?: string;
+	};
+}
+const { error } = Astro.props;
+---
+<html>
+<head><title>404</title></head>
+<body>
+	<h1>Custom 404 Page</h1>
+	<p id="error-message">{error?.message ?? 'no-message'}</p>
+	<p id="error-title">{error?.title ?? 'no-title'}</p>
+</body>
+</html>
