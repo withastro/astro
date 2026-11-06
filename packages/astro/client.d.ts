@@ -131,6 +131,10 @@ declare module 'astro:container' {
 	export * from 'astro/virtual-modules/container.js';
 }
 
+declare module 'astro:dynamic' {
+	export * from 'astro/virtual-modules/dynamic.js';
+}
+
 declare module 'astro:middleware' {
 	export * from 'astro/virtual-modules/middleware.js';
 }

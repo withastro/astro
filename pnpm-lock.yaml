@@ -3384,6 +3384,18 @@ importers:
         specifier: ^19.3.1
         version: 19.3.1(react@19.3.1)
 
+  packages/astro/test/fixtures/include-only-used-dynamic:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/include-only-used-dynamic-ssr:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/incremental-build:
     dependencies:
       '@astrojs/mdx':
