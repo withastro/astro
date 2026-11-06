@@ -872,6 +872,31 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/some-name/first-post/',
 			);
 		});
+
+		it('should only remove the locale segment when the base contains the locale code', () => {
+			const i18n = {
+				defaultLocale: 'en',
+				locales: ['en', 'es'],
+				domains: {
+					es: 'https://es.example.com',
+				},
+				routingStrategy: 'prefix-other-locales',
+			};
+
+			assert.equal(
+				absoluteUrl({
+					locale: 'es',
+					base: '/estore/',
+					...i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					site: 'https://example.com',
+					path: 'about',
+					isBuild: true,
+				}),
+				'https://es.example.com/estore/about/',
+			);
+		});
 	});
 	describe('with [prefix-always]', () => {
 		it('should correctly return the URL with the base', () => {
