@@ -133,7 +133,7 @@ function runScripts() {
 	// inline module scripts cannot be awaited for with onload.
 	// Thus to be able to wait for the execution of all scripts, we make sure that the last inline module script
 	// is always followed by an external module script
-	for (const script of document.getElementsByTagName('script')) {
+	for (const script of Array.from(document.getElementsByTagName('script'))) {
 		script.dataset.astroExec === undefined &&
 			script.getAttribute('type') === 'module' &&
 			(needsWaitForInlineModuleScript = script.getAttribute('src') === null);
@@ -144,7 +144,7 @@ function runScripts() {
 			`<script type="module" src="data:application/javascript,"/>`,
 		);
 
-	for (const script of document.getElementsByTagName('script')) {
+	for (const script of Array.from(document.getElementsByTagName('script'))) {
 		if (script.dataset.astroExec === '') continue;
 		const type = script.getAttribute('type');
 		if (type && type !== 'module' && type !== 'text/javascript') continue;
@@ -697,7 +697,7 @@ if (inBrowser) {
 			);
 		}
 	}
-	for (const script of document.getElementsByTagName('script')) {
+	for (const script of Array.from(document.getElementsByTagName('script'))) {
 		detectScriptExecuted(script);
 		script.dataset.astroExec = '';
 	}
