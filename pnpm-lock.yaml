@@ -7,7 +7,7 @@ settings:
 
 overrides:
   '@types/node@22': ^22.19.0
-  '@volar/vscode>vscode-languageclient': ^10.1.2
+  '@volar/vscode>vscode-languageclient': ^11.0.0
   docs>@lunariajs/core: https://pkg.pr.new/lunariajs/lunaria/@lunariajs/core@502ada46073a7f0b003949d78870cefb9290a54f
 
 patchedDependencies:
@@ -7135,8 +7135,8 @@ importers:
         specifier: ^4.23.15
         version: 4.23.15
       vscode-languageclient:
-        specifier: ^10.1.2
-        version: 10.1.2
+        specifier: ^11.0.0
+        version: 11.0.0
       vscode-tmgrammar-test:
         specifier: ^0.1.3
         version: 0.1.3
@@ -16367,30 +16367,21 @@ packages:
     resolution: {integrity: sha512-qETYf9PCl1lVfwR+oBmMfc4vP2nqLNA35ABxorw3j06+xlKRgDVxbLgKm4Y/xPL0YWdeDjLoI4ImICIT3nB0zQ==}
     engines: {node: '>=14.0.0'}
 
-  vscode-languageclient@10.1.2:
-    resolution: {integrity: sha512-cOv5SMvtAhfVeo5m2r9L2rVHAD0J5CFOsmvH1WgNmPaI61VYjJNc3XUDLOKeFSDtWoAXIEoK6KetuBEL/3hErg==}
+  vscode-languageclient@11.0.0:
+    resolution: {integrity: sha512-kVyeGLfyd1M74PbMNPfFkgRnhMYgnt6YGc5uXr/tNMzCpfZ0wFtfiqmqX1M05kkdNgV0HSozEUPvgggJbyIAYw==}
     engines: {vscode: ^1.91.0}
 
   vscode-languageserver-protocol@3.17.5:
     resolution: {integrity: sha512-mb1bvRJN8SVznADSGWM9u/b07H7Ecg0I3OgXDuLdn307rl/J3A9YD6/eYOssqhecL27hK1IPZAsaqh00i/Jljg==}
 
-  vscode-languageserver-protocol@3.18.4:
-    resolution: {integrity: sha512-CCXbyr99dafRJzJH/0Ryk7ly5T8XPmSR0//OuF2w4m+9JiOin7zcAT5iET8GRE7Z9taFBejb3GbM0a0mbjdbrg==}
-
   vscode-languageserver-protocol@3.18.5:
     resolution: {integrity: sha512-FW4fBMzZ99N8xeob4py0l050wgCoRgTpEq5Xcsb9lM1bc29UKGR/wSV+4knaqFxssFHajy7OzNiKP/m3U1ZEuA==}
-
-  vscode-languageserver-textdocument@1.0.15:
-    resolution: {integrity: sha512-Gsfr9S8LU3S6885cS+NaleasJ0n3V5y/SOTqHCifQiXWFw3G9w9/YItDfwHrlCz+dSZWWZ8ilYVMcJe7Sz7Sxw==}
 
   vscode-languageserver-textdocument@1.0.16:
     resolution: {integrity: sha512-qeNEuOi9a3qkqRf7Gfez2WL2VwlBTLCNekHBGO9kxPVUp9XuY15yfTJ9jwvOwKI0I2MhUUfZq95NSp+LK1CLQg==}
 
   vscode-languageserver-types@3.17.5:
     resolution: {integrity: sha512-Ld1VelNuX9pdF39h2Hgaeb5hEZM2Z3jUrrMgWQAu82jMtZp7p3vJT3BzToKtZI7NgQssZje5o0zryOrhQvzQAg==}
-
-  vscode-languageserver-types@3.18.4:
-    resolution: {integrity: sha512-nQsacoiijvl0fRf2q28uFDrAVwRhdCa3QveiF7/CX0r18mLR5FU/1WskSsCKOjmEbtteKUnY8x8Yzxop+k0zwg==}
 
   vscode-languageserver-types@3.18.5:
     resolution: {integrity: sha512-kPd6+JQNz3HMJvjKlqUxERSlZHAntl/aGpsk7ImwIh0ewDKDcjgAEyVSYciPiOJD3ftbK9IrfiqUeTZLSbCizw==}
@@ -20756,7 +20747,7 @@ snapshots:
   '@volar/vscode@2.4.30':
     dependencies:
       path-browserify: 1.0.1
-      vscode-languageclient: 10.1.2
+      vscode-languageclient: 11.0.0
       vscode-nls: 5.2.0
 
   '@vscode/emmet-helper@2.11.0':
@@ -26649,35 +26640,26 @@ snapshots:
 
   vscode-jsonrpc@9.0.3: {}
 
-  vscode-languageclient@10.1.2:
+  vscode-languageclient@11.0.0:
     dependencies:
       minimatch: 10.2.6
       semver: 7.8.5
-      vscode-languageserver-protocol: 3.18.4
-      vscode-languageserver-textdocument: 1.0.15
+      vscode-languageserver-protocol: 3.18.5
+      vscode-languageserver-textdocument: 1.0.16
 
   vscode-languageserver-protocol@3.17.5:
     dependencies:
       vscode-jsonrpc: 8.2.0
       vscode-languageserver-types: 3.17.5
 
-  vscode-languageserver-protocol@3.18.4:
-    dependencies:
-      vscode-jsonrpc: 9.0.3
-      vscode-languageserver-types: 3.18.4
-
   vscode-languageserver-protocol@3.18.5:
     dependencies:
       vscode-jsonrpc: 10.0.0
       vscode-languageserver-types: 3.18.5
 
-  vscode-languageserver-textdocument@1.0.15: {}
-
   vscode-languageserver-textdocument@1.0.16: {}
 
   vscode-languageserver-types@3.17.5: {}
-
-  vscode-languageserver-types@3.18.4: {}
 
   vscode-languageserver-types@3.18.5: {}
 
