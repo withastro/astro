@@ -136,18 +136,21 @@ function getDevDataStoreFile(settings: AstroSettings): URL {
  * write on some platforms (notably Windows, see #17335), leaving dev serving
  * stale content until a restart. Subscribing to the store's own write
  * notifications makes invalidation of this process's writes deterministic.
+ * The caller can suppress client reloads during initial sync without skipping
+ * server-side invalidation.
  */
 export function attachDataStoreInvalidation(
 	store: MutableDataStore,
 	server: ViteDevServer,
 	settings: AstroSettings,
+	{ shouldNotifyClient = () => true }: { shouldNotifyClient?: () => boolean } = {},
 ) {
 	const dataStorePath = fileURLToPath(getDevDataStoreFile(settings));
 	const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 	store.onFileWritten((path) => {
 		if (path === dataStorePath) {
 			markDirectInvalidation(dataStorePath);
-			invalidateDataStore(server);
+			invalidateDataStore(server, { notifyClient: shouldNotifyClient() });
 			invalidateAssetImports(server, assetImportsPath);
 		} else if (path === assetImportsPath) {
 			markDirectInvalidation(assetImportsPath);

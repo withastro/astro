@@ -26,7 +26,12 @@ export function matchRoute(pathname: string, manifest: RoutesList): RouteData | 
 
 /** Finds all matching routes from pathname */
 export function matchAllRoutes(pathname: string, manifest: RoutesList): RouteData[] {
-	return manifest.routes.filter((route) => route.pattern.test(pathname));
+	return manifest.routes.filter((route) => {
+		return (
+			route.pattern.test(pathname) ||
+			route.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(pathname))
+		);
+	});
 }
 
 /**

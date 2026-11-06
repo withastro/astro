@@ -67,6 +67,17 @@ export function getCustom500Route(manifestData: RoutesList): RouteData | undefin
 }
 
 /**
+ * Whether `pathname` reached `routeData` through one of its i18n fallback
+ * routes rather than through the route's own pattern.
+ */
+export function isFallbackRouteMatch(routeData: RouteData, pathname: string): boolean {
+	if (routeData.pattern.test(pathname)) {
+		return false;
+	}
+	return routeData.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(pathname));
+}
+
+/**
  * Computes the default HTTP status code a route renders with:
  * `302` for i18n fallback matches, `404`/`500` for (possibly localized)
  * error routes, `200` otherwise.
@@ -76,12 +87,8 @@ export function getDefaultStatusCode(
 	routeData: RouteData,
 	pathname: string,
 ): number {
-	if (!routeData.pattern.test(pathname)) {
-		for (const fallbackRoute of routeData.fallbackRoutes) {
-			if (fallbackRoute.pattern.test(pathname)) {
-				return 302;
-			}
-		}
+	if (isFallbackRouteMatch(routeData, pathname)) {
+		return 302;
 	}
 	const route = removeTrailingForwardSlash(routeData.route);
 	const locales = manifest.i18n?.locales;

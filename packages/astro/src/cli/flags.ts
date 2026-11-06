@@ -1,11 +1,9 @@
-import type { Arguments } from 'yargs-parser';
 import type { AstroLogger } from '../core/logger/core.js';
 import { createNodeLoggerFromFlags } from '../core/logger/impls/node.js';
 import { createJsonLoggerFromFlags } from '../core/logger/impls/json.js';
 import type { AstroInlineConfig } from '../types/public/config.js';
 
-// Alias for now, but allows easier migration to node's `parseArgs` in the future.
-export type Flags = Arguments;
+export type Flags = { _: Array<string | number>; [key: string]: any };
 
 /** @deprecated Use AstroConfigResolver instead */
 export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {

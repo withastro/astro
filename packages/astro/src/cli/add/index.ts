@@ -9,7 +9,6 @@ import { getDefaultExportOptions } from 'magicast/helpers';
 import { detect, resolveCommand } from 'package-manager-detector';
 import colors from 'piccolore';
 import { findMaxSatisfying } from 'verkit';
-import type yargsParser from 'yargs-parser';
 import {
 	loadTSConfig,
 	resolveConfig,
@@ -871,7 +870,7 @@ async function tryToInstallIntegrations({
 
 async function validateIntegrations(
 	integrations: string[],
-	flags: yargsParser.Arguments,
+	flags: Flags,
 	logger: AstroLogger,
 ): Promise<IntegrationInfo[]> {
 	// First, validate all package names to prevent command injection

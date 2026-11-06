@@ -103,13 +103,18 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		logger.error('content', err.message);
 	}
 
+	let initialContentSync = true;
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
 	} else {
 		// Invalidate the content virtual modules directly when the store is
 		// written, rather than relying on the file watcher to observe the write.
 		// On Windows the watcher can miss it, leaving dev serving stale content.
-		attachDataStoreInvalidation(store, restart.container.viteServer, restart.container.settings);
+		attachDataStoreInvalidation(store, restart.container.viteServer, restart.container.settings, {
+			// Vite buffers startup reloads and delivers them to the first browser,
+			// even though it has not loaded any content yet (#18568).
+			shouldNotifyClient: () => !initialContentSync,
+		});
 	}
 	await attachContentServerListeners(restart.container);
 
@@ -130,6 +135,10 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	} else if (config.status !== 'does-not-exist') {
 		logger.warn('content', 'Content config not loaded');
 	}
+
+	// Runtime writes must queue reloads even before the first HMR connection,
+	// or while clients are temporarily disconnected. Only initial sync is silent.
+	initialContentSync = false;
 
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
