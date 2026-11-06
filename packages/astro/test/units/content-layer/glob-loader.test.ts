@@ -9,6 +9,7 @@ import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
+import { createBasicSettings } from '../test-utils.ts';
 import {
 	createTempDir,
 	createTestConfigObserver,
@@ -442,6 +443,40 @@ describe('Glob Loader', () => {
 			'src/data/glob-toml/three',
 			'src/data/glob-toml/two',
 		]);
+	});
+
+	it('loads JSON files that start with a UTF-8 BOM', async () => {
+		const tempDir = createTempDir();
+		const dataDir = join(fileURLToPath(tempDir), 'src', 'data', 'authors');
+		mkdirSync(dataDir, { recursive: true });
+		writeFileSync(join(dataDir, 'ada.json'), '\uFEFF{ "name": "Ada" }');
+
+		const store = new MutableDataStore();
+		const { dataEntryTypes } = await createBasicSettings({ root: fileURLToPath(tempDir) });
+		const settings = createMinimalSettings(tempDir, { dataEntryTypes });
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			authors: defineCollection({
+				loader: glob({ pattern: '*.json', base: 'src/data/authors' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const entries = store.values('authors');
+		assert.equal(entries.length, 1);
+		assert.deepEqual(entries[0].data, { name: 'Ada' });
 	});
 
 	it('warns about missing directory', async () => {

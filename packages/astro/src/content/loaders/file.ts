@@ -57,7 +57,8 @@ export function file(fileName: string, options?: FileOptions): Loader {
 		let data: Array<Record<string, unknown>> | Record<string, Record<string, unknown>>;
 
 		try {
-			const contents = await fs.readFile(filePath, 'utf-8');
+			// Editors such as Visual Studio save files with a UTF-8 BOM, which JSON.parse rejects.
+			const contents = (await fs.readFile(filePath, 'utf-8')).replace(/^\uFEFF/, '');
 			data = await parse!(contents);
 		} catch (error: any) {
 			logger.error(`Error reading data from ${fileName}`);
