@@ -64,7 +64,7 @@ describe('ISR with edge middleware', () => {
 
 	it('points routes excluded from ISR at the middleware too', { timeout: 30000 }, async () => {
 		const { routes } = await getVercelConfig(fixture);
-		assert.equal(destOf(routes, '^/live$'), '_middleware');
+		assert.equal(destOf(routes, '^/live/?$'), '_middleware');
 	});
 
 	it('leaves internal endpoints on the serverless function', { timeout: 30000 }, async () => {
@@ -136,6 +136,9 @@ describe('ISR with edge middleware', () => {
 		// only holds if it is checked before the ISR patterns.
 		const url = await forwardedUrl('/live');
 		assert.equal(url.pathname, '/_render');
+		// The `[slug]` pattern allows a trailing slash, so the exclusion must too.
+		const withSlash = await forwardedUrl('/live/');
+		assert.equal(withSlash.pathname, '/_render');
 	});
 
 	it('still caches the dynamic route the exclusion overlaps', {

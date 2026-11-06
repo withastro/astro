@@ -492,8 +492,10 @@ export default function vercelAdapter({
 
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of expandedExclusions) {
-								// vercel interprets src as a regex pattern, so we need to escape it
-								const src = escapeRegex(route);
+								// vercel interprets src as a regex pattern, so we need to escape it.
+								// Allow a trailing slash like the ISR routes do, or `/two/` skips the
+								// exclusion and a dynamic ISR route can serve it from the cache.
+								const src = escapeRegex(route).replace(/\/?\$$/, '/?$');
 								routeDefinitions.push({ src, dest });
 								isrExcludedRoutes.push(src);
 							}
