@@ -39,7 +39,6 @@ import type { FontFetcher, FontTypeExtractor } from './definitions.js';
 import { BuildFontFileIdGenerator } from './infra/build-font-file-id-generator.js';
 import { BuildUrlResolver } from './infra/build-url-resolver.js';
 import { CachedFontFetcher } from './infra/cached-font-fetcher.js';
-import { CapsizeFontMetricsResolver } from './infra/capsize-font-metrics-resolver.js';
 import { DevFontFileIdGenerator } from './infra/dev-font-file-id-generator.js';
 import { DevUrlResolver } from './infra/dev-url-resolver.js';
 import { FsFontFileContentResolver } from './infra/fs-font-file-content-resolver.js';
@@ -47,7 +46,6 @@ import { LevenshteinStringMatcher } from './infra/levenshtein-string-matcher.js'
 import { MinifiableCssRenderer } from './infra/minifiable-css-renderer.js';
 import { NodeFontTypeExtractor } from './infra/node-font-type-extractor.js';
 import { RealSystemFallbacksProvider } from './infra/system-fallbacks-provider.js';
-import { UnifontFontResolver } from './infra/unifont-font-resolver.js';
 import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
 import { XxhashHasher } from './infra/xxhash-hasher.js';
 import type {
@@ -100,9 +98,15 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			resolvedConfig = config;
 		},
 		async buildStart() {
-			if (sync) {
+			if (sync || !settings.config.fonts?.length) {
 				return;
 			}
+			// Loaded on demand because unifont and capsize pull in large dependencies
+			// (css-tree, fontkitten) that projects without fonts never use.
+			const [{ CapsizeFontMetricsResolver }, { UnifontFontResolver }] = await Promise.all([
+				import('./infra/capsize-font-metrics-resolver.js'),
+				import('./infra/unifont-font-resolver.js'),
+			]);
 			const { root } = settings.config;
 			const isBuild = this.environment.config.command === 'build';
 			// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
