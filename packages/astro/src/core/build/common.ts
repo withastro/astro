@@ -130,6 +130,11 @@ export function getUrlForPath(
 	 * base: /
 	 */
 
+	// A `getStaticPaths()` param can contain a literal `%` (e.g. `50%-off`). Left raw, the
+	// request path is not valid percent-encoding and is rejected with a 400, so the page
+	// is never written. See https://github.com/withastro/astro/issues/18659
+	pathname = pathname.replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
+
 	let ending: string;
 	// For `preserve`, non-index routes output as flat `.html` files (like `file`),
 	// while index routes output as `dir/index.html` (like `directory`).
