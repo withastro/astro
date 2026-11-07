@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { LocalFontProvider } from '../../../../dist/assets/fonts/providers/local.js';
@@ -15,6 +16,30 @@ describe('fonts providers', () => {
 			assert.equal(fontProviders.googleicons().name, 'googleicons');
 			assert.equal(fontProviders.npm().name, 'npm');
 			assert.equal(fontProviders.local().name, 'local');
+		});
+
+		it('does not load unifont until a provider is initialized', () => {
+			// Must stay a file:// URL: a bare Windows path is rejected by dynamic import as an unknown scheme.
+			const entrypointUrl = new URL('../../../../dist/config/entrypoint.js', import.meta.url).href;
+			const source = `
+				import { registerHooks } from 'node:module';
+				let loaded = false;
+				registerHooks({
+					load(url, context, nextLoad) {
+						if (url.includes('/node_modules/unifont/')) loaded = true;
+						return nextLoad(url, context);
+					},
+				});
+				const { fontProviders } = await import(${JSON.stringify(entrypointUrl)});
+				fontProviders.google();
+				fontProviders.npm();
+				console.log(loaded);
+			`;
+			const result = spawnSync(process.execPath, ['--input-type=module', '-e', source], {
+				encoding: 'utf8',
+			});
+			assert.equal(result.stderr, '');
+			assert.equal(result.stdout.trim(), 'false');
 		});
 
 		it('forwards the config', () => {
