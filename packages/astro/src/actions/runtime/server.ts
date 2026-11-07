@@ -348,13 +348,24 @@ export function formDataToObject<T extends z.$ZodObject>(
 		: {};
 	for (const [key, baseValidator] of Object.entries(schema._zod.def.shape)) {
 		const prefixedKey = prefix + key;
-		let validator = baseValidator;
+		// A pipe (from .transform() / .pipe()) wraps the modifiers chained before it,
+		// e.g. `z.number().optional().transform(fn)` is a pipe whose input is the optional.
+		let outerValidator = baseValidator;
+		while (outerValidator instanceof z.$ZodPipe) {
+			outerValidator = outerValidator._zod.def.in;
+		}
+		let validator = outerValidator;
 
 		while (
 			validator instanceof z.$ZodOptional ||
 			validator instanceof z.$ZodNullable ||
-			validator instanceof z.$ZodDefault
+			validator instanceof z.$ZodDefault ||
+			validator instanceof z.$ZodPipe
 		) {
+			if (validator instanceof z.$ZodPipe) {
+				validator = validator._zod.def.in;
+				continue;
+			}
 			// use default value when key is undefined
 			if (validator instanceof z.$ZodDefault && !formDataHasKeyOrPrefix(formKeys, prefixedKey)) {
 				obj[key] =
@@ -363,11 +374,6 @@ export function formDataToObject<T extends z.$ZodObject>(
 						: validator._zod.def.defaultValue;
 			}
 			validator = validator._zod.def.innerType;
-		}
-
-		// Unwrap pipe (from .transform() / .pipe()) to find nested objects
-		while (validator instanceof z.$ZodPipe) {
-			validator = validator._zod.def.in;
 		}
 
 		// Resolve nested discriminatedUnion to the matching variant
@@ -391,7 +397,7 @@ export function formDataToObject<T extends z.$ZodObject>(
 				obj[key] = formDataToObject(formData, validator, nestedPrefix);
 			} else if (!(key in obj)) {
 				// No nested keys and no default was set — respect optional/nullable
-				obj[key] = baseValidator instanceof z.$ZodNullable ? null : undefined;
+				obj[key] = outerValidator instanceof z.$ZodNullable ? null : undefined;
 			}
 		} else if (!formData.has(prefixedKey) && key in obj) {
 			// continue loop if form input is not found and default value is set
@@ -402,7 +408,7 @@ export function formDataToObject<T extends z.$ZodObject>(
 		} else if (validator instanceof z.$ZodArray) {
 			obj[key] = handleFormDataGetAll(prefixedKey, formData, validator);
 		} else {
-			obj[key] = handleFormDataGet(prefixedKey, formData, validator, baseValidator);
+			obj[key] = handleFormDataGet(prefixedKey, formData, validator, outerValidator);
 		}
 	}
 	return obj;
