@@ -1,6 +1,7 @@
 import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { SSRManifest } from '../app/types.js';
+import { attachCookiesToResponse, getCookiesFromResponse } from '../cookies/response.js';
 import { getEnvironment } from '../environment/index.js';
 import { createManifestMemo } from '../manifest/memo.js';
 import { getCacheProvider } from './provider.js';
@@ -108,7 +109,24 @@ export async function handleCache(
 				},
 			},
 			async () => {
-				const res = await next();
+				let res = await next();
+				// Only providers that explicitly opt in (e.g. memoryCache(), which
+				// already buffers before storage) can wait for late directives here.
+				// `onRequest` alone does not imply buffering: custom providers may
+				// stream and write in the background. Preserve that behavior by default.
+				if (
+					state.request.method === 'GET' &&
+					res.body &&
+					(cache!.options.maxAge ?? 0) > 0 &&
+					cacheProvider.shouldBufferResponse?.(res, state.request) === true
+				) {
+					const buffered = new Response(await res.arrayBuffer(), res);
+					// Astro cookies live on the Response, not necessarily in its headers.
+					// Losing them here could cause a personalized response to be cached.
+					const cookies = getCookiesFromResponse(res);
+					if (cookies) attachCookiesToResponse(buffered, cookies);
+					res = buffered;
+				}
 				applyCacheHeaders(cache!, res, state.request);
 				return res;
 			},
