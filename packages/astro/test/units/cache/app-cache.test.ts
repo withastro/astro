@@ -5,6 +5,7 @@ import memoryProvider from '../../../dist/core/cache/memory-provider.js';
 import { createComponent, render, renderHead } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createTestApp } from '../mocks.ts';
 import type { APIContext } from '../../../dist/types/public/context.js';
+import { settlePendingStores, waitUntil } from './test-helpers.ts';
 
 function createCacheManifestOverrides() {
 	return {
@@ -172,14 +173,18 @@ describe('context.cache through App pipeline', () => {
 		const overrides = createCacheManifestOverrides();
 		const app = createTestApp([headCachedEndpoint()], overrides);
 
-		const head = await app.render(new Request('http://localhost/head-cached', { method: 'HEAD' }));
+		const head = await app.render(new Request('http://localhost/head-cached', { method: 'HEAD' }), {
+			waitUntil,
+		});
+		await settlePendingStores();
 		assert.equal(head.status, 200);
 		assert.equal(head.headers.get('X-Astro-Cache'), null);
 
-		const firstGet = await app.render(new Request('http://localhost/head-cached'));
+		const firstGet = await app.render(new Request('http://localhost/head-cached'), { waitUntil });
 		assert.equal(firstGet.headers.get('X-Astro-Cache'), 'MISS');
+		await settlePendingStores();
 
-		const secondGet = await app.render(new Request('http://localhost/head-cached'));
+		const secondGet = await app.render(new Request('http://localhost/head-cached'), { waitUntil });
 		assert.equal(secondGet.headers.get('X-Astro-Cache'), 'HIT');
 	});
 
@@ -187,16 +192,18 @@ describe('context.cache through App pipeline', () => {
 		const overrides = createCacheManifestOverrides();
 		const app = createTestApp([cachedEndpoint()], overrides);
 
-		const aFirst = await app.render(new Request('http://a.example/cached'));
+		const aFirst = await app.render(new Request('http://a.example/cached'), { waitUntil });
 		assert.equal(aFirst.headers.get('X-Astro-Cache'), 'MISS');
+		await settlePendingStores();
 
-		const bFirst = await app.render(new Request('http://b.example/cached'));
+		const bFirst = await app.render(new Request('http://b.example/cached'), { waitUntil });
 		assert.equal(bFirst.headers.get('X-Astro-Cache'), 'MISS');
+		await settlePendingStores();
 
-		const aSecond = await app.render(new Request('http://a.example/cached'));
+		const aSecond = await app.render(new Request('http://a.example/cached'), { waitUntil });
 		assert.equal(aSecond.headers.get('X-Astro-Cache'), 'HIT');
 
-		const bSecond = await app.render(new Request('http://b.example/cached'));
+		const bSecond = await app.render(new Request('http://b.example/cached'), { waitUntil });
 		assert.equal(bSecond.headers.get('X-Astro-Cache'), 'HIT');
 	});
 
@@ -204,11 +211,12 @@ describe('context.cache through App pipeline', () => {
 		const overrides = createCacheManifestOverrides();
 		const app = createTestApp([cachedEndpoint()], overrides);
 
-		const first = await app.render(new Request('http://localhost/cached'));
+		const first = await app.render(new Request('http://localhost/cached'), { waitUntil });
 		assert.equal(first.status, 200);
 		const firstBody = await first.json();
+		await settlePendingStores();
 
-		const second = await app.render(new Request('http://localhost/cached'));
+		const second = await app.render(new Request('http://localhost/cached'), { waitUntil });
 		assert.equal(second.status, 200);
 		const secondBody = await second.json();
 		assert.equal(second.headers.get('X-Astro-Cache'), 'HIT');
@@ -225,10 +233,13 @@ describe('context.cache through App pipeline', () => {
 		const overrides = createCacheManifestOverrides();
 		const app = createTestApp([cachedValidatorEndpoint()], overrides);
 
-		const first = await app.render(new Request('http://localhost/cached-validator'));
+		const first = await app.render(new Request('http://localhost/cached-validator'), { waitUntil });
 		assert.equal(first.headers.get('Cache-Control'), 'no-cache');
+		await settlePendingStores();
 
-		const second = await app.render(new Request('http://localhost/cached-validator'));
+		const second = await app.render(new Request('http://localhost/cached-validator'), {
+			waitUntil,
+		});
 		assert.equal(second.headers.get('X-Astro-Cache'), 'HIT');
 		assert.equal(second.headers.get('Cache-Control'), 'no-cache');
 	});
@@ -247,8 +258,9 @@ describe('context.cache through App pipeline', () => {
 		const app = createTestApp([cachedEndpoint(), invalidateEndpoint()], overrides);
 
 		// Prime and verify cache
-		await app.render(new Request('http://localhost/cached'));
-		const hit = await app.render(new Request('http://localhost/cached'));
+		await app.render(new Request('http://localhost/cached'), { waitUntil });
+		await settlePendingStores();
+		const hit = await app.render(new Request('http://localhost/cached'), { waitUntil });
 		assert.equal(hit.headers.get('X-Astro-Cache'), 'HIT');
 
 		// Invalidate by tag
@@ -257,11 +269,12 @@ describe('context.cache through App pipeline', () => {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 			}),
+			{ waitUntil },
 		);
 		assert.equal(inv.status, 200);
 
 		// Should be a miss now
-		const after = await app.render(new Request('http://localhost/cached'));
+		const after = await app.render(new Request('http://localhost/cached'), { waitUntil });
 		assert.equal(after.headers.get('X-Astro-Cache'), 'MISS');
 	});
 
@@ -270,8 +283,9 @@ describe('context.cache through App pipeline', () => {
 		const app = createTestApp([cachedEndpoint(), invalidatePathEndpoint()], overrides);
 
 		// Prime and verify cache
-		await app.render(new Request('http://localhost/cached'));
-		const hit = await app.render(new Request('http://localhost/cached'));
+		await app.render(new Request('http://localhost/cached'), { waitUntil });
+		await settlePendingStores();
+		const hit = await app.render(new Request('http://localhost/cached'), { waitUntil });
 		assert.equal(hit.headers.get('X-Astro-Cache'), 'HIT');
 
 		// Invalidate by path
@@ -280,11 +294,12 @@ describe('context.cache through App pipeline', () => {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 			}),
+			{ waitUntil },
 		);
 		assert.equal(inv.status, 200);
 
 		// Should be a miss now
-		const after = await app.render(new Request('http://localhost/cached'));
+		const after = await app.render(new Request('http://localhost/cached'), { waitUntil });
 		assert.equal(after.headers.get('X-Astro-Cache'), 'MISS');
 	});
 
@@ -301,11 +316,12 @@ describe('context.cache through App pipeline', () => {
 		const overrides = createCacheManifestOverrides();
 		const app = createTestApp([cachedEndpoint()], overrides);
 
-		const first = await app.render(new Request('http://localhost/cached'));
+		const first = await app.render(new Request('http://localhost/cached'), { waitUntil });
 		const firstBody = await first.json();
 		assert.ok(firstBody.timestamp);
+		await settlePendingStores();
 
-		const second = await app.render(new Request('http://localhost/cached'));
+		const second = await app.render(new Request('http://localhost/cached'), { waitUntil });
 		const secondBody = await second.json();
 		assert.deepEqual(firstBody, secondBody);
 	});
@@ -381,11 +397,14 @@ describe('context.cache through App pipeline', () => {
 		const app = createTestApp([cachedEndpoint()], overrides);
 
 		// Prime cache with one param order
-		const first = await app.render(new Request('http://localhost/cached?b=2&a=1'));
+		const first = await app.render(new Request('http://localhost/cached?b=2&a=1'), { waitUntil });
 		assert.equal(first.headers.get('X-Astro-Cache'), 'MISS');
+		await settlePendingStores();
 
 		// Same params, different order — should be a HIT
-		const second = await app.render(new Request('http://localhost/cached?a=1&b=2'));
+		const second = await app.render(new Request('http://localhost/cached?a=1&b=2'), {
+			waitUntil,
+		});
 		assert.equal(second.headers.get('X-Astro-Cache'), 'HIT');
 	});
 
@@ -398,16 +417,19 @@ describe('context.cache through App pipeline', () => {
 			new Request('http://localhost/vary-lang', {
 				headers: { 'Accept-Language': 'en' },
 			}),
+			{ waitUntil },
 		);
 		assert.equal(enFirst.headers.get('X-Astro-Cache'), 'MISS');
 		const enBody = await enFirst.json();
 		assert.equal(enBody.lang, 'en');
+		await settlePendingStores();
 
 		// Same URL, same language — should be a HIT
 		const enSecond = await app.render(
 			new Request('http://localhost/vary-lang', {
 				headers: { 'Accept-Language': 'en' },
 			}),
+			{ waitUntil },
 		);
 		assert.equal(enSecond.headers.get('X-Astro-Cache'), 'HIT');
 
@@ -416,16 +438,19 @@ describe('context.cache through App pipeline', () => {
 			new Request('http://localhost/vary-lang', {
 				headers: { 'Accept-Language': 'fr' },
 			}),
+			{ waitUntil },
 		);
 		assert.equal(frFirst.headers.get('X-Astro-Cache'), 'MISS');
 		const frBody = await frFirst.json();
 		assert.equal(frBody.lang, 'fr');
+		await settlePendingStores();
 
 		// Verify both variants are cached independently
 		const enThird = await app.render(
 			new Request('http://localhost/vary-lang', {
 				headers: { 'Accept-Language': 'en' },
 			}),
+			{ waitUntil },
 		);
 		assert.equal(enThird.headers.get('X-Astro-Cache'), 'HIT');
 
@@ -433,6 +458,7 @@ describe('context.cache through App pipeline', () => {
 			new Request('http://localhost/vary-lang', {
 				headers: { 'Accept-Language': 'fr' },
 			}),
+			{ waitUntil },
 		);
 		assert.equal(frSecond.headers.get('X-Astro-Cache'), 'HIT');
 	});

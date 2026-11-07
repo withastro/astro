@@ -75,7 +75,7 @@ export default function testAdapter({
 													this.#manifest = manifest;
 												}
 
-												async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch } = {}) {
+												async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch, waitUntil } = {}) {
 													const url = new URL(request.url);
 													if(this.#manifest.assets.has(url.pathname)) {
 														const filePath = new URL(this.removeBase(url.pathname).replace(/^\\//, ''), this.#manifest.buildClientDir);
@@ -88,6 +88,7 @@ export default function testAdapter({
 														locals,
 														addCookieHeader,
 														prerenderedErrorPageFetch,
+														waitUntil,
 													${provideAddress ? `clientAddress: clientAddress ?? '0.0.0.0',` : ''}
 													});
 												}
@@ -203,7 +204,7 @@ export function selfTestAdapter({
 													this.#manifest = manifest;
 												}
 
-												async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch } = {}) {
+												async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch, waitUntil } = {}) {
 													const url = new URL(request.url);
 													if(this.#manifest.assets.has(url.pathname)) {
 														const filePath = new URL(this.removeBase(url.pathname).replace(/^\\//, ''), this.#manifest.buildClientDir);
@@ -216,6 +217,7 @@ export function selfTestAdapter({
 														locals,
 														addCookieHeader,
 														prerenderedErrorPageFetch,
+														waitUntil,
 													${provideAddress ? `clientAddress: clientAddress ?? '0.0.0.0',` : ''}
 													});
 												}
