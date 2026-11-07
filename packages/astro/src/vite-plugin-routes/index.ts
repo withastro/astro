@@ -113,65 +113,69 @@ export default async function astroPluginRoutes({
 				'update',
 				`Re-calculating routes for ${normalizePath(path).slice(normalizedSrcDir.length)}`,
 			);
-			const file = pathToFileURL(normalizePath(path));
-			const newRoutesList = await createRoutesList(
-				{
-					settings,
-					fsMod,
-				},
-				logger,
-				{ dev: command === 'dev' },
-			);
+			try {
+				const file = pathToFileURL(normalizePath(path));
+				const newRoutesList = await createRoutesList(
+					{
+						settings,
+						fsMod,
+					},
+					logger,
+					{ dev: command === 'dev' },
+				);
 
-			// IMPORTANT: Mutate the shared routesList object so all plugins see the update.
-			// Other plugins (pluginPage, pluginPages, astroDevCssPlugin) capture routesList
-			// at creation time, so we must mutate the array in place rather than replacing it.
-			initialRoutesList.routes.length = 0;
-			initialRoutesList.routes.push(...newRoutesList.routes);
+				// IMPORTANT: Mutate the shared routesList object so all plugins see the update.
+				// Other plugins (pluginPage, pluginPages, astroDevCssPlugin) capture routesList
+				// at creation time, so we must mutate the array in place rather than replacing it.
+				initialRoutesList.routes.length = 0;
+				initialRoutesList.routes.push(...newRoutesList.routes);
 
-			serializedRouteInfo = initialRoutesList.routes.map((r): SerializedRouteInfo => {
-				return {
-					file: fileURLToPath(file),
-					links: [],
-					scripts: getDevRouteScripts(command, settings.scripts),
-					styles: [],
-					routeData: serializeRouteData(r, settings.config.trailingSlash),
-				};
-			});
-			const environmentsToInvalidate = [];
-			for (const name of [
-				ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
-				ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
-			] as const) {
-				const environment = server.environments[name];
-				if (environment) {
-					environmentsToInvalidate.push(environment);
-				}
-			}
-
-			for (const environment of environmentsToInvalidate) {
-				const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
-				if (!virtualMod) continue;
-
-				environment.moduleGraph.invalidateModule(virtualMod);
-
-				const cssMod = environment.moduleGraph.getModuleById(RESOLVED_MODULE_DEV_CSS_ALL);
-				if (cssMod) {
-					environment.moduleGraph.invalidateModule(cssMod);
+				serializedRouteInfo = initialRoutesList.routes.map((r): SerializedRouteInfo => {
+					return {
+						file: fileURLToPath(file),
+						links: [],
+						scripts: getDevRouteScripts(command, settings.scripts),
+						styles: [],
+						routeData: serializeRouteData(r, settings.config.trailingSlash),
+					};
+				});
+				const environmentsToInvalidate = [];
+				for (const name of [
+					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+					ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
+				] as const) {
+					const environment = server.environments[name];
+					if (environment) {
+						environmentsToInvalidate.push(environment);
+					}
 				}
 
-				// Signal that routes have changed so running apps can update
-				// NOTE: Consider adding debouncing here if rapid file changes cause performance issues
-				environment.hot.send('astro:routes-updated', {});
+				for (const environment of environmentsToInvalidate) {
+					const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
+					if (!virtualMod) continue;
+
+					environment.moduleGraph.invalidateModule(virtualMod);
+
+					const cssMod = environment.moduleGraph.getModuleById(RESOLVED_MODULE_DEV_CSS_ALL);
+					if (cssMod) {
+						environment.moduleGraph.invalidateModule(cssMod);
+					}
+
+					// Signal that routes have changed so running apps can update
+					// NOTE: Consider adding debouncing here if rapid file changes cause performance issues
+					environment.hot.send('astro:routes-updated', {});
+				}
+			} catch (err: any) {
+				logger.error('router', `Failed to rebuild routes: ${err?.message || err}`);
 			}
 		}
 	}
 	return {
 		name: 'astro:routes',
 		configureServer(server) {
-			server.watcher.on('add', (path) => rebuildRoutes(path, server));
-			server.watcher.on('unlink', (path) => rebuildRoutes(path, server));
-			server.watcher.on('change', (path) => rebuildRoutes(path, server));
+			server.watcher.on('add', (path) => void rebuildRoutes(path, server));
+			server.watcher.on('unlink', (path) => void rebuildRoutes(path, server));
+			server.watcher.on('change', (path) => void rebuildRoutes(path, server));
 		},
 
 		applyToEnvironment(environment) {

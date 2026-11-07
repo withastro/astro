@@ -584,4 +584,66 @@ describe('routing - createRoutesList', () => {
 			{ type: 'page', route: '/a-[b]' },
 		]);
 	});
+
+	it('in dev mode, does not throw when an injected route entrypoint does not exist', async () => {
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `<h1>Home</h1>`,
+		});
+
+		const settings = await createBasicSettings({
+			root: fixture.path,
+		});
+
+		settings.injectedRoutes = [
+			{
+				pattern: '/injected',
+				entrypoint: 'src/routes/missing.astro',
+				origin: 'external',
+			} as any,
+		];
+
+		const manifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings,
+			},
+			defaultLogger,
+			{ dev: true },
+		);
+
+		assert.ok(manifest);
+		const routes = getManifestRoutes(manifest);
+		assert.ok(routes.some((r) => r.route === '/'));
+	});
+
+	it('in build mode, throws when an injected route entrypoint does not exist', async () => {
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `<h1>Home</h1>`,
+		});
+
+		const settings = await createBasicSettings({
+			root: fixture.path,
+		});
+
+		settings.injectedRoutes = [
+			{
+				pattern: '/injected',
+				entrypoint: 'src/routes/missing.astro',
+				origin: 'external',
+			} as any,
+		];
+
+		await assert.rejects(
+			() =>
+				createRoutesList(
+					{
+						cwd: fixture.path,
+						settings,
+					},
+					defaultLogger,
+					{ dev: false },
+				),
+			(err: any) => err.code === 'ENOENT',
+		);
+	});
 });
