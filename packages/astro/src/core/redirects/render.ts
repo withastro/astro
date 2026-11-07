@@ -1,3 +1,4 @@
+import { hasFileExtension } from '@astrojs/internal-helpers/path';
 import type { Params } from '../../types/public/common.js';
 import type { RedirectConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
@@ -50,6 +51,12 @@ export function resolveRedirectTarget(
 	trailingSlash: 'always' | 'never' | 'ignore',
 ): string {
 	if (typeof redirectRoute !== 'undefined') {
+		// An endpoint with a file extension (e.g. /feed.xml) is matched without a
+		// trailing slash whatever the setting (trailingSlashForPath() in
+		// create-manifest.ts), so `/feed.xml/` would 404. Same guard as stringifyParams().
+		if (redirectRoute.type === 'endpoint' && hasFileExtension(redirectRoute.route)) {
+			trailingSlash = 'never';
+		}
 		const generate = getRouteGenerator(redirectRoute.segments, trailingSlash);
 		return generate(params) || redirectRoute?.pathname || '/';
 	} else if (typeof redirect === 'string') {

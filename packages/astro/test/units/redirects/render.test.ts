@@ -281,4 +281,41 @@ describe('resolveRedirectTarget', () => {
 			'https://example.com/page',
 		);
 	});
+
+	it('never adds a trailing slash to an endpoint with a file extension', () => {
+		const feed = {
+			type: 'endpoint',
+			route: '/feed.xml',
+			segments: [[{ content: 'feed.xml', dynamic: false, spread: false }]],
+			pathname: '/feed.xml',
+		} as unknown as RouteData;
+		assert.equal(resolveRedirectTarget({}, '/feed.xml', feed, 'always'), '/feed.xml');
+
+		const api = {
+			type: 'endpoint',
+			route: '/api/[id].json',
+			segments: [
+				[{ content: 'api', dynamic: false, spread: false }],
+				[
+					{ content: 'id', dynamic: true, spread: false },
+					{ content: '.json', dynamic: false, spread: false },
+				],
+			],
+			pathname: undefined,
+		} as unknown as RouteData;
+		assert.equal(
+			resolveRedirectTarget({ id: '42' }, '/api/[id].json', api, 'always'),
+			'/api/42.json',
+		);
+	});
+
+	it('still adds a trailing slash to a page under trailingSlash: always', () => {
+		const page = {
+			type: 'page',
+			route: '/target',
+			segments: [[{ content: 'target', dynamic: false, spread: false }]],
+			pathname: '/target',
+		} as unknown as RouteData;
+		assert.equal(resolveRedirectTarget({}, '/target', page, 'always'), '/target/');
+	});
 });
