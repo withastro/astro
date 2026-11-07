@@ -1,4 +1,9 @@
-import { isRunnableDevEnvironment, type EnvironmentModuleNode, type Plugin } from 'vite';
+import {
+	isRunnableDevEnvironment,
+	type DevEnvironment,
+	type EnvironmentModuleNode,
+	type Plugin,
+} from 'vite';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { RESOLVED_MODULE_DEV_CSS_PREFIX } from '../vite-plugin-css/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
@@ -62,12 +67,58 @@ function hasClientStyleModuleByFile(
  * it used to unconditionally reload for us.
  */
 export default function hmrReload(): Plugin {
+	const remoteInvalidations = new WeakMap<
+		DevEnvironment,
+		{ revision: number; modules: Map<EnvironmentModuleNode, number> }
+	>();
+
+	function invalidateRemoteModules(
+		environment: DevEnvironment,
+		modules: Set<EnvironmentModuleNode>,
+	) {
+		let invalidations = remoteInvalidations.get(environment);
+		if (!invalidations) {
+			invalidations = { revision: 0, modules: new Map() };
+			remoteInvalidations.set(environment, invalidations);
+			const pending = invalidations;
+			const fetchModule = environment.fetchModule.bind(environment);
+			environment.fetchModule = async (url, importer, options) => {
+				const revision = pending.revision;
+				const result = await fetchModule(url, importer, options);
+				// Astro also fetches modules for analysis without evaluating them remotely.
+				// Only a runner's explicit cache check may consume its invalidation.
+				if (options?.cached === undefined || pending.modules.size === 0) return result;
+				const mod =
+					'cache' in result
+						? await environment.moduleGraph.getModuleByUrl(url)
+						: 'id' in result
+							? environment.moduleGraph.getModuleById(result.id)
+							: undefined;
+				const invalidatedAt = mod && pending.modules.get(mod);
+				if (!mod || invalidatedAt === undefined) return result;
+
+				const refreshed =
+					'cache' in result
+						? await fetchModule(url, importer, { ...options, cached: false })
+						: result;
+				if (!('code' in refreshed)) return refreshed;
+				// Do not consume an invalidation from an edit that arrived during this fetch.
+				if (invalidatedAt <= revision && pending.modules.get(mod) === invalidatedAt) {
+					pending.modules.delete(mod);
+				}
+				return { ...refreshed, invalidate: true };
+			};
+		}
+		invalidations.revision++;
+		for (const mod of modules) invalidations.modules.set(mod, invalidations.revision);
+	}
+
 	return {
 		name: 'astro:hmr-reload',
 		enforce: 'post',
 		hotUpdate: {
 			order: 'post',
-			handler({ modules, server, timestamp, file }) {
+			handler({ modules, server, timestamp }) {
 				if (!isAstroServerEnvironment(this.environment)) return;
 
 				let hasSsrOnlyModules = false;
@@ -150,18 +201,17 @@ export default function hmrReload(): Plugin {
 							}
 						}
 					}
+					if (!isRunnableDevEnvironment(this.environment)) {
+						// A transform may be revalidated before the remote runner asks for it.
+						// Remember affected modules independently of the transform cache so
+						// fetchModule also refreshes their evaluated exports.
+						invalidateRemoteModules(this.environment, invalidatedModules);
+					}
 					// Tell the browser to reload the page.
 					server.ws.send({ type: 'full-reload' });
-					// For non-runnable environments (e.g. Cloudflare's workerd), we can't
-					// directly access the module runner. Send a full-reload through the
-					// environment's hot channel so the remote runner clears its cache.
-					if (!isRunnableDevEnvironment(this.environment)) {
-						this.environment.hot.send({
-							type: 'full-reload',
-							triggeredBy: file,
-							path: '*',
-						});
-					}
+					// Remote runners refresh invalidated modules through fetchModule. Sending
+					// them a full-reload would also clear unrelated dependencies, allowing an
+					// in-flight request to import a second instance of a shared module.
 					return [];
 				}
 
