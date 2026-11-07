@@ -1,6 +1,6 @@
 import type fsMod from 'node:fs';
-import { extname } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { extname, relative, sep } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
 import type { Plugin, Rolldown, RunnableDevEnvironment } from 'vite';
 import { getImageAssetCode, IMAGE_ASSET_IMPORT } from '../assets/utils/image-asset-code.js';
@@ -100,6 +100,13 @@ export function astroContentImportPlugin({
 					id: new RegExp(`(?:\\?|&)(?:${DATA_FLAG}|${CONTENT_FLAG})(?:&|=|$)`),
 				},
 				async handler(_, viteId) {
+					// The deployed server never reads the source file at request time, so content
+					// image proxies store a project-relative path instead of the absolute one.
+					const fsPathRelativeTo =
+						settings.buildOutput === 'server' &&
+						this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr
+							? settings.config.root
+							: undefined;
 					if (hasContentFlag(viteId, DATA_FLAG)) {
 						// By default, Vite will resolve symlinks to their targets. We need to reverse this for
 						// content entries, so we can get the path relative to the content directory.
@@ -120,7 +127,11 @@ export function astroContentImportPlugin({
 							shouldEmitFile,
 						});
 
-						const entryData = stringifyEntryData(data, settings.buildOutput === 'server');
+						const entryData = stringifyEntryData(
+							data,
+							settings.buildOutput === 'server',
+							fsPathRelativeTo,
+						);
 						const code = `${entryData.imports}
 export const id = ${JSON.stringify(id)};
 export const collection = ${JSON.stringify(collection)};
@@ -148,7 +159,11 @@ export const _internal = {
 							shouldEmitFile,
 						});
 
-						const entryData = stringifyEntryData(data, settings.buildOutput === 'server');
+						const entryData = stringifyEntryData(
+							data,
+							settings.buildOutput === 'server',
+							fsPathRelativeTo,
+						);
 						const code = `${entryData.imports}
 						export const id = ${JSON.stringify(id)};
 						export const collection = ${JSON.stringify(collection)};
@@ -420,6 +435,7 @@ async function getContentConfigFromGlobal() {
 function stringifyEntryData(
 	data: Record<string, any>,
 	isSSR: boolean,
+	fsPathRelativeTo: URL | undefined,
 ): { imports: string; code: string } {
 	let hasImageAsset = false;
 	try {
@@ -434,7 +450,10 @@ function stringifyEntryData(
 				// `createImageAsset` defines a non-enumerable `fsPath`, as for imported images.
 				const { ASTRO_ASSET, fsPath: _fsPath, ...asset } = value;
 				hasImageAsset = true;
-				return getImageAssetCode(js, asset, ASTRO_ASSET, !isSSR);
+				const fsPath = fsPathRelativeTo
+					? relative(fileURLToPath(fsPathRelativeTo), ASTRO_ASSET).split(sep).join('/')
+					: ASTRO_ASSET;
+				return getImageAssetCode(js, asset, fsPath, !isSSR);
 			}
 		});
 		return { imports: hasImageAsset ? IMAGE_ASSET_IMPORT : '', code };

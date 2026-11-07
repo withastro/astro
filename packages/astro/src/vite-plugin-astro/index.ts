@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
@@ -25,6 +26,35 @@ interface AstroPluginOptions {
 }
 
 const astroFileToCompileMetadataWeakMap = new WeakMap<AstroConfig, Map<string, CompileMetadata>>();
+
+/**
+ * Rewrites the component paths the compiler embedded in the transformed code (the
+ * `client:component-path` / `server:component-path` props) so they match the relativized
+ * manifest keys. The returned metadata keeps absolute paths because it keys build-time module
+ * graph lookups, such as the incremental build's client dependency hashing.
+ */
+function relativizeComponentPaths(transformResult: CompileAstroResult, root: URL): string {
+	const normalizedRoot = normalizePath(fileURLToPath(root));
+	const relativize = (resolvedPath: string) => {
+		const normalized = normalizePath(resolvedPath);
+		return normalized.startsWith(normalizedRoot)
+			? normalized.slice(normalizedRoot.length - 1)
+			: resolvedPath;
+	};
+
+	let code = transformResult.code;
+	for (const component of [
+		...transformResult.hydratedComponents,
+		...transformResult.clientOnlyComponents,
+		...transformResult.serverComponents,
+	]) {
+		const resolvedPath = relativize(component.resolvedPath);
+		if (resolvedPath !== component.resolvedPath) {
+			code = code.replaceAll(JSON.stringify(component.resolvedPath), JSON.stringify(resolvedPath));
+		}
+	}
+	return code;
+}
 
 /** Transform .astro files for Vite */
 export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
@@ -290,6 +320,12 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						for (const style of transformResult.css) {
 							style.dependencies?.forEach((dependency) => this.addWatchFile(dependency));
 						}
+					}
+
+					if (this.environment.config.command === 'build') {
+						// Shortening the embedded component paths in place shifts columns on those
+						// lines; the compiler's sourcemap is returned unchanged.
+						transformResult.code = relativizeComponentPaths(transformResult, config.root);
 					}
 
 					const astroMetadata: AstroPluginMetadata['astro'] = {

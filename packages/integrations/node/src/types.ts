@@ -35,7 +35,9 @@ export interface UserOptions {
 export interface Options extends UserOptions {
 	host: string | boolean;
 	port: number;
+	/** Basename of the server output directory, used to locate it at runtime. */
 	server: string;
+	/** Relative path from the server output directory to the client output directory. */
 	client: string;
 	staticHeaders: boolean;
 	bodySizeLimit: number;
