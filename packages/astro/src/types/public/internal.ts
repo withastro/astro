@@ -255,6 +255,8 @@ export interface SSRResult {
 	styleDirective: SSRManifestCSP['styleDirective'];
 	/** Static speculation rules JSON to inject in the head when CSP + clientPrerender are both enabled. */
 	speculationRulesContent?: string;
+	/** Import map JSON whose `integrity` map covers every client script, injected in the head when `strictDynamic` is enabled. */
+	importMapContent?: string;
 	internalFetchHeaders?: Record<string, string>;
 }
 

@@ -7,7 +7,7 @@ import {
 	getPrescripts,
 } from '../scripts.js';
 import { getInstructionRenderState, shouldRenderInstruction } from './head-propagation/runtime.js';
-import { renderAllHeadContent } from './head.js';
+import { renderAllHeadContent, renderImportMap } from './head.js';
 import type { RenderInstruction } from './instruction.js';
 import { isRenderInstruction } from './instruction.js';
 import { renderServerIslandRuntime } from './server-islands.js';
@@ -125,7 +125,9 @@ function stringifyChunk(
 					return '';
 				}
 				result._metadata.renderedScripts.add(id);
-				return content;
+				// Scripts inside `<head>` render before the head instruction, and browsers ignore
+				// an import map that comes after the first module script.
+				return renderImportMap(result) + content;
 			}
 			case 'template-enter': {
 				result._metadata.templateDepth++;
