@@ -64,6 +64,9 @@ const STREAM_ERROR_LOGGED = Symbol.for('astro.streamErrorLogged');
 // an error page and is logged here, whoever reads the body.
 // See https://github.com/withastro/astro/issues/18625
 function logStreamingError(result: SSRResult, err: any) {
+	if (err && typeof err === 'object' && (err as any)[STREAM_ERROR_LOGGED]) {
+		return;
+	}
 	result.logger.error(null, err?.stack || err?.message || String(err));
 	if (err && typeof err === 'object') {
 		(err as any)[STREAM_ERROR_LOGGED] = true;
@@ -280,6 +283,7 @@ async function renderStreamToAsyncIterable(
 
 	renderResult
 		.catch((err) => {
+			logStreamingError(result, err);
 			error = err;
 		})
 		.finally(() => {

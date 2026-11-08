@@ -4,6 +4,8 @@ import type { AstroLogger } from '../core/logger/core.js';
 import { formatErrorMessage } from '../core/messages/runtime.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 
+const STREAM_ERROR_LOGGED = Symbol.for('astro.streamErrorLogged');
+
 export function recordServerError(
 	loader: ModuleLoader,
 	manifest: SSRManifest,
@@ -19,7 +21,12 @@ export function recordServerError(
 	// Our error should already be complete, but let's try to add a bit more through some guesswork
 	const errorWithMetadata = collectErrorMetadata(err, manifest.rootDir);
 
-	logger.error(null, formatErrorMessage(errorWithMetadata, logger.level() === 'debug'));
+	if (!(err && typeof err === 'object' && (err as any)[STREAM_ERROR_LOGGED])) {
+		logger.error(null, formatErrorMessage(errorWithMetadata, logger.level() === 'debug'));
+		if (err && typeof err === 'object') {
+			(err as any)[STREAM_ERROR_LOGGED] = true;
+		}
+	}
 
 	return {
 		errorWithMetadata,
