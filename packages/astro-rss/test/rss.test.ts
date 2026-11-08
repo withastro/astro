@@ -80,6 +80,31 @@ describe('rss', () => {
 
 		assert.equal(str1, str2);
 	});
+
+	it('should preserve numeric-looking GUIDs in item custom data', async () => {
+		const guids = ['000123', '123'];
+		const response = await rss({
+			title,
+			description,
+			site,
+			items: guids.map((guid) => ({
+				title: guid,
+				customData: `<guid isPermaLink="false">${guid}</guid>`,
+			})),
+		});
+		const parsed = parseXmlString(await response.text());
+		assert.equal(parsed.err, null);
+		const items = (parsed.result as any).rss.channel[0].item;
+		assert.deepEqual(
+			items.map((item: any) => item.guid[0]._),
+			guids,
+		);
+		assert.deepEqual(
+			items.map((item: any) => item.title[0]),
+			guids,
+		);
+		assert.ok(items.every((item: any) => item.guid[0].$.isPermaLink === 'false'));
+	});
 });
 
 describe('getRssString', () => {
@@ -196,6 +221,19 @@ describe('getRssString', () => {
 		});
 
 		assert.ok(str.includes(customData));
+	});
+
+	it('should preserve numeric-looking category text in channel custom data', async () => {
+		const str = await getRssString({
+			title,
+			description,
+			site,
+			items: [],
+			customData: '<category domain="https://example.com/catalog">00123</category>',
+		});
+		const parsed = parseXmlString(str);
+		assert.equal(parsed.err, null);
+		assert.equal((parsed.result as any).rss.channel[0].category[0]._, '00123');
 	});
 
 	it('should not append trailing slash to URLs with the given option', async () => {

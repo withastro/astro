@@ -173,7 +173,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		suppressEmptyNode: true,
 		suppressBooleanAttributes: false,
 	};
-	const parser = new XMLParser(xmlOptions);
+	const parser = new XMLParser({ ...xmlOptions, parseTagValue: false });
 	const root: any = { '?xml': { '@_version': '1.0', '@_encoding': 'UTF-8' } };
 	if (typeof rssOptions.stylesheet === 'string') {
 		const isXSL = /\.xslt?$/i.test(rssOptions.stylesheet);
