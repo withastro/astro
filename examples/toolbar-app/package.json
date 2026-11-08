@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "peerDependencies": {
-    "astro": "^4.6.1"
+    "astro": "^4.6.1 || ^5.0.0 || ^6.0.0 || ^7.0.0"
   },
   "scripts": {
     "build": "tsc",
