@@ -11,7 +11,14 @@ function sanitizeParams(params: Record<string, string | number>): Record<string,
 	return Object.fromEntries(
 		Object.entries(params).map(([key, value]) => {
 			if (typeof value === 'string') {
-				return [key, value.normalize().replace(/#/g, '%23').replace(/\?/g, '%3F')];
+				return [
+					key,
+					value
+						.normalize()
+						.replace(/%/g, '%25')
+						.replace(/#/g, '%23')
+						.replace(/\?/g, '%3F'),
+				];
 			}
 			return [key, value];
 		}),

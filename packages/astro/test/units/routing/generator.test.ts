@@ -161,6 +161,24 @@ describe('routing - generator', () => {
 			params: { foo: 0 },
 			path: '/fix/0',
 		},
+		{
+			routeData: [[{ spread: false, content: 'slug', dynamic: true }]],
+			trailingSlash: 'never',
+			params: { slug: '50%-off' },
+			path: '/50%25-off',
+		},
+		{
+			routeData: [[{ spread: false, content: 'slug', dynamic: true }]],
+			trailingSlash: 'never',
+			params: { slug: 'a%20b' },
+			path: '/a%2520b',
+		},
+		{
+			routeData: [[{ spread: false, content: 'slug', dynamic: true }]],
+			trailingSlash: 'never',
+			params: { slug: 'tag#1?query=yes' },
+			path: '/tag%231%3Fquery=yes',
+		},
 	];
 
 	cases.forEach(({ routeData, trailingSlash, params, path }) => {
