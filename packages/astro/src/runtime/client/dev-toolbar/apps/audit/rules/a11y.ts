@@ -415,6 +415,12 @@ export const a11y: AuditRuleWithSelector[] = [
 		match(element: HTMLElement) {
 			if (isHiddenByClosedDetails(element)) return false;
 
+			// Skip elements not rendered to the user (e.g. visibility: hidden)
+			if (!element.checkVisibility({ visibilityProperty: true })) return false;
+
+			// Skip elements removed from the accessibility tree
+			if (element.closest('[aria-hidden="true"]')) return false;
+
 			// innerText is used to ignore hidden text
 			const innerText = element.innerText?.trim();
 			if (innerText && innerText !== '') return false;

@@ -260,7 +260,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		expect(count).toEqual(0);
 	});
 
-	test('does not warn about anchor text inside closed details but still warns for hidden text', async ({
+	test('does not warn about anchors inside closed details, visibility:hidden, or aria-hidden, but still warns for hidden text', async ({
 		page,
 		astro,
 	}) => {
