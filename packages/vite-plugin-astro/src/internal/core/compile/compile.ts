@@ -39,13 +39,13 @@ export interface CompileProps {
 	/**
 	 * Module that compiled components import their runtime from.
 	 *
-	 * @default 'astro/compiler-runtime'
+	 * @default '@astrojs/runtime/compiler-runtime'
 	 */
 	internalURL?: string;
 	/**
 	 * Stylesheet imported by components that use built-in `transition:animate` animations.
 	 *
-	 * @default 'astro/components/viewtransitions.css'
+	 * @default '@astrojs/vite-plugin-astro/components/viewtransitions.css'
 	 */
 	transitionsAnimationURL?: string;
 }
@@ -61,8 +61,8 @@ export async function compile({
 	filename,
 	source,
 	inlineComponentAssets,
-	internalURL = 'astro/compiler-runtime',
-	transitionsAnimationURL = 'astro/components/viewtransitions.css',
+	internalURL = '@astrojs/runtime/compiler-runtime',
+	transitionsAnimationURL = '@astrojs/vite-plugin-astro/components/viewtransitions.css',
 }: CompileProps): Promise<CompileResult> {
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
 	const cssTransformErrors: AstroError[] = [];

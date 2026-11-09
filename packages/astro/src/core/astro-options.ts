@@ -13,7 +13,6 @@ export function toAstroOptions(settings: AstroSettings): AstroPluginOptions {
 	const { config } = settings;
 	return {
 		root: fileURLToPath(config.root),
-		srcDir: fileURLToPath(config.srcDir),
 		publicDir: fileURLToPath(config.publicDir),
 		site: config.site,
 		compressHTML: config.compressHTML,

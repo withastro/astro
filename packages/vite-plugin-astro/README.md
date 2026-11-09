@@ -1,6 +1,6 @@
 # @astrojs/vite-plugin-astro
 
-A Vite plugin for the Astro component language: it owns the shared project configuration (`root`, `srcDir`, `publicDir`, `site`, `compressHTML`, `trailingSlash`), framework renderers, and client directives, and exposes them to other plugins through `api.astro`. This package is at an early stage: it currently ships the plugin API, option schema, and render-layer types used by `astro`.
+A Vite plugin for the Astro component language. It compiles `.astro` files in any Vite project, and your server code renders them with `renderToString()` or `renderToResponse()` from [`@astrojs/runtime`](../runtime/), including their scoped styles, scripts, and framework islands. It also exposes its configuration (`root`, `publicDir`, `site`, `compressHTML`, `trailingSlash`, renderers, and client directives) to other plugins through `api.astro`. See [API.md](./API.md) for the plugin API.
 
 ## Documentation
 
