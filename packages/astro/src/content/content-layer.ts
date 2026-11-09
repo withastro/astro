@@ -1,4 +1,5 @@
 import { existsSync, promises as fs } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
 import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
@@ -12,12 +13,14 @@ import type { ContentEntryType, RefreshContentOptions } from '../types/public/co
 import {
 	ASSET_IMPORTS_FILE,
 	COLLECTIONS_MANIFEST_FILE,
+	COLLECTION_FILES_FILE,
 	COLLECTIONS_METADATA_FILE,
 	CONTENT_LAYER_TYPE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
 import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
+import { getCollectionFiles } from './collection-files.js';
 import { writeFileAtomic } from './data-store-writer.js';
 import { runHookCollectionsResolved } from '../integrations/hooks.js';
 import { type CollectionMetadata, getCollectionsMetadata } from './metadata.js';
@@ -56,6 +59,7 @@ export class ContentLayer {
 	#markdownRenderer?: MarkdownRenderer;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
+	#unsubscribeStoreWrites?: () => void;
 	#lastResolvedConfigDigest?: string;
 	/** The metadata of each build-time collection, when `experimental.collectionMetadata` is enabled. */
 	#collectionsMetadata = new Map<string, CollectionMetadata>();
@@ -77,6 +81,24 @@ export class ContentLayer {
 			this.#watcher = createWatcherWrapper(watcher);
 		}
 		this.#queue = new PQueue({ concurrency: 1 });
+		if (watcher && settings.config.experimental.collectionMetadata) {
+			// Loaders add entries outside of syncs when watched files change, so the collection of
+			// each file is written again after each store write. Syncs write it themselves.
+			const importsFiles = new Set(
+				[ASSET_IMPORTS_FILE, MODULES_IMPORTS_FILE].map((file) =>
+					fileURLToPath(new URL(file, settings.dotAstroDir)),
+				),
+			);
+			this.#unsubscribeStoreWrites = store.onFileWritten((path) => {
+				if (this.loading || importsFiles.has(path)) return;
+				this.#writeCollectionFiles().catch((error) => {
+					this.#logger.error(
+						'content',
+						`Could not write the collection of content files: ${error.message}`,
+					);
+				});
+			});
+		}
 	}
 
 	/**
@@ -109,6 +131,7 @@ export class ContentLayer {
 	dispose() {
 		this.#queue.clear();
 		this.#unsubscribe?.();
+		this.#unsubscribeStoreWrites?.();
 		this.#watcher?.removeAllTrackedListeners();
 	}
 
@@ -371,6 +394,7 @@ export class ContentLayer {
 		await this.#store.writeAssetImports(assetImportsFile);
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeModuleImports(modulesImportsFile);
+		await this.#writeCollectionFiles();
 		await this.#store.waitUntilSaveComplete();
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
@@ -416,6 +440,23 @@ export class ContentLayer {
 				logger: this.#logger,
 			});
 		}
+	}
+
+	/**
+	 * Writes the collection of the files compiled as modules when rendered, such as MDX, for
+	 * their Markdown plugins. Removes it when `experimental.collectionMetadata` is disabled.
+	 */
+	async #writeCollectionFiles() {
+		const file = new URL(COLLECTION_FILES_FILE, this.#settings.dotAstroDir);
+		if (!this.#settings.config.experimental.collectionMetadata) {
+			await fs.rm(file, { force: true });
+			return;
+		}
+		const files = getCollectionFiles([...this.#collectionsMetadata.values()], (name) =>
+			this.#store.values(name),
+		);
+		// Unchanged files are not written, so development doesn't recompile modules for nothing
+		await writeFileAtomic(file, JSON.stringify(files));
 	}
 
 	/**
