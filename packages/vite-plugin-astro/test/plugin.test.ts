@@ -97,6 +97,19 @@ describe('astro()', () => {
 		assert.ok((workerd.resolve.noExternal as string[]).includes('test-no-external'));
 	});
 
+	it('keeps the runtime out of the externals that other plugins add', async () => {
+		// What `@sveltejs/vite-plugin-svelte` does in dev with the dependencies of a renderer package.
+		const externalizer = {
+			name: 'externalizer',
+			config: () => ({ ssr: { external: ['@astrojs/runtime', 'test-external'] } }),
+		};
+		const config = await resolveConfig(
+			{ configFile: false, logLevel: 'silent', root: rootPath, plugins: [astro(), externalizer] },
+			'serve',
+		);
+		assert.deepEqual(config.environments.ssr.resolve.external, ['test-external']);
+	});
+
 	it('serves renderers with their options, without the fields astro() applies itself', async () => {
 		const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'vite-plugin-astro-'));
 		await fs.writeFile(path.join(projectRoot, 'server.js'), 'export default { name: "test" };\n');
