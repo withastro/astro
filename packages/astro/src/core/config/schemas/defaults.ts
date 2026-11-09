@@ -9,6 +9,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	cacheDir: './node_modules/.astro',
 	base: '/',
 	trailingSlash: 'ignore',
+	serverIslands: { routePrefix: '/_server-islands/' },
 	build: {
 		format: 'directory',
 		client: './client/',

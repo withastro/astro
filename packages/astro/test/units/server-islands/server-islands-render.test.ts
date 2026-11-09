@@ -33,6 +33,7 @@ async function createStubResult(overrides: Partial<SSRResult> = {}): Promise<SSR
 	return {
 		cancelled: false,
 		base: '/',
+		serverIslandRoutePrefix: '/_server-islands/',
 		userAssetsBase: undefined,
 		styles: new Set(),
 		scripts: new Set(),

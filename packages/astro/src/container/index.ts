@@ -170,6 +170,8 @@ function createManifest(
 		clientDirectives: manifest?.clientDirectives ?? getDefaultClientDirectives(),
 		renderers: renderers ?? manifest?.renderers ?? [],
 		base: manifest?.base ?? ASTRO_CONFIG_DEFAULTS.base,
+		serverIslandRoutePrefix:
+			manifest?.serverIslandRoutePrefix ?? ASTRO_CONFIG_DEFAULTS.serverIslands.routePrefix,
 		userAssetsBase: manifest?.userAssetsBase ?? '',
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
@@ -262,6 +264,7 @@ type AstroContainerManifest = Pick<
 	| 'renderers'
 	| 'assetsPrefix'
 	| 'base'
+	| 'serverIslandRoutePrefix'
 	| 'userAssetsBase'
 	| 'routes'
 	| 'assets'

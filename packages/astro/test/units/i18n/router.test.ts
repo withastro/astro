@@ -34,6 +34,16 @@ describe('I18nRouter', () => {
 			assert.equal(result.type, 'notFound');
 		});
 
+		it('skips the configured server island route', () => {
+			const customRouter = new I18nRouter({
+				...makeI18nRouterConfig({ strategy: 'pathname-prefix-always' }),
+				serverIslandRoutePrefix: '/_custom-islands/',
+			});
+			const context = makeRouterContext({ currentLocale: undefined });
+			assert.equal(customRouter.match('/_custom-islands/Island', context).type, 'continue');
+			assert.equal(customRouter.match('/_server-islands/Island', context).type, 'notFound');
+		});
+
 		it('continues for paths with valid locale prefix', () => {
 			const context = makeRouterContext({ currentLocale: 'es' });
 

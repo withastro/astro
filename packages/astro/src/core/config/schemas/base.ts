@@ -129,6 +129,16 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.compressHTML),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
+	serverIslands: z
+		.object({
+			routePrefix: z
+				.string()
+				.regex(/^\/(?:[^/?#]+\/)+$/)
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.serverIslands.routePrefix),
+		})
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.serverIslands),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
