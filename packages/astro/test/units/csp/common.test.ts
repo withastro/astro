@@ -12,7 +12,7 @@ import {
 	getStyleResources,
 	trackScriptIntegrity,
 } from '../../../dist/core/csp/common.js';
-import { generateCspDigest } from '../../../dist/core/encryption.js';
+import { generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
 
 function buildSettings({ csp, injected }: { csp: any; injected: string[] }): any {
 	const settings = {
