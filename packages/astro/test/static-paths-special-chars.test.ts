@@ -27,7 +27,9 @@ describe('getStaticPaths() params with special characters', () => {
 		['a\\b', 'a\\b/index.html'],
 		['café', 'café/index.html'],
 	]) {
-		it(`writes the page for \`${slug}\``, async () => {
+		// The fixture omits `a\b` on Windows, where `\` is a path separator.
+		const skip = slug === 'a\\b' && process.platform === 'win32';
+		it(`writes the page for \`${slug}\``, { skip }, async () => {
 			assert.equal(await readSlug(file), slug);
 		});
 	}

@@ -2,7 +2,8 @@
 export function getStaticPaths() {
 	return [
 		{ params: { slug: '50%-off' } },
-		{ params: { slug: 'a\\b' } },
+		// `\` is a path separator on Windows, so this page can't be written there.
+		...(process.platform === 'win32' ? [] : [{ params: { slug: 'a\\b' } }]),
 		{ params: { slug: 'tag#1' } },
 		{ params: { slug: 'café' } },
 	];
