@@ -319,6 +319,12 @@ export interface SSRResult extends SSRResultExtensions {
 	 * Only used for logging
 	 */
 	pathname: string;
+	/**
+	 * Receives errors thrown after a streamed page has started sending its body. Such an error
+	 * can no longer change the response, so the renderer reports it here, marks it with
+	 * `Symbol.for('astro.streamErrorLogged')`, and then errors the body.
+	 */
+	logger?: { error(message: string): void };
 	response: ResponseInit & {
 		readonly headers: Headers;
 	};

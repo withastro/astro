@@ -19,7 +19,10 @@ export function recordServerError(
 	// Our error should already be complete, but let's try to add a bit more through some guesswork
 	const errorWithMetadata = collectErrorMetadata(err, manifest.rootDir);
 
-	logger.error(null, formatErrorMessage(errorWithMetadata, logger.level() === 'debug'));
+	// The page renderer has already logged errors thrown mid-stream through the configured logger.
+	if (!Reflect.get(err, Symbol.for('astro.streamErrorLogged'))) {
+		logger.error(null, formatErrorMessage(errorWithMetadata, logger.level() === 'debug'));
+	}
 
 	return {
 		errorWithMetadata,

@@ -9,6 +9,8 @@ import {
 import { App } from '../../../dist/core/app/app.js';
 import { createTestApp, createPage, createRouteData } from '../mocks.ts';
 import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
+import { setLogger } from '../../../dist/core/logger/manifest-logger.js';
+import { SpyLogger } from '../test-utils.ts';
 
 import type { SSRManifest, RouteInfo } from '../../../dist/core/app/types.js';
 import type { AstroComponentFactory } from '@astrojs/runtime/_internal/server/render/index.js';
@@ -42,6 +44,20 @@ function createNonStreamingApp(page: AstroComponentFactory, route: string): App 
 		pageMap: pageMap as unknown as ReturnType<typeof createManifest>['pageMap'],
 	});
 	return new App(manifest as unknown as SSRManifest, false);
+}
+
+function createAppWithLogger(page: AstroComponentFactory, route: string, logger: SpyLogger): App {
+	const routeData = createRouteData({ route });
+	const routes: RouteInfo[] = [createRouteInfo(routeData) as RouteInfo];
+	const pageMap = new Map<string, () => Promise<Record<string, unknown>>>([
+		[routeData.component, async () => ({ page: async () => ({ default: page }) })],
+	]);
+	const manifest = createManifest({
+		routes,
+		pageMap: pageMap as unknown as ReturnType<typeof createManifest>['pageMap'],
+	}) as unknown as SSRManifest;
+	setLogger(manifest, logger);
+	return new App(manifest);
 }
 
 // #endregion
@@ -162,6 +178,51 @@ describe('Streaming', () => {
 		assert.equal(response.status, 500);
 		const text = await response.text();
 		assert.equal(text, '');
+	});
+});
+
+describe('Streaming errors', () => {
+	const FailsLater = createComponent(async () => {
+		await wait(10);
+		throw new Error('Failed after the page started streaming');
+	});
+	const FailsMidStreamPage = createComponent((result) => {
+		return render`<html><body><h1>Already sent</h1>${renderComponent(result, 'FailsLater', FailsLater, {})}</body></html>`;
+	});
+
+	it('logs an error thrown after the first chunk once through the configured logger', async () => {
+		const logger = new SpyLogger();
+		const app = createAppWithLogger(FailsMidStreamPage, '/', logger);
+		const response = await app.render(new Request('http://example.com/'));
+		assert.equal(response.status, 200);
+
+		const reader = response.body!.getReader();
+		const first = await reader.read();
+		assert.ok(new TextDecoder().decode(first.value).includes('<h1>Already sent</h1>'));
+		const error = await (async () => {
+			while (!(await reader.read()).done);
+		})().then(
+			() => undefined,
+			(err) => err,
+		);
+
+		assert.equal(error?.message, 'Failed after the page started streaming');
+		assert.equal(error[Symbol.for('astro.streamErrorLogged')], true);
+		const errorLogs = logger.logs.filter((log) => log.level === 'error');
+		assert.equal(errorLogs.length, 1);
+		assert.ok(errorLogs[0].message.includes('Failed after the page started streaming'));
+	});
+
+	it('does not log when the client cancels the body', async () => {
+		const logger = new SpyLogger();
+		const app = createAppWithLogger(FailsMidStreamPage, '/', logger);
+		const response = await app.render(new Request('http://example.com/'));
+		const reader = response.body!.getReader();
+		await reader.read();
+		await reader.cancel();
+		await wait(30);
+
+		assert.equal(logger.logs.filter((log) => log.level === 'error').length, 0);
 	});
 });
 
