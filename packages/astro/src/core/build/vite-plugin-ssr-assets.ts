@@ -129,15 +129,24 @@ function collectAssetsFromManifest(manifest: vite.Manifest): Set<string> {
 }
 
 /**
- * Deletes the .vite folder from a directory if it exists.
+ * Deletes `.vite/manifest.json` from each directory, then removes the `.vite` folder
+ * if nothing else is left in it.
  */
 export async function removeViteManifestDirectories(directories: Iterable<URL>): Promise<void> {
 	const viteFolders = new Set(
 		Array.from(directories, (directory) => new URL('.vite/', directory).href),
 	);
 	await Promise.all(
-		Array.from(viteFolders, (viteFolder) =>
-			fs.promises.rm(new URL(viteFolder), { recursive: true, force: true }),
-		),
+		Array.from(viteFolders, async (viteFolder) => {
+			await fs.promises.rm(new URL('manifest.json', viteFolder), { force: true });
+			// Other files written by Vite, such as `build.license` output, must survive the cleanup.
+			// https://github.com/withastro/astro/issues/18685
+			try {
+				await fs.promises.rmdir(new URL(viteFolder));
+			} catch (error) {
+				const code = (error as NodeJS.ErrnoException).code;
+				if (code !== 'ENOENT' && code !== 'ENOTEMPTY' && code !== 'EEXIST') throw error;
+			}
+		}),
 	);
 }
