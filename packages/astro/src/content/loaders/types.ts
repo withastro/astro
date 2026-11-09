@@ -8,7 +8,7 @@ import type {
 	LiveDataEntry,
 } from '../../types/public/content.js';
 import type { RenderedContent } from '../data-store.js';
-import type { CollectionDescriptors } from '../metadata.js';
+import type { CollectionDescriptors, CollectionMetadata } from '../metadata.js';
 import type { DataStore, MetaStore } from '../mutable-data-store.js';
 
 export type { DataStore, MetaStore };
@@ -53,6 +53,12 @@ export interface LoaderContext {
 	refreshContextData?: Record<string, unknown>;
 	/** @internal */
 	entryTypes: Map<string, ContentEntryType>;
+	/**
+	 * @internal
+	 * The metadata of the collection, passed to Markdown plugins. Set when
+	 * `experimental.collectionMetadata` is enabled.
+	 */
+	collectionMetadata?: CollectionMetadata;
 }
 
 export type Loader<TDescriptors extends CollectionDescriptors = CollectionDescriptors> = {

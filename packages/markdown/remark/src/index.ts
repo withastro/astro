@@ -13,6 +13,7 @@ import remarkRehype from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
 import { type Plugin, type Processor, unified } from 'unified';
 import { VFile } from 'vfile';
+import type { CollectionMetadata } from '@astrojs/internal-helpers/collections';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
 import { rehypeImages } from './rehype-images.js';
@@ -33,6 +34,8 @@ declare module 'vfile' {
 			localImagePaths?: string[];
 			remoteImagePaths?: string[];
 			frontmatter?: Record<string, any>;
+			/** The content collection of the entry being rendered, when Astro knows it. */
+			collection?: CollectionMetadata;
 		};
 	}
 }
@@ -181,6 +184,7 @@ export async function createMarkdownProcessor(
 				data: {
 					astro: {
 						frontmatter: renderOpts?.frontmatter ?? {},
+						collection: renderOpts?.collection,
 					},
 				},
 			});

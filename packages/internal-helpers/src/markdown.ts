@@ -1,3 +1,4 @@
+import type { CollectionMetadata } from './collections.js';
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type { Options as SmartypantsOptions } from 'retext-smartypants';
@@ -91,6 +92,11 @@ export interface MarkdownRenderer {
 export interface MarkdownRenderOptions {
 	fileURL?: URL;
 	frontmatter?: Record<string, any>;
+	/**
+	 * The content collection of the entry being rendered, when Astro knows it. Processors
+	 * expose it to plugins as `data.astro.collection`.
+	 */
+	collection?: CollectionMetadata;
 }
 
 export interface MarkdownRenderResult {
@@ -145,7 +151,16 @@ export interface MdxRenderer {
 		content: string,
 		filePath: string,
 		frontmatter: Record<string, any>,
+		options?: MdxProcessOptions,
 	): Promise<MdxRenderResult>;
+}
+
+export interface MdxProcessOptions {
+	/**
+	 * The content collection of the file being compiled, when Astro knows it. Processors
+	 * expose it to plugins as `data.astro.collection`.
+	 */
+	collection?: CollectionMetadata;
 }
 
 export interface MdxRenderResult {

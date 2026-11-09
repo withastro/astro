@@ -25,11 +25,12 @@ export const markdownContentEntryType: ContentEntryType = {
 			gfm: markdown.gfm,
 			smartypants: markdown.smartypants,
 		});
-		return async function renderToString(entry) {
+		return async function renderToString(entry, options) {
 			// Process markdown even if it's empty as remark/rehype plugins may add content or frontmatter dynamically
 			const result = await processor.render(entry.body ?? '', {
 				frontmatter: entry.data,
 				fileURL: entry.filePath ? pathToFileURL(entry.filePath) : undefined,
+				collection: options?.collection,
 			});
 			return {
 				html: result.code,

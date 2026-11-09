@@ -36,6 +36,12 @@ describe('Collection metadata', () => {
 				descriptors: { library: 'docs', version: 2, audience: ['beginners'] },
 			},
 			{
+				name: 'notes',
+				type: 'build-time',
+				loader: { name: 'notes-loader' },
+				descriptors: { library: 'notes' },
+			},
+			{
 				name: 'authors',
 				type: 'build-time',
 				loader: { name: 'inline' },
@@ -58,6 +64,57 @@ describe('Collection metadata', () => {
 			{ name: 'docs', ids: ['intro'] },
 			{ name: 'guides', ids: ['intro'] },
 		]);
+	});
+});
+
+describe('Collection metadata in Markdown plugins', () => {
+	let app: App;
+
+	before(async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/collection-metadata/',
+			adapter: testAdapter(),
+			outDir: './dist/collection-metadata-markdown/',
+		});
+		await fixture.build({});
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	async function renderEntry(collection: string, id: string) {
+		const response = await app.render(
+			new Request(`http://example.com/rendered/${collection}/${id}`),
+		);
+		return response.text();
+	}
+
+	it('exposes the collection of entries rendered by glob()', async () => {
+		assert.match(await renderEntry('docs', 'intro'), /collection: docs \(docs\)/);
+		assert.match(await renderEntry('guides', 'intro'), /collection: guides \(docs\)/);
+	});
+
+	it('exposes the collection of entries rendered with renderMarkdown()', async () => {
+		assert.match(await renderEntry('notes', 'first'), /collection: notes \(notes\)/);
+	});
+});
+
+describe('Collection metadata in Markdown plugins without the flag', () => {
+	let app: App;
+
+	before(async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/collection-metadata/',
+			adapter: testAdapter(),
+			outDir: './dist/collection-metadata-markdown-disabled/',
+			experimental: { collectionMetadata: false },
+		});
+		await fixture.build({});
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('leaves the collection unknown', async () => {
+		const response = await app.render(new Request('http://example.com/rendered/docs/intro'));
+
+		assert.match(await response.text(), /collection: unknown/);
 	});
 });
 

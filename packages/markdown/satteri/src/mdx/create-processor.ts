@@ -4,6 +4,7 @@ import type {
 	AstroMarkdownOptions,
 	MarkdownHeading,
 	MdxRendererOptions,
+	MdxProcessOptions,
 	MdxRenderResult,
 } from '@astrojs/internal-helpers/markdown';
 import { time, timedVisitorPlugins } from '@astrojs/internal-helpers/timings';
@@ -67,6 +68,7 @@ export function createSatteriMdxProcessor(
 			content: string,
 			filePath: string,
 			frontmatter: Record<string, any>,
+			processOptions?: MdxProcessOptions,
 		): Promise<MdxRenderResult> {
 			if (!highlightFn && !initPromise) {
 				initHighlighter();
@@ -75,6 +77,7 @@ export function createSatteriMdxProcessor(
 
 			const astroData: SatteriAstroData = {
 				frontmatter,
+				collection: processOptions?.collection,
 				headings: [],
 				localImagePaths: new Set(),
 				remoteImagePaths: new Set(),
