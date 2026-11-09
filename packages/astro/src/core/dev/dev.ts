@@ -130,6 +130,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			watcher: restart.container.viteServer.watcher,
 			store,
 			loadStorageDriver: createViteDriverLoader(restart.container.viteServer),
+			devSnapshots: new Map(),
 		});
 		contentLayer.watchContentConfig();
 		await contentLayer.sync();
