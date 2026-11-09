@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [main, next]
     types: [opened, synchronize, reopened, edited]
+  # Refreshes every open release PR, after docs labels change.
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -17,9 +19,12 @@ jobs:
   comment:
     name: List docs PRs
     if: >-
-      github.repository == 'withastro/astro' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      (github.head_ref == 'changeset-release/main' || github.head_ref == 'changeset-release/next')
+      github.repository == 'withastro/astro' && (
+        github.event_name == 'workflow_dispatch' || (
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          (github.head_ref == 'changeset-release/main' || github.head_ref == 'changeset-release/next')
+        )
+      )
     runs-on: ubuntu-slim
     timeout-minutes: 5
     permissions:
@@ -41,4 +46,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: node .github/scripts/release-docs-prs.ts --pr "$PR_NUMBER"
+        # Without a PR number, on a manual run, the script updates every open release PR.
+        run: node .github/scripts/release-docs-prs.ts ${PR_NUMBER:+--pr "$PR_NUMBER"}
