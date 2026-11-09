@@ -13,6 +13,8 @@ export const VIRTUAL_MODULE_ID = 'astro:content';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 export const DATA_STORE_VIRTUAL_ID = 'astro:data-layer-content';
 export const RESOLVED_DATA_STORE_VIRTUAL_ID = '\0' + DATA_STORE_VIRTUAL_ID;
+export const COLLECTIONS_METADATA_VIRTUAL_ID = 'astro:collections-metadata';
+export const RESOLVED_COLLECTIONS_METADATA_VIRTUAL_ID = '\0' + COLLECTIONS_METADATA_VIRTUAL_ID;
 
 // Used by the content layer to create a virtual module that loads the `modules.mjs`, a file created by the content layer
 // to map modules that are renderer at runtime
@@ -44,6 +46,7 @@ export const DATA_STORE_DIR = 'data-store/';
 export const DATA_STORE_MANIFEST_FILE = 'manifest.json';
 export const ASSET_IMPORTS_FILE = 'content-assets.mjs';
 export const MODULES_IMPORTS_FILE = 'content-modules.mjs';
+export const COLLECTIONS_METADATA_FILE = 'collections-metadata.json';
 export const COLLECTIONS_MANIFEST_FILE = 'collections/collections.json';
 export const COLLECTIONS_DIR = 'collections/';
 

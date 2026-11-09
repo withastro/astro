@@ -45,6 +45,49 @@ declare module 'astro:content' {
 		filter?: (entry: CollectionEntry<C>) => unknown,
 	): Promise<CollectionEntry<C>[]>;
 
+	type InferDescriptors<T> = T extends { descriptors?: infer D extends object } ? D : {};
+	// The config's descriptors override the loader's with the same key. The index signature lets
+	// code read a key on every collection, including those that don't set it.
+	type MergeDescriptors<TLoader, TConfig> = Omit<
+		InferDescriptors<TLoader>,
+		keyof InferDescriptors<TConfig>
+	> &
+		InferDescriptors<TConfig> & { [key: string]: import('astro').JSONValue | undefined };
+	type BuildTimeCollectionName = Extract<keyof DataEntryMap, string>;
+	type LiveCollectionName = Extract<keyof LiveContentConfig['collections'], string>;
+	// `Extract` keeps the collection config with a loader, out of the configs `defineCollection()` may return
+	type BuildTimeCollectionConfig<C extends BuildTimeCollectionName> = Extract<
+		ContentConfig['collections'][C],
+		{ loader: unknown }
+	>;
+	type BuildTimeCollectionMetadata = {
+		[C in BuildTimeCollectionName]: {
+			name: C;
+			type: 'build-time';
+			loader: { name: string };
+			descriptors: MergeDescriptors<
+				ExtractLoaderConfig<BuildTimeCollectionConfig<C>>,
+				BuildTimeCollectionConfig<C>
+			>;
+		};
+	}[BuildTimeCollectionName];
+	type LiveCollectionMetadata = {
+		[C in LiveCollectionName]: {
+			name: C;
+			type: 'live';
+			loader: { name: string };
+			descriptors: MergeDescriptors<
+				LiveContentConfig['collections'][C]['loader'],
+				LiveContentConfig['collections'][C]
+			>;
+		};
+	}[LiveCollectionName];
+	/** Facts about a collection, never its entries. Pass `name` to `getCollection()` or `getLiveCollection()`, depending on `type`. */
+	export type CollectionMetadata = BuildTimeCollectionMetadata | LiveCollectionMetadata;
+
+	/** Returns the metadata of every collection of the project, build-time then live, without loading entries. Requires `experimental.collectionMetadata`. */
+	export function getCollectionsMetadata(): Promise<CollectionMetadata[]>;
+
 	export function getLiveCollection<C extends keyof LiveContentConfig['collections']>(
 		collection: C,
 		filter?: LiveLoaderCollectionFilterType<C>,

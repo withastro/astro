@@ -100,3 +100,8 @@ declare module 'virtual:astro:get-image' {
 		options: import('./src/types/public/index.js').UnresolvedImageTransform,
 	) => Promise<import('./src/types/public/index.js').GetImageResult>;
 }
+
+declare module 'astro:collections-metadata' {
+	export const enabled: boolean;
+	export const collections: import('./src/content/metadata.js').CollectionMetadata[];
+}

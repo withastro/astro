@@ -8,6 +8,7 @@ import type {
 	LiveDataEntry,
 } from '../../types/public/content.js';
 import type { RenderedContent } from '../data-store.js';
+import type { CollectionDescriptors } from '../metadata.js';
 import type { DataStore, MetaStore } from '../mutable-data-store.js';
 
 export type { DataStore, MetaStore };
@@ -54,11 +55,13 @@ export interface LoaderContext {
 	entryTypes: Map<string, ContentEntryType>;
 }
 
-export type Loader = {
+export type Loader<TDescriptors extends CollectionDescriptors = CollectionDescriptors> = {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
 	/** Do the actual loading of the data */
 	load: (context: LoaderContext) => Promise<void>;
+	/** Serializable values identifying the collections that use this loader, returned by `getCollectionsMetadata()`. */
+	descriptors?: TDescriptors;
 } & (
 	| {
 			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
@@ -88,9 +91,12 @@ export interface LiveLoader<
 	TEntryFilter extends Record<string, any> | never = never,
 	TCollectionFilter extends Record<string, any> | never = never,
 	TError extends Error = Error,
+	TDescriptors extends CollectionDescriptors = CollectionDescriptors,
 > {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
+	/** Serializable values identifying the collections that use this loader, returned by `getCollectionsMetadata()`. */
+	descriptors?: TDescriptors;
 	/** Load a single entry */
 	loadEntry: (
 		context: LoadEntryContext<TEntryFilter>,

@@ -1,0 +1,7 @@
+---
+import { getCollection } from 'astro:content';
+
+const docs = await getCollection('docs');
+---
+
+<p id="count">{docs.length}</p>
