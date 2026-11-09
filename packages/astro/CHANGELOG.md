@@ -1,5 +1,11 @@
 # astro
 
+## 7.4.8
+
+### Patch Changes
+
+- [#18616](https://github.com/withastro/astro/pull/18616) [`d747a53`](https://github.com/withastro/astro/commit/d747a535f523b92b6514a9f4b25f49922d748bcf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates CLI argument parsing
+
 ## 7.4.7
 
 ### Patch Changes
