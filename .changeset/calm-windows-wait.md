@@ -5,4 +5,4 @@
 'astro-vscode': patch
 ---
 
-Fixes `astro check` and editor language tools failing to start when pnpm resolves an incompatible WASM runtime.
+Relies on `@astrojs/astro2tsx` to provide `@emnapi/runtime` as a runtime dependency for language tools.
