@@ -1,3 +1,4 @@
+import type { StylesheetAsset } from '@astrojs/vite-plugin-astro';
 import type { ActionClient } from '../../actions/runtime/types.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
@@ -25,9 +26,7 @@ import type { BaseApp } from './base.js';
 
 type ComponentPath = string;
 
-export type StylesheetAsset =
-	| { type: 'inline'; content: string; viteDevId?: string }
-	| { type: 'external'; src: string };
+export type { StylesheetAsset };
 
 type ScriptAsset =
 	| { children: string; stage: string }

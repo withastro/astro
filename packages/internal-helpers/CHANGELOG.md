@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.13.1
+
+### Patch Changes
+
+- [`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the image endpoint treating directories whose names differ only by letter case as being inside the build output directory on case-sensitive filesystems
+
 ## 0.13.0
 
 ### Minor Changes

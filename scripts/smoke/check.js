@@ -6,7 +6,7 @@ import * as path from 'node:path';
 import { parse as parseJsonc } from 'jsonc-parser';
 import pLimit from 'p-limit';
 
-const skippedExamples = ['toolbar-app', 'component', 'server-islands'];
+const skippedExamples = ['toolbar-app', 'component', 'server-islands', 'vite-plugin-astro-hono'];
 
 function checkExamples() {
 	let examples = readdirSync('./examples', { withFileTypes: true });
