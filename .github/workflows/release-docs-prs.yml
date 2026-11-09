@@ -1,0 +1,44 @@
+name: 'Release: Docs PRs'
+
+# Lists the docs PRs labeled for a release on its release PR. Changesets edits
+# the body after each push, and the body gives the release type.
+on:
+  pull_request:
+    branches: [main, next]
+    types: [opened, synchronize, reopened, edited]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  comment:
+    name: List docs PRs
+    if: >-
+      github.repository == 'withastro/astro' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.head_ref == 'changeset-release/main' || github.head_ref == 'changeset-release/next')
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    permissions:
+      contents: read # Checkout the script
+      pull-requests: write # Comment on the release PR
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      - name: Setup node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26.13.0
+
+      - name: Comment with the docs PRs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node .github/scripts/release-docs-prs.ts --pr "$PR_NUMBER"
