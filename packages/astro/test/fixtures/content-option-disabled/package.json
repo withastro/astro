@@ -1,0 +1,8 @@
+{
+  "name": "@test/content-option-disabled",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*"
+  }
+}
