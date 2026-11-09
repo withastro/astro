@@ -8,6 +8,7 @@ import type { AdapterFeatureStability } from '../../integrations/features-valida
 import type { getToolbarServerCommunicationHelpers } from '../../integrations/hooks.js';
 import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig } from './config.js';
+import type { CollectionStorageHandle } from '../../content/storage.js';
 import type { RefreshContentOptions } from './content.js';
 import type { InternalInjectedRoute, RouteData } from './internal.js';
 import type { DevToolbarAppEntry } from './toolbar.js';
@@ -425,6 +426,15 @@ export type HookParameters<
 	Fn = AstroIntegration['hooks'][Hook],
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
+/** The content collections of a build, passed to `astro:build:done`. */
+export interface BuildDoneCollections {
+	/**
+	 * A handle for each storage descriptor the build wrote a snapshot with, to delete the
+	 * snapshots of earlier builds. Requires `experimental.collectionStorageDrivers`.
+	 */
+	storage?: CollectionStorageHandle[];
+}
+
 export interface BaseIntegrationHooks {
 	'astro:config:setup': (options: {
 		config: AstroConfig;
@@ -489,6 +499,8 @@ export interface BaseIntegrationHooks {
 		/** The resolved Vite client output directory for this build. */
 		dir: URL;
 		assets: Map<string, URL[]>;
+		/** The content collections of the build. Each field requires an experimental flag. */
+		collections: BuildDoneCollections;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 	'astro:route:setup': (options: {

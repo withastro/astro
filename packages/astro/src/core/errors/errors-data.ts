@@ -2149,6 +2149,22 @@ export const CollectionStorageDriversNotEnabled = {
  * @docs
  * @message
  * **Example error message:**<br/>
+ * Could not delete the snapshot `a1b2c3`: the server this build produced reads it.
+ * @description
+ * An integration tried to delete, in the `astro:build:done` hook, the collection storage snapshot that the current build wrote. The server the build produced reads this snapshot, so deleting it would break the deployment.
+ */
+export const CollectionStorageSnapshotInUse = {
+	name: 'CollectionStorageSnapshotInUse',
+	title: 'Cannot delete the snapshot of the current build.',
+	message: (snapshot: string) =>
+		`Could not delete the snapshot \`${snapshot}\`: the server this build produced reads it.`,
+	hint: 'Only delete the snapshots of earlier builds. Compare each snapshot with the `snapshot` of the handle before deleting it.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
  * Could not use the collection storage driver `my-driver`. Its entrypoint must default-export a function that creates the driver.
  * @description
  * The entrypoint of a collection storage driver must be a package specifier or the URL of a module whose default export is a function returning the driver. The driver must implement `openWriter()` and `openReader()`.
