@@ -622,6 +622,12 @@ export async function renderPath({
 		}
 	} else {
 		if (!response.body) {
+			if (response.status >= 400) {
+				logger.warn(
+					'build',
+					`Skipped writing \`${pathname}\`: the page responded with status ${response.status} and an empty body.`,
+				);
+			}
 			return null;
 		}
 		body = Buffer.from(await response.arrayBuffer());
