@@ -641,9 +641,10 @@ function getHydratedComponentIds(internals: BuildInternals): Set<string> {
  *
  * Hydrated components are rendered on the server, so the CSS of their static imports is
  * already on every page that loads them. Chunks reached only through dynamic imports are
- * excluded because their CSS may not be on the page. Chunks also reached from other entries
- * (`client:only` components, scripts, renderers) are excluded because those pages may rely
- * on the client copy of the CSS. https://github.com/withastro/astro/issues/18677
+ * excluded because their CSS may not be on the page. Chunks also reached, statically or
+ * dynamically, from other entries (`client:only` components, scripts, renderers) are excluded
+ * because those pages may rely on the client copy of the CSS.
+ * https://github.com/withastro/astro/issues/18677
  */
 function getChunksSharedByIslands(
 	bundle: Rolldown.OutputBundle,
@@ -659,13 +660,14 @@ function getChunksSharedByIslands(
 		return false;
 	};
 
-	const collectStaticImports = (fileName: string, visited: Set<string>) => {
+	const collectImports = (fileName: string, visited: Set<string>, includeDynamic: boolean) => {
 		const chunk = bundle[fileName];
 		if (chunk?.type !== 'chunk') return;
-		for (const imported of chunk.imports) {
+		const imports = includeDynamic ? [...chunk.imports, ...chunk.dynamicImports] : chunk.imports;
+		for (const imported of imports) {
 			if (visited.has(imported)) continue;
 			visited.add(imported);
-			collectStaticImports(imported, visited);
+			collectImports(imported, visited, includeDynamic);
 		}
 	};
 
@@ -676,10 +678,10 @@ function getChunksSharedByIslands(
 		if (chunk.type !== 'chunk' || !chunk.isEntry) continue;
 		if (containsAny(chunk, hydratedIds) && !containsAny(chunk, clientOnlyIds)) {
 			islandChunks.add(chunk.fileName);
-			collectStaticImports(chunk.fileName, reachedFromIslands);
+			collectImports(chunk.fileName, reachedFromIslands, false);
 		} else {
 			reachedFromOtherEntries.add(chunk.fileName);
-			collectStaticImports(chunk.fileName, reachedFromOtherEntries);
+			collectImports(chunk.fileName, reachedFromOtherEntries, true);
 		}
 	}
 

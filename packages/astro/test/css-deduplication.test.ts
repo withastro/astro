@@ -70,6 +70,14 @@ describe('CSS deduplication for hydrated components', () => {
 				}
 			}
 		});
+
+		it('keeps client CSS of chunks shared with islands that a script imports dynamically', async () => {
+			const html = await fixture.readFile('/script-badge/index.html');
+			const linkedCss = [...html.matchAll(/href="\/_astro\/([^"]+\.css)"/g)].map((m) => m[1]);
+			assert.equal(linkedCss.length, 1);
+			const linked = await fixture.readFile(`/_astro/${linkedCss[0]}`);
+			assert.match(linked, /\.shared-badge/);
+		});
 	});
 
 	describe('inlineStylesheets: always', () => {
