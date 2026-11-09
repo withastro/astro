@@ -231,6 +231,14 @@ export interface APIContext<
 	 * and `cache.invalidate()` to purge cached entries.
 	 *
 	 * In dev mode, the cache object is available but performs no caching.
+	 *
+	 * **Streaming:** Set directives and opt-outs in page frontmatter or middleware.
+	 * Layouts and components can run after HTTP cache headers are finalized, even
+	 * if their own frontmatter has no `await`. CDN providers cannot collect those
+	 * late directives unless `experimentalDisableStreaming: true` is configured.
+	 * Providers opting into response buffering (including `memoryCache()`)
+	 * collect late directives for GET responses already marked with a positive
+	 * `maxAge` before streaming begins.
 	 */
 	cache: CacheLike;
 
