@@ -159,7 +159,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, macos-14, windows-2025]
+        OS: [ubuntu-latest, macos-15, windows-2025]
         NODE_VERSION: [22.23.4, 24]
         TEST_SUITE:
           - { name: astro, script: 'pnpm run test:astro' }
@@ -168,7 +168,7 @@ jobs:
         # This exclude config tells GitHub to skip the items in the matrix that run on macOS or
         # Windows and use one of the older Node versions.
         exclude:
-          - os: macos-14
+          - os: macos-15
             NODE_VERSION: 22.23.4
           - os: windows-2025
             NODE_VERSION: 22.23.4
