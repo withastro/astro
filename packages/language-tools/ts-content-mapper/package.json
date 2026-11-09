@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@astrojs/astro2tsx": "^0.1.3",
-    "@emnapi/runtime": "1.11.3",
     "vscode-jsonrpc": "^10.0.0"
   },
   "devDependencies": {
