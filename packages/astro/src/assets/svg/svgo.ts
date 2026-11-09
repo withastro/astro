@@ -1,10 +1,13 @@
 import type { SvgOptimizer } from './types.js';
-import { optimize, type Config } from 'svgo';
+import type { Config } from 'svgo';
 
 /** SVG optimizer using [SVGO](https://svgo.dev/). */
 export function svgoOptimizer(config?: Config): SvgOptimizer {
 	return {
 		name: 'svgo',
-		optimize: (contents, path) => optimize(contents, { ...config, path }).data,
+		optimize: async (contents, path) => {
+			const { optimize } = await import('svgo');
+			return optimize(contents, { ...config, path }).data;
+		},
 	};
 }
