@@ -242,6 +242,11 @@ export type SerializedSSRManifest = Omit<
 	buildClientDir: string;
 	/** The resolved Vite SSR output directory for this build. */
 	buildServerDir: string;
+	/**
+	 * @internal Used to resolve relative directory paths when the runtime server entry URL cannot
+	 * provide a base, such as on workerd.
+	 */
+	absoluteServerDir?: string;
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];

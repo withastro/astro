@@ -1,5 +1,5 @@
 // @ts-expect-error
-import { outDir, serverDir } from 'astro:assets';
+import { outDirRelative, serverDirName } from 'astro:assets';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -61,16 +61,18 @@ export const GET: APIRoute = async ({ request, logger }) => {
 };
 
 function resolveOutDir() {
-	const serverDirPath = fileURLToPath(serverDir);
-	const rel = path.relative(serverDirPath, fileURLToPath(outDir));
+	// Absolute `file://` URLs (output directories on different Windows drives) resolve
+	// from any location, so use them directly.
+	if (URL.canParse(outDirRelative)) {
+		return new URL(outDirRelative);
+	}
 
-	const serverFolder = path.basename(serverDirPath);
 	let serverEntryFolderURL = path.dirname(import.meta.url);
-	while (!serverEntryFolderURL.endsWith(serverFolder)) {
+	while (!serverEntryFolderURL.endsWith(serverDirName)) {
 		serverEntryFolderURL = path.dirname(serverEntryFolderURL);
 	}
 	const serverEntryURL = serverEntryFolderURL + '/entry.mjs';
-	const outDirURL = new URL(appendForwardSlash(rel), serverEntryURL);
+	const outDirURL = new URL(appendForwardSlash(outDirRelative), serverEntryURL);
 	return outDirURL;
 }
 

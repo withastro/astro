@@ -1,3 +1,4 @@
+import { resolvePortableKey } from '../../../core/app/manifest.js';
 import { encryptString, generateCspDigest } from '../../../core/encryption.js';
 import type { SSRResult } from '../../../types/public/internal.js';
 import { markHTMLString, stringifyForScript } from '../escape.js';
@@ -141,6 +142,12 @@ export class ServerIslandComponent {
 		const componentExport = this.getComponentExport();
 		const serverIslandNameMap = await this.result.getServerIslandNameMap();
 		let componentId = serverIslandNameMap.get(componentPath);
+		if (!componentId) {
+			// Integrations released before the portable key format embed the build-machine
+			// absolute component path, while the map keys are root-relative.
+			const found = resolvePortableKey((key) => serverIslandNameMap.has(key), componentPath);
+			componentId = found === undefined ? undefined : serverIslandNameMap.get(found);
+		}
 		if (!componentId) {
 			throw new Error(`Could not find server component name ${componentPath}`);
 		}

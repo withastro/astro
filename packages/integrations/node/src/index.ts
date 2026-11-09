@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { writeJson } from '@astrojs/internal-helpers/fs';
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteToHeaders } from 'astro';
@@ -44,14 +45,28 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				_config = config;
 				if (session !== false && !session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
+					const absBase = fileURLToPath(new URL('sessions', config.cacheDir));
+					let driver;
+					if (command === 'dev') {
+						// The dev server resolves a relative base against the working directory, not
+						// the project root, so keep the absolute path.
+						driver = sessionDrivers.fsLite({ base: absBase });
+					} else {
+						const relativeBase = path.relative(fileURLToPath(config.root), absBase);
+						driver = sessionDrivers.fsLite({
+							base: relativeBase.split(path.sep).join('/'),
+						});
+					}
 					session = {
-						driver: sessionDrivers.fsLite({
-							base: fileURLToPath(new URL('sessions', config.cacheDir)),
-						}),
+						driver,
 						cookie: session?.cookie,
 						ttl: session?.ttl,
 					};
 				}
+
+				const serverDir = fileURLToPath(config.build.server);
+				const clientDir = fileURLToPath(config.build.client);
+				const clientRelative = path.relative(serverDir, clientDir).split(path.sep).join('/');
 
 				updateConfig({
 					build: {
@@ -70,8 +85,9 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						plugins: [
 							createConfigPlugin({
 								...userOptions,
-								client: _config.build.client?.toString(),
-								server: _config.build.server?.toString(),
+								// Relative path from the server output directory to the client output directory.
+								client: clientRelative || '.',
+								server: path.basename(serverDir),
 								host: _config.server.host,
 								port: _config.server.port,
 								staticHeaders: userOptions.staticHeaders ?? false,
