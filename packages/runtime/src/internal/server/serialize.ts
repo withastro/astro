@@ -1,5 +1,4 @@
-import type { ValueOf } from '../../type-utils.js';
-import type { AstroComponentMetadata } from '../../types/public/internal.js';
+import type { AstroComponentMetadata } from '../../types.js';
 
 const PROP_TYPE = {
 	Value: 0,
@@ -58,7 +57,9 @@ function convertToSerializedForm(
 	value: any,
 	metadata: AstroComponentMetadata | Record<string, any> = {},
 	parents = new WeakSet<any>(),
-): [ValueOf<typeof PROP_TYPE>, any] | [ValueOf<typeof PROP_TYPE>] {
+):
+	| [(typeof PROP_TYPE)[keyof typeof PROP_TYPE], any]
+	| [(typeof PROP_TYPE)[keyof typeof PROP_TYPE]] {
 	const tag = Object.prototype.toString.call(value);
 	switch (tag) {
 		case '[object Date]': {

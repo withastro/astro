@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../../types/public/internal.js';
+import type { SSRResult } from '../../../types.js';
 import { markHTMLString } from '../escape.js';
 import { renderCspContent } from './csp.js';
 import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instruction.js';

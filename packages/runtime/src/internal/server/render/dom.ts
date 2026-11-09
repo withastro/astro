@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../../types/public/internal.js';
+import type { SSRResult } from '../../../types.js';
 import { markHTMLString } from '../escape.js';
 import { renderSlotToString } from './slot.js';
 import { INVALID_ATTR_NAME_CHAR, toAttributeString } from './util.js';

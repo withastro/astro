@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../types/public/internal.js';
+import type { SSRResult } from '../../../types.js';
 
 export interface HeadPropagator {
 	init(result: SSRResult): unknown | Promise<unknown>;

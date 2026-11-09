@@ -1,4 +1,4 @@
-import type { ClientDirective } from '../../types/public/integrations.js';
+import type { ClientDirective } from '../../types.js';
 
 const idleDirective: ClientDirective = (load, options) => {
 	const cb = async () => {

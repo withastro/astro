@@ -1,5 +1,4 @@
-import type { SerializedStaticImage } from '../../assets/types.js';
-import { getRenderCollectors } from './scope.js';
+import { getRenderCollectors, type StaticImageRecord } from './scope.js';
 
 /**
  * Records that a content entry was rendered, keyed by its root-relative
@@ -16,7 +15,7 @@ export function isCollectingStaticImages(): boolean {
 }
 
 /** Keeps repeats; `collectPrerenderMetadata()` dedupes them. */
-export function recordStaticImage(image: SerializedStaticImage): void {
+export function recordStaticImage(image: StaticImageRecord): void {
 	getRenderCollectors()?.staticImages?.push(image);
 }
 

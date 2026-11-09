@@ -1,5 +1,5 @@
-import { type CspDirectiveSources, partitionByKind } from '../../../core/csp/runtime.js';
-import type { SSRResult } from '../../../types/public/index.js';
+import { type CspDirectiveSources, partitionByKind } from '../../core/csp/sources.js';
+import type { SSRResult } from '../../../types.js';
 
 /** The narrower CSP directives that `script-src`/`style-src` can be split into. */
 type SpecificCspDirective =

@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../../types/public/internal.js';
+import type { SSRResult } from '../../../types.js';
 import { createRenderInstruction } from './instruction.js';
 
 const TEMPLATE_ENTER = Object.freeze(createRenderInstruction({ type: 'template-enter' } as const));

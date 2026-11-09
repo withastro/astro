@@ -1,4 +1,4 @@
-import type { ClientDirective } from '../../types/public/integrations.js';
+import type { ClientDirective } from '../../types.js';
 
 /**
  * Hydrate this component only on the client

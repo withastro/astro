@@ -1,13 +1,13 @@
-import { collectPropagatedHeadParts } from '../../../../core/head-propagation/buffer.js';
+import { collectPropagatedHeadParts } from '../../../core/head-propagation/buffer.js';
 import {
 	getPropagationHint as getHint,
 	isPropagatingHint,
-} from '../../../../core/head-propagation/resolver.js';
+} from '../../../core/head-propagation/resolver.js';
 import {
 	shouldRenderInstruction as shouldRenderInstructionByPolicy,
 	type HeadInstructionRenderState,
-} from '../../../../core/head-propagation/policy.js';
-import type { SSRResult } from '../../../../types/public/internal.js';
+} from '../../../core/head-propagation/policy.js';
+import type { SSRResult } from '../../../../types.js';
 import type { AstroComponentFactory } from '../astro/factory.js';
 import { isHeadAndContent } from '../astro/head-and-content.js';
 
