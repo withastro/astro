@@ -18,7 +18,7 @@
     "astro": "^7.4.7",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",

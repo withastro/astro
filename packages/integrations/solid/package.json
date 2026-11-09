@@ -34,7 +34,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "vite": "^8.3.5",
+    "vite": "^8.3.6",
     "vite-plugin-solid": "^2.11.15",
     "vitefu": "^1.1.3"
   },
