@@ -1,6 +1,6 @@
 import type { MiddlewareNext } from '../../types/public/common.js';
 import type { AstroRuntimeLogger } from '../../types/public/context.js';
-import type { WaitUntilHook } from '../wait-until.js';
+import type { WaitUntilHook } from '@astrojs/vite-plugin-router/_internal/core/wait-until.js';
 
 export interface CacheOptions {
 	maxAge?: number;

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import colors from 'piccolore';
-import type * as vite from 'vite';
+import * as vite from 'vite';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import {
@@ -23,17 +23,23 @@ import {
 	hasEnvironmentKey,
 } from '@astrojs/runtime/_internal/core/encryption.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import type { AstroLogger } from '../logger/core.js';
-import { levels, timerMessage } from '../logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import { levels, timerMessage } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { getPrerenderDefault } from '../../prerender/utils.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { collectPagesData } from './page-data.js';
-import { viteBuild } from './static-build.js';
-import { buildPhase, printBuildTimings, withBuildTimings } from './timings/index.js';
-import type { StaticBuildOptionsInput } from './types.js';
-import { getTimeStat } from './util.js';
+import { toRouterConfig } from '../router-config.js';
+import { createBuildHost } from './host.js';
+import { collectPagesData } from '@astrojs/vite-plugin-router/_internal/core/build/page-data.js';
+import { viteBuild } from '@astrojs/vite-plugin-router/_internal/core/build/static-build.js';
+import {
+	buildPhase,
+	printBuildTimings,
+	withBuildTimings,
+} from '@astrojs/vite-plugin-router/_internal/core/build/timings/index.js';
+import type { StaticBuildOptionsInput } from '@astrojs/vite-plugin-router/_internal/core/build/types.js';
+import { getTimeStat } from '@astrojs/vite-plugin-router/_internal/core/build/util.js';
 import { warnIfCspResourceFallbackShadowing, warnIfCspWithShiki } from '../messages/runtime.js';
 
 interface BuildOptions {
@@ -222,8 +228,11 @@ export class AstroBuilder {
 		}
 		this.logger.info('build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
+		// Resolving the config runs the plugins' `configResolved` hooks, where routes registered
+		// with `api.astroRouter.injectRoute()` join `this.routesList`.
+		await vite.resolveConfig(viteConfig, 'build');
 		const { assets, allPages } = collectPagesData({
-			settings: this.settings,
+			buildOutput: this.settings.buildOutput!,
 			logger: this.logger,
 			manifest: this.routesList,
 		});
@@ -246,7 +255,9 @@ export class AstroBuilder {
 
 		const opts: StaticBuildOptionsInput = {
 			allPages,
-			settings: this.settings,
+			config: toRouterConfig(this.settings),
+			buildOutput: this.settings.buildOutput!,
+			host: createBuildHost(this.settings, this.logger),
 			logger: this.logger,
 			routesList: this.routesList,
 			runtimeMode: this.runtimeMode,
@@ -257,7 +268,7 @@ export class AstroBuilder {
 			force: this.force,
 		};
 
-		const { outputDirectories } = await viteBuild(opts);
+		const { internals, outputDirectories } = await viteBuild(opts);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
@@ -284,14 +295,20 @@ export class AstroBuilder {
 		}
 
 		// You're done! Time to clean up.
+		const builtRoutes = Object.values(allPages)
+			.flat()
+			.map((pageData) => pageData.route);
 		await runHookBuildDone({
 			settings: this.settings,
 			dir: outputDirectories.client,
 			pages: pageNames,
-			routes: Object.values(allPages)
-				.flat()
-				.map((pageData) => pageData.route),
+			routes: builtRoutes,
 			logger: this.logger,
+		});
+		await internals.routerRegistry?.buildDone({
+			dir: outputDirectories.client,
+			routes: builtRoutes,
+			pages: pageNames.map((pathname) => ({ pathname })),
 		});
 
 		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {
@@ -318,7 +335,13 @@ export class AstroBuilder {
 			// Benchmark results
 			this.settings.timer.writeStats();
 		}
-		printBuildTimings(this.settings, this.logger);
+		printBuildTimings(
+			{
+				root: fileURLToPath(this.settings.config.root),
+				output: this.settings.buildOutput ?? this.settings.config.output,
+			},
+			this.logger,
+		);
 	}
 
 	private validateConfig() {

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getFetchStateFromAPIContext } from '../../../dist/core/fetch/fetch-state.js';
+import { getFetchStateFromAPIContext } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import { createEndpoint, createTestApp } from '../mocks.ts';
 
 describe('context provider finalization', () => {

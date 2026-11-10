@@ -9,7 +9,7 @@ import {
 	runHookConfigSetup,
 } from '../../../dist/integrations/hooks.js';
 import { defaultLogger } from '../test-utils.ts';
-import { AstroLogger } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { logHandlers } from '../../../dist/core/logger/handlers.js';
 import nodeLoggerFactory from '../../../dist/core/logger/impls/node.js';
 

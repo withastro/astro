@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { AstroConfig } from '../../../dist/types/public/config.js';
 import type { RoutePart } from '../../../dist/types/public/internal.js';
-import { getRouteGenerator } from '../../../dist/core/routing/generator.js';
+import { getRouteGenerator } from '@astrojs/vite-plugin-router/_internal/core/routing/generator.js';
 
 interface TestCase {
 	routeData: RoutePart[][];

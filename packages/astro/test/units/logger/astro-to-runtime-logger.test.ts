@@ -6,7 +6,7 @@ import {
 	type AstroLoggerDestination,
 	type AstroLoggerLevel,
 	type AstroLoggerMessage,
-} from '../../../dist/core/logger/core.js';
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 
 function createLogger(level: AstroLoggerLevel = 'info') {
 	const messages: AstroLoggerMessage[] = [];

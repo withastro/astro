@@ -1,7 +1,7 @@
 import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import type { Locales } from '../../../dist/types/public/config.js';
 import type { MiddlewarePayload } from '../../../dist/i18n/index.js';
-import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
+import { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import { fetchStateSymbol } from '../../../dist/core/constants.js';
 import { createBasicPipeline } from '../test-utils.ts';
 

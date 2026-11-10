@@ -7,7 +7,10 @@ import { after, afterEach, before, describe, it } from 'node:test';
 import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { AstroLogger, type AstroLoggerMessage } from '../dist/core/logger/core.js';
+import {
+	AstroLogger,
+	type AstroLoggerMessage,
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import testAdapter from './test-adapter.ts';
 import { testImageService } from './test-image-service.ts';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';

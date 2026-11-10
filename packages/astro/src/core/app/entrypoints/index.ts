@@ -6,22 +6,22 @@ import type {
 import type { SerializedStaticImage } from '../../../assets/types.js';
 
 export type { RoutesList } from '../../../types/astro.js';
-export { App } from '../app.js';
+export { App } from '@astrojs/vite-plugin-router/_internal/core/app/app.js';
 export {
 	BaseApp,
 	type RenderErrorOptions,
 	type RenderOptions,
 	type LogRequestPayload,
-} from '../base.js';
+} from '@astrojs/vite-plugin-router/_internal/core/app/base.js';
 export { fromRoutingStrategy, toRoutingStrategy } from '../common.js';
-export { createConsoleLogger } from '../../logger/impls/console.js';
+export { createConsoleLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/impls/console.js';
 export {
 	deserializeManifest,
 	deserializeRouteData,
 	deserializeRouteInfo,
 	serializeRouteData,
 	serializeRouteInfo,
-} from '../manifest.js';
+} from '@astrojs/vite-plugin-router/_internal/core/app/manifest.js';
 export {
 	getInstalledRenderScope,
 	installRenderScope,
@@ -35,8 +35,10 @@ export {
 	type CollectPrerenderMetadataOptions,
 } from '@astrojs/runtime/_internal/core/render-scope/collect.js';
 export type CollectedPrerenderMetadata = BaseCollectedPrerenderMetadata<SerializedStaticImage>;
-export {
-	renderForPrerender,
-	type PrerenderableApp,
-	type PrerenderRenderOptions,
-} from '../prerender.js';
+import { renderForPrerender as renderForPrerenderWithImages } from '@astrojs/vite-plugin-router/_internal/core/app/prerender.js';
+export type {
+	PrerenderableApp,
+	PrerenderRenderOptions,
+} from '@astrojs/vite-plugin-router/_internal/core/app/prerender.js';
+export const renderForPrerender: typeof renderForPrerenderWithImages<SerializedStaticImage> =
+	renderForPrerenderWithImages;

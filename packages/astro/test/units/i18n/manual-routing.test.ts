@@ -6,7 +6,7 @@ import {
 	notFound,
 	redirectToFallback,
 } from '../../../dist/i18n/index.js';
-import { getFetchStateFromAPIContext } from '../../../dist/core/fetch/fetch-state.js';
+import { getFetchStateFromAPIContext } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import { createManualRoutingContext, createMiddlewarePayload } from './test-helpers.ts';
 
 describe('requestHasLocale', () => {

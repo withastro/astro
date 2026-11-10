@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
+import { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import {
 	createComponent,
 	maybeRenderHead,
@@ -11,7 +11,7 @@ import {
 } from '../../../dist/runtime/server/index.js';
 import type { SSRManifestCSP } from '../../../dist/types/public/internal.js';
 import type { TestPipeline } from '../test-utils.ts';
-import type { AstroLogger } from '../../../dist/core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { createBasicPipeline, renderThroughMiddleware, SpyLogger } from '../test-utils.ts';
 
 // #region Test Utilities
@@ -165,9 +165,11 @@ describe('CSP Rendering', () => {
 
 		it('does not hash empty children on external stylesheets and scripts', async () => {
 			const pipeline = createCspPipeline();
-			const { setEnvironment } = await import('../../../dist/core/environment/index.js');
+			const { setEnvironment } = await import(
+				'@astrojs/vite-plugin-router/_internal/core/environment/index.js'
+			);
 			const { productionEnvironment } = await import(
-				'../../../dist/core/environment/production.js'
+				'@astrojs/vite-plugin-router/_internal/core/environment/production.js'
 			);
 			setEnvironment(pipeline.manifest, {
 				...productionEnvironment,

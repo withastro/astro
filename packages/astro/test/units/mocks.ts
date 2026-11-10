@@ -1,9 +1,9 @@
 import { createBasicPipeline } from './test-utils.ts';
 import { makeRoute, staticPart } from './routing/test-helpers.ts';
-import { AstroCookies } from '../../dist/core/cookies/index.js';
+import { AstroCookies } from '@astrojs/vite-plugin-router/_internal/core/cookies/index.js';
 import { mockLogger } from './cookies/test-helpers.ts';
-import { App } from '../../dist/core/app/app.js';
-import { FetchState } from '../../dist/core/fetch/fetch-state.js';
+import { App } from '@astrojs/vite-plugin-router/_internal/core/app/app.js';
+import { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import { fetchStateSymbol } from '../../dist/core/constants.js';
 import { baseService } from '../../dist/assets/services/service.js';
 import { setConfiguredImageService } from '../../dist/assets/internal.js';
@@ -19,7 +19,10 @@ import type { TestPipeline } from './test-utils.ts';
 import type { RedirectConfig } from '../../dist/types/public/config.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
-import type { SSRManifest, RouteInfo } from '../../dist/core/app/types.js';
+import type {
+	SSRManifest,
+	RouteInfo,
+} from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import type { AstroComponentFactory } from '@astrojs/runtime/_internal/server/render/index.js';
 import type { ImageTransform } from '../../dist/assets/types.js';
 import type { AstroRuntimeLogger } from '../../dist/types/public/context.js';

@@ -1,5 +1,5 @@
 import { getImageServiceConfig } from '../assets/utils/service-config.js';
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type {
 	AdapterSupport,

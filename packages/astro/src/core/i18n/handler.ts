@@ -1,13 +1,14 @@
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import { computeCurrentLocale } from './locale-context.js';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
 import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
-import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
+import { markHandlerUsed } from '@astrojs/vite-plugin-router/_internal/core/fetch/features.js';
 import type { RouteData } from '../../types/public/internal.js';
-import type { SSRManifest } from '../app/types.js';
-import { shouldAppendForwardSlash } from '../build/util.js';
-import type { FetchState } from '../fetch/fetch-state.js';
-import { createManifestMemo } from '../manifest/memo.js';
-import { isFallbackRouteMatch } from '../routing/helpers.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
+import { shouldAppendForwardSlash } from '@astrojs/vite-plugin-router/_internal/core/build/util.js';
+import type { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
+import { createManifestMemo } from '@astrojs/vite-plugin-router/_internal/core/manifest/memo.js';
+import { isFallbackRouteMatch } from '@astrojs/vite-plugin-router/_internal/core/routing/helpers.js';
 
 /**
  * The compiled i18n configuration for a manifest: the config values plus the
@@ -86,7 +87,7 @@ export async function finalizeI18n(
 	state: FetchState,
 	response: Response,
 ): Promise<Response> {
-	markFeatureUsed(state.manifest, FetchFeatures.i18n);
+	markHandlerUsed(state.manifest, 'i18n');
 	const i18n = compiled.config;
 
 	// This is a case where we are internally rendering a 404/500, so we
@@ -103,7 +104,7 @@ export async function finalizeI18n(
 	// Use Astro's already-decoded URL (`state.url`) instead of reading the
 	// raw request URL again, so locale checks use the same path as routing.
 	const url = state.url;
-	const currentLocale = state.computeCurrentLocale();
+	const currentLocale = computeCurrentLocale(state);
 	const routeData = state.routeData!;
 	const isPrerendered = routeData.prerender;
 

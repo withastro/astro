@@ -11,8 +11,8 @@
  */
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
-import { renderPath } from '../../../dist/core/build/generate.js';
+import type { StaticBuildOptions } from '@astrojs/vite-plugin-router/_internal/core/build/types.js';
+import { renderPath } from '@astrojs/vite-plugin-router/_internal/core/build/generate.js';
 import {
 	createComponent,
 	render as renderTemplate,

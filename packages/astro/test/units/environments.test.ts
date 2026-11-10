@@ -1,7 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { Environment } from 'vite';
-import { isAstroClientEnvironment, isAstroServerEnvironment } from '../../dist/environments.js';
+import {
+	isAstroClientEnvironment,
+	isAstroServerEnvironment,
+} from '@astrojs/vite-plugin-router/_internal/environments.js';
 
 /** Create a minimal mock Environment with only the `name` property. */
 function env(name: string) {

@@ -4,7 +4,7 @@ import {
 	chunkHasDynamicImports,
 	shouldInlineScriptChunk,
 	type ScriptChunkInfo,
-} from '../../../dist/core/build/plugins/plugin-scripts.js';
+} from '@astrojs/vite-plugin-router/_internal/core/build/plugins/plugin-scripts.js';
 
 const scriptModuleId = '/src/Component.astro?astro&type=script&index=0&lang.ts';
 

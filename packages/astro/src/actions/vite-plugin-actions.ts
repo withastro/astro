@@ -5,9 +5,9 @@ import {
 	type ViteDevServer,
 	type Plugin as VitePlugin,
 } from 'vite';
-import { pathToDirectoryURL } from '../core/build/common.js';
-import type { BuildInternals } from '../core/build/internal.js';
-import { shouldAppendForwardSlash } from '../core/build/util.js';
+import { pathToDirectoryURL } from '@astrojs/vite-plugin-router/_internal/core/build/common.js';
+import type { BuildInternals } from '@astrojs/vite-plugin-router/_internal/core/build/internal.js';
+import { shouldAppendForwardSlash } from '@astrojs/vite-plugin-router/_internal/core/build/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
 	ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID,

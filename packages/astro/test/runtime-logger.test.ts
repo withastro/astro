@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, beforeEach, describe, it } from 'node:test';
-import type { AstroLoggerMessage } from '../dist/core/logger/core.js';
+import type { AstroLoggerMessage } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import testAdapter from './test-adapter.ts';
 import { type Fixture, loadFixture } from './test-utils.ts';
 

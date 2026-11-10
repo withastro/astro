@@ -1,5 +1,6 @@
 import { markdownConfigDefaults } from '@astrojs/internal-helpers/markdown';
 import { ASTRO_PLUGIN_DEFAULTS } from '@astrojs/vite-plugin-astro/defaults';
+import { ROUTER_PLUGIN_DEFAULTS } from '@astrojs/vite-plugin-router/defaults';
 import type { AstroUserConfig } from '../../../types/public/config.js';
 
 export const ASTRO_CONFIG_DEFAULTS = {
@@ -9,16 +10,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	outDir: './dist',
 	cacheDir: './node_modules/.astro',
 	base: '/',
-	build: {
-		format: 'directory',
-		client: './client/',
-		server: './server/',
-		assets: '_astro',
-		serverEntry: 'entry.mjs',
-		redirects: true,
-		inlineStylesheets: 'auto',
-		concurrency: 1,
-	},
+	build: ROUTER_PLUGIN_DEFAULTS.build,
 	image: {
 		endpoint: { entrypoint: undefined, route: '/_image' },
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
@@ -40,13 +32,12 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {
 		collectionsBackwardsCompat: false,
 	},
-	redirects: {},
+	redirects: ROUTER_PLUGIN_DEFAULTS.redirects,
 	security: {
-		checkOrigin: true,
+		...ROUTER_PLUGIN_DEFAULTS.security,
 		allowedDomains: [],
 		csp: false,
 		actionBodySizeLimit: 1024 * 1024,
-		serverIslandBodySizeLimit: 1024 * 1024,
 	},
 	env: {
 		schema: {},

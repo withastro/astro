@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
-import { removeViteManifestDirectories } from '../../../dist/core/build/vite-plugin-ssr-assets.js';
+import { removeViteManifestDirectories } from '@astrojs/vite-plugin-router/_internal/core/build/vite-plugin-ssr-assets.js';
 import { createFixture } from '../test-utils.ts';
 
 describe('removeViteManifestDirectories', () => {

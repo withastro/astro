@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getRoutesForEnvironment } from '../../../dist/vite-plugin-pages/pages.js';
+import { getRoutesForEnvironment } from '@astrojs/vite-plugin-router/_internal/vite-plugin-pages/pages.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 
 describe('getRoutesForEnvironment', () => {

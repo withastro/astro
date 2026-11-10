@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { notFoundTemplate, subpathNotUsedTemplate } from '../../../dist/template/4xx.js';
+import {
+	notFoundTemplate,
+	subpathNotUsedTemplate,
+} from '@astrojs/vite-plugin-router/_internal/template/4xx.js';
 
 describe('notFoundTemplate', () => {
 	it('produces valid HTML with 404 status code', () => {

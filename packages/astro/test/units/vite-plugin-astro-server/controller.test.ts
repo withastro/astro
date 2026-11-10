@@ -1,11 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { EnvironmentModuleNode } from 'vite';
-import { createLoader } from '../../../dist/core/module-loader/index.js';
+import { createLoader } from '@astrojs/vite-plugin-router/_internal/core/module-loader/index.js';
 import {
 	createController,
 	runWithErrorHandling,
-} from '../../../dist/vite-plugin-astro-server/index.js';
+} from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/index.js';
 
 describe('vite-plugin-astro-server', () => {
 	describe('controller', () => {
