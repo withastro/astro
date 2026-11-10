@@ -1,6 +1,4 @@
 import fs from 'node:fs';
-import type { SerializedStaticImage } from '../../assets/types.js';
-import type { AstroSettings } from '../../types/astro.js';
 import { copyCachedFile } from '../fs/index.js';
 
 const INCREMENTAL_CACHE_FILE = 'incremental-build.json';
@@ -23,7 +21,7 @@ export interface IncrementalPathEntry {
 	 * emptied each build, so a skipped path replays these into the global list to
 	 * keep the images its restored HTML references from 404ing.
 	 */
-	staticImages?: SerializedStaticImage[];
+	staticImages?: unknown[];
 	/**
 	 * Absolute source paths of images this path referenced without a transform.
 	 * Replaying these for a skipped path prevents image generation from deleting
@@ -72,21 +70,21 @@ export interface IncrementalManifest {
 	routes: Record<string, IncrementalRouteEntry>;
 }
 
-function getManifestFile(settings: AstroSettings): URL {
-	return new URL(INCREMENTAL_CACHE_FILE, settings.config.cacheDir);
+function getManifestFile(cacheDir: URL): URL {
+	return new URL(INCREMENTAL_CACHE_FILE, cacheDir);
 }
 
-function getCachedOutputFile(settings: AstroSettings, outputFile: string): URL {
-	return new URL(outputFile, new URL(INCREMENTAL_OUTPUT_DIR, settings.config.cacheDir));
+function getCachedOutputFile(cacheDir: URL, outputFile: string): URL {
+	return new URL(outputFile, new URL(INCREMENTAL_OUTPUT_DIR, cacheDir));
 }
 
 function readManifest(
-	settings: AstroSettings,
+	cacheDir: URL,
 	expectedConfigHash: string,
 	expectedLockfileHash: string,
 ): IncrementalManifest | null {
 	try {
-		const raw = fs.readFileSync(getManifestFile(settings), 'utf-8');
+		const raw = fs.readFileSync(getManifestFile(cacheDir), 'utf-8');
 		const data = JSON.parse(raw) as IncrementalManifest;
 		if (data.version !== CACHE_VERSION) {
 			return null;
@@ -117,14 +115,21 @@ export class IncrementalBuildCache {
 	readonly #next: IncrementalManifest;
 	readonly #contentEntryHashes: Map<string, string>;
 	readonly #createdDirs = new Set<string>();
+	readonly #cacheDir: URL | undefined;
 
+	/**
+	 * @param cacheDir The directory of the cache files. Without it, only the in-memory methods
+	 *   work.
+	 */
 	constructor(
 		configHash: string,
 		lockfileHash: string,
 		keyDigest: string,
 		contentEntryHashes = new Map<string, string>(),
 		previous: IncrementalManifest | null = null,
+		cacheDir?: URL,
 	) {
+		this.#cacheDir = cacheDir;
 		this.#previous = previous;
 		this.#contentEntryHashes = contentEntryHashes;
 		this.#next = { version: CACHE_VERSION, configHash, lockfileHash, keyDigest, routes: {} };
@@ -142,7 +147,7 @@ export class IncrementalBuildCache {
 	 * recording a fresh cache for the next build.
 	 */
 	static load(
-		settings: AstroSettings,
+		cacheDir: URL,
 		configHash: string,
 		lockfileHash: string,
 		keyDigest: string,
@@ -154,7 +159,8 @@ export class IncrementalBuildCache {
 			lockfileHash,
 			keyDigest,
 			contentEntryHashes,
-			force ? null : readManifest(settings, configHash, lockfileHash),
+			force ? null : readManifest(cacheDir, configHash, lockfileHash),
+			cacheDir,
 		);
 	}
 
@@ -212,10 +218,7 @@ export class IncrementalBuildCache {
 	 * The image transforms a path resolved in the previous build, so a skipped
 	 * path can replay them and carry them forward without re-rendering.
 	 */
-	previousStaticImages(
-		routeComponent: string,
-		pathname: string,
-	): SerializedStaticImage[] | undefined {
+	previousStaticImages(routeComponent: string, pathname: string): unknown[] | undefined {
 		return this.#previous?.routes[routeComponent]?.paths[pathname]?.staticImages;
 	}
 
@@ -240,7 +243,7 @@ export class IncrementalBuildCache {
 		cacheKey: string,
 		outputFile: string,
 		contentEntryKeys?: string[],
-		staticImages?: SerializedStaticImage[],
+		staticImages?: unknown[],
 		referencedImages?: string[],
 		headers?: [string, string][],
 	): void {
@@ -288,18 +291,14 @@ export class IncrementalBuildCache {
 		return orphans;
 	}
 
-	writeManifest(settings: AstroSettings): void {
-		const manifestFile = getManifestFile(settings);
+	writeManifest(): void {
+		const manifestFile = getManifestFile(this.#getCacheDir());
 		fs.mkdirSync(new URL('./', manifestFile), { recursive: true });
 		fs.writeFileSync(manifestFile, JSON.stringify(this.#next, null, '\t'));
 	}
 
-	async restoreOutputFile(
-		settings: AstroSettings,
-		outputFile: string,
-		destination: URL,
-	): Promise<boolean> {
-		const cachedOutputFile = getCachedOutputFile(settings, outputFile);
+	async restoreOutputFile(outputFile: string, destination: URL): Promise<boolean> {
+		const cachedOutputFile = getCachedOutputFile(this.#getCacheDir(), outputFile);
 		if (!fs.existsSync(cachedOutputFile)) return false;
 
 		await this.#ensureDir(new URL('./', destination));
@@ -307,18 +306,21 @@ export class IncrementalBuildCache {
 		return true;
 	}
 
-	async writeOutputFile(
-		settings: AstroSettings,
-		outputFile: string,
-		body: string | Uint8Array,
-	): Promise<void> {
-		const cachedOutputFile = getCachedOutputFile(settings, outputFile);
+	async writeOutputFile(outputFile: string, body: string | Uint8Array): Promise<void> {
+		const cachedOutputFile = getCachedOutputFile(this.#getCacheDir(), outputFile);
 		await this.#ensureDir(new URL('./', cachedOutputFile));
 		await fs.promises.writeFile(cachedOutputFile, body);
 	}
 
-	async deleteOutputFile(settings: AstroSettings, outputFile: string): Promise<void> {
-		await fs.promises.rm(getCachedOutputFile(settings, outputFile), { force: true });
+	async deleteOutputFile(outputFile: string): Promise<void> {
+		await fs.promises.rm(getCachedOutputFile(this.#getCacheDir(), outputFile), { force: true });
+	}
+
+	#getCacheDir(): URL {
+		if (!this.#cacheDir) {
+			throw new Error('The incremental build cache was created without a cache directory.');
+		}
+		return this.#cacheDir;
 	}
 
 	async #ensureDir(dir: URL): Promise<void> {

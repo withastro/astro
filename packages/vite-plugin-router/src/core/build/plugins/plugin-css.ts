@@ -1,16 +1,23 @@
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin, Rolldown } from 'vite';
 import { isCSSRequest } from 'vite';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../../internal/core/constants.js';
 import { isPropagatedAssetBoundary } from '@astrojs/runtime/_internal/core/head-propagation/boundary.js';
-import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../vite-plugin-pages/const.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../internal/vite-plugin-pages/const.js';
 import {
 	getParentExtendedModuleInfos,
 	getParentModuleInfos,
 	moduleIsTopLevelPage,
-} from '../graph.js';
-import type { BuildInternals } from '../internal.js';
-import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js';
-import type { PageBuildData, StaticBuildOptionsInput, StylesheetAsset } from '../types.js';
+} from '../../../internal/core/build/graph.js';
+import type { BuildInternals } from '../../../internal/core/build/internal.js';
+import {
+	getPageDataByViteID,
+	getPageDatasByClientOnlyID,
+} from '../../../internal/core/build/internal.js';
+import type {
+	PageBuildData,
+	StaticBuildOptionsInput,
+	StylesheetAsset,
+} from '../../../internal/core/build/types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 import { shouldInlineAsset } from './util.js';
 
@@ -48,7 +55,6 @@ function isBuildCssBoundary(id: string, ctx: { getModuleInfo: Rolldown.GetModule
 
 function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const { internals, buildOptions } = options;
-	const { settings } = buildOptions;
 
 	let resolvedConfig: ResolvedConfig;
 
@@ -448,7 +454,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			assetsInlineLimit = config.build.assetsInlineLimit;
 		},
 		async generateBundle(_outputOptions, bundle) {
-			const inlineConfig = settings.config.build.inlineStylesheets;
+			const inlineConfig = buildOptions.config.build.inlineStylesheets;
 
 			Object.entries(bundle).forEach(([id, stylesheet]) => {
 				if (

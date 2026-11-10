@@ -1,6 +1,6 @@
 import type { BuildOptions, Plugin as VitePlugin, Rollup } from 'vite';
 import type { BuildInternals } from '../internal.js';
-import { shouldInlineAsset } from './util.js';
+import { shouldInlineAsset } from '../../../../core/build/plugins/util.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 type GetModuleInfo = (moduleId: string) => Rollup.ModuleInfo | null;

@@ -3,12 +3,12 @@ import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
 } from '@astrojs/runtime/_internal/core/head-propagation/graph.js';
-import { getTopLevelPageModuleInfos } from '../core/build/graph.js';
-import type { BuildInternals } from '../core/build/internal.js';
-import { PROPAGATED_ASSET_FLAG } from '../content/consts.js';
-import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
+import { getTopLevelPageModuleInfos } from '../internal/core/build/graph.js';
+import type { BuildInternals } from '../internal/core/build/internal.js';
+import { PROPAGATED_ASSET_FLAG } from '@astrojs/runtime/_internal/core/head-propagation/boundary.js';
+import type { SSRComponentMetadata, SSRResult } from '@astrojs/vite-plugin-astro';
 import { getAstroMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/metadata.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../internal/core/constants.js';
 
 export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 	return {

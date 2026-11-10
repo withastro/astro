@@ -1,6 +1,8 @@
+import type * as vite from 'vite';
 import type { Rolldown } from 'vite';
-import type { AstroConfig } from '../../types/public/config.js';
-import type { ViteBuildReturn } from './types.js';
+import type { ResolvedRouterPluginOptions } from '../../../options.js';
+
+type ViteBuildReturn = Awaited<ReturnType<typeof vite.build>>;
 
 export function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;
@@ -18,8 +20,8 @@ export function getTimeStat(timeStart: number, timeEnd: number) {
  * Given the Astro configuration, it tells if a slash should be appended or not
  */
 export function shouldAppendForwardSlash(
-	trailingSlash: AstroConfig['trailingSlash'],
-	buildFormat: AstroConfig['build']['format'],
+	trailingSlash: 'always' | 'never' | 'ignore',
+	buildFormat: ResolvedRouterPluginOptions['build']['format'],
 ): boolean {
 	switch (trailingSlash) {
 		case 'always':

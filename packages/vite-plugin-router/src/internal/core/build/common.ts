@@ -7,12 +7,45 @@ import {
 	joinPaths,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
-} from '../../core/path.js';
-import type { AstroConfig } from '../../types/public/config.js';
-import type { RouteData, RouteType } from '../../types/public/internal.js';
+} from '@astrojs/internal-helpers/path';
+import type { BuildFormat, RouterConfig, RouteType, TrailingSlash } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
 import { STATUS_CODE_PAGES } from '../constants.js';
+import type { BuildAdapter } from './types.js';
 
 const FALLBACK_OUT_DIR_NAME = './.astro/';
+
+/** The build options that decide where the build writes its files. */
+export interface OutputLayout {
+	config: Pick<RouterConfig, 'outDir'> & {
+		build: Pick<RouterConfig['build'], 'client' | 'server' | 'format'>;
+	};
+	buildOutput: 'static' | 'server';
+	host: { adapter: BuildAdapter | undefined };
+}
+
+/** The directory the server build writes to. */
+export function getServerOutputDirectory({ config, buildOutput, host }: OutputLayout): URL {
+	const preserveStructure = host.adapter?.adapterFeatures?.preserveBuildServerDir;
+	if (buildOutput === 'server' || preserveStructure) {
+		return config.build.server;
+	}
+	return getOutDirWithinCwd(config.outDir);
+}
+
+/** The directory the prerender environment writes to. */
+export function getPrerenderOutputDirectory(layout: OutputLayout): URL {
+	return new URL('./.prerender/', getServerOutputDirectory(layout));
+}
+
+/** The directory the client build and the prerendered pages are written to. */
+export function getClientOutputDirectory({ config, buildOutput, host }: OutputLayout): URL {
+	const preserveStructure = host.adapter?.adapterFeatures?.preserveBuildClientDir;
+	if (buildOutput === 'server' || preserveStructure) {
+		return config.build.client;
+	}
+	return config.outDir;
+}
 
 export function pathToDirectoryURL(path: string): URL {
 	return new URL(appendForwardSlash(pathToFileURL(path).href));
@@ -25,7 +58,7 @@ export function getOutFolder({
 	routeData,
 }: {
 	outRoot: URL;
-	buildFormat: NonNullable<AstroConfig['build']>['format'];
+	buildFormat: BuildFormat;
 	pathname: string;
 	routeData: RouteData;
 }): URL {
@@ -65,7 +98,7 @@ export function getOutFolder({
 }
 
 export function getOutFile(
-	buildFormat: NonNullable<AstroConfig['build']>['format'],
+	buildFormat: BuildFormat,
 	outFolder: URL,
 	pathname: string,
 	routeData: RouteData,
@@ -119,8 +152,8 @@ export function getUrlForPath(
 	pathname: string,
 	base: string,
 	origin: string,
-	format: AstroConfig['build']['format'],
-	trailingSlash: AstroConfig['trailingSlash'],
+	format: BuildFormat,
+	trailingSlash: TrailingSlash,
 	routeType: RouteType,
 	isIndex: boolean,
 ): URL {

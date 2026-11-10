@@ -1,13 +1,9 @@
-import type { AstroConfig } from '../types/public/config.js';
-import type { RouteData } from '../types/public/internal.js';
+import type { BuildFormat } from '../../index.js';
+import type { RouteData } from '../../index.js';
+import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import { STATUS_CODE_PAGES } from './constants.js';
-import { removeTrailingForwardSlash } from './path.js';
 
-export function getOutputFilename(
-	buildFormat: NonNullable<AstroConfig['build']>['format'],
-	name: string,
-	routeData: RouteData,
-) {
+export function getOutputFilename(buildFormat: BuildFormat, name: string, routeData: RouteData) {
 	if (routeData.type === 'endpoint') {
 		return name;
 	}

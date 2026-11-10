@@ -1,27 +1,43 @@
-import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
-import type { RewritePayload } from '../../types/public/common.js';
-import type { RouteData, SSRElement, SSRManifest } from '../../types/public/internal.js';
+import type { ComponentInstance } from '../../index.js';
+import type { RewritePayload } from '../../index.js';
+import type { RouteData } from '../../index.js';
+import type { SSRElement } from '@astrojs/vite-plugin-astro';
+import type { SSRManifest } from '../../internal/core/app/types.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-scripts/index.js';
-import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import type { HeadElements, RenderEnvironment, TryRewriteResult } from '../environment/index.js';
-import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
-import { getDefaultRoutes } from '../routing/default.js';
-import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
-import { createRewriteRouteValidator } from '../routing/rewrite-validate.js';
-import { findRouteToRewrite } from '../routing/rewrite.js';
-import type { AstroLoggerDestination } from '../logger/core.js';
-import type { BuildInternals } from './internal.js';
-import { cssOrder, getPageData, mergeInlineCss } from './runtime.js';
-import type { PageBuildData, SinglePageBuiltModule } from './types.js';
+import type {
+	HeadElements,
+	RenderEnvironment,
+	TryRewriteResult,
+} from '../../internal/core/environment/index.js';
+import { RedirectSinglePageBuiltModule } from '../../internal/core/redirects/index.js';
+import {
+	createAssetLink,
+	createStylesheetElementSet,
+} from '../../internal/core/render/ssr-element.js';
+import { getDefaultRoutes } from '../../internal/core/routing/default.js';
+import {
+	getFallbackRoute,
+	routeIsFallback,
+	routeIsRedirect,
+} from '../../internal/core/routing/helpers.js';
+import { createRewriteRouteValidator } from '../../internal/core/routing/rewrite-validate.js';
+import { findRouteToRewrite } from '../../internal/core/routing/rewrite.js';
+import type { AstroLoggerDestination } from '../../internal/core/logger/core.js';
+import type { BuildInternals } from '../../internal/core/build/internal.js';
+import { cssOrder, getPageData, mergeInlineCss } from '../../internal/core/build/runtime.js';
+import type { PageBuildData, SinglePageBuiltModule } from '../../internal/core/build/types.js';
 
 export interface BuildEnvironmentInternals {
 	pagesByKeys: Map<string, Pick<PageBuildData, 'styles'>>;
 	entrySpecifierToBundleMap: BuildInternals['entrySpecifierToBundleMap'];
+	/** The build specifiers of the scripts registered with `addPageScript()`. */
+	pageScripts: readonly string[];
 }
 
 export interface BuildEnvironmentOptions {
-	settings: Pick<AstroSettings, 'scripts'> & { redirectPage: boolean };
+	/** Contents of inline scripts added to the head of every page. */
+	headInlineScripts: readonly string[];
+	redirectPage: boolean;
 	logger: { options: { destination: AstroLoggerDestination } };
 }
 
@@ -42,8 +58,6 @@ export interface BuildEnvironmentSlots {
 	getInternals(): BuildEnvironmentInternals;
 	/** Throws `No options defined` before injection. */
 	getOptions(): BuildEnvironmentOptions;
-	/** Throws `No options defined` before injection. */
-	getSettings(): BuildEnvironmentOptions['settings'];
 }
 
 // Identical to the production implementation: redirect + i18n-fallback
@@ -113,10 +127,6 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 		return options;
 	}
 
-	function getSettings(): BuildEnvironmentOptions['settings'] {
-		return getOptions().settings;
-	}
-
 	// The resolve cache lives for the whole build.
 	const resolveCache = new Map<string, string>();
 
@@ -149,7 +159,6 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 		headElements(manifest: SSRManifest, routeData: RouteData): HeadElements {
 			const { assetsPrefix, base } = manifest;
 
-			const settings = getSettings();
 			const buildInternals = getInternals();
 			const links = new Set<never>();
 			const pageBuildData = getPageData(buildInternals, routeData.route, routeData.component);
@@ -160,10 +169,10 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 				.reduce(mergeInlineCss, []);
 			const styles = createStylesheetElementSet(sortedCssAssets ?? [], base, assetsPrefix);
 
-			if (settings.scripts.some((script) => script.stage === 'page')) {
-				const hashedFilePath = buildInternals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
+			for (const specifier of buildInternals.pageScripts) {
+				const hashedFilePath = buildInternals.entrySpecifierToBundleMap.get(specifier);
 				if (typeof hashedFilePath !== 'string') {
-					throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
+					throw new Error(`Cannot find the built path for ${specifier}`);
 				}
 				const src = createAssetLink(hashedFilePath, base, assetsPrefix);
 				scripts.add({
@@ -173,13 +182,11 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 			}
 
 			// Add all injected scripts to the page.
-			for (const script of settings.scripts) {
-				if (script.stage === 'head-inline') {
-					scripts.add({
-						props: {},
-						children: script.content,
-					});
-				}
+			for (const content of getOptions().headInlineScripts) {
+				scripts.add({
+					props: {},
+					children: content,
+				});
 			}
 
 			return { scripts, styles, links };
@@ -219,7 +226,7 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 
 		errorStrategy: 'build',
 		rendersRedirectPage() {
-			return getSettings().redirectPage;
+			return getOptions().redirectPage;
 		},
 		injectCspMetaTagsOnErrorPages: false,
 		logsStreamErrors: false,
@@ -236,6 +243,5 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 		},
 		getInternals,
 		getOptions,
-		getSettings,
 	};
 }

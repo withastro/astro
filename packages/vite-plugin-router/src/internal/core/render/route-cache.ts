@@ -1,20 +1,24 @@
-import type { ComponentInstance } from '../../types/astro.js';
+import type { RuntimeMode, TrailingSlash } from '../../../index.js';
+import type { ComponentInstance } from '../../../index.js';
 import type {
 	GetStaticPathsItem,
 	GetStaticPathsResult,
 	GetStaticPathsResultKeyed,
 	PaginateFunction,
 	Params,
-} from '../../types/public/common.js';
-import type { AstroConfig, RuntimeMode } from '../../types/public/config.js';
-import type { RouteData, SSRManifest } from '../../types/public/internal.js';
+} from '../../../index.js';
+import type { RouteData } from '../../../index.js';
+import type { SSRManifest } from '../app/types.js';
 import type { AstroLogger } from '../logger/core.js';
 
 import { getEnvironment } from '../environment/index.js';
 import { getLogger } from '../logger/manifest-logger.js';
 import { createManifestMemo } from '../manifest/memo.js';
 import { stringifyParams } from '../routing/params.js';
-import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
+import {
+	validateDynamicRouteModule,
+	validateGetStaticPathsResult,
+} from '../../../core/routing/validation.js';
 import { generatePaginateFunction } from './paginate.js';
 
 interface CallGetStaticPathsOptions {
@@ -22,8 +26,8 @@ interface CallGetStaticPathsOptions {
 	route: RouteData;
 	routeCache: RouteCache;
 	ssr: boolean;
-	base: AstroConfig['base'];
-	trailingSlash: AstroConfig['trailingSlash'];
+	base: string;
+	trailingSlash: TrailingSlash;
 }
 
 export async function callGetStaticPaths({
@@ -84,8 +88,8 @@ export function completeStaticPaths({
 async function computeStaticPaths(
 	mod: ComponentInstance,
 	route: RouteData,
-	base: AstroConfig['base'],
-	trailingSlash: AstroConfig['trailingSlash'],
+	base: string,
+	trailingSlash: TrailingSlash,
 ): Promise<GetStaticPathsResultKeyed> {
 	let staticPaths: GetStaticPathsResult = [];
 	// Add a check here to make TypeScript happy.
@@ -186,7 +190,7 @@ export function findPathItemByKey(
 	params: Params,
 	route: RouteData,
 	logger: AstroLogger,
-	trailingSlash: AstroConfig['trailingSlash'],
+	trailingSlash: TrailingSlash,
 ) {
 	const paramsKey = stringifyParams(params, route, trailingSlash);
 	const matchedStaticPath = staticPaths.keyed.get(paramsKey);

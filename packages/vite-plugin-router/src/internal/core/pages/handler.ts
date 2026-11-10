@@ -1,6 +1,6 @@
 import { renderEndpoint } from '../../runtime/server/endpoint.js';
-import { renderPage } from '../../runtime/server/index.js';
-import type { APIContext } from '../../types/public/context.js';
+import { renderPage } from '@astrojs/runtime/server';
+import type { APIContext } from '../../../index.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { ASTRO_ERROR_HEADER } from '../constants.js';
 import { rejectInvalidEncoding } from '../routing/invalid-encoding.js';
@@ -51,8 +51,7 @@ export async function handlePages(state: FetchState, ctx: APIContext): Promise<R
 		}
 		case 'page': {
 			const props = await state.getProps();
-			const actionApiContext = state.getActionAPIContext();
-			const result = await state.createResult(componentInstance!, actionApiContext);
+			const result = await state.createResult(componentInstance!);
 			try {
 				response = await renderPage(
 					result,

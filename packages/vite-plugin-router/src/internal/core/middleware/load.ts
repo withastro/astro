@@ -1,4 +1,4 @@
-import type { MiddlewareHandler } from '../../types/public/common.js';
+import type { MiddlewareHandler } from '../../../index.js';
 import type { SSRManifest } from '../app/types.js';
 import { createOriginCheckMiddleware } from '../app/origin-check.js';
 import { createAsyncManifestMemo } from '../manifest/memo.js';

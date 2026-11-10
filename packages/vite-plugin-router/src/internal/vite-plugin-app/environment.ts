@@ -1,12 +1,10 @@
-import { fileURLToPath } from 'node:url';
 import type {
 	HeadElements,
 	RenderEnvironment,
 	TryRewriteResult,
 } from '../core/environment/index.js';
 import type { RequestLogPayload } from '../core/environment/index.js';
-import type { SinglePageBuiltModule } from '../core/build/types.js';
-import { ASTRO_VERSION } from '../core/constants.js';
+import type { SinglePageBuiltModule } from '../../routing.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import {
 	AggregateError,
@@ -14,32 +12,28 @@ import {
 	MarkdownError,
 } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { getLogger } from '../core/logger/manifest-logger.js';
-import { req } from '../core/messages/runtime.js';
+import { req } from '../core/messages/request.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import {
 	RedirectComponentInstance,
 	RedirectSinglePageBuiltModule,
 } from '../core/redirects/index.js';
-import { loadRenderer } from '../core/render/index.js';
+import { loadRenderer } from '../core/render/renderer.js';
 import { getDefaultRoutes } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/helpers.js';
 import { createRewriteRouteValidator } from '../core/routing/rewrite-validate.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { getRouteTable } from '../core/routing/route-table.js';
-import { isPage } from '../core/util.js';
 import { resolveIdToUrl } from '../core/viteUtils.js';
-import { stringifyForScript } from '@astrojs/runtime/_internal/server/escape.js';
-import type { AstroSettings, ComponentInstance, ImportedDevStyle } from '../types/astro.js';
-import type { RewritePayload } from '../types/public/common.js';
-import type { DevToolbarMetadata } from '../types/public/index.js';
-import type {
-	RouteData,
-	SSRElement,
-	SSRLoadedRenderer,
-	SSRManifest,
-} from '../types/public/internal.js';
-import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
-import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import type { AstroRenderer } from '@astrojs/vite-plugin-astro';
+import type { ComponentInstance } from '../../index.js';
+import type { ImportedDevStyle } from '../../index.js';
+import type { RewritePayload } from '../../index.js';
+import type { RouteData } from '../../index.js';
+import type { SSRElement, SSRLoadedRenderer } from '@astrojs/vite-plugin-astro';
+import type { SSRManifest } from '../core/app/types.js';
+import { getComponentMetadata } from '../../vite-plugin-astro-server/metadata.js';
+import { getDevPageScriptSrc } from '../registry.js';
 
 /**
  * Per-manifest slot for the runnable dev server's renderers. Unlike every
@@ -57,10 +51,23 @@ export function setDevRenderers(manifest: SSRManifest, renderers: SSRLoadedRende
 	devRenderers.set(manifest, renderers);
 }
 
+/** Returns elements to add to the head of the route whose component is `file` in dev. */
+export type DevHeadElements = (context: {
+	manifest: SSRManifest;
+	file: URL;
+	isPage: boolean;
+}) => Promise<Iterable<SSRElement>>;
+
 export interface RunnableEnvironmentOptions {
 	loader: ModuleLoader;
-	settings: AstroSettings;
-	getDebugInfo: () => Promise<string>;
+	/** Whether the route component `file` is a page (Vite's client and page scripts are added). */
+	isPage: (file: URL) => boolean;
+	/** Renderers loaded before each route module. */
+	renderers: readonly AstroRenderer[];
+	/** Module specifiers of the page scripts registered with `api.astroRouter.addPageScript()`. */
+	pageScripts: readonly string[];
+	/** Elements added to the head of every route besides Vite's client and the page scripts. */
+	headElements?: DevHeadElements;
 }
 
 // Identical to the production implementation: redirect + i18n-fallback
@@ -105,8 +112,10 @@ async function getModuleForRoute(
  */
 export function createRunnableEnvironment({
 	loader,
-	settings,
-	getDebugInfo,
+	isPage,
+	renderers,
+	pageScripts,
+	headElements,
 }: RunnableEnvironmentOptions): RenderEnvironment {
 	// Renderers are (re)loaded on every request before the route module is
 	// imported, into the per-manifest slot.
@@ -119,14 +128,11 @@ export function createRunnableEnvironment({
 		}
 
 		// Important: This needs to happen first, in case a renderer provides polyfills.
-		if (settings) {
-			const renderers__ = settings.renderers.map((r) => loadRenderer(r, loader));
-			const renderers_ = await Promise.all(renderers__);
-			setDevRenderers(
-				manifest,
-				renderers_.filter((r): r is SSRLoadedRenderer => Boolean(r)),
-			);
-		}
+		const loadedRenderers = await Promise.all(renderers.map((r) => loadRenderer(r, loader)));
+		setDevRenderers(
+			manifest,
+			loadedRenderers.filter((r): r is SSRLoadedRenderer => Boolean(r)),
+		);
 
 		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
 
@@ -164,54 +170,26 @@ export function createRunnableEnvironment({
 			const filePath = new URL(`${routeData.component}`, manifest.rootDir);
 			const scripts = new Set<SSRElement>();
 
-			// Inject HMR scripts
-			if (settings) {
-				if (isPage(filePath, settings)) {
+			const routeIsPage = isPage(filePath);
+			if (routeIsPage) {
+				scripts.add({
+					props: { type: 'module', src: '/@vite/client' },
+					children: '',
+				});
+			}
+			for (const element of (await headElements?.({
+				manifest,
+				file: filePath,
+				isPage: routeIsPage,
+			})) ?? []) {
+				scripts.add(element);
+			}
+			if (routeIsPage) {
+				for (const specifier of pageScripts) {
 					scripts.add({
-						props: { type: 'module', src: '/@vite/client' },
+						props: { type: 'module', src: getDevPageScriptSrc(specifier) },
 						children: '',
 					});
-
-					if (manifest.devToolbar.enabled) {
-						scripts.add({
-							props: {
-								type: 'module',
-								src: '/@id/astro/runtime/client/dev-toolbar/entrypoint.js',
-							},
-							children: '',
-						});
-
-						const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
-							root: fileURLToPath(settings.config.root),
-							version: ASTRO_VERSION,
-							latestAstroVersion: settings.latestAstroVersion,
-							// TODO: Currently the debug info is always fetched, which slows things down.
-							// We should look into not loading it if the dev toolbar is disabled. And when
-							// enabled, it would nice to request the debug info through import.meta.hot
-							// when the button is click to defer execution as much as possible
-							debugInfo: await getDebugInfo(),
-							placement: settings.config.devToolbar.placement,
-						};
-
-						// Additional data for the dev overlay
-						const children = `window.__astro_dev_toolbar__ = ${stringifyForScript(additionalMetadata)}`;
-						scripts.add({ props: {}, children });
-					}
-				}
-
-				// TODO: We should allow adding generic HTML elements to the head, not just scripts
-				for (const script of settings.scripts) {
-					if (script.stage === 'head-inline') {
-						scripts.add({
-							props: {},
-							children: script.content,
-						});
-					} else if (script.stage === 'page' && isPage(filePath, settings)) {
-						scripts.add({
-							props: { type: 'module', src: `/@id/${PAGE_SCRIPT_ID}` },
-							children: '',
-						});
-					}
 				}
 			}
 

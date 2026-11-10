@@ -1,8 +1,8 @@
 import * as fs from 'node:fs';
 import type * as vite from 'vite';
-import type { AstroSettings } from '../types/astro.js';
+import type { RouterConfig } from '../../index.js';
 import { notFoundTemplate } from '../template/4xx.js';
-import { writeHtmlResponse } from './response.js';
+import { writeHtmlResponse } from '../../vite-plugin-astro-server/response.js';
 
 // Vite internal prefixes that should always be allowed through
 const VITE_INTERNAL_PREFIXES = [
@@ -94,9 +94,7 @@ export function evaluateRouteGuard(
  * This fixes the issue where files like /README.md are served
  * when they exist at the project root but aren't part of Astro's routing.
  */
-export function routeGuardMiddleware(settings: AstroSettings): vite.Connect.NextHandleFunction {
-	const { config } = settings;
-
+export function routeGuardMiddleware(config: RouterConfig): vite.Connect.NextHandleFunction {
 	return function devRouteGuard(req, res, next) {
 		const url = req.url;
 		if (!url) {

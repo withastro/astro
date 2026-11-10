@@ -1,9 +1,9 @@
-import type { AstroPrerenderer } from '../../types/public/integrations.js';
-import type { BuildInternals } from './internal.js';
-import type { StaticBuildOptions } from './types.js';
+import type { Prerenderer } from '../../index.js';
+import type { BuildInternals } from '../../internal/core/build/internal.js';
+import type { StaticBuildOptions } from '../../internal/core/build/types.js';
 import type { BuildApp } from './app.js';
-import { renderForPrerender } from '../app/prerender.js';
-import { StaticPaths } from '../../runtime/prerender/static-paths.js';
+import { renderForPrerender } from '../../internal/core/app/prerender.js';
+import { StaticPaths } from '../../internal/runtime/prerender/static-paths.js';
 
 interface DefaultPrerendererOptions {
 	internals: BuildInternals;
@@ -14,7 +14,7 @@ interface DefaultPrerendererOptions {
 /**
  * Default prerenderer with access to the BuildApp for assets generation.
  */
-export interface DefaultPrerenderer extends AstroPrerenderer {
+export interface DefaultPrerenderer extends Prerenderer {
 	/** The BuildApp instance, available after setup() is called */
 	app?: BuildApp;
 }
@@ -42,12 +42,13 @@ export function createDefaultPrerenderer({
 			const prerenderEntryUrl = new URL(prerenderEntryFileName, prerenderOutputDir);
 			const { app }: { app: BuildApp } = await import(prerenderEntryUrl.toString());
 
-			app.setInternals(internals);
+			app.setInternals({
+				...internals,
+				pageScripts: internals.routerRegistry!.getPageScripts('build'),
+			});
 			app.setOptions({
-				settings: {
-					scripts: options.settings.scripts,
-					redirectPage: options.settings.config.experimental.redirectPage,
-				},
+				headInlineScripts: options.host.headInlineScripts,
+				redirectPage: options.host.redirectPage,
 				logger: options.logger,
 			});
 			// Rebuilds in one process reuse the cached module, and its stale static paths.

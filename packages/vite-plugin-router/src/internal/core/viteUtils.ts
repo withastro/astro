@@ -1,8 +1,12 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { prependForwardSlash } from '../core/path.js';
+import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import type { ModuleLoader } from './module-loader/index.js';
-import { unwrapId, VALID_ID_PREFIX, viteID } from './util.js';
+import {
+	unwrapId,
+	VALID_ID_PREFIX,
+	viteID,
+} from '@astrojs/vite-plugin-astro/_internal/core/vite-id.js';
 
 export { resolvePath } from '@astrojs/internal-helpers/mdx';
 import { normalizePath } from '@astrojs/vite-plugin-astro/_internal/core/vite-id.js';

@@ -1,7 +1,11 @@
 import type { SerializeOptions } from 'cookie';
 import { parseCookie, stringifySetCookie } from 'cookie';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import type { AstroLogger } from '../logger/core.js';
+
+/** The part of Astro's logger that `AstroCookies` uses. */
+interface CookieLogger {
+	warn(label: string | null, message: string): void;
+}
 
 export type AstroCookieSetOptions = Pick<
 	SerializeOptions,
@@ -72,8 +76,8 @@ class AstroCookies implements AstroCookiesInterface {
 	#requestValues: Record<string, string | undefined> | null;
 	#outgoing: Map<string, [string, string, boolean]> | null;
 	#consumed: boolean;
-	#logger: Pick<AstroLogger, 'warn'>;
-	constructor(request: Request, logger: Pick<AstroLogger, 'warn'>) {
+	#logger: CookieLogger;
+	constructor(request: Request, logger: CookieLogger) {
 		this.#request = request;
 		this.#requestValues = null;
 		this.#outgoing = null;

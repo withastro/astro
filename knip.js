@@ -92,6 +92,12 @@ export default {
 				'@astrojs/markdown-remark',
 			],
 		},
+		'packages/vite-plugin-router': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			project,
+			// False positive because of the `astro:transitions/client` virtual module
+			ignoreDependencies: ['astro'],
+		},
 		'packages/astro-prism': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,

@@ -1,5 +1,5 @@
-import type { RenderErrorOptions } from '../app/base.js';
-import type { SSRManifest } from '../app/types.js';
+import type { RenderErrorOptions } from '../../internal/core/app/base.js';
+import type { SSRManifest } from '../../internal/core/app/types.js';
 import { renderDefaultError } from './default-handler.js';
 
 /**

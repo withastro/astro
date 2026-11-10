@@ -1,12 +1,11 @@
-import { BaseApp } from '../app/entrypoints/index.js';
-import type { LogRequestPayload } from '../app/base.js';
-import type { SSRManifest } from '../app/types.js';
-import type { ComponentInstance } from '../../types/astro.js';
-import type { GetStaticPathsItem } from '../../types/public/common.js';
-import type { RouteData } from '../../types/public/internal.js';
-import { getEnvironment } from '../environment/index.js';
-import { getRouteCache, type RouteCache } from '../render/route-cache.js';
-import { stringifyParams } from '../routing/params.js';
+import { BaseApp } from '../../internal/core/app/base.js';
+import type { LogRequestPayload } from '../../internal/core/app/base.js';
+import type { SSRManifest } from '../../internal/core/app/types.js';
+import type { ComponentInstance, GetStaticPathsItem } from '../../index.js';
+import type { RouteData } from '../../index.js';
+import { getEnvironment } from '../../internal/core/environment/index.js';
+import { getRouteCache, type RouteCache } from '../../internal/core/render/route-cache.js';
+import { stringifyParams } from '../../internal/core/routing/params.js';
 import type {
 	BuildEnvironmentInternals,
 	BuildEnvironmentOptions,
@@ -56,10 +55,6 @@ export class BuildApp extends BaseApp {
 
 	public getOptions() {
 		return this.#buildEnv.getOptions();
-	}
-
-	public getSettings() {
-		return this.#buildEnv.getSettings();
 	}
 
 	/**

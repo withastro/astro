@@ -1,4 +1,5 @@
-import type { RouteData, SSRManifest } from '../../types/public/internal.js';
+import type { RouteData } from '../../../index.js';
+import type { SSRManifest } from '../app/types.js';
 import { createManifestMemo } from '../manifest/memo.js';
 import { ensure404Route } from './astro-designed-error-pages.js';
 import { Router } from './router.js';

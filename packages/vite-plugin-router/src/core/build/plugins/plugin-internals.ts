@@ -1,9 +1,8 @@
 import type { EnvironmentOptions, Plugin as VitePlugin, Rollup } from 'vite';
-import type { BuildInternals } from '../internal.js';
-import type { StaticBuildOptionsInput } from '../types.js';
+import type { BuildInternals } from '../../../internal/core/build/internal.js';
+import type { StaticBuildOptionsInput } from '../../../internal/core/build/types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
-import { getAssetsPluginApi } from '../../../assets/utils/assets.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../../internal/core/constants.js';
 
 function getRollupInputAsSet(rollupInput: Rollup.InputOption | undefined): Set<string> {
 	if (Array.isArray(rollupInput)) {
@@ -54,11 +53,6 @@ export function pluginInternals(
 		},
 
 		async generateBundle(_options, bundle) {
-			// A live set shared by every environment, read once all builds are done.
-			internals.referencedImages ??= getAssetsPluginApi(
-				this.environment?.config.plugins,
-			)?.referencedImages;
-
 			// Read the rollup input directly from the current environment's config rather than
 			// relying on a closure variable from configResolved. With Vite's per-environment config
 			// resolution, a shared closure variable would be overwritten by the last environment's
@@ -86,7 +80,7 @@ export function pluginInternals(
 			await Promise.all(promises);
 			const isPrerender = this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender;
 			for (const [_, chunk] of Object.entries(bundle)) {
-				if (chunk.fileName.startsWith(options.settings.config.build.assets)) {
+				if (chunk.fileName.startsWith(options.config.build.assets)) {
 					internals.clientChunksAndAssets.add(chunk.fileName);
 				}
 

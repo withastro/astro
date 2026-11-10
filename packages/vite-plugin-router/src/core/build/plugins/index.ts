@@ -1,8 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
-import { vitePluginActionsBuild } from '../../../actions/vite-plugin-actions.js';
 import { astroHeadBuildPlugin } from '../../../vite-plugin-head/index.js';
-import type { BuildInternals } from '../internal.js';
-import type { StaticBuildOptionsInput } from '../types.js';
+import type { BuildInternals } from '../../../internal/core/build/internal.js';
+import type { StaticBuildOptionsInput } from '../../../internal/core/build/types.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
@@ -10,13 +9,10 @@ import { pluginCssTargetLowering } from './plugin-css-target-lowering.js';
 import { pluginInternals } from './plugin-internals.js';
 import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPrerender } from './plugin-prerender.js';
-import { pluginScripts } from './plugin-scripts.js';
-import { pluginSSR } from './plugin-ssr.js';
+import { pluginScripts } from '../../../internal/core/build/plugins/plugin-scripts.js';
 import { pluginChunkImports } from './plugin-chunk-imports.js';
-import { pluginIncremental } from './plugin-incremental.js';
 import { pluginNoop } from './plugin-noop.js';
-import { vitePluginSSRAssets } from '../vite-plugin-ssr-assets.js';
-import { pluginImageServiceEntry } from '../image-service.js';
+import { vitePluginSSRAssets } from '../../../internal/core/build/vite-plugin-ssr-assets.js';
 
 export function getAllBuildPlugins(
 	internals: BuildInternals,
@@ -27,19 +23,14 @@ export function getAllBuildPlugins(
 		pluginAnalyzer(internals),
 		pluginInternals(options, internals),
 		pluginMiddleware(internals),
-		vitePluginActionsBuild(internals),
 		pluginCssTargetLowering(),
 		...pluginCSS(options, internals),
 		astroHeadBuildPlugin(internals),
 		pluginPrerender(options, internals),
 		pluginScripts(internals),
-		...pluginSSR(options, internals),
 		pluginNoop(),
 		vitePluginSSRAssets(internals),
 		pluginChunkImports(options),
-		pluginImageServiceEntry(),
-		options.settings.config.experimental.incrementalBuild
-			? pluginIncremental(internals, options.settings.config.root)
-			: undefined,
+		...options.host.plugins(internals, options),
 	].filter(Boolean);
 }

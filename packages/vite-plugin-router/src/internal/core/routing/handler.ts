@@ -1,22 +1,24 @@
-import { handleAction } from '../../actions/handler.js';
-import type { APIContext } from '../../types/public/context.js';
+import type { RegisteredFetchHandler } from '../../../index.js';
+import type { APIContext } from '../../../index.js';
 import { REROUTABLE_STATUS_CODES } from '../constants.js';
 import { handleTrailingSlash } from './trailing-slash-handler.js';
 import { rejectInvalidEncoding } from './invalid-encoding.js';
-import { handleCache, provideCache } from '../cache/handler.js';
 import { getEnvironment, type RequestLogPayload } from '../environment/index.js';
 import { renderErrorFromState } from '../errors/handler.js';
 import { handleNotFound } from '../errors/not-found.js';
-import { ALL_FETCH_FEATURES, markFeatureUsed, FetchFeatures } from '../fetch/features.js';
-import { finalizeI18n, getI18n } from '../i18n/handler.js';
+import { markAllHandlersUsed } from '../fetch/features.js';
+import {
+	applyRenderContextExtensions,
+	getLoadedPipeline,
+	loadPipeline,
+} from '../fetch/pipeline.js';
 import { getResolvedLogger } from '../logger/manifest-logger.js';
 import { handleMiddleware } from '../middleware/astro-middleware.js';
 import { handlePages } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
 import { redirectDelayFor, renderRedirectPage } from './redirect-page.js';
-import { provideSession } from '../session/provider.js';
 import type { FetchState } from '../fetch/fetch-state.js';
-import { prepareResponse } from '../app/prepare-response.js';
+import { prepareResponse } from '../../../core/app/prepare-response.js';
 import { getDefaultStatusCode } from './helpers.js';
 
 /**
@@ -34,18 +36,50 @@ function logRequestFromState(state: FetchState, payload: RequestLogPayload): voi
 }
 
 /**
- * Runs actions then pages — the callback at the bottom of the middleware
- * chain. A module-level function so passing it by reference costs zero
- * per-request allocation.
+ * Runs the `'post'` fetch handlers from `index` onwards, then dispatches to the matched route
+ * with the context the middleware chain passed down.
  */
-function actionsAndPages(state: FetchState, ctx: APIContext): Promise<Response> {
-	if (!state.skipMiddleware) {
-		const actionResult = handleAction(ctx, state);
-		if (actionResult) {
-			return actionResult.then((response) => response ?? handlePages(state, ctx));
-		}
+function runPostHandlers(
+	state: FetchState,
+	ctx: APIContext,
+	handlers: readonly RegisteredFetchHandler[],
+	index: number,
+): Promise<Response> {
+	if (index === handlers.length) return handlePages(state, ctx);
+	return handlers[index].handler(state, (s) => runPostHandlers(s, ctx, handlers, index + 1));
+}
+
+/**
+ * Runs the `'pre'` fetch handlers from `index` onwards, then the middleware chain, whose bottom
+ * runs the `'post'` handlers and route dispatch.
+ */
+function runPreHandlers(
+	state: FetchState,
+	pre: readonly RegisteredFetchHandler[],
+	post: readonly RegisteredFetchHandler[],
+	index: number,
+): Promise<Response> {
+	if (index === pre.length) {
+		return handleMiddleware(state, (s, ctx) => runPostHandlers(s, ctx, post, 0));
 	}
-	return handlePages(state, ctx);
+	return pre[index].handler(state, (s) => runPreHandlers(s, pre, post, index + 1));
+}
+
+const pipelineHandlers = new WeakMap<
+	readonly RegisteredFetchHandler[],
+	{ pre: RegisteredFetchHandler[]; post: RegisteredFetchHandler[] }
+>();
+
+function splitHandlers(handlers: readonly RegisteredFetchHandler[]) {
+	let split = pipelineHandlers.get(handlers);
+	if (!split) {
+		split = {
+			pre: handlers.filter((h) => h.order === 'pre'),
+			post: handlers.filter((h) => h.order === 'post'),
+		};
+		pipelineHandlers.set(handlers, split);
+	}
+	return split;
 }
 
 /**
@@ -96,11 +130,10 @@ export async function handleRequest(state: FetchState): Promise<Response> {
 	// resolved promise (BaseApp.render awaits it first).
 	await getResolvedLogger(state.manifest);
 
-	// handleRequest is the "batteries-included" handler that wires up
-	// every pipeline feature internally. Mark them all as used so the
-	// missing-feature warning in BaseApp never fires — the user didn't
-	// forget to include anything.
-	markFeatureUsed(state.manifest, ALL_FETCH_FEATURES);
+	// handleRequest is the "batteries-included" handler that runs every
+	// pipeline step. Mark them all as used so the missing-feature warning in
+	// BaseApp never fires — the user didn't forget to include anything.
+	markAllHandlersUsed(state.manifest);
 
 	const invalidEncodingResponse = rejectInvalidEncoding(state);
 	if (invalidEncodingResponse) {
@@ -138,15 +171,9 @@ async function render(state: FetchState): Promise<Response> {
 	let response;
 	let finalizeError: unknown;
 	try {
-		// `provideCache` always runs so `Astro.cache` is defined even
-		// when caching is disabled — it registers a no-op shim that
-		// warns once on use. `provideSession` is gated because there
-		// is no equivalent disabled-shim contract for sessions.
-		const sessionP = state.manifest.sessionConfig ? provideSession(state) : undefined;
-		const cacheP = provideCache(state);
-		if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);
-		// Track feature usage even when skipped.
-		markFeatureUsed(state.manifest, FetchFeatures.sessions);
+		const pipeline = getLoadedPipeline(state.manifest) ?? (await loadPipeline(state.manifest));
+		const extensionsApplied = applyRenderContextExtensions(state, pipeline);
+		if (extensionsApplied) await extensionsApplied;
 
 		// Redirect routes short-circuit the pipeline: no middleware, no
 		// page dispatch, no i18n post-processing. Inline routeData.type
@@ -165,31 +192,8 @@ async function render(state: FetchState): Promise<Response> {
 			return redirectResponse;
 		}
 
-		// `null` when i18n is unset or the strategy is `manual` — for the
-		// manual strategy users wire `astro:i18n.middleware(...)` into their
-		// own `onRequest`.
-		const i18n = getI18n(state.manifest);
-
-		// When no cache provider is configured (the common case), run
-		// the middleware + i18n pipeline directly without going through
-		// the cache handler. This avoids a closure allocation and an
-		// extra function call per request.
-		if (!state.manifest.cacheProvider) {
-			markFeatureUsed(state.manifest, FetchFeatures.cache);
-			response = await handleMiddleware(state, actionsAndPages);
-			if (i18n) {
-				response = await finalizeI18n(i18n, state, response);
-			}
-		} else {
-			const runPipeline = async (): Promise<Response> => {
-				let res = await handleMiddleware(state, actionsAndPages);
-				if (i18n) {
-					res = await finalizeI18n(i18n, state, res);
-				}
-				return res;
-			};
-			response = await handleCache(state, runPipeline);
-		}
+		const { pre, post } = splitHandlers(pipeline.fetchHandlers);
+		response = await runPreHandlers(state, pre, post, 0);
 
 		logRequestFromState(state, {
 			pathname,

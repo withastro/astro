@@ -4,9 +4,10 @@ import {
 	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
 import { matchPattern } from '@astrojs/internal-helpers/remote';
-import { computePathnameFromDomain } from '../i18n/domain.js';
-import type { RoutesList } from '../../types/astro.js';
-import type { RemotePattern, RouteData } from '../../types/public/index.js';
+import { resolveRoutingPathname } from '../routing/extensions.js';
+import type { RoutesList } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import { ASTRO_ERROR_HEADER, clientAddressSymbol } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 
@@ -14,17 +15,18 @@ import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/erro
 import { AstroIntegrationLogger, type AstroLogger } from '../logger/core.js';
 
 import { DefaultFetchHandler } from '../fetch/default-handler.js';
-import { getUsedFeatures, FetchFeatures } from '../fetch/features.js';
+import { isHandlerUsed } from '../fetch/features.js';
+import { getLoadedPipeline, loadPipeline } from '../fetch/pipeline.js';
 import { FetchState } from '../fetch/fetch-state.js';
 import type { FetchHandler } from '../fetch/types.js';
 import { type ErrorHandler, renderErrorPage } from '../errors/handler.js';
 import { getLogger, getResolvedLogger } from '../logger/manifest-logger.js';
 import { handleRequest } from '../routing/handler.js';
 import { getDefaultStatusCode } from '../routing/helpers.js';
-import { matchRequest } from '../routing/match-request.js';
+import { matchRequest } from '../../../core/routing/match-request.js';
 import { getRouteTable, matchRoute, updateRouteTable } from '../routing/route-table.js';
 import { validateAndDecodePathname } from '../util/pathname.js';
-import { setRenderOptions } from './render-options.js';
+import { setRenderOptions } from '../../../core/app/render-options.js';
 import type { WaitUntilHook } from '../wait-until.js';
 import type { SSRManifest } from './types.js';
 
@@ -340,15 +342,7 @@ export abstract class BaseApp {
 	}
 
 	private computePathnameFromDomain(request: Request): string | undefined {
-		return computePathnameFromDomain(
-			request,
-			new URL(request.url),
-			this.manifest.i18n,
-			this.manifest.base,
-			this.manifest.trailingSlash,
-			this.manifest.allowedDomains,
-			this.logger,
-		);
+		return resolveRoutingPathname(this.manifest, request, new URL(request.url), this.logger);
 	}
 
 	public async render(
@@ -434,6 +428,10 @@ export abstract class BaseApp {
 			setRenderOptions(request, resolvedOptions);
 			response = await this.#fetchHandler.fetch(request);
 		}
+		if (this.#hasCustomFetchHandler && !this.#featureCheckDone) {
+			// The warning compares against the registered fetch handlers.
+			await loadPipeline(this.manifest);
+		}
 		this.#warnMissingFeatures();
 		if (response.headers.get(ASTRO_ERROR_HEADER)) {
 			response.headers.delete(ASTRO_ERROR_HEADER);
@@ -493,28 +491,19 @@ export abstract class BaseApp {
 		const manifest = this.manifest;
 		const missing: string[] = [];
 
-		const used = getUsedFeatures(this.manifest);
-
 		if (
 			manifest.routes.some((r) => r.routeData.type === 'redirect') &&
-			!(used & FetchFeatures.redirects)
+			!isHandlerUsed(manifest, 'redirects')
 		) {
 			missing.push('redirects');
 		}
-		if (manifest.sessionConfig && !(used & FetchFeatures.sessions)) {
-			missing.push('sessions');
-		}
-		if (manifest.actions && !(used & FetchFeatures.actions)) {
-			missing.push('actions');
-		}
-		if (manifest.middleware && !(used & FetchFeatures.middleware)) {
+		if (manifest.middleware && !isHandlerUsed(manifest, 'middleware')) {
 			missing.push('middleware');
 		}
-		if (manifest.i18n && manifest.i18n.strategy !== 'manual' && !(used & FetchFeatures.i18n)) {
-			missing.push('i18n');
-		}
-		if (manifest.cacheConfig && !(used & FetchFeatures.cache)) {
-			missing.push('cache');
+		for (const { name } of getLoadedPipeline(manifest)?.fetchHandlers ?? []) {
+			if (!isHandlerUsed(manifest, name)) {
+				missing.push(name);
+			}
 		}
 
 		for (const feature of missing) {
