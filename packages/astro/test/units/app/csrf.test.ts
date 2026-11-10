@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createOriginCheckMiddleware } from '../../../dist/core/app/origin-check.js';
-import { callMiddleware } from '../../../dist/core/middleware/callMiddleware.js';
+import { createOriginCheckMiddleware } from '@astrojs/vite-plugin-router/_internal/core/app/origin-check.js';
+import { callMiddleware } from '@astrojs/vite-plugin-router/_internal/core/middleware/callMiddleware.js';
 import { createMockAPIContext, createResponseFunction } from '../mocks.ts';
 
 describe('CSRF - createOriginCheckMiddleware', () => {

@@ -7,8 +7,11 @@ import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import type { Locales } from '../../../dist/types/public/config.js';
 import { createPage, createTestApp, createRouteData } from '../mocks.ts';
 import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
-import { App } from '../../../dist/core/app/app.js';
-import type { SSRManifest, RouteInfo } from '../../../dist/core/app/types.js';
+import { App } from '@astrojs/vite-plugin-router/_internal/core/app/app.js';
+import type {
+	SSRManifest,
+	RouteInfo,
+} from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import { dynamicPart, spreadPart, staticPart } from '../routing/test-helpers.ts';
 
 interface I18nConfigOverrides {

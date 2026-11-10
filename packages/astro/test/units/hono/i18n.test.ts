@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Hono } from 'hono';
-import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
+import { setAmbientManifest } from '@astrojs/vite-plugin-router/_internal/core/manifest/ambient.js';
 import { i18n, pages } from '../../../dist/core/hono/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createPage, createTestApp } from '../mocks.ts';

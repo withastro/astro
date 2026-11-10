@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
+import { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import { createComponent, maybeRenderHead, render } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '@astrojs/runtime/_internal/server/render/index.js';
 import { createBasicPipeline, renderThroughMiddleware, SpyLogger } from '../test-utils.ts';

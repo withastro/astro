@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { it } from 'node:test';
 import { createRunnableDevEnvironment, createServer, type RunnableDevEnvironment } from 'vite';
 import { devServerAppReadySymbol } from '../../../dist/core/constants.js';
-import createVitePluginAstroServer from '../../../dist/vite-plugin-astro-server/plugin.js';
-import { createBasicSettings, defaultLogger } from '../test-utils.ts';
+import createVitePluginAstroServer from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/plugin.js';
+import { defaultLogger } from '../test-utils.ts';
 
 it('disposes only the closing generation when server configurations overlap', async (t) => {
 	const originalVitest = process.env.VITEST;
@@ -13,8 +13,11 @@ it('disposes only the closing generation when server configurations overlap', as
 		else process.env.VITEST = originalVitest;
 	});
 
-	const settings = await createBasicSettings({});
-	const plugin = createVitePluginAstroServer({ settings, logger: defaultLogger });
+	const plugin = createVitePluginAstroServer({
+		logger: defaultLogger,
+		isPage: () => true,
+		renderers: [],
+	});
 	const initialListeners = process.listeners('unhandledRejection');
 	const environments: RunnableDevEnvironment[] = [];
 	const close = (environment: RunnableDevEnvironment) =>

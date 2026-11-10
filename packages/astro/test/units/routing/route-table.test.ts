@@ -5,7 +5,7 @@ import {
 	matchAllRoutes,
 	matchRoute,
 	updateRouteTable,
-} from '../../../dist/core/routing/route-table.js';
+} from '@astrojs/vite-plugin-router/_internal/core/routing/route-table.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
 import { makeRoute, staticPart } from './test-helpers.ts';

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { isAstroClientEnvironment } from '../environments.js';
+import { isAstroClientEnvironment } from '@astrojs/vite-plugin-router/_internal/environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
 	CLIENT_VIRTUAL_MODULE_ID,

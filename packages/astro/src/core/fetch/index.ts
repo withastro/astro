@@ -7,20 +7,20 @@
  * the virtual-module wiring.
  */
 import { handleAction } from '../../actions/handler.js';
-import { FetchState as BaseFetchState } from './fetch-state.js';
-import type { AstroFetchState } from './fetch-state.js';
+import { FetchState as BaseFetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
+import type { AstroFetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 export type { AstroFetchState };
 import { provideAndHandleCache } from '../cache/handler.js';
 import { handleI18nWithErrorFallback } from '../i18n/error-fallback.js';
 import { getI18n } from '../i18n/handler.js';
-import { getAmbientManifest } from '../manifest/ambient.js';
-import { handleNotFound } from '../errors/not-found.js';
-import { handleMiddlewareWithErrorFallback } from '../middleware/astro-middleware.js';
-import { handlePagesWithErrorFallback } from '../pages/handler.js';
-import { handleRedirects } from '../redirects/render.js';
-import { handleRequest } from '../routing/handler.js';
+import { getAmbientManifest } from '@astrojs/vite-plugin-router/_internal/core/manifest/ambient.js';
+import { handleNotFound } from '@astrojs/vite-plugin-router/_internal/core/errors/not-found.js';
+import { handleMiddlewareWithErrorFallback } from '@astrojs/vite-plugin-router/_internal/core/middleware/astro-middleware.js';
+import { handlePagesWithErrorFallback } from '@astrojs/vite-plugin-router/_internal/core/pages/handler.js';
+import { handleRedirects } from '@astrojs/vite-plugin-router/_internal/core/redirects/render.js';
+import { handleRequest } from '@astrojs/vite-plugin-router/_internal/core/routing/handler.js';
 import { provideSession } from '../session/provider.js';
-import { handleTrailingSlash } from '../routing/trailing-slash-handler.js';
+import { handleTrailingSlash } from '@astrojs/vite-plugin-router/_internal/core/routing/trailing-slash-handler.js';
 
 /**
  * The public per-request state, constructible from a bare `Request`.

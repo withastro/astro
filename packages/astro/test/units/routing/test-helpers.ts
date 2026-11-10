@@ -1,4 +1,4 @@
-import { getPattern } from '../../../dist/core/routing/pattern.js';
+import { getPattern } from '@astrojs/vite-plugin-router/_internal/core/routing/pattern.js';
 import type { RedirectConfig } from '../../../dist/types/public/config.js';
 import type { RoutePart, RouteType, RouteData } from '../../../dist/types/public/internal.js';
 

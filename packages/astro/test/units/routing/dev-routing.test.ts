@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { Router } from '../../../dist/core/routing/router.js';
+import { Router } from '@astrojs/vite-plugin-router/_internal/core/routing/router.js';
 import { dynamicPart, makeRoute, staticPart } from './test-helpers.ts';
 
 describe('dev routing (unit)', () => {

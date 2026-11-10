@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import {
 	evaluateBaseRewrite,
 	resolveDevRoot,
-} from '../../../dist/vite-plugin-astro-server/base.js';
+} from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/base.js';
 
 // #region resolveDevRoot
 describe('resolveDevRoot', () => {

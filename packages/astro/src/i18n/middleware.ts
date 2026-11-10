@@ -1,5 +1,5 @@
-import { getFetchStateFromAPIContext } from '../core/fetch/fetch-state.js';
-import type { SSRManifest } from '../core/app/types.js';
+import { getFetchStateFromAPIContext } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import { compileI18n, finalizeI18n } from '../core/i18n/handler.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
 

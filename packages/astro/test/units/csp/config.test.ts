@@ -4,7 +4,7 @@ import { cspHashEntrySchema, cspResourceEntrySchema } from '../../../dist/core/c
 import {
 	normalizeCspHashEntry,
 	normalizeCspResourceEntry,
-} from '../../../dist/core/csp/runtime.js';
+} from '@astrojs/vite-plugin-router/_internal/core/csp/runtime.js';
 
 describe('cspResourceEntrySchema', () => {
 	it('accepts a bare string (default kind)', () => {

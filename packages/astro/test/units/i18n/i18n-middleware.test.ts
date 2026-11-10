@@ -3,7 +3,7 @@ import { beforeEach, describe, it } from 'node:test';
 import type { MiddlewareHandler } from 'astro';
 import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import type { Locales } from '../../../dist/types/public/config.js';
-import { getFetchStateFromAPIContext } from '../../../dist/core/fetch/fetch-state.js';
+import { getFetchStateFromAPIContext } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
 import { createMockAPIContext } from '../mocks.ts';
 

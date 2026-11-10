@@ -5,6 +5,41 @@ import type {
 	RouteInfo,
 } from '../../../dist/core/app/types.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
+import type { PipelineModule } from '@astrojs/vite-plugin-router';
+import actionsHandler from '../../../dist/actions/fetch-handler.js';
+import callActionExtension from '../../../dist/actions/context/call-action.js';
+import getActionResultExtension from '../../../dist/actions/context/get-action-result.js';
+import currentLocaleExtension from '../../../dist/core/i18n/context/current-locale.js';
+import preferredLocaleExtension from '../../../dist/core/i18n/context/preferred-locale.js';
+import preferredLocaleListExtension from '../../../dist/core/i18n/context/preferred-locale-list.js';
+import cacheHandler from '../../../dist/core/cache/fetch-handler.js';
+import cacheExtension from '../../../dist/core/cache/render-context.js';
+import i18nHandler from '../../../dist/core/i18n/fetch-handler.js';
+import i18nRouting from '../../../dist/core/i18n/routing-extension.js';
+import sessionsHandler from '../../../dist/core/session/fetch-handler.js';
+import sessionExtension from '../../../dist/core/session/render-context.js';
+
+/**
+ * The pipeline Astro registers through `api.astroRouter` (see `core/router-registrations.ts`),
+ * with every handler included: each one passes through when its feature is not configured.
+ */
+const astroPipeline: PipelineModule = {
+	fetchHandlers: [
+		{ name: 'sessions', order: 'pre', handler: sessionsHandler },
+		{ name: 'cache', order: 'pre', handler: cacheHandler },
+		{ name: 'i18n', order: 'pre', handler: i18nHandler },
+		{ name: 'actions', order: 'post', handler: actionsHandler },
+	],
+	renderContextExtensions: [
+		{ key: 'session', extension: sessionExtension },
+		{ key: 'cache', extension: cacheExtension },
+		{ key: 'currentLocale', extension: currentLocaleExtension },
+		{ key: 'preferredLocale', extension: preferredLocaleExtension },
+		{ key: 'preferredLocaleList', extension: preferredLocaleListExtension },
+		{ key: 'getActionResult', extension: getActionResultExtension },
+		{ key: 'callAction', extension: callActionExtension },
+	],
+};
 
 export function createManifest({
 	routes,
@@ -58,6 +93,7 @@ export function createManifest({
 		serverIslandMappings: undefined,
 		key: Promise.resolve({} as CryptoKey),
 		i18n,
+		routing: i18n ? [i18nRouting] : undefined,
 		middleware,
 		logger,
 		actions,
@@ -86,6 +122,7 @@ export function createManifest({
 		},
 		internalFetchHeaders: undefined,
 		logLevel: 'silent',
+		pipeline: () => astroPipeline,
 		experimentalQueuedRendering: {
 			enabled: false,
 		},

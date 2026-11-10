@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { describe, it } from 'node:test';
-import { copyTimestamps } from '../../../dist/core/fs/index.js';
+import { copyTimestamps } from '@astrojs/vite-plugin-router/_internal/core/fs/index.js';
 import { createFixture } from '../test-utils.ts';
 
 describe('copyTimestamps', () => {

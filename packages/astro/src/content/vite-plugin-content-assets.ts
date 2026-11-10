@@ -1,17 +1,17 @@
 import { extname } from 'node:path';
-import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
+import { getAssetsPrefix } from '@astrojs/vite-plugin-router/_internal/assets/utils/getAssetsPrefix.js';
 import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
-import type { AssetsPrefix } from '../core/app/types.js';
+import type { AssetsPrefix } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import { fileExtension } from '../core/path.js';
 import { fileURLToPath } from 'node:url';
 import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } from 'vite';
-import type { BuildInternals } from '../core/build/internal.js';
-import type { ExtractedChunk } from '../core/build/static-build.js';
+import type { BuildInternals } from '@astrojs/vite-plugin-router/_internal/core/build/internal.js';
+import type { ExtractedChunk } from '@astrojs/vite-plugin-router/_internal/core/build/static-build.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { isMarkdownFile, wrapId } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
-import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';
-import { crawlGraph } from '../vite-plugin-astro-server/vite.js';
+import { isBuildableCSSRequest } from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/util.js';
+import { crawlGraph } from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/vite.js';
 import {
 	CONTENT_IMAGE_FLAG,
 	CONTENT_RENDER_FLAG,
@@ -23,7 +23,7 @@ import {
 import { hasContentFlag } from './utils.js';
 import { joinPaths, prependForwardSlash, slash } from '@astrojs/internal-helpers/path';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import { isAstroServerEnvironment } from '../environments.js';
+import { isAstroServerEnvironment } from '@astrojs/vite-plugin-router/_internal/environments.js';
 
 export function astroContentAssetPropagationPlugin({
 	settings,

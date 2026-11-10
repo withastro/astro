@@ -27,18 +27,18 @@ export type {
 	NodeAppHeadersJson,
 	RouteInfo,
 	SSRManifest,
-} from '../../core/app/types.js';
+} from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 export type {
 	AstroCookieGetOptions,
 	AstroCookieSetOptions,
 	AstroCookies,
-} from '../../core/cookies/index.js';
-export type { AstroIntegrationLogger } from '../../core/logger/core.js';
-export type { RedirectPageProps } from '../../core/routing/redirect-page.js';
+} from '@astrojs/vite-plugin-router/_internal/core/cookies/index.js';
+export type { AstroIntegrationLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+export type { RedirectPageProps } from '@astrojs/vite-plugin-router/_internal/core/routing/redirect-page.js';
 export type { AstroSession } from '../../core/session/runtime.js';
 export type { ToolbarServerHelpers } from '../../runtime/client/dev-toolbar/helpers.js';
 export type { AstroEnvironmentNames } from '../../core/constants.js';
-export type { Fetchable } from '../../core/fetch/types.js';
+export type { Fetchable } from '@astrojs/vite-plugin-router/_internal/core/fetch/types.js';
 export type { SessionDriver, SessionDriverConfig } from '../../core/session/types.js';
 export type {
 	CacheProvider,
@@ -63,4 +63,4 @@ export type {
 	AstroLoggerDestination,
 	AstroLoggerMessage,
 	AstroLoggerLevel,
-} from '../../core/logger/core.js';
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';

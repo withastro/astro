@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { AstroConfig } from '../../../dist/types/public/config.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
-import type { AstroLoggerDestination } from '../../../dist/core/logger/core.js';
-import { AstroLogger } from '../../../dist/core/logger/core.js';
+import type { AstroLoggerDestination } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../../dist/core/constants.js';
 import { createRoutesFromEntries } from '../../../dist/core/routing/create-manifest.js';
 
 const destination: AstroLoggerDestination = { write: () => true };
@@ -23,7 +24,7 @@ function createSettings(
 	};
 	const settings: Partial<RoutingSettings> = {
 		config: config as AstroConfig,
-		pageExtensions: [],
+		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
 		injectedRoutes: [],
 	};
 	return settings as RoutingSettings;

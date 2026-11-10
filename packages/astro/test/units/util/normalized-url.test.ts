@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createNormalizedUrl, normalizeUrl } from '../../../dist/core/util/normalized-url.js';
+import {
+	createNormalizedUrl,
+	normalizeUrl,
+} from '@astrojs/vite-plugin-router/_internal/core/util/normalized-url.js';
 
 describe('normalizeUrl', () => {
 	// #region Plain paths (the common case: nothing to rewrite)

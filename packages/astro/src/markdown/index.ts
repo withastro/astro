@@ -5,7 +5,7 @@ export {
 	type ParseFrontmatterOptions,
 	type ParseFrontmatterResult,
 } from '@astrojs/internal-helpers/frontmatter';
-export { resolvePath } from '../core/viteUtils.js';
+export { resolvePath } from '@astrojs/vite-plugin-router/_internal/core/viteUtils.js';
 export { createDefaultAstroMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/metadata.js';
 export type {
 	AstroMarkdownOptions,

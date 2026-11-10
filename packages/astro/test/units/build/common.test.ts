@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getUrlForPath } from '../../../dist/core/build/common.js';
-import { validateAndDecodePathname } from '../../../dist/core/util/pathname.js';
+import { getUrlForPath } from '@astrojs/vite-plugin-router/_internal/core/build/common.js';
+import { validateAndDecodePathname } from '@astrojs/vite-plugin-router/_internal/core/util/pathname.js';
 
 const origin = 'http://localhost:4321';
 

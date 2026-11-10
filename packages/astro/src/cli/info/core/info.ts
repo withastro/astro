@@ -1,4 +1,4 @@
-import type { AstroLogger } from '../../../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { defineCommand } from '../../domain/command.js';
 import type { Clipboard, DebugInfoFormatter, DebugInfoProvider } from '../definitions.js';
 

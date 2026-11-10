@@ -6,12 +6,15 @@ import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { hasContentFlag } from '../../../content/utils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import { removeQueryString } from '../../path.js';
-import { CSS_LANGS_RE, rootRelativePath } from '../../viteUtils.js';
-import { moduleIsTopLevelPage } from '../graph.js';
+import {
+	CSS_LANGS_RE,
+	rootRelativePath,
+} from '@astrojs/vite-plugin-router/_internal/core/viteUtils.js';
+import { moduleIsTopLevelPage } from '@astrojs/vite-plugin-router/_internal/core/build/graph.js';
 import { isContentDataIncrementalModule } from '../incremental-metadata.js';
-import type { BuildInternals } from '../internal.js';
-import { getPageDataByViteID } from '../internal.js';
-import type { PageBuildData } from '../types.js';
+import type { BuildInternals } from '@astrojs/vite-plugin-router/_internal/core/build/internal.js';
+import { getPageDataByViteID } from '@astrojs/vite-plugin-router/_internal/core/build/internal.js';
+import type { PageBuildData } from '@astrojs/vite-plugin-router/_internal/core/build/types.js';
 
 interface HashableModuleInfo {
 	code?: string | null;

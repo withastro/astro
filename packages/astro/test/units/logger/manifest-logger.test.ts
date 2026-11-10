@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { AstroLoggerDestination, AstroLoggerMessage } from '../../../dist/core/logger/core.js';
+import type {
+	AstroLoggerDestination,
+	AstroLoggerMessage,
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import {
 	getLogger,
 	getResolvedLogger,
 	setLogger,
-} from '../../../dist/core/logger/manifest-logger.js';
-import { createConsoleLogger } from '../../../dist/core/logger/impls/console.js';
+} from '@astrojs/vite-plugin-router/_internal/core/logger/manifest-logger.js';
+import { createConsoleLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/impls/console.js';
 import { createManifest } from '../app/test-helpers.ts';
 
 function createSpyDestination() {

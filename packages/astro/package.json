@@ -84,12 +84,6 @@
     "./_internal/test/units/test-utils": "./test/units/test-utils.ts",
     "./_internal/test/test-utils": "./test/test-utils.ts"
   },
-  "imports": {
-    "#astro-internal/ambient-manifest": {
-      "types": "./src/core/manifest/ambient-source.ts",
-      "default": "./dist/core/manifest/ambient-source.js"
-    }
-  },
   "bin": {
     "astro": "./bin/astro.mjs"
   },
@@ -130,6 +124,7 @@
     "@astrojs/runtime": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
     "@astrojs/vite-plugin-astro": "workspace:*",
+    "@astrojs/vite-plugin-router": "workspace:*",
     "@capsizecss/unpack": "^4.0.1",
     "@clack/prompts": "^1.8.1",
     "@oslojs/encoding": "^1.1.0",
@@ -137,7 +132,6 @@
     "aria-query": "^5.3.2",
     "axobject-query": "^4.1.0",
     "ci-info": "^4.4.0",
-    "cookie": "^2.0.2",
     "devalue": "^6.0.3",
     "diff": "^9.0.0",
     "dset": "^3.1.4",

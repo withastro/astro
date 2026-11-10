@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { matchAllRoutes, matchRoute } from '../../../dist/core/routing/match.js';
+import {
+	matchAllRoutes,
+	matchRoute,
+} from '@astrojs/vite-plugin-router/_internal/core/routing/match.js';
 import { makeRoute, staticPart } from './test-helpers.ts';
 
 describe('matchAllRoutes fallbackRoutes', () => {

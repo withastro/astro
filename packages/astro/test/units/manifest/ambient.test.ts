@@ -4,7 +4,7 @@ import {
 	getAmbientManifest,
 	setAmbientManifest,
 	tryGetAmbientManifest,
-} from '../../../dist/core/manifest/ambient.js';
+} from '@astrojs/vite-plugin-router/_internal/core/manifest/ambient.js';
 import { createManifest } from '../app/test-helpers.ts';
 
 // In plain Node the '#astro-internal/ambient-manifest' subpath resolves to the

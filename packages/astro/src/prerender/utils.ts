@@ -1,4 +1,9 @@
-import { getOutDirWithinCwd } from '../core/build/common.js';
+import {
+	getClientOutputDirectory as getLayoutClientOutputDirectory,
+	getPrerenderOutputDirectory as getLayoutPrerenderOutputDirectory,
+	getServerOutputDirectory as getLayoutServerOutputDirectory,
+	type OutputLayout,
+} from '@astrojs/vite-plugin-router/_internal/core/build/common.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 
@@ -6,33 +11,27 @@ export function getPrerenderDefault(config: AstroConfig) {
 	return config.output !== 'server';
 }
 
+function toOutputLayout(settings: AstroSettings): OutputLayout {
+	return { config: settings.config, buildOutput: settings.buildOutput!, host: settings };
+}
+
 /**
  * Returns the correct output directory of the SSR build based on the configuration
  */
 export function getServerOutputDirectory(settings: AstroSettings): URL {
-	const preserveStructure = settings.adapter?.adapterFeatures?.preserveBuildServerDir;
-
-	if (settings.buildOutput === 'server' || preserveStructure) {
-		return settings.config.build.server;
-	}
-	return getOutDirWithinCwd(settings.config.outDir);
+	return getLayoutServerOutputDirectory(toOutputLayout(settings));
 }
 
 /**
  * Returns the output directory used by the prerender environment.
  */
 export function getPrerenderOutputDirectory(settings: AstroSettings): URL {
-	return new URL('./.prerender/', getServerOutputDirectory(settings));
+	return getLayoutPrerenderOutputDirectory(toOutputLayout(settings));
 }
 
 /**
  * Returns the correct output directory of the client build based on the configuration
  */
 export function getClientOutputDirectory(settings: AstroSettings): URL {
-	const preserveStructure = settings.adapter?.adapterFeatures?.preserveBuildClientDir;
-
-	if (settings.buildOutput === 'server' || preserveStructure) {
-		return settings.config.build.client;
-	}
-	return settings.config.outDir;
+	return getLayoutClientOutputDirectory(toOutputLayout(settings));
 }

@@ -14,7 +14,7 @@ import build from '../dist/core/build/index.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import sync from '../dist/core/sync/index.js';
-import type { App } from '../dist/core/app/app.js';
+import type { App } from '@astrojs/vite-plugin-router/_internal/core/app/app.js';
 import type { DevServer } from '../dist/core/dev/dev.js';
 import type {
 	AstroConfig,

@@ -5,7 +5,7 @@ import * as clack from '@clack/prompts';
 import ci from 'ci-info';
 import { detect, resolveCommand } from 'package-manager-detector';
 import colors from 'piccolore';
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { exec } from './exec.js';
 
 const require = createRequire(import.meta.url);

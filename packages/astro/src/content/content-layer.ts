@@ -6,7 +6,7 @@ import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
 import {

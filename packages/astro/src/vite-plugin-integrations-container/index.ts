@@ -1,6 +1,6 @@
 import type { Plugin as VitePlugin, Rolldown, ViteDevServer } from 'vite';
 import { normalizePath } from 'vite';
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { runHookServerSetup } from '../integrations/hooks.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { InternalInjectedRoute, ResolvedInjectedRoute } from '../types/public/internal.js';

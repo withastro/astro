@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, describe, it } from 'node:test';
-import { routeGuardMiddleware } from '../../../dist/vite-plugin-astro-server/route-guard.js';
+import { routeGuardMiddleware } from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/route-guard.js';
+import { toRouterConfig } from '../../../dist/core/router-config.js';
 import { createBasicSettings, createFixture, createRequestAndResponse } from '../test-utils.ts';
 
 describe('routeGuardMiddleware — filesystem resolution', () => {
@@ -15,7 +16,7 @@ describe('routeGuardMiddleware — filesystem resolution', () => {
 			'src/downloads/a.pdf': '%PDF-1.4 test',
 		});
 		const settings = await createBasicSettings({ root: fixture.path });
-		const middleware = routeGuardMiddleware(settings);
+		const middleware = routeGuardMiddleware(toRouterConfig(settings));
 
 		// Simulate browser navigation to /src/downloads/a.pdf
 		const { req, res } = createRequestAndResponse({
@@ -39,7 +40,7 @@ describe('routeGuardMiddleware — filesystem resolution', () => {
 			'src/pages/index.astro': '',
 		});
 		const settings = await createBasicSettings({ root: fixture.path });
-		const middleware = routeGuardMiddleware(settings);
+		const middleware = routeGuardMiddleware(toRouterConfig(settings));
 
 		const { req, res } = createRequestAndResponse({
 			method: 'GET',

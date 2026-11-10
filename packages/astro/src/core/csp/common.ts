@@ -5,8 +5,8 @@ import astroIslandPrebuiltDev from '@astrojs/runtime/_internal/server/astro-isla
 import { ISLAND_STYLES } from '@astrojs/runtime/_internal/server/astro-island-styles.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
-import type { BuildInternals } from '../build/internal.js';
-import { createAssetLink } from '../render/ssr-element.js';
+import type { BuildInternals } from '@astrojs/vite-plugin-router/_internal/core/build/internal.js';
+import { createAssetLink } from '@astrojs/vite-plugin-router/_internal/core/render/ssr-element.js';
 import { generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
 import type { CspDirective, CspHash, CspHashEntry, CspResourceEntry } from './config.js';
 

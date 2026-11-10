@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
-import { AstroLogger, type AstroLoggerMessage } from '../dist/core/logger/core.js';
+import {
+	AstroLogger,
+	type AstroLoggerMessage,
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 
 import testAdapter from './test-adapter.ts';
 import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';

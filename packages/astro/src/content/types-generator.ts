@@ -12,7 +12,7 @@ import {
 import * as z from 'zod/v4';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType } from '../types/public/content.js';

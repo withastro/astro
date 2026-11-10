@@ -1,14 +1,14 @@
 import { getDefaultClientDirectives } from '@astrojs/runtime/_internal/core/client-directive/default.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/defaults.js';
 import { createKey } from '@astrojs/runtime/_internal/core/encryption.js';
-import { FetchState } from '../core/fetch/fetch-state.js';
-import { handleMiddleware } from '../core/middleware/astro-middleware.js';
-import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
-import { handlePages } from '../core/pages/handler.js';
+import { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
+import { handleMiddleware } from '@astrojs/vite-plugin-router/_internal/core/middleware/astro-middleware.js';
+import { NOOP_MIDDLEWARE_FN } from '@astrojs/vite-plugin-router/_internal/core/middleware/noop-middleware.js';
+import { handlePages } from '@astrojs/vite-plugin-router/_internal/core/pages/handler.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
-import { getParts } from '../core/routing/parts.js';
-import { getPattern } from '../core/routing/pattern.js';
-import { validateSegment } from '../core/routing/segment.js';
+import { getParts } from '@astrojs/vite-plugin-router/_internal/core/routing/parts.js';
+import { getPattern } from '@astrojs/vite-plugin-router/_internal/core/routing/pattern.js';
+import { validateSegment } from '@astrojs/vite-plugin-router/_internal/core/routing/segment.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import { SlotString } from '@astrojs/runtime/_internal/server/render/slot.js';
 import type { ComponentInstance } from '../types/astro.js';
@@ -23,13 +23,13 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../types/public/internal.js';
-import type { SinglePageBuiltModule } from '../core/build/types.js';
+import type { SinglePageBuiltModule } from '@astrojs/vite-plugin-router/_internal/core/build/types.js';
 import { createContainerEnvironment } from './environment.js';
-import { setEnvironment } from '../core/environment/index.js';
-import { createConsoleLogger } from '../core/logger/impls/console.js';
-import { setLogger } from '../core/logger/manifest-logger.js';
-import { peekMiddleware } from '../core/middleware/load.js';
-import { getRouteTable } from '../core/routing/route-table.js';
+import { setEnvironment } from '@astrojs/vite-plugin-router/_internal/core/environment/index.js';
+import { createConsoleLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/impls/console.js';
+import { setLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/manifest-logger.js';
+import { peekMiddleware } from '@astrojs/vite-plugin-router/_internal/core/middleware/load.js';
+import { getRouteTable } from '@astrojs/vite-plugin-router/_internal/core/routing/route-table.js';
 
 /**
  * Public type, used for integrations to define a renderer for the container API
@@ -158,6 +158,8 @@ function createManifest(
 		cacheDir: manifest?.cacheDir ?? new URL(ASTRO_CONFIG_DEFAULTS.cacheDir, root),
 		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
 		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
+		// Matches the container's render environment.
+		runtimeMode: 'development',
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
 		assetsDir: manifest?.assetsDir ?? ASTRO_CONFIG_DEFAULTS.build.assets,
 		serverLike: manifest?.serverLike ?? true,

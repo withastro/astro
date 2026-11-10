@@ -2,7 +2,7 @@ import { getAdapterStaticRecommendation } from '../../integrations/features-vali
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroAdapter } from '../../types/public/integrations.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import type { AstroLogger } from '../logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 
 let hasWarnedMissingAdapter = false;
 

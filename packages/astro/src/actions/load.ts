@@ -2,24 +2,32 @@ import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
 import type { $ZodType } from 'zod/v4/core';
 import { ActionNotFoundError } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { createAsyncManifestMemo } from '../core/manifest/memo.js';
+import { createAsyncManifestMemo } from '@astrojs/vite-plugin-router/_internal/core/manifest/memo.js';
 import type { SSRActions, SSRManifest } from '../types/public/internal.js';
 import { NOOP_ACTIONS_MOD } from './noop-actions.js';
 import type { ActionAccept, ActionClient } from './runtime/types.js';
 
-const actionsMemo = createAsyncManifestMemo(async (manifest) =>
-	manifest.actions ? await manifest.actions() : NOOP_ACTIONS_MOD,
-);
+function createActionsMemo() {
+	return createAsyncManifestMemo(async (manifest) =>
+		manifest.actions ? await manifest.actions() : NOOP_ACTIONS_MOD,
+	);
+}
+
+let actionsMemo = createActionsMemo();
+
+// Dev: re-resolve the actions module on the next request after an action file changed.
+if (import.meta.hot) {
+	import.meta.hot.on('astro:actions-updated', () => {
+		actionsMemo = createActionsMemo();
+	});
+}
 
 /** Resolves the actions module from the manifest (a no-op module when none). */
 export function getActions(manifest: SSRManifest): Promise<SSRActions> {
 	return actionsMemo.get(manifest);
 }
 
-/**
- * Clears the cached actions so they are re-resolved on the next request.
- * Called via HMR when action files change during development.
- */
+/** Clears the cached actions of `manifest` so they are re-resolved on the next request. */
 export function clearActions(manifest: SSRManifest): void {
 	actionsMemo.invalidate(manifest);
 }

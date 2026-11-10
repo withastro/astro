@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { App } from '../../../dist/core/app/app.js';
+import { App } from '@astrojs/vite-plugin-router/_internal/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createRouteData } from '../mocks.ts';
 import { createManifest } from '../app/test-helpers.ts';
@@ -135,7 +135,9 @@ describe('Middleware via App.render()', () => {
 			// We test sequence by making the manifest middleware itself a sequence.
 			// sequence() is already tested in sequence.test.ts; here we verify it works
 			// when wired through the App pipeline.
-			const { sequence } = await import('../../../dist/core/middleware/sequence.js');
+			const { sequence } = await import(
+				'@astrojs/vite-plugin-router/_internal/core/middleware/sequence.js'
+			);
 
 			const first: MiddlewareHandler = async (ctx, next) => {
 				(ctx.locals as Record<string, unknown>).name = 'first';

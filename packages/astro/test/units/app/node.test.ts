@@ -5,7 +5,7 @@ import {
 	createRequest,
 	createRequestFromNodeRequest,
 	writeResponse,
-} from '../../../dist/core/app/node.js';
+} from '@astrojs/vite-plugin-router/_internal/core/app/node.js';
 
 // Minimal mock satisfying the subset of IncomingMessage used by createRequest.
 // We intentionally omit the full IncomingMessage interface members not exercised here.

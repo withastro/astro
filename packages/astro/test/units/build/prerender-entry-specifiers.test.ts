@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createBuildInternals } from '../../../dist/core/build/internal.js';
+import { createBuildInternals } from '@astrojs/vite-plugin-router/_internal/core/build/internal.js';
 
 describe('prerenderOnlyEntrySpecifiers', () => {
 	it('is initialized as an empty set', () => {

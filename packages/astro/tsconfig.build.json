@@ -9,6 +9,7 @@
     { "path": "../telemetry/tsconfig.json" },
     { "path": "../markdown/remark/tsconfig.json" },
     { "path": "../runtime/tsconfig.json" },
-    { "path": "../vite-plugin-astro/tsconfig.json" }
+    { "path": "../vite-plugin-astro/tsconfig.json" },
+    { "path": "../vite-plugin-router/tsconfig.json" }
   ]
 }

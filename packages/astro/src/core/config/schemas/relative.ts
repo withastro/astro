@@ -2,6 +2,7 @@ import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { AstroPluginOptionsSchema } from '@astrojs/vite-plugin-astro';
+import { RouterBuildOptionsSchema } from '@astrojs/vite-plugin-router';
 import * as z from 'zod/v4';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../../path.js';
 import { ASTRO_CONFIG_DEFAULTS, AstroConfigSchema } from './base.js';
@@ -43,46 +44,26 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		build: z
 			.object({
-				format: z
-					.union([z.literal('file'), z.literal('directory'), z.literal('preserve')])
-					.optional()
-					.default(ASTRO_CONFIG_DEFAULTS.build.format),
+				format: RouterBuildOptionsSchema.shape.format,
 				// NOTE: `client` and `server` are transformed relative to the default outDir first,
 				// later we'll fix this to be relative to the actual `outDir`
-				client: z
-					.string()
-					.optional()
-					.default(ASTRO_CONFIG_DEFAULTS.build.client)
-					.transform((val) => {
-						originalBuildClient = val;
-						return resolveDirAsUrl(
-							val,
-							path.resolve(fileProtocolRoot, ASTRO_CONFIG_DEFAULTS.outDir),
-						);
-					}),
-				server: z
-					.string()
-					.optional()
-					.default(ASTRO_CONFIG_DEFAULTS.build.server)
-					.transform((val) => {
-						originalBuildServer = val;
-						return resolveDirAsUrl(
-							val,
-							path.resolve(fileProtocolRoot, ASTRO_CONFIG_DEFAULTS.outDir),
-						);
-					}),
-				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
+				client: RouterBuildOptionsSchema.shape.client.transform((val) => {
+					originalBuildClient = val;
+					return resolveDirAsUrl(val, path.resolve(fileProtocolRoot, ASTRO_CONFIG_DEFAULTS.outDir));
+				}),
+				server: RouterBuildOptionsSchema.shape.server.transform((val) => {
+					originalBuildServer = val;
+					return resolveDirAsUrl(val, path.resolve(fileProtocolRoot, ASTRO_CONFIG_DEFAULTS.outDir));
+				}),
+				assets: RouterBuildOptionsSchema.shape.assets,
 				assetsPrefix: z
 					.string()
 					.optional()
 					.or(z.object({ fallback: z.string() }).and(z.record(z.string(), z.string())).optional()),
-				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
-				redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
-				inlineStylesheets: z
-					.enum(['always', 'auto', 'never'])
-					.optional()
-					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-				concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
+				serverEntry: RouterBuildOptionsSchema.shape.serverEntry,
+				redirects: RouterBuildOptionsSchema.shape.redirects,
+				inlineStylesheets: RouterBuildOptionsSchema.shape.inlineStylesheets,
+				concurrency: RouterBuildOptionsSchema.shape.concurrency,
 			})
 			.prefault({}),
 		server: z

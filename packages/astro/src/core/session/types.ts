@@ -1,5 +1,5 @@
 import type { BuiltinDriverOptions } from 'unstorage';
-import type { AstroCookieSetOptions } from '../cookies/cookies.js';
+import type { AstroCookieSetOptions } from '@astrojs/vite-plugin-router/_internal/core/cookies/cookies.js';
 
 export interface SessionDriver {
 	removeItem: (key: string) => Promise<void>;

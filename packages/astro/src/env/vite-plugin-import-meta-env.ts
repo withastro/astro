@@ -1,8 +1,8 @@
 import MagicString from 'magic-string';
 import { transformWithOxc, type Plugin, type ResolvedConfig } from 'vite';
 import type { EnvLoader } from './env-loader.js';
-import { CSS_LANGS_RE } from '../core/viteUtils.js';
-import { isAstroClientEnvironment } from '../environments.js';
+import { CSS_LANGS_RE } from '@astrojs/vite-plugin-router/_internal/core/viteUtils.js';
+import { isAstroClientEnvironment } from '@astrojs/vite-plugin-router/_internal/environments.js';
 
 interface EnvPluginOptions {
 	envLoader: EnvLoader;

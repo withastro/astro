@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import { describe, it } from 'node:test';
-import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
+import { createViteLoader } from '@astrojs/vite-plugin-router/_internal/core/module-loader/vite.js';
 
 /**
  * Creates a minimal mock ViteDevServer with stub watcher and client hot.

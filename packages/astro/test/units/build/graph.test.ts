@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getTopLevelPageModuleInfos } from '../../../dist/core/build/graph.js';
-import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../dist/vite-plugin-pages/const.js';
+import { getTopLevelPageModuleInfos } from '@astrojs/vite-plugin-router/_internal/core/build/graph.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '@astrojs/vite-plugin-router/_internal/vite-plugin-pages/const.js';
 
 describe('getTopLevelPageModuleInfos', () => {
 	it('attributes components to their owning page and stops before virtual page manifest links', () => {

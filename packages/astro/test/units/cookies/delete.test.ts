@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { AstroCookies } from '../../../dist/core/cookies/index.js';
+import { AstroCookies } from '@astrojs/vite-plugin-router/_internal/core/cookies/index.js';
 import { mockLogger } from './test-helpers.ts';
 
 describe('astro/src/core/cookies', () => {

@@ -1,6 +1,6 @@
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { ActionsWithoutServerOutputError } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
-import { hasNonPrerenderedRoute } from '../core/routing/helpers.js';
+import { hasNonPrerenderedRoute } from '@astrojs/vite-plugin-router/_internal/core/routing/helpers.js';
 import { viteID } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroIntegration } from '../types/public/integrations.js';

@@ -7,20 +7,20 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../types/public/internal.js';
-import type { SinglePageBuiltModule } from '../core/build/types.js';
+import type { SinglePageBuiltModule } from '@astrojs/vite-plugin-router/_internal/core/build/types.js';
 import type {
 	HeadElements,
 	RenderEnvironment,
 	TryRewriteResult,
-} from '../core/environment/index.js';
-import { RedirectSinglePageBuiltModule } from '../core/redirects/index.js';
+} from '@astrojs/vite-plugin-router/_internal/core/environment/index.js';
+import { RedirectSinglePageBuiltModule } from '@astrojs/vite-plugin-router/_internal/core/redirects/index.js';
 import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
-} from '../core/render/ssr-element.js';
-import { getDefaultRoutes } from '../core/routing/default.js';
-import { createRewriteRouteValidator } from '../core/routing/rewrite-validate.js';
-import { findRouteToRewrite } from '../core/routing/rewrite.js';
+} from '@astrojs/vite-plugin-router/_internal/core/render/ssr-element.js';
+import { getDefaultRoutes } from '@astrojs/vite-plugin-router/_internal/core/routing/default.js';
+import { createRewriteRouteValidator } from '@astrojs/vite-plugin-router/_internal/core/routing/rewrite-validate.js';
+import { findRouteToRewrite } from '@astrojs/vite-plugin-router/_internal/core/routing/rewrite.js';
 
 export interface ContainerEnvironmentOptions {
 	/**

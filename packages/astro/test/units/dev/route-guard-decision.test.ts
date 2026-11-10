@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import {
 	evaluateRouteGuard,
 	type RouteGuardFsInfo,
-} from '../../../dist/vite-plugin-astro-server/route-guard.js';
+} from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/route-guard.js';
 
 const NO_FILES: RouteGuardFsInfo = {
 	existsInPublic: false,

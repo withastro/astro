@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { App } from '../../../dist/core/app/app.js';
+import { App } from '@astrojs/vite-plugin-router/_internal/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './test-helpers.ts';
 

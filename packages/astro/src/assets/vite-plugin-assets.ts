@@ -3,13 +3,13 @@ import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import picomatch from 'picomatch';
 import type * as vite from 'vite';
-import { pathToDirectoryURL } from '../core/build/common.js';
+import { pathToDirectoryURL } from '@astrojs/vite-plugin-router/_internal/core/build/common.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { appendForwardSlash, removeQueryString } from '../core/path.js';
-import { normalizePath } from '../core/viteUtils.js';
+import { normalizePath } from '@astrojs/vite-plugin-router/_internal/core/viteUtils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import { isAstroServerEnvironment } from '../environments.js';
+import { isAstroServerEnvironment } from '@astrojs/vite-plugin-router/_internal/environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
 	RESOLVED_VIRTUAL_GET_IMAGE_ID,
@@ -24,8 +24,9 @@ import {
 } from './consts.js';
 import { RUNTIME_VIRTUAL_MODULE_ID } from './fonts/constants.js';
 import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
-import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
-import { ASSETS_ESM_PLUGIN_NAME, type AssetsPluginApi, emitClientAsset } from './utils/assets.js';
+import { getAssetsPrefix } from '@astrojs/vite-plugin-router/_internal/assets/utils/getAssetsPrefix.js';
+import { emitClientAsset } from '@astrojs/vite-plugin-router/_internal/assets/utils/assets.js';
+import { ASSETS_ESM_PLUGIN_NAME, type AssetsPluginApi } from './utils/assets.js';
 import { emitImageMetadata } from './utils/node.js';
 import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getImageAssetModule } from './utils/image-asset-code.js';

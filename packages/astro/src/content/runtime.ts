@@ -35,7 +35,7 @@ import {
 	LiveEntryNotFoundError,
 } from './loaders/errors.js';
 import type { LiveLoader } from './loaders/types.js';
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 export {
 	LiveCollectionError,
 	LiveCollectionCacheHintError,

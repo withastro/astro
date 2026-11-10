@@ -6,13 +6,13 @@ import {
 	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
 import { normalizeTheLocale } from '../../i18n/path.js';
-import type { SSRManifest } from '../app/types.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import {
 	getFirstForwardedValue,
 	validateForwardedHeaders,
 	validateHost,
-} from '../app/validate-headers.js';
-import type { AstroLogger } from '../logger/core.js';
+} from '@astrojs/vite-plugin-router/_internal/core/app/validate-headers.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 
 /**
  * For domain-based i18n routing strategies, derives the locale-prefixed

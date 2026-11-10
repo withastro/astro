@@ -5,4 +5,4 @@
 //
 // At runtime in environments without Vite (Node-loaded `dist/`, library
 // tooling), this file resolves normally and keeps the real provider.
-export { provideSession } from './handler.js';
+export { createSessionProvider, provideSession } from './handler.js';

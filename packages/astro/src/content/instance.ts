@@ -1,6 +1,6 @@
 import type { FSWatcher } from 'vite';
 import { ContentLayer } from './content-layer.js';
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 

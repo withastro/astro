@@ -3,8 +3,8 @@ import * as fs from 'node:fs';
 import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
-import type { AstroLoggerMessage } from '../dist/core/logger/core.js';
-import { AstroLogger } from '../dist/core/logger/core.js';
+import type { AstroLoggerMessage } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { type Fixture, loadFixture } from './test-utils.ts';
 
 const createFixture = () => {

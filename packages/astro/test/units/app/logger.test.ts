@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, it, before } from 'node:test';
-import { App } from '../../../dist/core/app/app.js';
+import { App } from '@astrojs/vite-plugin-router/_internal/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './test-helpers.ts';
 import { makeRoute, staticPart } from '../routing/test-helpers.ts';
 import { loadFixture, type Fixture } from '../../test-utils.ts';
 import testAdapter from '../../test-adapter.ts';
-import type { SSRManifest } from '../../../dist/core/app/types.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import jsonLoggerCreator from '../../../dist/core/logger/impls/json.js';
 
 const okPage = createComponent(() => {
