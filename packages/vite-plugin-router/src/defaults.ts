@@ -3,6 +3,7 @@
  * them without loading the options schema.
  */
 export const ROUTER_PLUGIN_DEFAULTS = {
+	srcDir: './src',
 	output: 'static',
 	build: {
 		format: 'directory',
