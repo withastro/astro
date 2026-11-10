@@ -60,8 +60,8 @@ export async function getPackage<T>(
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
 
 		if (result) {
-			const resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
-			const packageImport = await import(pathToFileURL(resolved).href);
+			const installed = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
+			const packageImport = await import(pathToFileURL(installed).href);
 			return packageImport;
 		} else {
 			return undefined;
