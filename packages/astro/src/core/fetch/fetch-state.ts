@@ -21,8 +21,8 @@ import {
 } from '../constants.js';
 import type { CspKind } from '../csp/config.js';
 import { normalizeCspResourceEntry, pushDirective } from '../csp/runtime.js';
-import { generateCspDigest } from '../encryption.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import {
 	computeCurrentLocale as computeCurrentLocaleUtil,
 	computeCurrentLocaleFromParams,
@@ -506,6 +506,7 @@ export class FetchState implements AstroFetchState {
 			params: this.params!,
 			partial,
 			pathname: this.pathname,
+			logger: env.logsStreamErrors ? astroToRuntimeLogger(this.logger) : undefined,
 			renderers,
 			resolve,
 			response,
@@ -559,6 +560,7 @@ export class FetchState implements AstroFetchState {
 				hashes: manifest.csp?.styleDirective ? [...manifest.csp.styleDirective.hashes] : [],
 			},
 			speculationRulesContent: manifest.csp?.speculationRulesContent,
+			importMapContent: manifest.csp?.importMapContent,
 			internalFetchHeaders: manifest.internalFetchHeaders,
 		};
 
