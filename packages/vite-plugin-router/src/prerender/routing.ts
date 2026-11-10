@@ -1,6 +1,7 @@
-import { routeIsRedirect } from '../core/routing/helpers.js';
-import { routeComparator } from '../core/routing/priority.js';
-import type { RouteData, SSRManifest } from '../types/public/internal.js';
+import { routeIsRedirect } from '../internal/core/routing/helpers.js';
+import { routeComparator } from '../internal/core/routing/priority.js';
+import type { RouteData } from '../index.js';
+import type { SSRManifest } from '../internal/core/app/types.js';
 
 type GetSortedPreloadedMatchesParams = {
 	matches: RouteData[];

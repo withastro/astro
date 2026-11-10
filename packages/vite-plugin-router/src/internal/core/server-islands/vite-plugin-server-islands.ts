@@ -1,5 +1,4 @@
 import type { BuildEnvironment, ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
-import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
@@ -15,10 +14,16 @@ export const SERVER_ISLAND_MAP_MARKER = '$$server-islands-map$$';
 const serverIslandMapReplaceExp = /['"`]\$\$server-islands-map\$\$['"`]/g;
 const serverIslandNameMapReplaceExp = /['"`]\$\$server-islands-name-map\$\$['"`]/g;
 
+export interface ServerIslandsPluginOptions {
+	serverIslandsState: ServerIslandsState;
+	/** Whether the project renders on demand in production; server islands require it. */
+	canRenderOnDemand: () => boolean;
+}
+
 export function vitePluginServerIslands({
-	settings,
 	serverIslandsState,
-}: AstroPluginOptions & { serverIslandsState: ServerIslandsState }): VitePlugin {
+	canRenderOnDemand,
+}: ServerIslandsPluginOptions): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
 	let serverEnvironments: DevEnvironment[] = [];
 
@@ -104,7 +109,7 @@ export function vitePluginServerIslands({
 
 				if (astro) {
 					for (const comp of astro.serverComponents) {
-						if (!settings.adapter) {
+						if (!canRenderOnDemand()) {
 							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 						}
 
@@ -146,7 +151,7 @@ export function vitePluginServerIslands({
 
 				if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
 					if (command === 'build') {
-						if (serverIslandsState.hasIslands() && !settings.adapter) {
+						if (serverIslandsState.hasIslands() && !canRenderOnDemand()) {
 							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 						}
 					}

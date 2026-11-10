@@ -1,4 +1,4 @@
-import type { ServerIslandMappings, SSRManifest } from '../app/types.js';
+import type { ServerIslandMappings, SSRManifest } from '../../internal/core/app/types.js';
 
 /**
  * The server-island mappings for a manifest. Deliberately NOT memoized: the

@@ -6,7 +6,7 @@ import {
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import type { FetchState } from '../fetch/fetch-state.js';
-import { prepareResponse } from '../app/prepare-response.js';
+import { prepareResponse } from '../../../core/app/prepare-response.js';
 import { redirectTemplate } from './3xx.js';
 import { rejectInvalidEncoding } from './invalid-encoding.js';
 

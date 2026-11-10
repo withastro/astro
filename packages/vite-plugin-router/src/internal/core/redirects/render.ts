@@ -1,7 +1,7 @@
-import type { Params } from '../../types/public/common.js';
-import type { RedirectConfig } from '../../types/public/index.js';
-import type { RouteData } from '../../types/public/internal.js';
-import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
+import type { Params } from '../../../index.js';
+import type { RedirectConfig } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
+import { markHandlerUsed } from '../fetch/features.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { getRouteGenerator } from '../routing/generator.js';
 import { rejectInvalidEncoding } from '../routing/invalid-encoding.js';
@@ -73,7 +73,7 @@ export function resolveRedirectTarget(
 }
 
 export async function renderRedirect(state: FetchState) {
-	markFeatureUsed(state.manifest, FetchFeatures.redirects);
+	markHandlerUsed(state.manifest, 'redirects');
 	const routeData = state.routeData!;
 	const { redirect, redirectRoute } = routeData;
 	const status = computeRedirectStatus(state.request.method, redirect, redirectRoute);

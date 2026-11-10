@@ -1,8 +1,10 @@
-import type { AstroSettings } from '../../types/astro.js';
-import type { RouteData, RoutePart } from '../../types/public/internal.js';
-import { fileExtension } from '@astrojs/internal-helpers/path';
-import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
-import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../constants.js';
+import type { RouterConfig } from '../../../config.js';
+import type { RouteData, RoutePart } from '../../../types.js';
+import {
+	fileExtension,
+	removeLeadingForwardSlash,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import { getPattern } from './pattern.js';
 import { getParts } from './parts.js';
 import { validateSegment } from './segment.js';
@@ -10,7 +12,7 @@ import { validateSegment } from './segment.js';
 /**
  * Settings needed to parse a route path into RouteData.
  */
-type ParseRouteConfig = Pick<AstroSettings, 'config' | 'pageExtensions'>;
+type ParseRouteConfig = Pick<RouterConfig, 'base' | 'trailingSlash' | 'pageExtensions'>;
 
 /**
  * Options for building the RouteData output.
@@ -24,15 +26,7 @@ type ParseRouteOptions = {
 	params?: string[];
 };
 
-const ROUTE_FILE_EXTENSIONS = new Set([
-	'.astro',
-	'.md',
-	'.mdx',
-	'.markdown',
-	'.js',
-	'.ts',
-	...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
-]);
+const ROUTE_FILE_EXTENSIONS = new Set(['.astro', '.js', '.ts']);
 
 /**
  * Parse a file path-like route into RouteData, respecting extensions and config.
@@ -85,7 +79,7 @@ export function parseRoute(
 		component: parseOptions.component,
 		params,
 		pathname: pathname || undefined,
-		pattern: getPattern(segments, options.config.base, options.config.trailingSlash),
+		pattern: getPattern(segments, options.base, options.trailingSlash),
 		segments,
 		type: parseOptions.type ?? 'page',
 		prerender: parseOptions.prerender ?? false,

@@ -1,16 +1,16 @@
 import type { FetchState } from '../fetch/fetch-state.js';
-import type { RewritePayload } from '../../types/public/common.js';
-import type { APIContext } from '../../types/public/context.js';
+import type { RewritePayload } from '../../../index.js';
+import type { APIContext } from '../../../index.js';
 import { ASTRO_ERROR_HEADER } from '../constants.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
 import { getEnvironment } from '../environment/index.js';
 import { renderErrorFromState } from '../errors/handler.js';
-import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
+import { markHandlerUsed } from '../fetch/features.js';
 import { applyRewriteToState } from '../rewrites/handler.js';
 import { rejectInvalidEncoding } from '../routing/invalid-encoding.js';
 import { callMiddleware } from './callMiddleware.js';
 import { getMiddleware } from './load.js';
-import { sequence } from './index.js';
+import { sequence } from './sequence.js';
 
 /**
  * Callback invoked at the bottom of the middleware chain to dispatch the
@@ -33,7 +33,7 @@ export async function handleMiddleware(
 	state: FetchState,
 	renderRouteCallback: RenderRouteCallback,
 ): Promise<Response> {
-	markFeatureUsed(state.manifest, FetchFeatures.middleware);
+	markHandlerUsed(state.manifest, 'middleware');
 
 	// Resolve props first (the async bit) so downstream consumers can
 	// call `state.getAPIContext()` synchronously on the hot path.

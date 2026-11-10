@@ -1,4 +1,4 @@
-import type { MiddlewareHandler } from '../../types/public/common.js';
+import type { MiddlewareHandler } from '../../../index.js';
 
 export function defineMiddleware(fn: MiddlewareHandler) {
 	return fn;

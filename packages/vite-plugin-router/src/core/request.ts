@@ -1,5 +1,9 @@
 import type { IncomingHttpHeaders } from 'node:http';
-import type { AstroLogger } from './logger/core.js';
+
+/** The part of Astro's logger that request helpers use. */
+interface RequestLogger {
+	warn(label: string | null, message: string): void;
+}
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
 
@@ -9,7 +13,7 @@ interface CreateRequestOptions {
 	headers: HeaderType;
 	method?: string;
 	body?: RequestInit['body'];
-	logger: AstroLogger;
+	logger: RequestLogger;
 	locals?: object | undefined;
 	/**
 	 * Whether the request is being created for a static build or for a prerendered page within a hybrid/SSR build, or for emulating one of those in dev mode.

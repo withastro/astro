@@ -1,6 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from '../internal.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
+import type { BuildInternals } from '../../../internal/core/build/internal.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../../internal/core/constants.js';
 
 const astroEntryPrefix = '\0astro-entry:';
 

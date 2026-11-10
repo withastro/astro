@@ -1,26 +1,27 @@
 import type http from 'node:http';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { DevFacadeApp } from '../core/app/dev-facade.js';
-import { shouldAppendForwardSlash } from '../core/build/util.js';
-import { clientLocalsSymbol } from '../core/constants.js';
-import { getEnvironment, setEnvironment } from '../core/environment/index.js';
+import { shouldAppendForwardSlash } from '../internal/core/build/util.js';
+import { clientLocalsSymbol } from '../internal/core/constants.js';
+import { getEnvironment, setEnvironment } from '../internal/core/environment/index.js';
 import { createSafeError } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { setLogger } from '../core/logger/manifest-logger.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
+import { setLogger } from '../internal/core/logger/manifest-logger.js';
+import { resolveRoutingPathname } from '../internal/core/routing/extensions.js';
+import type { ModuleLoader } from '../internal/core/module-loader/index.js';
 import { createRequest } from '../core/request.js';
-import { validateAndDecodePathname } from '../core/util/pathname.js';
-import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
-import type { AstroSettings } from '../types/astro.js';
-import type { SSRManifest } from '../types/public/index.js';
+import { validateAndDecodePathname } from '../internal/core/util/pathname.js';
+import { SERIALIZED_MANIFEST_ID } from '../internal/core/constants.js';
+import type { SSRManifest } from '../internal/core/app/types.js';
 import type { DevServerController } from '../vite-plugin-astro-server/controller.js';
 import { recordServerError } from '../vite-plugin-astro-server/error.js';
-import { runWithErrorHandling } from '../vite-plugin-astro-server/index.js';
+import { runWithErrorHandling } from '../internal/vite-plugin-astro-server/index.js';
 import { handle500Response, writeSSRResult } from '../vite-plugin-astro-server/response.js';
 
 /** Composition-time dependencies closed over by `createAstroServerApp`. */
 export interface DevRequestDeps {
 	loader: ModuleLoader;
-	settings: AstroSettings;
+	/** Headers added to every response. */
+	serverHeaders: http.OutgoingHttpHeaders | undefined;
 	controller: DevServerController;
 }
 
@@ -97,7 +98,7 @@ export async function handleDevRequest(
 	deps: DevRequestDeps,
 	{ incomingRequest, incomingResponse, isHttps, prerenderOnly }: DevRequestIO,
 ): Promise<boolean> {
-	const { loader, settings, controller } = deps;
+	const { loader, serverHeaders, controller } = deps;
 	const manifest = app.manifest;
 	// Build a basic origin from the socket protocol and Host header.
 	// X-Forwarded-* headers are resolved later inside FetchState, which
@@ -143,7 +144,22 @@ export async function handleDevRequest(
 		controller,
 		pathname,
 		async run() {
-			const matchedRoute = await app.devMatch(pathname, { prerenderOnly });
+			// An `extendRouting()` module may match the request with another pathname.
+			const routingPathname = manifest.routing?.length
+				? resolveRoutingPathname(
+						manifest,
+						createRequest({
+							url,
+							headers: incomingRequest.headers,
+							logger: app.logger,
+							routePattern: pathname,
+						}),
+						url,
+						app.logger,
+						pathname,
+					)
+				: undefined;
+			const matchedRoute = await app.devMatch(routingPathname ?? pathname, { prerenderOnly });
 			if (!matchedRoute) {
 				if (prerenderOnly) {
 					// In prerender-only mode, signal that we didn't handle this
@@ -211,7 +227,7 @@ export async function handleDevRequest(
 				const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 
 				// Set user specified headers to response object.
-				for (const [name, value] of Object.entries(settings.config.server.headers ?? {})) {
+				for (const [name, value] of Object.entries(serverHeaders ?? {})) {
 					if (value) incomingResponse.setHeader(name, value);
 				}
 				const clientAddress = incomingRequest.socket.remoteAddress;
