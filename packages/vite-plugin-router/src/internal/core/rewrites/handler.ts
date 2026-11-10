@@ -1,7 +1,7 @@
-import type { ComponentInstance } from '../../types/astro.js';
+import type { ComponentInstance } from '../../../index.js';
 import type { FetchState } from '../fetch/fetch-state.js';
-import type { RewritePayload } from '../../types/public/common.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { RewritePayload } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { getEnvironment } from '../environment/index.js';
 import { ForbiddenRewrite } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
@@ -82,6 +82,7 @@ export function applyRewriteToState(
 	state.pathname = pathname;
 	state.isRewriting = true;
 	state.status = 200;
+	state.statusText = undefined;
 
 	setOriginPathname(
 		state.request,

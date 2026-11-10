@@ -1,15 +1,19 @@
 import type { Plugin } from 'vite';
-import type { AstroSettings } from '../types/astro.js';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 
 interface Payload {
-	settings: AstroSettings;
+	/** Whether the Chrome DevTools workspace file is served. */
+	enabled: boolean;
+	/** Project root, reported to DevTools as the workspace folder. */
+	root: URL;
+	/** Directory where the workspace file is cached. */
+	cacheDir: URL;
 }
 
-export function vitePluginChromedevtools({ settings }: Payload): Plugin {
+export function vitePluginChromedevtools({ enabled, root, cacheDir }: Payload): Plugin {
 	return {
 		name: 'astro:chromedevtools',
 		configureServer(viteServer) {
@@ -19,7 +23,7 @@ export function vitePluginChromedevtools({ settings }: Payload): Plugin {
 				if (request.url !== '/.well-known/appspecific/com.chrome.devtools.json') {
 					return next();
 				}
-				if (!settings.config.experimental.chromeDevtoolsWorkspace) {
+				if (!enabled) {
 					// Return early to stop console spam
 					response.writeHead(404);
 					response.end();
@@ -27,7 +31,6 @@ export function vitePluginChromedevtools({ settings }: Payload): Plugin {
 				}
 
 				const pluginVersion = '1.1';
-				const cacheDir = settings.config.cacheDir;
 				const configPath = new URL('./chrome-workspace.json', cacheDir);
 
 				if (!existsSync(cacheDir)) {
@@ -45,7 +48,7 @@ export function vitePluginChromedevtools({ settings }: Payload): Plugin {
 						workspace: {
 							version: pluginVersion,
 							uuid: crypto.randomUUID(),
-							root: fileURLToPath(settings.config.root),
+							root: fileURLToPath(root),
 						},
 					};
 					await writeFile(configPath, JSON.stringify(config));

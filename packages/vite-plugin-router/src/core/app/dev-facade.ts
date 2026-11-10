@@ -1,8 +1,8 @@
-import type { RouteData } from '../../types/public/index.js';
-import { req } from '../messages/runtime.js';
-import { matchRoute as devMatchRoute } from '../routing/dev.js';
-import { BaseApp, type DevMatch, type LogRequestPayload } from './base.js';
-import type { SSRManifest } from './types.js';
+import type { RouteData } from '../../index.js';
+import { req } from '../../internal/core/messages/request.js';
+import { matchRoute as devMatchRoute } from '../../internal/core/routing/dev.js';
+import { BaseApp, type DevMatch, type LogRequestPayload } from '../../internal/core/app/base.js';
+import type { SSRManifest } from '../../internal/core/app/types.js';
 
 /**
  * The shared thin dev facade: used by BOTH dev paths —

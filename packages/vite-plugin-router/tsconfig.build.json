@@ -1,0 +1,10 @@
+{
+  "extends": "../../configs/tsconfig.build.json",
+  "compilerOptions": {
+    "types": ["node", "vite/client"]
+  },
+  "references": [
+    { "path": "../vite-plugin-astro/tsconfig.json" },
+    { "path": "../internal-helpers/tsconfig.json" }
+  ]
+}

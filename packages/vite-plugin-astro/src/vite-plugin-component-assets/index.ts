@@ -27,7 +27,7 @@ import {
 	isBuildableCSSRequest,
 	rawRE,
 } from '../internal/vite-plugin-css/collect.js';
-import { RESOLVED_ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/const.js';
+import { RESOLVED_ASTRO_RENDERERS_MODULE_ID } from '../internal/vite-plugin-renderers/const.js';
 import type { ComponentAssets, ComponentAssetsManifest } from './types.js';
 
 export type { ComponentAssets, ComponentAssetsManifest } from './types.js';

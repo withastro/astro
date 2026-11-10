@@ -1,7 +1,7 @@
+import type { BuildFormat, TrailingSlash } from '../../../index.js';
 import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
-import type { RewritePayload } from '../../types/public/common.js';
-import type { AstroConfig } from '../../types/public/config.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { RewritePayload } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import { originPathnameSymbol } from '../constants.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
@@ -12,10 +12,10 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 	trimSlashes,
-} from '../path.js';
-import { createRequest } from '../request.js';
+} from '@astrojs/internal-helpers/path';
+import { createRequest } from '../../../core/request.js';
 import { validateAndDecodePathname } from '../util/pathname.js';
-import { DEFAULT_404_ROUTE } from './internal/astro-designed-error-pages.js';
+import { DEFAULT_404_ROUTE } from '../../../core/routing/internal/astro-designed-error-pages.js';
 import {
 	isRoute404,
 	isRoute500,
@@ -30,9 +30,9 @@ type FindRouteToRewrite = {
 	payload: RewritePayload;
 	routes: RouteData[];
 	request: Request;
-	trailingSlash: AstroConfig['trailingSlash'];
-	buildFormat: AstroConfig['build']['format'];
-	base: AstroConfig['base'];
+	trailingSlash: TrailingSlash;
+	buildFormat: BuildFormat;
+	base: string;
 	outDir: URL | string;
 	validate: ValidateRouteForRewrite;
 };
@@ -204,8 +204,8 @@ export function copyRequest(
 export function setOriginPathname(
 	request: Request,
 	pathname: string,
-	trailingSlash: AstroConfig['trailingSlash'],
-	buildFormat: AstroConfig['build']['format'],
+	trailingSlash: TrailingSlash,
+	buildFormat: BuildFormat,
 ): void {
 	// Handle undefined pathname
 	if (!pathname) {
@@ -244,9 +244,9 @@ export function getOriginPathname(request: Request): string {
  */
 export function normalizeRewritePathname(
 	urlPathname: string,
-	base: AstroConfig['base'],
-	trailingSlash: AstroConfig['trailingSlash'],
-	buildFormat: AstroConfig['build']['format'],
+	base: string,
+	trailingSlash: TrailingSlash,
+	buildFormat: BuildFormat,
 ): { pathname: string; resolvedUrlPathname: string } {
 	let pathname = collapseDuplicateSlashes(urlPathname);
 	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);

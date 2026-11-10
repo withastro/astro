@@ -1,5 +1,5 @@
-import type { SSRManifest } from '../app/types.js';
-import { createManifestMemo } from './memo.js';
+import type { SSRManifest } from '../../internal/core/app/types.js';
+import { createManifestMemo } from '../../internal/core/manifest/memo.js';
 
 const sites = createManifestMemo((manifest) =>
 	manifest.site ? new URL(manifest.site) : undefined,

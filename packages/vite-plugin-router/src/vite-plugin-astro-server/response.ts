@@ -1,11 +1,11 @@
 import type http from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
 import { Readable } from 'node:stream';
-import { getSetCookiesFromResponse } from '../core/cookies/index.js';
-import { getViteErrorPayload } from '../core/errors/dev/index.js';
+import { getSetCookiesFromResponse } from '../internal/core/cookies/index.js';
+import { getViteErrorPayload } from '../internal/core/errors/dev/index.js';
 import type { ErrorWithMetadata } from '@astrojs/runtime/_internal/core/errors/index.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
-import { redirectTemplate } from '../core/routing/3xx.js';
+import type { ModuleLoader } from '../internal/core/module-loader/index.js';
+import { redirectTemplate } from '../internal/core/routing/3xx.js';
 
 export async function handle500Response(
 	loader: ModuleLoader,

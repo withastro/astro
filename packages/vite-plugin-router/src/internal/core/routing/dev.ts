@@ -3,17 +3,17 @@
  */
 import type { SSRManifest } from '../app/types.js';
 import { matchAllRoutes } from './match.js';
-import { getSortedPreloadedMatches } from '../../prerender/routing.js';
-import { getProps } from '../render/index.js';
+import { getSortedPreloadedMatches } from '../../../prerender/routing.js';
+import { getProps } from '../render/params-and-props.js';
 import { getCustom404Route } from './helpers.js';
 import { NoMatchingStaticPathFound } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import { isAstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
-import type { RouteData } from '../../types/public/index.js';
+import type { RouteData } from '../../../index.js';
 import { getEnvironment } from '../environment/index.js';
 import { getLogger } from '../logger/manifest-logger.js';
 import { getRouteCache } from '../render/route-cache.js';
 import { getRouteTable } from './route-table.js';
-import { getErrorRoutePath } from '../../i18n/error-routes.js';
+import { getErrorRoutePath } from './extensions.js';
 
 interface MatchedRoute {
 	route: RouteData;
@@ -116,10 +116,10 @@ export async function matchRoute(
 	}
 
 	const errorRoutePath = getErrorRoutePath(
+		manifest,
 		pathname,
 		404,
 		routesList.routes,
-		manifest.i18n?.locales,
 		manifest.trailingSlash === 'always',
 	);
 	const custom404 =

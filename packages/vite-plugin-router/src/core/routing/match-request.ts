@@ -1,11 +1,11 @@
 import { prependForwardSlash, stripRequestBase } from '@astrojs/internal-helpers/path';
-import type { RouteData } from '../../types/public/internal.js';
-import type { SSRManifest } from '../app/types.js';
-import { computePathnameFromDomain } from '../i18n/domain.js';
-import { AstroIntegrationLogger } from '../logger/core.js';
-import { getLogger } from '../logger/manifest-logger.js';
-import { validateAndDecodePathname } from '../util/pathname.js';
-import { matchAllRoutes, matchRoute } from './route-table.js';
+import type { RouteData } from '../../index.js';
+import type { SSRManifest } from '../../internal/core/app/types.js';
+import { resolveRoutingPathname } from '../../internal/core/routing/extensions.js';
+import { AstroIntegrationLogger } from '../../internal/core/logger/core.js';
+import { getLogger } from '../../internal/core/logger/manifest-logger.js';
+import { validateAndDecodePathname } from '../../internal/core/util/pathname.js';
+import { matchAllRoutes, matchRoute } from '../../internal/core/routing/route-table.js';
 
 /**
  * Fully decodes a pathname, falling back to a single decode and then the raw pathname
@@ -45,15 +45,7 @@ export function matchRequest(
 	const url = new URL(request.url);
 	// ignore requests matching public assets
 	if (manifest.assets.has(url.pathname)) return undefined;
-	let pathname = computePathnameFromDomain(
-		request,
-		url,
-		manifest.i18n,
-		manifest.base,
-		manifest.trailingSlash,
-		manifest.allowedDomains,
-		getLogger(manifest),
-	);
+	let pathname = resolveRoutingPathname(manifest, request, url, getLogger(manifest));
 	if (!pathname) {
 		pathname = prependForwardSlash(stripRequestBase(url.pathname, manifest.base));
 	}

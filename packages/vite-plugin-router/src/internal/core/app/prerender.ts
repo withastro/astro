@@ -1,12 +1,12 @@
-import type { SerializedStaticImage } from '../../assets/types.js';
-import type { PrerenderResult } from '../../types/public/integrations.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { PrerenderResult } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { getEnvironment, setEnvironment } from '../environment/index.js';
 import {
 	collectPrerenderMetadata,
 	type CollectPrerenderMetadataOptions,
 } from '@astrojs/runtime/_internal/core/render-scope/collect.js';
+import type { StaticImageRecord } from '@astrojs/runtime/_internal/core/render-scope/scope.js';
 import type { SSRManifest } from './types.js';
 
 export interface PrerenderableApp {
@@ -64,20 +64,19 @@ const NULL_BODY_STATUSES = [101, 204, 205, 304];
  * This function performs no scope installation; installing a render scope for
  * the rendering runtime is the caller's responsibility. When no scope is
  * installed, `metadata` is `undefined` ("not tracked").
+ *
+ * `TImage` is the type of the image transforms the rendering runtime records.
  */
-export async function renderForPrerender(
+export async function renderForPrerender<TImage extends StaticImageRecord = StaticImageRecord>(
 	app: PrerenderableApp,
 	request: Request,
 	options?: PrerenderRenderOptions,
-): Promise<PrerenderResult> {
+): Promise<PrerenderResult<TImage>> {
 	if (app.manifest) {
 		useBuildErrorStrategy(app.manifest);
 	}
 	const routeData = options?.routeData;
-	const { value: response, metadata } = await collectPrerenderMetadata<
-		Response,
-		SerializedStaticImage
-	>(
+	const { value: response, metadata } = await collectPrerenderMetadata<Response, TImage>(
 		async () => {
 			const rendered = await app.render(request, { routeData });
 			const bytes = rendered.body === null ? null : await rendered.arrayBuffer();

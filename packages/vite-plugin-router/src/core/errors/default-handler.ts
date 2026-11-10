@@ -1,21 +1,20 @@
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import type { RenderErrorOptions } from '../app/base.js';
-import type { SSRManifest } from '../app/types.js';
-import { getEnvironment } from '../environment/index.js';
-import { FetchState } from '../fetch/fetch-state.js';
+import type { RenderErrorOptions } from '../../internal/core/app/base.js';
+import type { SSRManifest } from '../../internal/core/app/types.js';
+import { getEnvironment } from '../../internal/core/environment/index.js';
+import { FetchState } from '../../internal/core/fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
-import { attachCookiesToResponse } from '../cookies/index.js';
-import { getCookiesFromResponse } from '../cookies/response.js';
-import { handleMiddleware } from '../middleware/astro-middleware.js';
-import { handlePages } from '../pages/handler.js';
-import { matchRoute } from '../routing/match.js';
-import { getRouteTable } from '../routing/route-table.js';
-import { provideCache } from '../cache/handler.js';
-import { provideSession } from '../session/provider.js';
-import { validateHost } from '../app/validate-headers.js';
-import { getErrorRoutePath } from '../../i18n/error-routes.js';
-import { getOutputFilename } from '../output-filename.js';
-import { rewroteToEmptyErrorResponse } from './handler.js';
+import { attachCookiesToResponse } from '../../internal/core/cookies/index.js';
+import { getCookiesFromResponse } from '../../internal/core/cookies/response.js';
+import { handleMiddleware } from '../../internal/core/middleware/astro-middleware.js';
+import { handlePages } from '../../internal/core/pages/handler.js';
+import { matchRoute } from '../../internal/core/routing/match.js';
+import { getRouteTable } from '../../internal/core/routing/route-table.js';
+import { applyRenderContextExtensions, loadPipeline } from '../../internal/core/fetch/pipeline.js';
+import { validateHost } from '../../internal/core/app/validate-headers.js';
+import { getErrorRoutePath } from '../../internal/core/routing/extensions.js';
+import { getOutputFilename } from '../../internal/core/output-filename.js';
+import { rewroteToEmptyErrorResponse } from '../../internal/core/errors/handler.js';
 
 type ErrorPagePath =
 	| `${string}/404`
@@ -48,10 +47,10 @@ export async function renderDefaultError(
 	const resolvedPathname = pathname ?? new FetchState(manifest, request).pathname;
 	const routeTable = getRouteTable(manifest);
 	const errorRoutePath = getErrorRoutePath(
+		manifest,
 		resolvedPathname,
 		status,
 		routeTable.routes,
-		manifest.i18n?.locales,
 		manifest.trailingSlash === 'always',
 	);
 	const errorRouteData = matchRoute(errorRoutePath, routeTable);
@@ -113,8 +112,7 @@ export async function renderDefaultError(
 		errorState.locals = resolvedRenderOptions.locals ?? ({} as App.Locals);
 		errorState.initialProps = { error };
 		try {
-			await provideSession(errorState);
-			await provideCache(errorState);
+			await applyRenderContextExtensions(errorState, await loadPipeline(manifest));
 			const response = await handleMiddleware(errorState, handlePages);
 			// A middleware rewrite (`ctx.rewrite()` / `next(payload)`) issued while
 			// rendering the error page swaps the state's routeData away from the

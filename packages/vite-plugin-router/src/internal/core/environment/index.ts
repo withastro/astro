@@ -1,14 +1,11 @@
-import type { ComponentInstance } from '../../types/astro.js';
-import type { RewritePayload } from '../../types/public/common.js';
-import type { RuntimeMode } from '../../types/public/config.js';
-import type {
-	RouteData,
-	SSRLoadedRenderer,
-	SSRManifest,
-	SSRResult,
-} from '../../types/public/internal.js';
+import type { RuntimeMode } from '../../../index.js';
+import type { ComponentInstance } from '../../../index.js';
+import type { RewritePayload } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
+import type { SSRLoadedRenderer, SSRResult } from '@astrojs/vite-plugin-astro';
+import type { SSRManifest } from '../app/types.js';
 import type { LogRequestPayload } from '../app/base.js';
-import type { SinglePageBuiltModule } from '../build/types.js';
+import type { SinglePageBuiltModule } from '../../../index.js';
 import { productionEnvironment } from './production.js';
 
 /**

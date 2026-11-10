@@ -1,5 +1,5 @@
-import type { RoutesList } from '../../types/astro.js';
-import { DEFAULT_404_ROUTE } from './internal/astro-designed-error-pages.js';
+import type { RoutesList } from '../../../index.js';
+import { DEFAULT_404_ROUTE } from '../../../core/routing/internal/astro-designed-error-pages.js';
 import { isRoute404 } from '@astrojs/runtime/_internal/core/routing/internal/route-errors.js';
 
 export function ensure404Route(manifest: RoutesList) {

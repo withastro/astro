@@ -1,7 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from '../internal.js';
-import type { StaticBuildOptionsInput } from '../types.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
+import type { BuildInternals } from '../../../internal/core/build/internal.js';
+import type { StaticBuildOptionsInput } from '../../../internal/core/build/types.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../../internal/core/constants.js';
 
 export function pluginPrerender(
 	_opts: StaticBuildOptionsInput,

@@ -1,5 +1,5 @@
 import type { SSRManifestCSP } from '../app/types.js';
-import type { CspDirective } from './config.js';
+import type { CspDirective } from '@astrojs/runtime/_internal/core/csp/sources.js';
 
 export {
 	type CspDirectiveSources,
