@@ -59,7 +59,7 @@ export function createStandaloneHandler(
 			// validate request path
 			decodeURI(req.url!);
 		} catch {
-			res.writeHead(400);
+			res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
 			res.end('Bad request.');
 			return;
 		}
