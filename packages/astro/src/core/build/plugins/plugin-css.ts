@@ -152,6 +152,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 			// Mark CSS files in the client bundle that were already bundled with pages during SSR
 			if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+				const islandSharedChunks = getChunksSharedByIslands(bundle, internals);
 				for (const [, item] of Object.entries(bundle)) {
 					if (item.type !== 'chunk') continue;
 
@@ -183,7 +184,10 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							internals.cssModuleToChunkIdMap.has(moduleId),
 						);
 
-						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals)) {
+						if (
+							allCssInSSR &&
+							(shouldDeleteCSSChunk(allModules, internals) || islandSharedChunks.has(item.fileName))
+						) {
 							for (const cssId of meta.importedCss) {
 								if (bundle[cssId]) {
 									cssAssetsToDelete.set(cssId, bundle[cssId]);
@@ -593,7 +597,7 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 		}
 	}
 
-	for (const componentPath of internals.discoveredHydratedComponents.keys()) {
+	for (const componentPath of getHydratedComponentIds(internals)) {
 		if (allModules.some((m) => m.includes(componentPath))) {
 			componentPaths.add(componentPath);
 		}
@@ -617,6 +621,77 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 	}
 
 	return true;
+}
+
+/**
+ * Returns the specifiers and resolved module ids of all hydrated components. Aliased imports
+ * are only recorded under their raw specifier in `discoveredHydratedComponents`, while
+ * `pagesByHydratedComponent` also holds their resolved ids.
+ */
+function getHydratedComponentIds(internals: BuildInternals): Set<string> {
+	return new Set([
+		...internals.discoveredHydratedComponents.keys(),
+		...internals.pagesByHydratedComponent.keys(),
+	]);
+}
+
+/**
+ * Returns the file names of client chunks that are statically imported, directly or
+ * transitively, by chunks of hydrated components, and by no other entry chunk.
+ *
+ * Hydrated components are rendered on the server, so the CSS of their static imports is
+ * already on every page that loads them. Chunks reached only through dynamic imports are
+ * excluded because their CSS may not be on the page. Chunks also reached, statically or
+ * dynamically, from other entries (`client:only` components, scripts, renderers) are excluded
+ * because those pages may rely on the client copy of the CSS.
+ * https://github.com/withastro/astro/issues/18677
+ */
+function getChunksSharedByIslands(
+	bundle: Rolldown.OutputBundle,
+	internals: BuildInternals,
+): Set<string> {
+	const hydratedIds = getHydratedComponentIds(internals);
+	const clientOnlyIds = [...internals.discoveredClientOnlyComponents.keys()];
+	const containsAny = (chunk: Rolldown.OutputChunk, ids: Iterable<string>) => {
+		const modules = Object.keys(chunk.modules);
+		for (const componentId of ids) {
+			if (modules.some((m) => m.includes(componentId))) return true;
+		}
+		return false;
+	};
+
+	const collectImports = (fileName: string, visited: Set<string>, includeDynamic: boolean) => {
+		const chunk = bundle[fileName];
+		if (chunk?.type !== 'chunk') return;
+		const imports = includeDynamic ? [...chunk.imports, ...chunk.dynamicImports] : chunk.imports;
+		for (const imported of imports) {
+			if (visited.has(imported)) continue;
+			visited.add(imported);
+			collectImports(imported, visited, includeDynamic);
+		}
+	};
+
+	const islandChunks = new Set<string>();
+	const reachedFromIslands = new Set<string>();
+	const reachedFromOtherEntries = new Set<string>();
+	for (const chunk of Object.values(bundle)) {
+		if (chunk.type !== 'chunk' || !chunk.isEntry) continue;
+		if (containsAny(chunk, hydratedIds) && !containsAny(chunk, clientOnlyIds)) {
+			islandChunks.add(chunk.fileName);
+			collectImports(chunk.fileName, reachedFromIslands, false);
+		} else {
+			reachedFromOtherEntries.add(chunk.fileName);
+			collectImports(chunk.fileName, reachedFromOtherEntries, true);
+		}
+	}
+
+	const shared = new Set<string>();
+	for (const fileName of reachedFromIslands) {
+		if (!islandChunks.has(fileName) && !reachedFromOtherEntries.has(fileName)) {
+			shared.add(fileName);
+		}
+	}
+	return shared;
 }
 
 function* getParentClientOnlys(
