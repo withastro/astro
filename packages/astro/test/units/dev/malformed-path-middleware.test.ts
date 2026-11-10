@@ -11,7 +11,11 @@ import {
 const malformedPaths = ['/%', '/%C0%AF'];
 
 async function runMiddleware(
-	middleware: ReturnType<typeof baseMiddleware> | ReturnType<typeof trailingSlashMiddleware>,
+	middleware: (
+		req: Parameters<ReturnType<typeof baseMiddleware>>[0],
+		res: Parameters<ReturnType<typeof baseMiddleware>>[1],
+		next: Parameters<ReturnType<typeof baseMiddleware>>[2],
+	) => void,
 	url: string,
 ): Promise<{ nextCalled: boolean; statusCode: number }> {
 	const { req, res, done } = createRequestAndResponse({
