@@ -2,7 +2,12 @@ import fs from 'node:fs';
 import type { EnvironmentOptions, Plugin } from 'vite';
 import type * as vite from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import { getHandles, resetHandles } from '../../assets/utils/assets.js';
+import {
+	getHandles,
+	getServerHandles,
+	resetHandles,
+	resetServerHandles,
+} from '../../assets/utils/assets.js';
 import { pathToDirectoryURL } from './common.js';
 import { getOrCreateSSRAssets, type BuildInternals } from './internal.js';
 
@@ -10,7 +15,9 @@ import { getOrCreateSSRAssets, type BuildInternals } from './internal.js';
  * Vite plugin that tracks emitted assets.
  * This plugin coordinates with emitClientAsset() to track which assets should
  * be moved to the client directory. The resolved filenames are stored in
- * BuildInternals.ssrAssetsPerEnvironment during generateBundle.
+ * BuildInternals.ssrAssetsPerEnvironment during generateBundle. Assets emitted
+ * with emitServerAsset() are kept out of that set, so they stay in the server
+ * output.
  */
 export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 	return {
@@ -42,6 +49,7 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 		buildStart() {
 			// Reset tracking for this environment at the start of each build
 			resetHandles(this.environment);
+			resetServerHandles(this.environment);
 		},
 
 		generateBundle() {
@@ -55,6 +63,18 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 					try {
 						const filename = this.getFileName(handle);
 						filenames.add(filename);
+					} catch {
+						// Handle may be invalid if emitFile failed, skip it
+					}
+				}
+			}
+
+			// Server-only assets only exist in the SSR output: the prerender output
+			// directory is removed after the build, and client assets are public.
+			if (env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr) {
+				for (const handle of getServerHandles(env)) {
+					try {
+						internals.serverOnlyAssets.add(this.getFileName(handle));
 					} catch {
 						// Handle may be invalid if emitFile failed, skip it
 					}
@@ -80,6 +100,14 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 						for (const asset of manifestAssets) {
 							filenames.add(asset);
 						}
+					}
+				}
+
+				// Server-only assets stay in the server output, however they are referenced
+				if (env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr && internals.serverOnlyAssets.size > 0) {
+					const filenames = getOrCreateSSRAssets(internals, env.name);
+					for (const filename of internals.serverOnlyAssets) {
+						filenames.delete(filename);
 					}
 				}
 			},
