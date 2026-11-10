@@ -222,6 +222,7 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 			return getSettings().redirectPage;
 		},
 		injectCspMetaTagsOnErrorPages: false,
+		logsStreamErrors: false,
 		logRequest() {},
 	};
 

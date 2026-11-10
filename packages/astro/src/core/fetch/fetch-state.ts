@@ -506,7 +506,7 @@ export class FetchState implements AstroFetchState {
 			params: this.params!,
 			partial,
 			pathname: this.pathname,
-			logger: astroToRuntimeLogger(this.logger),
+			logger: env.logsStreamErrors ? astroToRuntimeLogger(this.logger) : undefined,
 			renderers,
 			resolve,
 			response,

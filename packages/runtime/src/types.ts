@@ -322,7 +322,8 @@ export interface SSRResult extends SSRResultExtensions {
 	/**
 	 * Receives errors thrown after a streamed page has started sending its body. Such an error
 	 * can no longer change the response, so the renderer reports it here, marks it with
-	 * `Symbol.for('astro.streamErrorLogged')`, and then errors the body.
+	 * `Symbol.for('astro.streamErrorLogged')`, and then errors the body. Left unset where the body
+	 * consumer reports the rejected read itself (dev, build, container).
 	 */
 	logger?: { error(message: string): void };
 	response: ResponseInit & {

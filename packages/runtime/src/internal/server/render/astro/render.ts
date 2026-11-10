@@ -20,7 +20,8 @@ const DOCTYPE_EXP = /<!doctype html/i;
 /**
  * Logs an error thrown while streaming a body through `result.logger` and marks it with
  * `Symbol.for('astro.streamErrorLogged')`, so body consumers that also report stream errors
- * (`writeResponse`, the dev server) skip it. Does nothing once the client has disconnected.
+ * (`writeResponse`) skip it. Does nothing when `result.logger` is unset or once the client has
+ * disconnected.
  */
 function reportStreamError(result: SSRResult, err: unknown) {
 	if (result.cancelled || !result.logger) return;
