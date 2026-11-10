@@ -6,7 +6,7 @@ import { getImageServiceConfig } from '../../assets/utils/service-config.js';
 import { getPrerenderOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { viteBuildReturnToRolldownOutputs } from './util.js';
+import { viteBuildReturnToRolldownOutputs } from '@astrojs/vite-plugin-router/_internal/core/build/util.js';
 
 const IMAGE_SERVICE_ENTRY_NAME = 'image-service';
 const IMAGE_SERVICE_ENTRY_ID = 'virtual:astro:image-service-entry';

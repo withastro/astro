@@ -1,16 +1,24 @@
-import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
-import type { FetchState } from '../fetch/fetch-state.js';
+import type { ContextProvider } from '@astrojs/vite-plugin-router';
+import { markHandlerUsed } from '@astrojs/vite-plugin-router/_internal/core/fetch/features.js';
+import type { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
+import { createMissingSessionProvider } from './missing-provider.js';
+import type { AstroSession } from './runtime.js';
 
-// Drop-in for `provideSession` substituted in for `./provider.js` by the
-// `astro:session-provider` Vite plugin when `session: false` is set.
-// Imports nothing from `./runtime.js`, so the session runtime tree-shakes
-// out of the SSR bundle.
+// Drop-in for `./provider.js` substituted by the `astro:session-provider`
+// Vite plugin when no session driver is configured (including
+// `session: false`). Imports nothing from `./runtime.js`, so the session
+// runtime tree-shakes out of the SSR bundle.
 //
-// It registers no session provider, so `Astro.session` (and
-// `context.session`) is `undefined` — the same behavior as a project
-// without sessions configured, matching its `AstroSession | undefined`
-// type. We still mark the feature as used so the missing-feature warning
-// in `BaseApp` never fires.
+// `Astro.session` (and `context.session`) reads `undefined`, matching its
+// `AstroSession | undefined` type, and warns once on access.
+
+export function createSessionProvider(
+	state: FetchState,
+): ContextProvider<AstroSession | undefined> {
+	return createMissingSessionProvider(state);
+}
+
 export function provideSession(state: FetchState): void {
-	markFeatureUsed(state.manifest, FetchFeatures.sessions);
+	markHandlerUsed(state.manifest, 'sessions');
+	state.provide('session', createMissingSessionProvider(state));
 }

@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { getParams } from '../../../dist/core/render/params-and-props.js';
-import { stringifyParams } from '../../../dist/core/routing/params.js';
+import { getParams } from '@astrojs/vite-plugin-router/_internal/core/render/params-and-props.js';
+import { stringifyParams } from '@astrojs/vite-plugin-router/_internal/core/routing/params.js';
 import { dynamicPart, makeRoute, spreadPart, staticPart } from './test-helpers.ts';
 import { createTestApp, createPage } from '../mocks.ts';
 

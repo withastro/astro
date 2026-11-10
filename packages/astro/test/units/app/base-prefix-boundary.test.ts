@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { MiddlewareHandler } from '../../../dist/types/public/common.js';
-import { App } from '../../../dist/core/app/app.js';
-import { parseRoute } from '../../../dist/core/routing/parse-route.js';
+import { App } from '@astrojs/vite-plugin-router/_internal/core/app/app.js';
+import { parseRoute } from '@astrojs/vite-plugin-router/_internal/core/routing/parse-route.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './test-helpers.ts';
 
@@ -17,9 +17,10 @@ import { createManifest, createRouteInfo } from './test-helpers.ts';
  */
 
 const routeOptions: Parameters<typeof parseRoute>[1] = {
-	config: { base: '/app', trailingSlash: 'ignore' },
+	base: '/app',
+	trailingSlash: 'ignore',
 	pageExtensions: [],
-} as any;
+};
 
 const adminRouteData = parseRoute('admin', routeOptions, {
 	component: 'src/pages/admin.astro',

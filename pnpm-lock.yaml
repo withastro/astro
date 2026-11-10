@@ -572,6 +572,9 @@ importers:
       '@astrojs/vite-plugin-astro':
         specifier: workspace:^
         version: link:../vite-plugin-astro
+      '@astrojs/vite-plugin-router':
+        specifier: workspace:^
+        version: link:../vite-plugin-router
       '@capsizecss/unpack':
         specifier: ^4.0.1
         version: 4.0.1
@@ -593,9 +596,6 @@ importers:
       ci-info:
         specifier: ^4.5.0
         version: 4.5.0
-      cookie:
-        specifier: ^2.0.2
-        version: 2.0.2
       devalue:
         specifier: ^6.0.3
         version: 6.0.3
@@ -4019,6 +4019,15 @@ importers:
 
   packages/astro/test/fixtures/root-srcdir-css:
     dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/router-api:
+    dependencies:
+      '@astrojs/vite-plugin-router':
+        specifier: workspace:*
+        version: link:../../../../vite-plugin-router
       astro:
         specifier: workspace:*
         version: link:../../..

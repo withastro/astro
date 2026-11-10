@@ -1,6 +1,6 @@
 import { REROUTABLE_STATUS_CODES } from '../constants.js';
-import { renderErrorFromState } from '../errors/handler.js';
-import type { FetchState } from '../fetch/fetch-state.js';
+import { renderErrorFromState } from '@astrojs/vite-plugin-router/_internal/core/errors/handler.js';
+import type { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import { type CompiledI18n, finalizeI18n } from './handler.js';
 
 /**

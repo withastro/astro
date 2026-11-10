@@ -2,10 +2,10 @@ import type { APIContext } from '../types/public/context.js';
 import {
 	createCrossOriginForbiddenResponse,
 	isForbiddenCrossOriginRequest,
-} from '../core/app/origin-check.js';
-import { markFeatureUsed, FetchFeatures } from '../core/fetch/features.js';
-import type { FetchState } from '../core/fetch/fetch-state.js';
-import { rejectInvalidEncoding } from '../core/routing/invalid-encoding.js';
+} from '@astrojs/vite-plugin-router/_internal/core/app/origin-check.js';
+import { markHandlerUsed } from '@astrojs/vite-plugin-router/_internal/core/fetch/features.js';
+import type { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
+import { rejectInvalidEncoding } from '@astrojs/vite-plugin-router/_internal/core/routing/invalid-encoding.js';
 import { getActionContext, serializeActionResult } from './runtime/server.js';
 
 /**
@@ -35,7 +35,7 @@ export function handleAction(
 	apiContext: APIContext,
 	state: FetchState,
 ): Promise<Response | undefined> | undefined {
-	markFeatureUsed(state.manifest, FetchFeatures.actions);
+	markHandlerUsed(state.manifest, 'actions');
 	const invalidEncodingResponse = rejectInvalidEncoding(state);
 	if (invalidEncodingResponse) {
 		return Promise.resolve(invalidEncodingResponse);

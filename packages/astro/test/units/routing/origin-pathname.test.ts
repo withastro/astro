@@ -1,7 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { originPathnameSymbol } from '../../../dist/core/constants.js';
-import { getOriginPathname, setOriginPathname } from '../../../dist/core/routing/rewrite.js';
+import {
+	getOriginPathname,
+	setOriginPathname,
+} from '@astrojs/vite-plugin-router/_internal/core/routing/rewrite.js';
 
 describe('setOriginPathname', () => {
 	describe('with trailingSlash = "always"', () => {

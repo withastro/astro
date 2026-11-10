@@ -4,7 +4,7 @@ import {
 	createAssetLink,
 	createModuleScriptElement,
 	createStylesheetElementSet,
-} from '../../../dist/core/render/ssr-element.js';
+} from '@astrojs/vite-plugin-router/_internal/core/render/ssr-element.js';
 
 describe('createAssetLink', () => {
 	it('returns href unchanged when no base or prefix', () => {

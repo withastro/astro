@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
 import { pluginIncremental } from '../../../dist/core/build/plugins/plugin-incremental.js';
-import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../dist/vite-plugin-pages/const.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '@astrojs/vite-plugin-router/_internal/vite-plugin-pages/const.js';
 
 const ROOT = new URL('file:///project/');
 const PAGE_ID = '/project/src/pages/[slug].astro';

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { pluginEsbuildCheck } from '../../../dist/core/build/plugins/plugin-esbuild-check.js';
+import { pluginEsbuildCheck } from '@astrojs/vite-plugin-router/_internal/core/build/plugins/plugin-esbuild-check.js';
 
 function runBuildStart(build: Record<string, unknown>, canResolveEsbuild: boolean) {
 	const plugin = pluginEsbuildCheck(() => canResolveEsbuild);

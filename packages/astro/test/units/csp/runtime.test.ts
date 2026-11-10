@@ -6,7 +6,7 @@ import {
 	deduplicateDirectiveValues,
 	partitionByKind,
 	pushDirective,
-} from '../../../dist/core/csp/runtime.js';
+} from '@astrojs/vite-plugin-router/_internal/core/csp/runtime.js';
 
 describe('partitionByKind', () => {
 	it('groups resources and hashes by their kind (bare entries are "default")', () => {

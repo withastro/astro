@@ -1,8 +1,9 @@
-import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
-import type { FetchState } from '../fetch/fetch-state.js';
-import type { SSRManifest } from '../app/types.js';
-import { getEnvironment } from '../environment/index.js';
-import { createManifestMemo } from '../manifest/memo.js';
+import type { ContextProvider } from '@astrojs/vite-plugin-router';
+import { markHandlerUsed } from '@astrojs/vite-plugin-router/_internal/core/fetch/features.js';
+import type { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
+import { getEnvironment } from '@astrojs/vite-plugin-router/_internal/core/environment/index.js';
+import { createManifestMemo } from '@astrojs/vite-plugin-router/_internal/core/manifest/memo.js';
 import { getCacheProvider } from './provider.js';
 import { AstroCache, applyCacheHeaders, type CacheLike } from './runtime/cache.js';
 import { NoopAstroCache, DisabledAstroCache } from './runtime/noop.js';
@@ -15,37 +16,35 @@ import {
 const CACHE_KEY = 'cache';
 
 /**
- * Registers a cache provider on the given `FetchState`. When
- * `state.resolve('cache')` is first called, the appropriate cache
- * implementation is created (disabled, noop for dev, or real).
+ * Creates the provider of `Astro.cache` / `context.cache`: a disabled cache
+ * that warns once on use when caching is not configured, a no-op cache in
+ * dev, else the configured cache.
  *
  * Returns synchronously when cache is not configured or in dev mode.
  */
-export function provideCache(state: FetchState): Promise<void> | void {
+export function createCacheProvider(
+	state: FetchState,
+): ContextProvider<CacheLike> | Promise<ContextProvider<CacheLike>> {
 	const manifest = state.manifest;
 
 	if (!manifest.cacheConfig) {
-		// Cache not configured — provide a disabled cache that warns once
-		state.provide<CacheLike>(CACHE_KEY, {
-			create: () => new DisabledAstroCache(state.logger),
-		});
-		return;
+		return { create: () => new DisabledAstroCache(state.logger) };
 	}
 
 	if (getEnvironment(manifest).runtimeMode === 'development') {
-		state.provide<CacheLike>(CACHE_KEY, {
-			create: () => new NoopAstroCache(),
-		});
-		return;
+		return { create: () => new NoopAstroCache() };
 	}
 
-	return provideCacheAsync(state, manifest);
+	return createCacheProviderAsync(state, manifest);
 }
 
-async function provideCacheAsync(state: FetchState, manifest: SSRManifest): Promise<void> {
+async function createCacheProviderAsync(
+	state: FetchState,
+	manifest: SSRManifest,
+): Promise<ContextProvider<CacheLike>> {
 	const cacheProvider = await getCacheProvider(manifest);
 
-	state.provide<CacheLike>(CACHE_KEY, {
+	return {
 		create() {
 			const cache = new AstroCache(cacheProvider);
 
@@ -61,7 +60,20 @@ async function provideCacheAsync(state: FetchState, manifest: SSRManifest): Prom
 
 			return cache;
 		},
-	});
+	};
+}
+
+/**
+ * Registers the cache provider on the given `FetchState`. When
+ * `state.resolve('cache')` is first called, the appropriate cache
+ * implementation is created (disabled, noop for dev, or real).
+ */
+export function provideCache(state: FetchState): Promise<void> | void {
+	const provider = createCacheProvider(state);
+	if (provider instanceof Promise) {
+		return provider.then((p) => state.provide(CACHE_KEY, p));
+	}
+	state.provide(CACHE_KEY, provider);
 }
 
 /**
@@ -81,7 +93,7 @@ export async function handleCache(
 	state: FetchState,
 	next: () => Promise<Response>,
 ): Promise<Response> {
-	markFeatureUsed(state.manifest, FetchFeatures.cache);
+	markHandlerUsed(state.manifest, 'cache');
 	if (!state.manifest.cacheProvider) {
 		return next();
 	}

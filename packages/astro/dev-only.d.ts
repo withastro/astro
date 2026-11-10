@@ -90,7 +90,9 @@ declare module 'virtual:astro:app' {
 }
 
 declare module 'virtual:astro:fetchable' {
-	const fetchable: { fetch: import('./src/core/fetch/types.js').FetchHandler };
+	const fetchable: {
+		fetch: import('@astrojs/vite-plugin-router/_internal/core/fetch/types.js').FetchHandler;
+	};
 	export default fetchable;
 	export const isDefaultFetchHandler: true | undefined;
 }

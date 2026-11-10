@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it } from 'node:test';
-import { renderForPrerender, type PrerenderableApp } from '../../../dist/core/app/prerender.js';
+import {
+	renderForPrerender,
+	type PrerenderableApp,
+} from '@astrojs/vite-plugin-router/_internal/core/app/prerender.js';
 import { uninstallRenderScope } from '@astrojs/runtime/_internal/core/render-scope/scope.js';
 import { ensureAsyncRenderScope } from '@astrojs/runtime/_internal/core/render-scope/node-scope.js';
 import {
@@ -8,8 +11,11 @@ import {
 	recordStaticImage,
 } from '@astrojs/runtime/_internal/core/render-scope/record.js';
 import type { SerializedStaticImage } from '../../../dist/assets/types.js';
-import { getEnvironment, setEnvironment } from '../../../dist/core/environment/index.js';
-import { productionEnvironment } from '../../../dist/core/environment/production.js';
+import {
+	getEnvironment,
+	setEnvironment,
+} from '@astrojs/vite-plugin-router/_internal/core/environment/index.js';
+import { productionEnvironment } from '@astrojs/vite-plugin-router/_internal/core/environment/production.js';
 import { createManifest } from '../app/test-helpers.ts';
 import { defaultLogger } from '../test-utils.ts';
 
@@ -57,7 +63,7 @@ describe('renderForPrerender', () => {
 		});
 		assert.deepEqual(metadata?.contentEntryKeys, ['at-render', 'during-body-pull']);
 		assert.deepEqual(
-			metadata?.staticImages?.map((img) => img.hash),
+			metadata?.staticImages?.map((img) => (img as { hash: string }).hash),
 			['during-body-pull'],
 		);
 		assert.equal(response.status, 200);

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { mergeInlineCss } from '../../../dist/core/build/runtime.js';
+import { mergeInlineCss } from '@astrojs/vite-plugin-router/_internal/core/build/runtime.js';
 
 describe('mergeInlineCss', () => {
 	it('merges consecutive inline CSS chunks', () => {

@@ -2,7 +2,7 @@ import type fsType from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { isRunnableDevEnvironment, type RunnableDevEnvironment, type ViteDevServer } from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
-import { debug } from '../logger/core.js';
+import { debug } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import { createMinimalViteDevServer } from '../createMinimalViteDevServer.js';
 

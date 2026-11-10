@@ -1,7 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it } from 'node:test';
-import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
-import { AstroLogger } from '../../../dist/core/logger/core.js';
+import type {
+	AstroLoggerMessage,
+	AstroLoggerDestination,
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import jsonFactory, { SGR_REGEX } from '../../../dist/core/logger/impls/json.js';
 
 let logs: AstroLoggerMessage[] = [];

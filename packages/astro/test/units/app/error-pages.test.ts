@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { App } from '../../../dist/core/app/app.js';
+import { App } from '@astrojs/vite-plugin-router/_internal/core/app/app.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
-import type { SSRManifest } from '../../../dist/core/app/types.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import { createComponent, maybeRenderHead, render } from '../../../dist/runtime/server/index.js';
 import { createManifest } from './test-helpers.ts';
 

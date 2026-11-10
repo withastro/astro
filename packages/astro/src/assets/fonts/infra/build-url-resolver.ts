@@ -1,6 +1,6 @@
 import { fileExtension, joinPaths, prependForwardSlash } from '../../../core/path.js';
 import type { AssetsPrefix } from '../../../types/public/index.js';
-import { getAssetsPrefix } from '../../utils/getAssetsPrefix.js';
+import { getAssetsPrefix } from '@astrojs/vite-plugin-router/_internal/assets/utils/getAssetsPrefix.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from '../../utils/url.js';
 import type { UrlResolver } from '../definitions.js';
 

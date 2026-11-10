@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, it, before } from 'node:test';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
-import type { AstroLoggerDestination } from '../../../dist/core/logger/core.js';
-import { AstroLogger } from '../../../dist/core/logger/core.js';
-import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
+import type { AstroLoggerDestination } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import {
+	RouteCache,
+	callGetStaticPaths,
+} from '@astrojs/vite-plugin-router/_internal/core/render/route-cache.js';
 import { makeRoute } from './test-helpers.ts';
 
 function mod(overrides: Partial<ComponentInstance>): ComponentInstance {

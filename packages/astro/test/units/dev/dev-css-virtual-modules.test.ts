@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { wrapId } from '../../../dist/core/util.js';
-import { astroDevCssPlugin } from '../../../dist/vite-plugin-css/index.js';
+import { astroDevCssPlugin } from '@astrojs/vite-plugin-router/_internal/vite-plugin-css/index.js';
 
 describe('dev CSS plugin environments', () => {
 	it('applies both plugins to the fallback Astro environment in dev', () => {

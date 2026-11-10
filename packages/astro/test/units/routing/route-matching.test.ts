@@ -1,8 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { matchAllRoutes } from '../../../dist/core/routing/match.js';
+import { matchAllRoutes } from '@astrojs/vite-plugin-router/_internal/core/routing/match.js';
 import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
-import { routeComparator } from '../../../dist/core/routing/priority.js';
+import { routeComparator } from '@astrojs/vite-plugin-router/_internal/core/routing/priority.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import type { RoutesList } from '../../../dist/types/astro.js';
 import { createBasicSettings, createFixture, defaultLogger } from '../test-utils.ts';

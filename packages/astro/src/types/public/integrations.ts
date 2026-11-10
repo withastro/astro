@@ -1,17 +1,27 @@
 import type { AddressInfo } from 'node:net';
 import type { AstroRenderer, ClientDirectiveConfig } from '@astrojs/vite-plugin-astro';
+import type {
+	InjectedRoute,
+	Prerenderer,
+	PrerenderRenderMetadata as RouterPrerenderRenderMetadata,
+	PrerenderResult as RouterPrerenderResult,
+	StaticPathsMetadata as RouterStaticPathsMetadata,
+	StaticPathsResult as RouterStaticPathsResult,
+} from '@astrojs/vite-plugin-router';
 import type { ViteDevServer, InlineConfig } from 'vite';
-import type { SerializedSSRManifest } from '../../core/app/types.js';
+import type { SerializedSSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import type { AssetsGlobalStaticImagesList, SerializedStaticImage } from '../../assets/types.js';
-import type { PageBuildData } from '../../core/build/types.js';
-import type { AstroIntegrationLogger } from '../../core/logger/core.js';
+import type { PageBuildData } from '@astrojs/vite-plugin-router/_internal/core/build/types.js';
+import type { AstroIntegrationLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { AdapterFeatureStability } from '../../integrations/features-validation.js';
 import type { getToolbarServerCommunicationHelpers } from '../../integrations/hooks.js';
 import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig } from './config.js';
 import type { RefreshContentOptions } from './content.js';
-import type { InternalInjectedRoute, RouteData } from './internal.js';
+import type { RouteData } from './internal.js';
 import type { DevToolbarAppEntry } from './toolbar.js';
+
+export type { PathWithRoute } from '@astrojs/vite-plugin-router';
 
 export interface RouteOptions {
 	/**
@@ -33,6 +43,7 @@ export type {
 	ClientDirective,
 	ClientDirectiveConfig,
 } from '@astrojs/vite-plugin-astro';
+export type { InjectedRoute } from '@astrojs/vite-plugin-router';
 
 export type AdapterSupportsKind =
 	(typeof AdapterFeatureStability)[keyof typeof AdapterFeatureStability];
@@ -213,53 +224,17 @@ export type AstroAdapter = {
 	client?: AstroAdapterClientConfig;
 } & (AdapterExplicitProperties | AdapterAutoProperties);
 
-/**
- * A pathname with its associated route, used for prerendering.
- */
-export interface PathWithRoute {
-	pathname: string;
-	route: RouteData;
-	cacheKey?: string;
-}
-
-/**
- * Incremental-build data a prerenderer collects while rendering a page,
- * reported back to the build orchestrator so skipped pages can be tracked and
- * replayed without a re-render. This is the only attribution channel: every
- * prerenderer — in-process and out-of-process — collects in its own rendering
- * runtime and reports the result by value here.
- */
-export interface PrerenderRenderMetadata {
-	/** Root-relative `filePath`s of the content entries the page rendered, or an empty array. */
-	contentEntryKeys: string[];
-	/** Optimized-image transforms the page resolved, or an empty array. */
-	staticImages: SerializedStaticImage[];
-	/** Absolute source paths of images the page referenced without a transform. */
-	referencedImages?: string[];
-}
+/** Incremental-build data a prerenderer collects while rendering a page. */
+export type PrerenderRenderMetadata = RouterPrerenderRenderMetadata<SerializedStaticImage>;
 
 /** Image data recorded while computing static paths, e.g. by `getImage()` in `getStaticPaths()`. */
-export type StaticPathsMetadata = Pick<
-	PrerenderRenderMetadata,
-	'staticImages' | 'referencedImages'
->;
+export type StaticPathsMetadata = RouterStaticPathsMetadata<SerializedStaticImage>;
 
 /** The paths a prerenderer's `getStaticPaths()` returns, with the images they resolved. */
-export interface StaticPathsResult {
-	paths: PathWithRoute[];
-	metadata?: StaticPathsMetadata;
-}
+export type StaticPathsResult = RouterStaticPathsResult<SerializedStaticImage>;
 
-/**
- * The richer result a prerenderer's `render()` may return instead of a bare
- * `Response`, pairing the rendered response with the incremental-build metadata
- * collected for that page. `metadata` is `undefined` when the page was not
- * tracked (the prerenderer could not collect).
- */
-export interface PrerenderResult {
-	response: Response;
-	metadata?: PrerenderRenderMetadata;
-}
+/** The result a prerenderer's `render()` may return instead of a bare `Response`. */
+export type PrerenderResult = RouterPrerenderResult<SerializedStaticImage>;
 
 /** The output directories resolved by Vite for each Astro build environment. */
 export interface AstroBuildOutputDirectories {
@@ -289,39 +264,7 @@ export type AstroPrerendererFactory = (
  * A prerenderer running outside of Astro's process calls `installRenderScope()`, then
  * `StaticPaths.getAllWithMetadata()` and `renderForPrerender()` so images are collected.
  */
-export interface AstroPrerenderer {
-	name: string;
-	/**
-	 * Called once before prerendering starts. Use for setup like starting a preview server.
-	 */
-	setup?: () => Promise<void>;
-	/**
-	 * Returns pathnames with their routes to prerender. The route is included to avoid
-	 * needing to re-match routes later, which can be incorrect due to route priority.
-	 *
-	 * Returning a bare array instead of a {@link StaticPathsResult} is deprecated.
-	 */
-	getStaticPaths: () => Promise<PathWithRoute[] | StaticPathsResult>;
-	/**
-	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
-	 * @param request - The request to render. The URL reflects the build format
-	 *   (e.g. trailing slash for `directory` format). To get the canonical pathname,
-	 *   use the `pathname` from the `PathWithRoute` entry returned by `getStaticPaths`.
-	 * @param options - Render options
-	 * @param options.routeData - The matched route for this path
-	 * @param options.collectMetadata - Deprecated, always `true`.
-	 *   The prerenderer should collect the page's per-render
-	 *   incremental metadata in its rendering runtime and report it on a
-	 *   {@link PrerenderResult}. A prerenderer that cannot collect may ignore the
-	 *   flag and return a bare `Response`; its paths are then recorded as
-	 *   "not tracked".
-	 * @returns A {@link PrerenderResult}, whose metadata tells Astro which images to generate.
-	 *   Returning a bare `Response` is deprecated.
-	 */
-	render: (
-		request: Request,
-		options: { routeData: RouteData; collectMetadata?: boolean },
-	) => Promise<Response | PrerenderResult>;
+export interface AstroPrerenderer extends Prerenderer<SerializedStaticImage> {
 	/**
 	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
 	 * into the Node-side static image list. The default Sharp pipeline runs after.
@@ -329,10 +272,6 @@ export interface AstroPrerenderer {
 	 * @deprecated Report images from `getStaticPaths()` and `render()`, and set the `build` image service with `image.service`.
 	 */
 	collectStaticImages?: () => Promise<AssetsGlobalStaticImagesList>;
-	/**
-	 * Called after all pages are prerendered and images are generated. Use for cleanup like stopping a preview server.
-	 */
-	teardown?: () => Promise<void>;
 }
 
 export type AstroAdapterFeatureMap = {
@@ -379,8 +318,6 @@ export type AstroAdapterFeatureMap = {
  * - "page-ssr": Injected into the frontmatter of every Astro page. Processed & resolved by Vite.
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
-
-export type InjectedRoute = Omit<InternalInjectedRoute, 'origin'>;
 
 export interface InjectedType {
 	filename: string;

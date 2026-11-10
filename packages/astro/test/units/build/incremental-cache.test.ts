@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { IncrementalBuildCache } from '../../../dist/core/build/incremental.js';
+import { IncrementalBuildCache } from '@astrojs/vite-plugin-router/_internal/core/build/incremental.js';
 
 const ROUTE = 'src/pages/[slug].astro';
 const HASH = 'deadbeef';

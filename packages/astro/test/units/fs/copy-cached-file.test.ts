@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { describe, it } from 'node:test';
-import { copyCachedFile } from '../../../dist/core/fs/index.js';
+import { copyCachedFile } from '@astrojs/vite-plugin-router/_internal/core/fs/index.js';
 import { createFixture } from '../test-utils.ts';
 
 describe('copyCachedFile', () => {

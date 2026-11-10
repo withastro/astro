@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { renderPath } from '../../../dist/core/build/generate.js';
+import { renderPath } from '@astrojs/vite-plugin-router/_internal/core/build/generate.js';
 import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.ts';
 import { createTestApp, createPage } from '../mocks.ts';
 import { SpyLogger } from '../test-utils.ts';
 import { createComponent, render, renderComponent } from '../../../dist/runtime/server/index.js';
 
-import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
+import type { StaticBuildOptions } from '@astrojs/vite-plugin-router/_internal/core/build/types.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import type { MiddlewareHandler } from '../../../dist/types/public/common.js';
 

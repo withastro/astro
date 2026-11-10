@@ -1,8 +1,11 @@
 import { stringify as devalueStringify } from 'devalue';
 import * as z from 'zod/v4/core';
-import { shouldAppendForwardSlash } from '../../core/build/util.js';
-import { REDIRECT_STATUS_CODES } from '../../core/constants.js';
-import { getFetchStateFromAPIContext } from '../../core/fetch/fetch-state.js';
+import { shouldAppendForwardSlash } from '@astrojs/vite-plugin-router/_internal/core/build/util.js';
+import { fetchStateSymbol, REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import {
+	type FetchState,
+	getFetchStateFromAPIContext,
+} from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import { getAction } from '../load.js';
 import {
 	ActionCalledFromServerError,
@@ -11,7 +14,10 @@ import {
 } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
-import { BodySizeLimitError, readBodyWithLimit } from '../../core/request-body.js';
+import {
+	BodySizeLimitError,
+	readBodyWithLimit,
+} from '@astrojs/vite-plugin-router/_internal/core/request-body.js';
 import type { APIContext } from '../../types/public/index.js';
 import { ACTION_QUERY_PARAMS, ACTION_RPC_ROUTE_PATTERN } from '../consts.js';
 import {
@@ -202,7 +208,8 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					throw error;
 				}
 
-				const bodySizeLimit = manifest.actionBodySizeLimit;
+				// Hand-built manifests (the container, tests) may omit the limit.
+				const bodySizeLimit = manifest.actionBodySizeLimit ?? 1024 * 1024;
 				let input;
 				try {
 					input = await parseRequestBody(context.request, bodySizeLimit);
@@ -247,6 +254,15 @@ export function getActionContext(context: APIContext): AstroActionContext {
 			actionResult,
 			actionName,
 		};
+		// A failed action sets the status of the page that renders its result.
+		const state = (context as any)[fetchStateSymbol] as FetchState | undefined;
+		if (state && actionResult.type === 'error') {
+			const { error } = deserializeActionResult(actionResult);
+			if (error) {
+				state.status = error.status;
+				state.statusText = error.type;
+			}
+		}
 	}
 	return {
 		action,
