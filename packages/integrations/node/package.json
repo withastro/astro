@@ -33,8 +33,7 @@
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
-    "send": "^1.2.1",
-    "server-destroy": "^1.0.1"
+    "send": "^1.2.1"
   },
   "peerDependencies": {
     "astro": "^7.2.1"
@@ -45,7 +44,6 @@
     "@types/express": "^5.0.6",
     "@types/node": "^22.10.6",
     "@types/send": "^1.2.1",
-    "@types/server-destroy": "^1.0.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",

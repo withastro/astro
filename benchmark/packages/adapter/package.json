@@ -20,14 +20,10 @@
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
-  "dependencies": {
-    "server-destroy": "^1.0.1"
-  },
   "peerDependencies": {
     "astro": "workspace:*"
   },
   "devDependencies": {
-    "@types/server-destroy": "^1.0.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
   }
