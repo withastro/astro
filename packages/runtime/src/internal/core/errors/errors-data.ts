@@ -798,7 +798,7 @@ export const IncompatibleDescriptorOptions = {
  * @description
  * Astro could not find an image you imported. Often, this is simply caused by a typo in the path.
  *
- * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `../../../core/errors/`
+ * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `./`
  */
 export const ImageNotFound = {
 	name: 'ImageNotFound',
@@ -1184,7 +1184,7 @@ export const InvalidGlob = {
 	name: 'InvalidGlob',
 	title: 'Invalid glob pattern.',
 	message: (globPattern: string) =>
-		`Invalid glob pattern: \`${globPattern}\`. Glob patterns must start with '../../../core/errors/', '../../../core/' or '/'.`,
+		`Invalid glob pattern: \`${globPattern}\`. Glob patterns must start with './', '../' or '/'.`,
 	hint: 'See https://docs.astro.build/en/guides/imports/#glob-patterns for more information on supported glob patterns.',
 } satisfies ErrorData;
 /**
