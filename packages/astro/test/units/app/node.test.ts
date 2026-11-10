@@ -1255,6 +1255,43 @@ describe('node', () => {
 			assert.equal(socket.listenerCount('close'), 0);
 		});
 	});
+
+	describe('writeResponse stream errors', () => {
+		async function writeErroringBody(error: Error): Promise<unknown[][]> {
+			const body = new ReadableStream({
+				start(controller) {
+					controller.enqueue(new TextEncoder().encode('first chunk'));
+					setTimeout(() => controller.error(error), 0);
+				},
+			});
+			const destination = new MockServerResponse(mockNodeRequest) as any;
+			const printed: unknown[][] = [];
+			const originalConsoleError = console.error;
+			console.error = (...args: unknown[]) => printed.push(args);
+			try {
+				await writeResponse(new Response(body), destination);
+				destination.emit('close');
+				await new Promise((resolve) => setTimeout(resolve, 10));
+			} finally {
+				console.error = originalConsoleError;
+			}
+			return printed;
+		}
+
+		it('prints an error from a stream that the renderer did not log', async () => {
+			const error = new Error('Endpoint stream failed');
+			const printed = await writeErroringBody(error);
+			assert.equal(printed.length, 1);
+			assert.equal(printed[0].at(-1), error);
+		});
+
+		it('skips an error the renderer already logged', async () => {
+			const error = new Error('Failed after the page started streaming');
+			Reflect.set(error, Symbol.for('astro.streamErrorLogged'), true);
+			const printed = await writeErroringBody(error);
+			assert.equal(printed.length, 0);
+		});
+	});
 });
 
 class MockServerResponse extends EventEmitter {

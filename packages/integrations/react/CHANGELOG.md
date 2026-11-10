@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 7.1.5
+
+### Patch Changes
+
+- [#18664](https://github.com/withastro/astro/pull/18664) [`1713dc0`](https://github.com/withastro/astro/commit/1713dc0f88435cd2f8b78624b73cd8bb5154045f) Thanks [@ocavue](https://github.com/ocavue)! - Expands the peer dependency version range for `oxc-transform-react` from `^0.145.0` to `>=0.145.0 <0.157.0`.
+
 ## 7.1.4
 
 ### Patch Changes
