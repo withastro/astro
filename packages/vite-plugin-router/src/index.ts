@@ -8,6 +8,7 @@ export {
 } from './options.js';
 export {
 	type BuildDoneResult,
+	default,
 	type FetchHandlerDefinition,
 	getRouterApi,
 	type InjectRouteOptions,

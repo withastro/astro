@@ -1,6 +1,6 @@
 # @astrojs/vite-plugin-router
 
-A Vite plugin for Astro's file-based routing: the route table of `src/pages/`, the request pipeline (middleware, redirects, rewrites, error pages, server islands, `<ClientRouter />`), the dev server and the production build that the `astro` CLI runs, and the API that feature plugins build on, `api.astroRouter`. It requires `astro()` from [`@astrojs/vite-plugin-astro`](../vite-plugin-astro/).
+A Vite plugin for Astro's file-based routing. With `astro()` from [`@astrojs/vite-plugin-astro`](../vite-plugin-astro/), it serves the pages and endpoints in `src/pages/` from `vite dev` and builds them with `vite build`: prerendered pages and, when a route renders on demand, a server entry that default-exports a Web `fetch` handler. It also runs the request pipeline (middleware, redirects, rewrites, error pages, server islands, `<ClientRouter />`) and exposes the API that feature plugins build on, `api.astroRouter`. See [API.md](./API.md) for the plugin API.
 
 ## Documentation
 

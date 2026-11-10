@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+export function getStaticPaths() {
+	return [{ params: { slug: 'first' } }, { params: { slug: 'second' } }];
+}
+
+const { slug } = Astro.params;
+---
+<Layout title={slug}><h1>Post {slug}</h1></Layout>

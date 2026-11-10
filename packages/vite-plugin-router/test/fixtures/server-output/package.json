@@ -1,0 +1,11 @@
+{
+  "name": "@test/vite-plugin-router-server-output",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astrojs/vite-plugin-astro": "workspace:*",
+    "@astrojs/vite-plugin-router": "workspace:*",
+    "vite": "^8.3.3"
+  }
+}

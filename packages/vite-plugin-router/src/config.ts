@@ -12,7 +12,7 @@ import type { ResolvedRouterPluginOptions } from './options.js';
  */
 export interface RouterConfig
 	extends ResolvedSharedConfig,
-		Omit<ResolvedRouterPluginOptions, 'build'> {
+		Omit<ResolvedRouterPluginOptions, 'srcDir' | 'build'> {
 	/** Absolute source directory (`srcDir`), with a trailing slash. */
 	srcDir: URL;
 	build: Omit<ResolvedRouterPluginOptions['build'], 'client' | 'server'> & {

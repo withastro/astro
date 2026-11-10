@@ -7818,6 +7818,30 @@ importers:
         specifier: ^8.3.3
         version: 8.3.6(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.108.0)(tsx@4.23.15)(yaml@2.9.1)
 
+  packages/vite-plugin-router/test/fixtures/basic:
+    dependencies:
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../../../vite-plugin-astro
+      '@astrojs/vite-plugin-router':
+        specifier: workspace:*
+        version: link:../../..
+      vite:
+        specifier: ^8.3.3
+        version: 8.3.6(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.108.0)(tsx@4.23.15)(yaml@2.9.1)
+
+  packages/vite-plugin-router/test/fixtures/server-output:
+    dependencies:
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../../../vite-plugin-astro
+      '@astrojs/vite-plugin-router':
+        specifier: workspace:*
+        version: link:../../..
+      vite:
+        specifier: ^8.3.3
+        version: 8.3.6(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.108.0)(tsx@4.23.15)(yaml@2.9.1)
+
   scripts:
     dependencies:
       jsonc-parser:
