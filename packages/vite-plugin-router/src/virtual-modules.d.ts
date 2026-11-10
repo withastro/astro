@@ -19,6 +19,10 @@ declare module 'virtual:astro:fetchable' {
 	export const isDefaultFetchHandler: true | undefined;
 }
 
+declare module 'virtual:astro:app' {
+	export const createApp: import('./internal/core/app/types.js').CreateApp;
+}
+
 declare module 'virtual:astro:component-metadata' {
 	export const componentMetadataEntries: [
 		string,

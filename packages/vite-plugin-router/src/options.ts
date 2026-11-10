@@ -56,6 +56,7 @@ export const RouterSecurityOptionsSchema = z.object({
  * `RouterSecurityOptionsSchema`.
  */
 export const RouterPluginOptionsSchema = z.object({
+	srcDir: z.string().optional().default(ROUTER_PLUGIN_DEFAULTS.srcDir),
 	output: z
 		.union([z.literal('static'), z.literal('server')])
 		.optional()
@@ -89,6 +90,13 @@ export const RouterPluginOptionsSchema = z.object({
  * options (`server.host`, `server.port`, `server.headers`, …).
  */
 export interface RouterPluginOptions {
+	/**
+	 * Directory of the project's source files, relative to Vite's `root`. Pages live in its
+	 * `pages/` directory.
+	 *
+	 * @default './src'
+	 */
+	srcDir?: string;
 	/**
 	 * `'static'` prerenders every page unless it opts out with `export const prerender = false`.
 	 * `'server'` renders on demand unless a page opts in with `export const prerender = true`.
