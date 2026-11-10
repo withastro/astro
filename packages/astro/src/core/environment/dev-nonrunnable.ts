@@ -213,6 +213,7 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 		errorStrategy: 'dev',
 		rendersRedirectPage: () => false,
 		injectCspMetaTagsOnErrorPages: false,
+		logsStreamErrors: false,
 
 		logRequest(manifest: SSRManifest, payload: RequestLogPayload): void {
 			const { pathname, method, statusCode, isRewrite, timeStart } = payload;

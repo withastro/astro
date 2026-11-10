@@ -18,6 +18,21 @@ import { isRenderTemplateResult } from './render-template.js';
 const DOCTYPE_EXP = /<!doctype html/i;
 
 /**
+ * Logs an error thrown while streaming a body through `result.logger` and marks it with
+ * `Symbol.for('astro.streamErrorLogged')`, so body consumers that also report stream errors
+ * (`writeResponse`) skip it. Does nothing when `result.logger` is unset or once the client has
+ * disconnected.
+ */
+function reportStreamError(result: SSRResult, err: unknown) {
+	if (result.cancelled || !result.logger) return;
+	const error = err as Error | undefined;
+	result.logger.error(error?.stack || error?.message || String(err));
+	if (typeof err === 'object' && err !== null) {
+		Reflect.set(err, Symbol.for('astro.streamErrorLogged'), true);
+	}
+}
+
+/**
  * Renders a component tree to a string using the streaming engine.
  */
 async function renderStreamToString(
@@ -115,6 +130,7 @@ async function renderStreamToStream(
 							file: route?.component,
 						});
 					}
+					reportStreamError(result, e);
 
 					// Report the error on the next microtask, so the chunks already written synchronously flush first
 					setTimeout(() => controller.error(e), 0);
@@ -267,6 +283,7 @@ async function renderStreamToAsyncIterable(
 
 	renderResult
 		.catch((err) => {
+			reportStreamError(result, err);
 			error = err;
 		})
 		.finally(() => {
