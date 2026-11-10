@@ -16,7 +16,7 @@ describe('svgoOptimizer', () => {
 				},
 			});
 			await import(${JSON.stringify(entrypoint)});
-			console.log(loaded);
+			process.stdout.write(String(loaded));
 		`;
 		const output = execFileSync(process.execPath, ['--input-type=module', '-e', script], {
 			encoding: 'utf-8',
