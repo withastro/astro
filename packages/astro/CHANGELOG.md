@@ -1,5 +1,19 @@
 # astro
 
+## 7.4.10
+
+### Patch Changes
+
+- [#18621](https://github.com/withastro/astro/pull/18621) [`8a61493`](https://github.com/withastro/astro/commit/8a61493b016c6ef46320f77ee57fc8a3dee4ab6e) Thanks [@marcalexiei](https://github.com/marcalexiei)! - Fixes the dev toolbar's audit freezing an image's CSS animations in Safari, by reading the image's size from the request that loaded it instead of fetching it again
+
+- [#18691](https://github.com/withastro/astro/pull/18691) [`f787792`](https://github.com/withastro/astro/commit/f7877920f114223ddd4446d6a2867b305e5676d1) Thanks [@ematipico](https://github.com/ematipico)! - Improves startup time of `astro` commands by loading SVGO only when `svgoOptimizer()` optimizes an SVG, instead of whenever `astro/config` is imported
+
+- [#18678](https://github.com/withastro/astro/pull/18678) [`ea63d76`](https://github.com/withastro/astro/commit/ea63d761902e0e3d82773e8ae741ff5c58585ce3) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes duplicate CSS loading for hydrated islands that share modules or are imported through a path alias. The client build no longer emits and preloads stylesheets that are already linked on the page by the server build.
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/markdown-satteri@0.4.8
+  - @astrojs/vite-plugin-astro@0.1.1
+
 ## 7.4.9
 
 ### Patch Changes
