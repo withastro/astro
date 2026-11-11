@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { SERIALIZED_MANIFEST_ID } from './serialized.js';
+import { SERIALIZED_MANIFEST_ID } from '@astrojs/vite-plugin-router/_internal/core/constants.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { fromRoutingStrategy, toFallbackType, toRoutingStrategy } from '../core/app/common.js';
 import type { AstroSettings } from '../types/astro.js';

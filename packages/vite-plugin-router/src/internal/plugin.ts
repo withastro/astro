@@ -16,6 +16,7 @@ import {
 	vitePluginTransitions,
 } from '../transitions/vite-plugin-transitions.js';
 import { RouterRegistry } from './registry.js';
+import type { RouterPluginCli } from './cli.js';
 import { standalonePlugins } from '../standalone.js';
 import { vitePluginServerOutput } from './vite-plugin-server-output/index.js';
 import type {
@@ -225,9 +226,9 @@ const PLUGIN_NAME = '@astrojs/vite-plugin-router';
 
 /**
  * The plugin that exposes `registry.api` as `api.astroRouter`, plus the plugins that turn
- * registrations into server modules. `router()` includes it; the `astro` CLI composes it directly.
+ * registrations into server modules.
  */
-export function routerApiPlugins(
+function routerApiPlugins(
 	registry: RouterRegistry,
 	transitionsModuleIds?: Partial<TransitionsModuleIds>,
 ): Plugin[] {
@@ -251,14 +252,16 @@ export function routerApiPlugins(
 /**
  * Serves and builds the pages in `src/pages/`. Requires `astro()` from
  * `@astrojs/vite-plugin-astro`, in any position of Vite's `plugins`.
+ *
+ * @param cli For the `astro` CLI only; see `RouterPluginCli`.
  */
-export default function router(options: RouterPluginOptions = {}): Plugin[] {
+export default function router(options: RouterPluginOptions = {}, cli?: RouterPluginCli): Plugin[] {
 	const resolved = RouterPluginOptionsSchema.parse(options);
-	const registry = new RouterRegistry((config) => resolveRouterConfig(resolved, config));
+	const registry = new RouterRegistry((config) => resolveRouterConfig(resolved, config, cli));
 	return [
-		...routerApiPlugins(registry),
+		...routerApiPlugins(registry, cli?.transitionsModuleIds),
 		vitePluginServerOutput(() => options.serverOutput),
-		...standalonePlugins(registry),
+		...standalonePlugins(registry, cli),
 		{
 			name: `${PLUGIN_NAME}:requires-astro`,
 			configResolved(config) {
@@ -275,12 +278,20 @@ function dirUrl(path: string): URL {
 function resolveRouterConfig(
 	options: ResolvedRouterPluginOptions,
 	config: ResolvedConfig,
+	cli: RouterPluginCli | undefined,
 ): RouterConfig {
-	const outDir = dirUrl(resolve(config.root, config.build.outDir));
-	return {
+	const shared = {
 		...getAstroApi(config).config,
 		...options,
 		srcDir: dirUrl(resolve(config.root, options.srcDir)),
+	};
+	if (cli) {
+		const { build, ...rest } = cli.config;
+		return { ...shared, ...rest, build: { ...options.build, ...build } };
+	}
+	const outDir = dirUrl(resolve(config.root, config.build.outDir));
+	return {
+		...shared,
 		build: {
 			...options.build,
 			client: new URL(options.build.client, outDir),
