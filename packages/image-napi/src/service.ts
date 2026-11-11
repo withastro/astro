@@ -120,39 +120,6 @@ function planResize(source: Size, transform: Transform): ResizePlan {
 	}
 }
 
-function parseHexColor(color: string): [number, number, number] | undefined {
-	const hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(color.trim())?.[1];
-	if (!hex) return undefined;
-	const full = hex.length <= 4 ? [...hex].map((c) => c + c).join('') : hex;
-	return [0, 2, 4].map((i) => Number.parseInt(full.slice(i, i + 2), 16)) as [
-		number,
-		number,
-		number,
-	];
-}
-
-function flattenAlphaToRgba(
-	pixels: Uint8Array,
-	pixelCount: number,
-	[r, g, b]: [number, number, number],
-): Uint8Array | undefined {
-	const channels = pixels.length / pixelCount;
-	if (channels !== 4 && channels !== 2) return undefined;
-	const out = new Uint8Array(pixelCount * 4);
-	for (let i = 0; i < pixelCount; i++) {
-		const source = i * channels;
-		const alpha = pixels[source + channels - 1] / 255;
-		const red = pixels[source];
-		const green = channels === 4 ? pixels[source + 1] : red;
-		const blue = channels === 4 ? pixels[source + 2] : red;
-		out[i * 4] = Math.round(red * alpha + r * (1 - alpha));
-		out[i * 4 + 1] = Math.round(green * alpha + g * (1 - alpha));
-		out[i * 4 + 2] = Math.round(blue * alpha + b * (1 - alpha));
-		out[i * 4 + 3] = 255;
-	}
-	return out;
-}
-
 function encode(
 	image: Transformer,
 	format: string,
@@ -215,6 +182,12 @@ const napiImageService: LocalImageService<NapiImageServiceConfig> = {
 			);
 		}
 
+		if (transform.background) {
+			logger.warn(
+				`The @napi-rs/image service does not support \`background\`; it was ignored for "${transform.src}".`,
+			);
+		}
+
 		const plan = planResize(metadata, transform);
 
 		try {
@@ -237,23 +210,6 @@ const napiImageService: LocalImageService<NapiImageServiceConfig> = {
 			}
 			if (plan.crop) {
 				image = image.crop(plan.crop.x, plan.crop.y, plan.crop.width, plan.crop.height);
-			}
-
-			if (transform.background) {
-				const color = parseHexColor(transform.background);
-				if (!color) {
-					logger.warn(
-						`The @napi-rs/image service only supports hex background colors; "${transform.background}" for "${transform.src}" was ignored.`,
-					);
-				} else {
-					const size = plan.crop ?? resize ?? metadata;
-					const flattened = flattenAlphaToRgba(
-						await image.rawPixels(),
-						size.width * size.height,
-						color,
-					);
-					if (flattened) image = Transformer.fromRgbaPixels(flattened, size.width, size.height);
-				}
 			}
 
 			const quality = resolveQuality(transform.quality);
