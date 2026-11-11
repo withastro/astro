@@ -15,14 +15,19 @@ export function getFirstForwardedValue(
 }
 
 /**
- * Sanitize a hostname by rejecting any with path separators.
- * Prevents path injection attacks. Invalid hostnames return undefined.
+ * A host is a hostname (DNS name or IPv4 address) with an optional port. Anything else,
+ * such as userinfo (`user@`), path, query or fragment characters, whitespace or
+ * percent-encoding, is not a valid `Host`/`X-Forwarded-Host` value.
  */
-function sanitizeHost(hostname: string | undefined): string | undefined {
-	if (!hostname) return undefined;
-	// Reject any hostname containing path separators - they're invalid
-	if (/[/\\]/.test(hostname)) return undefined;
-	return hostname;
+const HOST_RE = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*(?::\d{1,5})?$/i;
+
+/**
+ * Returns the host only if it is a plain `hostname[:port]`, otherwise `undefined`.
+ */
+function sanitizeHost(host: string | undefined): string | undefined {
+	if (!host) return undefined;
+	if (!HOST_RE.test(host)) return undefined;
+	return host;
 }
 
 interface ParsedHost {
@@ -63,6 +68,15 @@ function matchesAllowedDomains(
 	}
 
 	const testUrl = new URL(urlString);
+	// The URL must describe exactly the host that was given, so the host that is matched
+	// is the same one callers later apply.
+	if (
+		testUrl.username !== '' ||
+		testUrl.password !== '' ||
+		testUrl.hostname !== hostname.toLowerCase()
+	) {
+		return false;
+	}
 	return allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
 }
 

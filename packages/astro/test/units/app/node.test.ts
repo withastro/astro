@@ -574,6 +574,67 @@ describe('node', () => {
 			});
 		});
 
+		describe('host syntax', () => {
+			// Only a plain `hostname[:port]` is a valid host. Other syntax is rejected before
+			// matching, so the host that is matched is the host that is used.
+			const invalidHosts = [
+				'evil.com:443@example.com',
+				'evil.com:@example.com',
+				'evil.com@example.com',
+				'example.com?',
+				'example.com#',
+				'example.com%2f',
+				'example.com ',
+				'exa mple.com',
+			];
+
+			for (const host of invalidHosts) {
+				it(`ignores x-forwarded-host "${host}"`, () => {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							headers: { host: 'example.com', 'x-forwarded-host': host },
+						},
+						{ allowedDomains: [{ hostname: 'example.com' }] },
+					);
+					assert.equal(result.url, 'https://example.com/');
+				});
+
+				it(`ignores Host header "${host}"`, () => {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							headers: { host },
+						},
+						{ allowedDomains: [{ hostname: 'example.com' }] },
+					);
+					assert.equal(result.url, 'https://localhost/');
+				});
+			}
+
+			it('accepts an upper-case x-forwarded-host', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: { 'x-forwarded-host': 'EXAMPLE.com' },
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('accepts an x-forwarded-host with a port', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: { 'x-forwarded-host': 'example.com:8443' },
+					},
+					{ allowedDomains: [{ hostname: 'example.com', port: '8443' }] },
+				);
+				assert.equal(result.url, 'https://example.com:8443/');
+			});
+		});
+
 		describe('x-forwarded-proto', () => {
 			it('parses protocol from single-value x-forwarded-proto header', () => {
 				const result = createRequest(

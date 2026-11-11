@@ -1252,6 +1252,54 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		assert.equal(state.url.hostname, 'localhost');
 	});
 
+	for (const host of [
+		'evil.com:443@example.com',
+		'evil.com:@example.com',
+		'evil.com:8080@example.com',
+		'evil.com@example.com',
+		'example.com?',
+		'example.com#',
+		'example.com%2f',
+	]) {
+		it(`ignores X-Forwarded-Host "${host}" that is not a plain host`, () => {
+			const app = createTestApp([createPage(simplePage, { route: '/' })], {
+				allowedDomains: [{ hostname: 'example.com' }],
+			});
+			const request = stampApp(
+				new Request('http://localhost:4321/', {
+					headers: {
+						'x-forwarded-proto': 'https',
+						'x-forwarded-host': host,
+					},
+				}),
+				app,
+			);
+			const state = new FetchState(request);
+
+			assert.equal(state.url.hostname, 'localhost');
+			assert.equal(new URL(state.request.url).hostname, 'localhost');
+		});
+	}
+
+	it('applies the hostname and port of an X-Forwarded-Host with a port', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com', port: '8443' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com:8443',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.href, 'https://example.com:8443/');
+		assert.equal(state.request.url, 'https://example.com:8443/');
+	});
+
 	it('resolves clientAddress from X-Forwarded-For when host is trusted', () => {
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			allowedDomains: [{ hostname: 'example.com' }],

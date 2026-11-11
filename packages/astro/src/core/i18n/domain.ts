@@ -53,14 +53,18 @@ export function computePathnameFromDomain(
 			? validateHost(requestHost, protocol.slice(0, -1), allowedDomains)
 			: requestHost;
 		// Forwarded and original hosts are validated against security.allowedDomains when configured.
-		let host = validated.host ?? validatedRequestHost;
+		const host = validated.host ?? validatedRequestHost;
 		// If we don't have a host and a protocol, it's impossible to proceed
 		if (host && protocol) {
-			// The header might have a port in their name, so we remove it
-			host = host.split(':')[0];
 			try {
 				let locale;
+				// Parse the host with the URL parser rather than splitting the string. The header
+				// might have a port in it, which the domain lookup ignores.
 				const hostAsUrl = new URL(`${protocol}//${host}`);
+				if (hostAsUrl.username || hostAsUrl.password) {
+					return undefined;
+				}
+				hostAsUrl.port = '';
 				for (const [domainKey, localeValue] of Object.entries(i18n.domainLookupTable)) {
 					// This operation should be safe because we force the protocol via zod inside the configuration
 					// If not, then it means that the manifest was tampered
