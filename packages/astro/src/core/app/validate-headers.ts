@@ -19,7 +19,7 @@ export function getFirstForwardedValue(
  * such as userinfo (`user@`), path, query or fragment characters, whitespace or
  * percent-encoding, is not a valid `Host`/`X-Forwarded-Host` value.
  */
-const HOST_RE = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*(?::\d{1,5})?$/i;
+const HOST_RE = /^[\w-]+(?:\.[\w-]+)*(?::\d{1,5})?$/;
 
 /**
  * Returns the host only if it is a plain `hostname[:port]`, otherwise `undefined`.
