@@ -1,7 +1,8 @@
 import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { RouteData, SSRElement, SSRManifest } from '../../types/public/internal.js';
-import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { BEFORE_HYDRATION_SCRIPT_ID } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-scripts/index.js';
+import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { HeadElements, RenderEnvironment, TryRewriteResult } from '../environment/index.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
@@ -221,6 +222,7 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 			return getSettings().redirectPage;
 		},
 		injectCspMetaTagsOnErrorPages: false,
+		logsStreamErrors: false,
 		logRequest() {},
 	};
 

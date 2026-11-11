@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "7.3.6",
+  "version": "7.3.7",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -68,9 +68,9 @@
     "astro-scripts": "workspace:*",
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-expression": "^2.0.1",
-    "mdast-util-mdx-jsx": "^3.2.0",
-    "rolldown": "^1.2.16",
-    "shiki": "^4.5.0"
+    "mdast-util-mdx-jsx": "^3.2.1",
+    "rolldown": "~1.2.16",
+    "shiki": "^4.6.0"
   },
   "publishConfig": {
     "provenance": true

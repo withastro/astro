@@ -1,5 +1,40 @@
 # astro
 
+## 7.4.10
+
+### Patch Changes
+
+- [#18621](https://github.com/withastro/astro/pull/18621) [`8a61493`](https://github.com/withastro/astro/commit/8a61493b016c6ef46320f77ee57fc8a3dee4ab6e) Thanks [@marcalexiei](https://github.com/marcalexiei)! - Fixes the dev toolbar's audit freezing an image's CSS animations in Safari, by reading the image's size from the request that loaded it instead of fetching it again
+
+- [#18691](https://github.com/withastro/astro/pull/18691) [`f787792`](https://github.com/withastro/astro/commit/f7877920f114223ddd4446d6a2867b305e5676d1) Thanks [@ematipico](https://github.com/ematipico)! - Improves startup time of `astro` commands by loading SVGO only when `svgoOptimizer()` optimizes an SVG, instead of whenever `astro/config` is imported
+
+- [#18678](https://github.com/withastro/astro/pull/18678) [`ea63d76`](https://github.com/withastro/astro/commit/ea63d761902e0e3d82773e8ae741ff5c58585ce3) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes duplicate CSS loading for hydrated islands that share modules or are imported through a path alias. The client build no longer emits and preloads stylesheets that are already linked on the page by the server build.
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/markdown-satteri@0.4.8
+  - @astrojs/vite-plugin-astro@0.1.1
+
+## 7.4.9
+
+### Patch Changes
+
+- [#18681](https://github.com/withastro/astro/pull/18681) [`bf1828b`](https://github.com/withastro/astro/commit/bf1828be165eacff239f752c394d9048ecc02ee5) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes static builds skipping or failing on pages whose `getStaticPaths()` params contain characters like `%` or `\`, and warns when a prerendered page is skipped because it returned an empty error response
+
+- [#18630](https://github.com/withastro/astro/pull/18630) [`c904827`](https://github.com/withastro/astro/commit/c904827015f4a71e890ac51919adada9c219a3e9) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes bundled scripts and hydrated islands being blocked when `security.csp.scriptDirective.strictDynamic` is enabled. Astro now adds the hash of every bundled script to `script-src` and renders an import map with their `integrity` in the `<head>`.
+
+- [#18611](https://github.com/withastro/astro/pull/18611) [`f98e8a8`](https://github.com/withastro/astro/commit/f98e8a8a90d25d0423763c61badc005c92c282d9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes bundling of a `<script src>` that uses a root-relative path to a project file outside `src/`, such as `/lib/analytics.ts`. The error asking for `is:inline` is now shown only when the path points to a file in `public/`.
+
+- [#18688](https://github.com/withastro/astro/pull/18688) [`1999c84`](https://github.com/withastro/astro/commit/1999c842f8c9e2cd577207550359941f6a2e5691) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes errors thrown after a page has started streaming bypassing the configured `logger`. They are now reported once through it, as one `error` record, in both production and `astro dev`
+- Updated dependencies [[`c904827`](https://github.com/withastro/astro/commit/c904827015f4a71e890ac51919adada9c219a3e9), [`5083c65`](https://github.com/withastro/astro/commit/5083c6540cfe47fb9658ce71f424a3a03448ffaf), [`1999c84`](https://github.com/withastro/astro/commit/1999c842f8c9e2cd577207550359941f6a2e5691), [`5083c65`](https://github.com/withastro/astro/commit/5083c6540cfe47fb9658ce71f424a3a03448ffaf), [`f98e8a8`](https://github.com/withastro/astro/commit/f98e8a8a90d25d0423763c61badc005c92c282d9), [`f98e8a8`](https://github.com/withastro/astro/commit/f98e8a8a90d25d0423763c61badc005c92c282d9)]:
+  - @astrojs/runtime@0.1.0
+  - @astrojs/vite-plugin-astro@0.1.0
+
+## 7.4.8
+
+### Patch Changes
+
+- [#18616](https://github.com/withastro/astro/pull/18616) [`d747a53`](https://github.com/withastro/astro/commit/d747a535f523b92b6514a9f4b25f49922d748bcf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates CLI argument parsing
+
 ## 7.4.7
 
 ### Patch Changes

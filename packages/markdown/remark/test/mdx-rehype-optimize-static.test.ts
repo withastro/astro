@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { compile as _compile, type CompileOptions } from '@mdx-js/mdx';
-import { rehypeOptimizeStatic } from '../dist/mdx/rehype-optimize-static.js';
+import { compile as _compile, type CompileOptions, nodeTypes } from '@mdx-js/mdx';
+import rehypeRaw from 'rehype-raw';
+import { rehypeCollapseScriptStyle } from '../dist/mdx/rehype-collapse-script-style.js';
+import { type OptimizeOptions, rehypeOptimizeStatic } from '../dist/mdx/rehype-optimize-static.js';
 
 async function compile(mdxCode: string, options?: Readonly<CompileOptions>) {
 	const result = await _compile(mdxCode, {
@@ -83,5 +85,49 @@ foo <strong>bar</strong> baz
 <p>foo <strong>bar</strong> baz</p>
 <strong>qux</strong>" />`,
 		);
+	});
+
+	describe('with raw HTML from a plugin', () => {
+		const svg =
+			'<svg><style>.a{stroke:red}</style><defs><marker id="m"><path d="M0 0"/></marker></defs><path marker-end="url(#m)"/></svg>';
+
+		// Mirrors the order in `create-processor.ts`: raw HTML is parsed, then script/style
+		// content is collapsed into `set:html`, then static subtrees are optimized.
+		function compileRawHtml(html: string, optimizeOptions?: OptimizeOptions) {
+			return compile('hi', {
+				remarkPlugins: [
+					() => (tree: any) => {
+						tree.children.push({ type: 'html', value: html });
+					},
+				],
+				rehypePlugins: [
+					[rehypeRaw, { passThrough: nodeTypes }],
+					rehypeCollapseScriptStyle,
+					[rehypeOptimizeStatic, optimizeOptions],
+				],
+			});
+		}
+
+		it('keeps the set:html directive of a nested <style> in an SVG', async () => {
+			const jsx = await compileRawHtml(svg);
+			assert.match(
+				jsx,
+				/<_components\.style \{\.\.\.\{\s*"set:html": "\.a\{stroke:red\}"\s*\}\} \/>/,
+			);
+			assert.doesNotMatch(jsx, /<style set:html/);
+			assert.match(jsx, /marker-end=&quot;url\(#m\)&quot;/);
+		});
+
+		it('serializes SVG children with SVG attribute names when <style> is ignored', async () => {
+			const jsx = await compileRawHtml(svg, { ignoreElementNames: ['style'] });
+			assert.match(jsx, /marker-end=&quot;url\(#m\)&quot;/);
+			assert.doesNotMatch(jsx, /markerEnd/);
+		});
+
+		it('keeps <style> content unescaped inside a static <div>', async () => {
+			const jsx = await compileRawHtml('<div><style>a<b&c{color:red}</style><p>text</p></div>');
+			assert.match(jsx, /"set:html": "a<b&c\{color:red\}"/);
+			assert.doesNotMatch(jsx, /<style set:html/);
+		});
 	});
 });

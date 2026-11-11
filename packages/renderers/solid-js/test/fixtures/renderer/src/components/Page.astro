@@ -1,0 +1,11 @@
+---
+import Greeting from '@test/solid-renderer-lib';
+import Counter from './Counter.jsx';
+---
+<html>
+	<head><title>Solid</title></head>
+	<body>
+		<Counter client:load start={3} />
+		<Greeting name="lib" />
+	</body>
+</html>
