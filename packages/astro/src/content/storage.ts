@@ -77,9 +77,8 @@ export interface CollectionStorageWriter {
 	 */
 	write(collection: string, entries: StoredEntry[]): Promise<void>;
 	/**
-	 * Makes the snapshot readable. A reader must not see any entry of the snapshot before
-	 * `commit()` resolves, except in development, where a reader may see the snapshot while it is
-	 * rewritten. Astro doesn't call `write()` after `commit()`.
+	 * Finishes the snapshot. Astro calls it once, after the last `write()`, and only reads the
+	 * snapshot after it resolves. `listSnapshots()` must not return the snapshot before then.
 	 */
 	commit(): Promise<void>;
 }
