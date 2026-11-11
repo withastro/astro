@@ -127,6 +127,32 @@ describe('writeStoredCollections', () => {
 			{ name: 'InvalidCollectionStorageDriver' },
 		);
 	});
+
+	it('throws before writing when the writer does not implement commit()', async () => {
+		const written: string[] = [];
+		const driver = {
+			...createMemoryStorageDriver(),
+			openWriter: async () => ({
+				write: async (collection: string) => {
+					written.push(collection);
+				},
+			}),
+		};
+
+		await assert.rejects(
+			writeStoredCollections({
+				collections: new Map([['docs', { entrypoint: 'memory-driver' }]]),
+				readEntries: (name) => entries.get(name)!,
+				loadDriver: async () => driver as any,
+			}),
+			(error: Error) => {
+				assert.equal(error.name, 'InvalidCollectionStorageDriver');
+				assert.ok(error.message.includes('`commit()`'), error.message);
+				return true;
+			},
+		);
+		assert.deepEqual(written, []);
+	});
 });
 
 describe('createDriverLoader', () => {

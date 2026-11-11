@@ -147,6 +147,15 @@ export async function writeStoredCollections({
 			});
 		}
 		const writer = await driver.openWriter({ snapshot, dev: false });
+		if (typeof writer?.write !== 'function' || typeof writer?.commit !== 'function') {
+			throw new AstroError({
+				...AstroErrorData.InvalidCollectionStorageDriver,
+				message: AstroErrorData.InvalidCollectionStorageDriver.message(
+					descriptor.entrypoint,
+					'The writer returned by `openWriter()` must implement `write()` and `commit()`.',
+				),
+			});
+		}
 		for (const name of names) {
 			await writer.write(name, readEntries(name).map(serializeEntry));
 		}

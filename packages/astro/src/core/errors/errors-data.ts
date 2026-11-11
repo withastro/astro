@@ -2135,7 +2135,7 @@ export const CollectionStorageDriversNotEnabled = {
  * **Example error message:**<br/>
  * Could not use the collection storage driver `my-driver`. Its entrypoint must default-export a function that creates the driver.
  * @description
- * The entrypoint of a collection storage driver must be a package specifier or the URL of a module whose default export is a function returning the driver. The driver must implement `openWriter()` and `openReader()`.
+ * The entrypoint of a collection storage driver must be a package specifier or the URL of a module whose default export is a function returning the driver. The driver must implement `openWriter()` and `openReader()`, and the writer returned by `openWriter()` must implement `write()` and `commit()`.
  */
 export const InvalidCollectionStorageDriver = {
 	name: 'InvalidCollectionStorageDriver',
