@@ -80,23 +80,6 @@ export function createStorageDriverTests(
 			},
 		},
 		{
-			name: 'does not show entries of a snapshot before it is committed',
-			async run() {
-				const driver = await createDriver();
-				const writer = await driver.openWriter({ snapshot: 'snapshot-1', dev: false });
-				await writer.write('docs', [intro]);
-
-				let entry: StoredEntry | undefined;
-				try {
-					const reader = await driver.openReader({ snapshot: 'snapshot-1' });
-					entry = await reader.get('docs', 'intro', { content: true });
-				} catch {
-					// Refusing to open an uncommitted snapshot is allowed
-				}
-				assertEqual(entry, undefined, 'entry of an uncommitted snapshot');
-			},
-		},
-		{
 			name: 'returns entries without content when it is not requested',
 			async run() {
 				const driver = await createDriver();

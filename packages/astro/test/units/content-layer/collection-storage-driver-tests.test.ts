@@ -10,27 +10,18 @@ describe('createStorageDriverTests', () => {
 		}
 	});
 
-	it('fails for a driver that shows uncommitted snapshots', async () => {
-		const leaky = () => {
+	it('fails for a driver that ignores the snapshot ID', async () => {
+		const shared = () => {
 			const driver = createMemoryStorageDriver();
 			return {
 				...driver,
-				async openWriter(context: { snapshot: string; dev: boolean }) {
-					const writer = await driver.openWriter(context);
-					return {
-						async write(collection: string, entries: any[]) {
-							await writer.write(collection, entries);
-							await writer.commit();
-						},
-						commit: writer.commit,
-					};
-				},
+				openWriter: ({ dev }: { snapshot: string; dev: boolean }) =>
+					driver.openWriter({ snapshot: 'shared', dev }),
+				openReader: (_context: { snapshot: string }) => driver.openReader({ snapshot: 'shared' }),
 			};
 		};
-		const test = createStorageDriverTests(leaky).find((t) =>
-			t.name.includes('before it is committed'),
-		)!;
+		const test = createStorageDriverTests(shared).find((t) => t.name === 'keeps snapshots apart')!;
 
-		await assert.rejects(test.run(), /uncommitted snapshot/);
+		await assert.rejects(test.run(), /^Error: first:/);
 	});
 });
