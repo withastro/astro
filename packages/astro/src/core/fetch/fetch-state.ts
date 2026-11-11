@@ -1127,6 +1127,7 @@ export class FetchState implements AstroFetchState {
 			getFirstForwardedValue(headers.get('x-forwarded-host') ?? undefined),
 			getFirstForwardedValue(headers.get('x-forwarded-port') ?? undefined),
 			allowedDomains,
+			{ protocol: this.url.protocol.slice(0, -1), host: this.url.host },
 		);
 
 		// Nothing validated — nothing to apply.

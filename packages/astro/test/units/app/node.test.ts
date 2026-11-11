@@ -574,6 +574,60 @@ describe('node', () => {
 			});
 		});
 
+		describe('protocol, host and port together', () => {
+			const plainSocket = { encrypted: false, remoteAddress: '2.2.2.2' };
+
+			it('does not produce http for an https-only forwarded host without X-Forwarded-Proto', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: plainSocket,
+						headers: { host: 'internal:4321', 'x-forwarded-host': 'domain1.com' },
+					},
+					{ allowedDomains: [{ hostname: 'domain1.com', protocol: 'https' }] },
+				);
+				assert.equal(result.url, 'http://localhost/');
+			});
+
+			it('ignores X-Forwarded-Port that is only listed for another host', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: plainSocket,
+						headers: {
+							'x-forwarded-host': 'a.com',
+							'x-forwarded-proto': 'https',
+							'x-forwarded-port': '8443',
+						},
+					},
+					{
+						allowedDomains: [
+							{ hostname: 'a.com', protocol: 'https' },
+							{ hostname: 'b.com', port: '8443' },
+						],
+					},
+				);
+				assert.equal(result.url, 'https://a.com/');
+			});
+
+			it('matches an entry with port 443 against an https host without a port', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: plainSocket,
+						headers: {
+							'x-forwarded-host': 'staging.myapp.com',
+							'x-forwarded-proto': 'https',
+						},
+					},
+					{
+						allowedDomains: [{ hostname: 'staging.myapp.com', protocol: 'https', port: '443' }],
+					},
+				);
+				assert.equal(result.url, 'https://staging.myapp.com/');
+			});
+		});
+
 		describe('host syntax', () => {
 			// Only a plain `hostname[:port]` is a valid host. Other syntax is rejected before
 			// matching, so the host that is matched is the host that is used.

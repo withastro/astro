@@ -1,4 +1,4 @@
-import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
+import { matchHostname, type RemotePattern } from '@astrojs/internal-helpers/remote';
 
 /**
  * Parses a potentially comma-separated multi-value header (as produced by
@@ -30,54 +30,79 @@ function sanitizeHost(host: string | undefined): string | undefined {
 	return host;
 }
 
+type AllowedDomain = Partial<RemotePattern>;
+
 interface ParsedHost {
+	/** The host as given, e.g. `Example.com:8080`. */
+	host: string;
+	/** The normalized (lower-case) hostname, e.g. `example.com`. */
 	hostname: string;
+	/** The port as given, if any. */
 	port: string | undefined;
 }
 
 /**
- * Parse a host string into hostname and port components. Returns `undefined`
- * for a host that carries more than a single `hostname:port` pair (e.g.
- * `example.com:8080:8080`), which is not a valid host and would otherwise be
- * accepted by inspecting only the first two segments.
+ * Parses a `Host`/`X-Forwarded-Host` value into its hostname and port. Returns
+ * `undefined` for anything that isn't a plain `hostname[:port]`.
  */
-function parseHost(host: string): ParsedHost | undefined {
-	const parts = host.split(':');
-	if (parts.length > 2) return undefined;
-	return {
-		hostname: parts[0],
-		port: parts[1],
-	};
+function parseHost(host: string | undefined): ParsedHost | undefined {
+	const sanitized = sanitizeHost(host);
+	if (!sanitized) return undefined;
+
+	const [hostname, port] = sanitized.split(':');
+	const urlString = `http://${sanitized}`;
+	if (!URL.canParse(urlString)) return undefined;
+
+	// The URL must describe exactly the host that was given, so the host that is matched
+	// is the same one callers later apply.
+	const url = new URL(urlString);
+	if (url.username !== '' || url.password !== '' || url.hostname !== hostname.toLowerCase()) {
+		return undefined;
+	}
+
+	return { host: sanitized, hostname: url.hostname, port };
+}
+
+const DEFAULT_PORTS: Record<string, string> = { http: '80', https: '443' };
+
+/**
+ * An entry without a `protocol` allows `http` and `https`. An entry with a `protocol`
+ * allows exactly that protocol.
+ */
+function allowsProtocol(entry: AllowedDomain, protocol: string): boolean {
+	if (entry.protocol === undefined) return protocol === 'http' || protocol === 'https';
+	return entry.protocol === protocol.toLowerCase();
 }
 
 /**
- * Check if a host matches any of the allowed domain patterns.
- * Assumes hostname and port are already sanitized/parsed.
+ * Whether a single entry allows this protocol, hostname and port together.
+ *
+ * - `port` is the port of the host (e.g. from `example.com:8080`). An entry without a `port`
+ *   allows any port. An entry with a `port` is compared against the port, or against the
+ *   protocol's default port when the host has none, so `port: '443'` matches `https://host`.
+ * - `forwardedPort` is the `X-Forwarded-Port` value. It is only allowed by an entry that
+ *   lists it explicitly.
  */
-function matchesAllowedDomains(
-	hostname: string,
+function matchesEntry(
+	entry: AllowedDomain,
 	protocol: string,
-	port: string | undefined,
-	allowedDomains: Partial<RemotePattern>[],
+	host: ParsedHost,
+	forwardedPort?: string,
 ): boolean {
-	const hostWithPort = port ? `${hostname}:${port}` : hostname;
-	const urlString = `${protocol}://${hostWithPort}`;
+	if (!allowsProtocol(entry, protocol)) return false;
+	if (!matchHostname({ hostname: host.hostname } as URL, entry.hostname, true)) return false;
+	if (forwardedPort !== undefined) return entry.port === forwardedPort;
+	if (entry.port === undefined) return true;
+	return entry.port === (host.port ?? DEFAULT_PORTS[protocol.toLowerCase()]);
+}
 
-	if (!URL.canParse(urlString)) {
-		return false;
-	}
-
-	const testUrl = new URL(urlString);
-	// The URL must describe exactly the host that was given, so the host that is matched
-	// is the same one callers later apply.
-	if (
-		testUrl.username !== '' ||
-		testUrl.password !== '' ||
-		testUrl.hostname !== hostname.toLowerCase()
-	) {
-		return false;
-	}
-	return allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
+function matchesAnyEntry(
+	allowedDomains: AllowedDomain[],
+	protocol: string,
+	host: ParsedHost,
+	forwardedPort?: string,
+): boolean {
+	return allowedDomains.some((entry) => matchesEntry(entry, protocol, host, forwardedPort));
 }
 
 /**
@@ -88,95 +113,97 @@ function matchesAllowedDomains(
 export function validateHost(
 	host: string | undefined,
 	protocol: string,
-	allowedDomains?: Partial<RemotePattern>[],
+	allowedDomains?: AllowedDomain[],
 ): string | undefined {
-	if (!host || host.length === 0) return undefined;
 	if (!allowedDomains || allowedDomains.length === 0) return undefined;
 
-	const sanitized = sanitizeHost(host);
-	if (!sanitized) return undefined;
-
-	const parsed = parseHost(sanitized);
+	const parsed = parseHost(host);
 	if (!parsed) return undefined;
 
-	const { hostname, port } = parsed;
-	if (matchesAllowedDomains(hostname, protocol, port, allowedDomains)) {
-		return sanitized;
-	}
-
-	return undefined;
+	return matchesAnyEntry(allowedDomains, protocol, parsed) ? parsed.host : undefined;
 }
+
+/** A protocol value such as `https`, without the trailing colon. */
+const PROTOCOL_RE = /^[a-z][a-z0-9+.-]*$/i;
 
 /**
  * Validate forwarded headers (proto, host, port) against allowedDomains.
- * Returns validated values or undefined for rejected headers.
- * Uses strict defaults: http/https only for proto, rejects port if not in allowedDomains.
+ *
+ * Protocol, host and port are validated together against each entry, never one at a time:
+ * - The forwarded host is accepted if an entry allows it with the forwarded protocol, or
+ *   with `fallback.protocol` (the protocol the server would otherwise use).
+ * - The forwarded protocol is accepted only if an entry for the host in use (the accepted
+ *   forwarded host, or else `fallback.host`) allows it. If no entry matches that host, the
+ *   forwarded protocol is not trusted.
+ * - The forwarded port is accepted only if the entry for the host in use lists it.
+ *
+ * Returns the values to apply. Values that aren't returned must not be applied.
+ *
+ * @param fallback What the server would use without forwarded headers: the protocol of the
+ *   connection or platform request, and the `Host` header or request URL host.
  */
 export function validateForwardedHeaders(
-	forwardedProtocol?: string,
-	forwardedHost?: string,
-	forwardedPort?: string,
-	allowedDomains?: Partial<RemotePattern>[],
+	forwardedProtocol: string | undefined,
+	forwardedHost: string | undefined,
+	forwardedPort: string | undefined,
+	allowedDomains: AllowedDomain[] | undefined,
+	fallback: { protocol: string; host?: string },
 ): { protocol?: string; host?: string; port?: string } {
+	// When no allowedDomains is configured, do not trust any forwarded header.
+	// Without allowedDomains there is no proxy configuration to validate against,
+	// so accepting a forwarded value could let an attacker change the origin
+	// used for comparisons (e.g., switching http to https).
+	if (!allowedDomains || allowedDomains.length === 0) return {};
+
+	const protocol =
+		forwardedProtocol && PROTOCOL_RE.test(forwardedProtocol) ? forwardedProtocol : undefined;
+	const port = forwardedPort && /^\d{1,5}$/.test(forwardedPort) ? forwardedPort : undefined;
+
+	// Prefer the forwarded protocol, then fall back to the protocol the server would use.
+	const protocols = protocol ? [protocol, fallback.protocol] : [fallback.protocol];
+
+	/**
+	 * Finds the first protocol that an entry allows for this host, and whether the forwarded
+	 * port is allowed with it. A forwarded port that isn't listed for the host is dropped
+	 * rather than rejecting the host.
+	 */
+	const resolve = (host: ParsedHost, candidates: string[]) => {
+		for (const candidate of candidates) {
+			if (port !== undefined && matchesAnyEntry(allowedDomains, candidate, host, port)) {
+				return { protocol: candidate, port };
+			}
+			if (matchesAnyEntry(allowedDomains, candidate, host)) {
+				return { protocol: candidate, port: undefined };
+			}
+		}
+		return undefined;
+	};
+
 	const result: { protocol?: string; host?: string; port?: string } = {};
 
-	// Validate protocol
-	if (forwardedProtocol) {
-		if (allowedDomains && allowedDomains.length > 0) {
-			const hasProtocolPatterns = allowedDomains.some((pattern) => pattern.protocol !== undefined);
-			if (hasProtocolPatterns) {
-				// Only validate the protocol here; host+proto combination is checked in the host block below
-				try {
-					const testUrl = new URL(`${forwardedProtocol}://example.com`);
-					// Patterns without a protocol fall back to the http/https default,
-					// because matchPattern() treats an undefined protocol as "any protocol".
-					const isAllowed = allowedDomains.some((pattern) =>
-						pattern.protocol === undefined
-							? /^https?$/.test(forwardedProtocol)
-							: matchPattern(testUrl, { protocol: pattern.protocol }),
-					);
-					if (isAllowed) {
-						result.protocol = forwardedProtocol;
-					}
-				} catch {
-					// Invalid protocol, omit from result
-				}
-			} else if (/^https?$/.test(forwardedProtocol)) {
-				// allowedDomains exist but no protocol patterns, allow http/https
-				result.protocol = forwardedProtocol;
-			}
+	const parsedForwardedHost = parseHost(forwardedHost);
+	const forwardedMatch = parsedForwardedHost && resolve(parsedForwardedHost, protocols);
+	if (parsedForwardedHost && forwardedMatch) {
+		result.host = parsedForwardedHost.host;
+		if (protocol !== undefined && forwardedMatch.protocol === protocol) {
+			result.protocol = protocol;
 		}
-		// When no allowedDomains is configured, do not trust X-Forwarded-Proto.
-		// Without allowedDomains there is no proxy configuration to validate against,
-		// so accepting a forwarded protocol could let an attacker change the origin
-		// used for comparisons (e.g., switching http to https).
+		if (forwardedMatch.port !== undefined) {
+			result.port = forwardedMatch.port;
+		}
+		return result;
 	}
 
-	// Validate port first
-	if (forwardedPort && allowedDomains && allowedDomains.length > 0) {
-		const hasPortPatterns = allowedDomains.some((pattern) => pattern.port !== undefined);
-		if (hasPortPatterns) {
-			// Validate against allowedDomains patterns
-			const isAllowed = allowedDomains.some((pattern) => pattern.port === forwardedPort);
-			if (isAllowed) {
-				result.port = forwardedPort;
-			}
+	// No forwarded host was accepted, so the forwarded protocol and port must be allowed for
+	// the host the server uses instead. If that host isn't allowed at all, trust neither.
+	const parsedFallbackHost = parseHost(fallback.host);
+	const fallbackMatch = parsedFallbackHost && resolve(parsedFallbackHost, protocols);
+	if (fallbackMatch) {
+		if (protocol !== undefined && fallbackMatch.protocol === protocol) {
+			result.protocol = protocol;
 		}
-		// If no port patterns, reject the header (strict security default)
-	}
-
-	// Validate host (extract port from hostname for validation)
-	// Reject empty strings and sanitize to prevent path injection
-	if (forwardedHost && forwardedHost.length > 0 && allowedDomains && allowedDomains.length > 0) {
-		const protoForValidation = result.protocol || 'https';
-		const sanitized = sanitizeHost(forwardedHost);
-		const parsed = sanitized ? parseHost(sanitized) : undefined;
-		if (sanitized && parsed) {
-			const { hostname, port: portFromHost } = parsed;
-			const portForValidation = result.port || portFromHost;
-			if (matchesAllowedDomains(hostname, protoForValidation, portForValidation, allowedDomains)) {
-				result.host = sanitized;
-			}
+		if (fallbackMatch.port !== undefined) {
+			result.port = fallbackMatch.port;
 		}
 	}
 

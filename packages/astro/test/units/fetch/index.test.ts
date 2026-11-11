@@ -1164,7 +1164,7 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 
 	it('applies X-Forwarded-Proto when allowedDomains is configured', () => {
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
-			allowedDomains: [{ hostname: '**' }],
+			allowedDomains: [{ hostname: 'localhost' }],
 		});
 		const request = stampApp(
 			new Request('http://localhost:4321/', {
@@ -1298,6 +1298,37 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 
 		assert.equal(state.url.href, 'https://example.com:8443/');
 		assert.equal(state.request.url, 'https://example.com:8443/');
+	});
+
+	it('does not apply X-Forwarded-Proto that the entry for the request host does not allow', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'domain1.com', protocol: 'https' }, { hostname: 'domain2.com' }],
+		});
+		const request = stampApp(
+			new Request('https://domain1.com/', {
+				headers: { 'x-forwarded-proto': 'http' },
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.href, 'https://domain1.com/');
+		assert.equal(state.request.url, 'https://domain1.com/');
+	});
+
+	it('applies X-Forwarded-Proto that the entry for the request host allows', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'domain1.com', protocol: 'https' }, { hostname: 'domain2.com' }],
+		});
+		const request = stampApp(
+			new Request('https://domain2.com/', {
+				headers: { 'x-forwarded-proto': 'http' },
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.href, 'http://domain2.com/');
 	});
 
 	it('resolves clientAddress from X-Forwarded-For when host is trusted', () => {
