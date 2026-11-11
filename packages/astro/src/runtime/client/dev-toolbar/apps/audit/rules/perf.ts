@@ -4,8 +4,8 @@ import type { AuditRuleWithSelector } from './index.js';
 const EXTERNAL_URL_REGEX = /^(?:[a-z+]+:)?\/\//i;
 
 /**
- * Reads the image's size from the request that loaded it, falling back to fetching it again.
- * Fetching it again freezes an animated SVG's CSS animations in WebKit, so it's a last resort.
+ * Reads the image's size from the request that loaded it, 
+ * falling back to fetching a copy of it under a different URL.
  */
 async function getImageSize(image: HTMLImageElement): Promise<number> {
 	if (image.complete && image.currentSrc) {
@@ -14,7 +14,11 @@ async function getImageSize(image: HTMLImageElement): Promise<number> {
 		if (size) return size;
 	}
 
-	const imageData = await fetch(image.currentSrc || image.src).then((response) => response.blob());
+	// In WebKit, any request for an animating SVG's own URL freezes its CSS animations, 
+	// and a lazy image reports a size of 0 (https://github.com/withastro/astro/issues/18620)
+	const url = new URL(image.currentSrc || image.src, location.href);
+	url.searchParams.set('astro-audit', '');
+	const imageData = await fetch(url).then((response) => response.blob());
 	return imageData.size;
 }
 

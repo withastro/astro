@@ -144,6 +144,23 @@ test.describe('Dev Toolbar - Audits', () => {
 		expect(fetches).toEqual([]);
 	});
 
+	test('reads the size of a lazy image without fetching its own URL', async ({ page, astro }) => {
+		const fetches: string[] = [];
+		page.on('request', (request) => {
+			if (request.resourceType() === 'fetch' && request.url().includes('/the-future.jpg')) {
+				fetches.push(new URL(request.url()).search);
+			}
+		});
+
+		await page.goto(astro.resolveUrl('/audits-perf-lazy-image'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		await expect.poll(() => fetches).toEqual(['?astro-audit=']);
+	});
+
 	test('can handle mutations', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/audits-mutations'));
 
