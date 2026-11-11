@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Hono } from 'hono';
 import { defineAction } from '../../../dist/actions/runtime/server.js';
-import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
+import { setAmbientManifest } from '@astrojs/vite-plugin-router/_internal/core/manifest/ambient.js';
 import { actions, middleware, pages } from '../../../dist/core/hono/index.js';
 import { createPage, createRouteData, createTestApp } from '../mocks.ts';
 import { spreadPart, staticPart } from '../routing/test-helpers.ts';

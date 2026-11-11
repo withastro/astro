@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getEnvironment, setEnvironment } from '../../../dist/core/environment/index.js';
+import {
+	getEnvironment,
+	setEnvironment,
+} from '@astrojs/vite-plugin-router/_internal/core/environment/index.js';
 import {
 	createComponent,
 	maybeRenderHead,

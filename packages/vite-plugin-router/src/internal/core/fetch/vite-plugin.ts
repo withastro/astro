@@ -4,8 +4,8 @@ import {
 	type ViteDevServer,
 	type Plugin as VitePlugin,
 } from 'vite';
-import type { AstroSettings } from '../../types/astro.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
+import type { RouterRegistry } from '../../registry.js';
 
 /**
  * Virtual module that exposes the app's top-level fetch handler.
@@ -23,15 +23,32 @@ const FETCHABLE_RESOLVED_MODULE_ID = '\0' + FETCHABLE_MODULE_ID;
 // Default segment under `srcDir` to probe for the user's handler module.
 // Matches how `vitePluginMiddleware` resolves `src/middleware`.
 const DEFAULT_FETCH_FILE = 'fetch';
+// Imported by absolute path: projects that depend only on `astro` cannot resolve this package.
+const DEFAULT_HANDLER_MODULE = viteNormalizePath(
+	fileURLToPath(new URL('./default-handler.js', import.meta.url)),
+);
 
-export function vitePluginFetchable({ settings }: { settings: AstroSettings }): VitePlugin {
+export interface FetchablePluginOptions {
+	routerRegistry: RouterRegistry;
+	/**
+	 * The module under `srcDir`, without extension, whose default export handles every request.
+	 * `null` disables it.
+	 *
+	 * @default 'fetch'
+	 */
+	fetchFile?: string | null;
+}
+
+export function vitePluginFetchable({
+	routerRegistry,
+	fetchFile: fetchFileOption,
+}: FetchablePluginOptions): VitePlugin {
 	let resolvedUserAppId: string | undefined;
 	let userAppPresent = false;
-	const fetchFile = settings.config.fetchFile ?? DEFAULT_FETCH_FILE;
+	const fetchFile = fetchFileOption ?? DEFAULT_FETCH_FILE;
 	// When fetchFile is null the feature is explicitly disabled.
-	const fetchFileDisabled = settings.config.fetchFile === null;
-
-	const normalizedSrcDir = viteNormalizePath(fileURLToPath(settings.config.srcDir));
+	const fetchFileDisabled = fetchFileOption === null;
+	const getSrcDir = () => viteNormalizePath(fileURLToPath(routerRegistry.config.srcDir));
 
 	return {
 		name: '@astro/plugin-fetchable',
@@ -45,6 +62,7 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 		configureServer(server: ViteDevServer) {
 			server.watcher.on('change', (path) => {
 				const normalizedPath = viteNormalizePath(path);
+				const normalizedSrcDir = getSrcDir();
 				if (!normalizedPath.startsWith(normalizedSrcDir)) return;
 				const relativePath = normalizedPath.slice(normalizedSrcDir.length);
 				// Dot-prefix guard: match `app.ts` but not e.g. `app-utils.ts`.
@@ -73,7 +91,7 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 					userAppPresent = false;
 					return FETCHABLE_RESOLVED_MODULE_ID;
 				}
-				const resolved = await this.resolve(`${normalizedSrcDir}${fetchFile}`);
+				const resolved = await this.resolve(`${getSrcDir()}${fetchFile}`);
 				userAppPresent = !!resolved;
 				resolvedUserAppId = resolved?.id;
 				return FETCHABLE_RESOLVED_MODULE_ID;
@@ -100,7 +118,7 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 				// so a re-evaluation would otherwise produce a different class
 				// identity than the facade's own DefaultFetchHandler.
 				return {
-					code: `import { DefaultFetchHandler } from 'astro/app/fetch/default-handler';
+					code: `import { DefaultFetchHandler } from ${JSON.stringify(DEFAULT_HANDLER_MODULE)};
 export default new DefaultFetchHandler();
 export const isDefaultFetchHandler = true;`,
 				};

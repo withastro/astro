@@ -5,7 +5,7 @@
  * why do you need access to the shiki config? (very low-level config)
  */
 
-import type { SSRManifest } from '../../core/app/types.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import type { AstroConfig } from './config.js';
 
 // do not export

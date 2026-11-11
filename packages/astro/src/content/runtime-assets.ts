@@ -1,7 +1,7 @@
 import type { Rolldown } from 'vite';
 import * as z from 'zod/v4';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
-import { emitClientAsset } from '../assets/utils/assets.js';
+import { emitClientAsset } from '@astrojs/vite-plugin-router/_internal/assets/utils/assets.js';
 import { emitImageMetadata } from '../assets/utils/node.js';
 
 export function createImage(

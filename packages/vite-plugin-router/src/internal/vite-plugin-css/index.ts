@@ -1,9 +1,10 @@
 import type * as vite from 'vite';
 import type { DevEnvironment, Plugin } from 'vite';
+import type { RoutesList } from '../../routing.js';
+import type { ImportedDevStyle } from '../../types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
 import { inlineRE, rawRE } from '../vite-plugin-astro-server/util.js';
-import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
+import { getVirtualModulePageNameForComponent } from '../../vite-plugin-pages/util.js';
 import { getDevCSSModuleName } from './util.js';
 import {
 	collectCSSWithOrder,
@@ -41,12 +42,13 @@ function isModuleLoadBoundary(id: string): boolean {
 
 interface AstroVitePluginOptions {
 	routesList: RoutesList;
-	command: 'dev' | 'build';
+	/** Defaults to Vite's command. */
+	command?: 'dev' | 'build';
 	/** Shared cache of CSS content by module ID. Populated by the transform hook and
 	 *  consumed by the content asset propagation plugin to avoid re-processing CSS
 	 *  modules with `?inline` (which can produce different scoped-name hashes with
 	 *  Lightning CSS). */
-	cssContentCache: Map<string, string>;
+	cssContentCache?: Map<string, string>;
 }
 
 /**
@@ -71,9 +73,10 @@ function getComponentFromVirtualModuleCssName(virtualModulePrefix: string, id: s
  */
 export function astroDevCssPlugin({
 	routesList,
-	command,
-	cssContentCache,
+	command: commandOption,
+	cssContentCache = new Map(),
 }: AstroVitePluginOptions): Plugin[] {
+	let command = commandOption ?? 'dev';
 	let server: vite.ViteDevServer | undefined;
 
 	function getCurrentEnvironment(pluginEnv?: DevEnvironment): DevEnvironment | undefined {
@@ -86,6 +89,9 @@ export function astroDevCssPlugin({
 	return [
 		{
 			name: MODULE_DEV_CSS,
+			config(_, env) {
+				command = commandOption ?? (env.command === 'serve' ? 'dev' : 'build');
+			},
 
 			async configureServer(viteServer) {
 				server = viteServer;
@@ -239,7 +245,7 @@ export function astroDevCssPlugin({
  */
 export function astroDevCssContentCachePlugin({
 	cssContentCache,
-}: Pick<AstroVitePluginOptions, 'cssContentCache'>): Plugin {
+}: Required<Pick<AstroVitePluginOptions, 'cssContentCache'>>): Plugin {
 	return {
 		name: 'astro:dev-css-content-cache',
 		applyToEnvironment(env) {

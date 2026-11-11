@@ -1,20 +1,14 @@
-import type {
-	Page,
-	PaginateFunction,
-	PaginateOptions,
-	Params,
-	Props,
-} from '../../types/public/common.js';
-import type { AstroConfig } from '../../types/public/index.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { TrailingSlash } from '../../../index.js';
+import type { Page, PaginateFunction, PaginateOptions, Params, Props } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { joinPaths } from '../path.js';
+import { joinPaths } from '@astrojs/internal-helpers/path';
 import { getRouteGenerator } from '../routing/generator.js';
 
 export function generatePaginateFunction(
 	routeMatch: RouteData,
-	base: AstroConfig['base'],
-	trailingSlash: AstroConfig['trailingSlash'],
+	base: string,
+	trailingSlash: TrailingSlash,
 ): (...args: Parameters<PaginateFunction>) => ReturnType<PaginateFunction> {
 	return function paginateUtility(
 		data: readonly any[],
@@ -103,7 +97,7 @@ export function generatePaginateFunction(
 	};
 }
 
-function addRouteBase(route: string, base: AstroConfig['base']) {
+function addRouteBase(route: string, base: string) {
 	// `routeMatch.generate` avoids appending `/`
 	// unless `trailingSlash: 'always'` is configured.
 	// This means an empty string is possible for the index route.

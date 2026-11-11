@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
-import type { AstroLoggerMessage } from '../dist/core/logger/core.js';
-import { AstroLogger } from '../dist/core/logger/core.js';
+import type { AstroLoggerMessage } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Public', () => {

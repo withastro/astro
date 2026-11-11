@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { matchesLevel } from '../../../dist/core/logger/public.js';
+import { matchesLevel } from '@astrojs/vite-plugin-router/_internal/core/logger/public.js';
 
 describe('matchesLevel', () => {
 	it('returns true when message level equals configured level', () => {

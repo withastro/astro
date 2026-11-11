@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { builtinModules } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroIntegrationLogger } from 'astro';
@@ -10,6 +11,8 @@ import {
 	ASTRO_PATH_TOKEN_PARAM,
 	NODE_PATH,
 } from './constants.js';
+
+const RUNTIME_NODE_MODULE_SHIM_ID = '\0vercel:runtime-node-module-shim';
 
 export interface IsrForwarding {
 	/** Route patterns backed by the ISR function. */
@@ -82,6 +85,24 @@ export async function generateEdgeMiddleware(
 		},
 		plugins: [
 			{
+				// Server chunks import Rolldown's runtime chunk, which imports `node:module` for its
+				// `__require` helper whenever a server dependency calls `require()` (sharp does). The
+				// helper is `/* #__PURE__ */`, so it is tree-shaken from the edge bundle unless the
+				// middleware calls it; the shim only lets it resolve. A shim that survives into the
+				// output is reported as a Node.js built-in below.
+				name: 'vercel:rolldown-runtime-node-module',
+				async resolveId(source, importer) {
+					if (source !== 'node:module' || !importer) return;
+					if (!onlyRolldownRuntimeUsesNodeModule(await readFile(importer, 'utf-8'))) return;
+					return { id: RUNTIME_NODE_MODULE_SHIM_ID, moduleSideEffects: false };
+				},
+				load(id) {
+					if (id === RUNTIME_NODE_MODULE_SHIM_ID) {
+						return `export function createRequire() { throw new Error('require() is not available in Vercel edge functions.'); }`;
+					}
+				},
+			},
+			{
 				name: 'vercel:edge-middleware',
 				resolveId(source) {
 					if (source === virtualEntryId) {
@@ -107,11 +128,18 @@ export async function generateEdgeMiddleware(
 	});
 
 	try {
-		await bundle.write({
+		const { output } = await bundle.write({
 			file: bundledFilePath,
 			format: 'esm',
 			minify: false,
 		});
+		if (
+			output.some(
+				(chunk) => chunk.type === 'chunk' && chunk.moduleIds.includes(RUNTIME_NODE_MODULE_SHIM_ID),
+			)
+		) {
+			nodeBuiltinImports.add('node:module');
+		}
 	} finally {
 		await bundle.close();
 	}
@@ -126,6 +154,19 @@ export async function generateEdgeMiddleware(
 	}
 
 	return pathToFileURL(bundledFilePath);
+}
+
+/**
+ * Whether the only use of `node:module` in `code` is the `createRequire` call of Rolldown's
+ * `__require` runtime helper.
+ */
+function onlyRolldownRuntimeUsesNodeModule(code: string): boolean {
+	return (
+		code.match(/from ["']node:module["']/g)?.length === 1 &&
+		/^import \{ createRequire \} from "node:module";$/m.test(code) &&
+		code.match(/\bcreateRequire\b/g)?.length === 2 &&
+		code.includes('var __require = /* #__PURE__ */ (() => createRequire(import.meta.url))();')
+	);
 }
 
 /**

@@ -4,8 +4,8 @@ import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { EndpointDidNotReturnAResponse } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import type { FetchState } from '../../core/fetch/fetch-state.js';
 import type { AstroLogger } from '../../core/logger/core.js';
-import type { APIRoute } from '../../types/public/common.js';
-import type { APIContext } from '../../types/public/context.js';
+import type { APIRoute } from '../../../index.js';
+import type { APIContext } from '../../../index.js';
 
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(

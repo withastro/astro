@@ -580,6 +580,9 @@ importers:
       '@astrojs/vite-plugin-astro':
         specifier: workspace:*
         version: link:../vite-plugin-astro
+      '@astrojs/vite-plugin-router':
+        specifier: workspace:*
+        version: link:../vite-plugin-router
       '@capsizecss/unpack':
         specifier: ^4.0.1
         version: 4.0.1
@@ -601,9 +604,6 @@ importers:
       ci-info:
         specifier: ^4.4.0
         version: 4.4.0
-      cookie:
-        specifier: ^2.0.2
-        version: 2.0.2
       devalue:
         specifier: ^6.0.3
         version: 6.0.3
@@ -3948,6 +3948,15 @@ importers:
 
   packages/astro/test/fixtures/root-srcdir-css:
     dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/router-api:
+    dependencies:
+      '@astrojs/vite-plugin-router':
+        specifier: workspace:*
+        version: link:../../../../vite-plugin-router
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -7756,6 +7765,55 @@ importers:
       react-dom:
         specifier: ^19.3.0
         version: 19.3.1(react@19.3.1)
+      vite:
+        specifier: ^8.3.3
+        version: 8.3.6(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.108.0)(tsx@4.23.15)(yaml@2.9.1)
+
+  packages/vite-plugin-router:
+    dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../internal-helpers
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../vite-plugin-astro
+      cookie:
+        specifier: ^2.0.2
+        version: 2.0.2
+      devalue:
+        specifier: ^6.0.3
+        version: 6.0.3
+      es-module-lexer:
+        specifier: ^3.0.4
+        version: 3.0.4
+      html-escaper:
+        specifier: 3.0.3
+        version: 3.0.3
+      p-limit:
+        specifier: ^7.3.3
+        version: 7.3.3
+      piccolore:
+        specifier: ^0.1.3
+        version: 0.1.3
+      shiki:
+        specifier: ^4.6.0
+        version: 4.6.0
+      tinyglobby:
+        specifier: ^0.2.17
+        version: 0.2.17
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@types/html-escaper':
+        specifier: 3.0.4
+        version: 3.0.4
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
       vite:
         specifier: ^8.3.3
         version: 8.3.6(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.108.0)(tsx@4.23.15)(yaml@2.9.1)

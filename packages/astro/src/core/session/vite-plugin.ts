@@ -4,7 +4,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import { SessionStorageInitError } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { normalizePath } from '../viteUtils.js';
+import { normalizePath } from '@astrojs/vite-plugin-router/_internal/core/viteUtils.js';
 import { normalizeSessionDriverConfig } from './utils.js';
 
 export const VIRTUAL_SESSION_DRIVER_ID = 'virtual:astro:session-driver';

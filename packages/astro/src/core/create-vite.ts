@@ -1,11 +1,14 @@
 import { createHash } from 'node:crypto';
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { routerApiPlugins } from '@astrojs/vite-plugin-router/_internal/plugin.js';
+import { RouterRegistry } from '@astrojs/vite-plugin-router/_internal/registry.js';
+import { vitePluginServerOutput } from '@astrojs/vite-plugin-router/_internal/vite-plugin-server-output/index.js';
 import * as vite from 'vite';
 import type { CrawlFrameworkPkgsResult } from 'vitefu';
 import { crawlFrameworkPkgs } from 'vitefu';
 import { vitePluginActions } from '../actions/vite-plugin-actions.js';
-import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
+import { getAssetsPrefix } from '@astrojs/vite-plugin-router/_internal/assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import astroContainer from '../container/vite-plugin-container.js';
 import {
@@ -22,40 +25,53 @@ import { serializedManifestPlugin } from '../manifest/serialized.js';
 import astroVirtualManifestPlugin from '../manifest/virtual-module.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
-import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
-import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
-import { vitePluginApp } from '../vite-plugin-app/index.js';
-import { vitePluginFetchable } from './fetch/vite-plugin.js';
-import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
+import { vitePluginApp } from '@astrojs/vite-plugin-router/_internal/vite-plugin-app/virtual-app.js';
+import { vitePluginServerApp } from '@astrojs/vite-plugin-router/_internal/vite-plugin-app/server-app.js';
+import { vitePluginFetchable } from '@astrojs/vite-plugin-router/_internal/core/fetch/vite-plugin.js';
+import { vitePluginAstroServer } from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
-import { astroDevCssContentCachePlugin, astroDevCssPlugin } from '../vite-plugin-css/index.js';
+import {
+	astroDevCssContentCachePlugin,
+	astroDevCssPlugin,
+} from '@astrojs/vite-plugin-router/_internal/vite-plugin-css/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
-import { pluginPage, pluginPages } from '../vite-plugin-pages/index.js';
-import astroPluginRoutes from '../vite-plugin-routes/index.js';
-import vitePluginStaticPaths from '../vite-plugin-static-paths/index.js';
+import {
+	pluginPage,
+	pluginPages,
+} from '@astrojs/vite-plugin-router/_internal/vite-plugin-pages/index.js';
+import astroPluginRoutes from '@astrojs/vite-plugin-router/_internal/vite-plugin-routes/index.js';
+import vitePluginStaticPaths from '@astrojs/vite-plugin-router/_internal/vite-plugin-static-paths/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import astro from '@astrojs/vite-plugin-astro';
 import { toAstroCli, toAstroOptions } from './astro-options.js';
-import type { AstroLogger } from './logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
+import { vitePluginRouterRegistrations } from './router-registrations.js';
 import { joinPaths } from './path.js';
-import { ServerIslandsState } from './server-islands/shared-state.js';
-import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
+import { ServerIslandsState } from '@astrojs/vite-plugin-router/_internal/core/server-islands/shared-state.js';
+import { vitePluginServerIslands } from '@astrojs/vite-plugin-router/_internal/core/server-islands/vite-plugin-server-islands.js';
 import { vitePluginCacheProvider } from './cache/vite-plugin.js';
 import { vitePluginSessionDriver, vitePluginSessionProvider } from './session/vite-plugin.js';
 import { vitePluginLogger } from './logger/vite-plugin.js';
 import { isObject } from './util-runtime.js';
+import { isEndpoint, isPage } from './util.js';
+import { createRoutesList } from './routing/create-manifest.js';
+import { warnMissingAdapter } from './dev/adapter-validation.js';
+import { runHookRouteSetup } from '../integrations/hooks.js';
+import { kickOffContentConfigLoad } from '../content/config-prewarm.js';
+import { createDevHeadElements } from '../toolbar/dev-head-elements.js';
 import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
-import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
-import { vitePluginDevStatus } from '../vite-plugin-dev-status/index.js';
-import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
+import { toRouterConfig, toServerOutputOptions } from './router-config.js';
+import { vitePluginChromedevtools } from '@astrojs/vite-plugin-router/_internal/vite-plugin-chromedevtools/index.js';
+import { vitePluginDevStatus } from '@astrojs/vite-plugin-router/_internal/vite-plugin-dev-status/index.js';
+import { vitePluginAstroServerClient } from '@astrojs/vite-plugin-router/_internal/vite-plugin-overlay/index.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -152,6 +168,7 @@ export async function createVite(
 		config: settings.config,
 	});
 	const serverIslandsState = new ServerIslandsState();
+	const routerRegistry = new RouterRegistry(() => toRouterConfig(settings));
 	// Shared cache of CSS content by module ID. Populated by the dev-css content cache
 	// plugin's transform hook and consumed by the content asset propagation plugin to avoid
 	// re-processing CSS modules with `?inline` (which produces different
@@ -184,9 +201,46 @@ export async function createVite(
 					}
 				},
 			},
-			serializedManifestPlugin({ settings, command, sync }),
+			// Projects that depend only on `astro` cannot resolve the pages package from their root.
+			...routerApiPlugins(routerRegistry, {
+				transitions: 'astro/virtual-modules/transitions.js',
+				clientRouter: 'astro/components/ClientRouter.astro',
+				router: 'astro/virtual-modules/transitions-router.js',
+				types: 'astro/virtual-modules/transitions-types.js',
+				events: 'astro/virtual-modules/transitions-events.js',
+				swapFunctions: 'astro/virtual-modules/transitions-swap-functions.js',
+			}),
+			vitePluginRouterRegistrations({ settings, logger }),
+			serializedManifestPlugin({ settings, command, sync, routerRegistry }),
 			vitePluginStaticPaths(),
-			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs, command }),
+			astroPluginRoutes({
+				routerRegistry,
+				logger,
+				command,
+				routesList,
+				hostRoutes: true,
+				createRoutes: ({ pageExtensions, ...registrations }) => {
+					// Every reader of `settings.pageExtensions` sees the registered extensions, like
+					// integration `addPageExtension()` calls.
+					for (const extension of pageExtensions) {
+						if (!settings.pageExtensions.includes(extension))
+							settings.pageExtensions.push(extension);
+					}
+					return createRoutesList({ settings, fsMod: fs, ...registrations }, logger, {
+						dev: command === 'dev',
+					});
+				},
+				isRouteFile: (file) => isPage(file, settings) || isEndpoint(file, settings),
+				onRouteSetup: async (route) => {
+					await runHookRouteSetup({ route, settings, logger });
+					if (!route.prerender) settings.buildOutput = 'server';
+					warnMissingAdapter(logger, settings);
+				},
+				headInlineScripts: () =>
+					settings.scripts.flatMap((script) =>
+						script.stage === 'head-inline' ? [script.content] : [],
+					),
+			}),
 			astroVirtualManifestPlugin({ settings }),
 			vitePluginEnvironment({ settings, astroPkgsConfig, command }),
 			pluginPage({ routesList }),
@@ -201,13 +255,26 @@ export async function createVite(
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			vitePluginApp(),
-			vitePluginFetchable({ settings }),
-			command === 'dev' && vitePluginAstroServer({ settings, logger }),
+			vitePluginServerApp(),
+			vitePluginFetchable({ routerRegistry, fetchFile: settings.config.fetchFile }),
+			command === 'dev' &&
+				vitePluginAstroServer({
+					logger,
+					isPage: (file) => isPage(file, settings),
+					renderers: settings.renderers,
+					headElements: createDevHeadElements(settings),
+					prepare: (server) => {
+						const environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.astro];
+						return vite.isRunnableDevEnvironment(environment)
+							? kickOffContentConfigLoad({ settings, fs, logger, environment })
+							: Promise.resolve();
+					},
+				}),
 			command === 'dev' && vitePluginAstroServerClient(),
 			astroDevCssPlugin({ routesList, command, cssContentCache }),
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
-			vitePluginAdapterConfig(settings),
+			vitePluginServerOutput(() => toServerOutputOptions(settings)),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logger }),
@@ -215,20 +282,26 @@ export async function createVite(
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
 			astroContentAssetPropagationPlugin({ settings, cssContentCache }),
-			vitePluginMiddleware({ settings }),
+			vitePluginMiddleware({ settings, routerRegistry }),
 			astroAssetsPlugin({ fs, settings, sync, logger }),
 			astroPrefetch({ settings }),
-			astroTransitions({ settings }),
 			astroDevToolbar({ settings, logger }),
 			astroInternationalization({ settings }),
 			vitePluginActions({ fs, settings }),
-			vitePluginServerIslands({ settings, logger, serverIslandsState }),
+			vitePluginServerIslands({
+				serverIslandsState,
+				canRenderOnDemand: () => Boolean(settings.adapter),
+			}),
 			vitePluginSessionDriver({ settings }),
 			vitePluginSessionProvider({ settings }),
 			vitePluginCacheProvider({ settings }),
 			vitePluginLogger({ settings }),
 			astroContainer(),
-			vitePluginChromedevtools({ settings }),
+			vitePluginChromedevtools({
+				enabled: settings.config.experimental.chromeDevtoolsWorkspace,
+				root: settings.config.root,
+				cacheDir: settings.config.cacheDir,
+			}),
 			command === 'dev' && vitePluginDevStatus(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),

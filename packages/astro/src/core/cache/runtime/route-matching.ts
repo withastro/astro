@@ -1,9 +1,9 @@
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RouteData, RoutePart } from '../../../types/public/internal.js';
-import { getParts } from '../../routing/parts.js';
-import { getPattern } from '../../routing/pattern.js';
-import { routeComparator } from '../../routing/priority.js';
+import { getParts } from '@astrojs/vite-plugin-router/_internal/core/routing/parts.js';
+import { getPattern } from '@astrojs/vite-plugin-router/_internal/core/routing/pattern.js';
+import { routeComparator } from '@astrojs/vite-plugin-router/_internal/core/routing/priority.js';
 import type { CacheOptions } from '../types.js';
 
 export interface CompiledCacheRoute {

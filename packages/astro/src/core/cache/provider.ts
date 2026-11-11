@@ -1,5 +1,5 @@
-import type { SSRManifest } from '../app/types.js';
-import { createAsyncManifestMemo } from '../manifest/memo.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
+import { createAsyncManifestMemo } from '@astrojs/vite-plugin-router/_internal/core/manifest/memo.js';
 import type { CacheProvider, CacheProviderFactory } from './types.js';
 
 const cacheProviderMemo = createAsyncManifestMemo<CacheProvider | null>(async (manifest) => {

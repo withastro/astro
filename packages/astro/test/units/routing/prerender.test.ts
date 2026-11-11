@@ -1,7 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { parsePrerenderExport } from '../../../dist/core/routing/prerender.js';
+import { parsePrerenderExport } from '@astrojs/vite-plugin-router/_internal/core/routing/prerender.js';
 
 describe('parsePrerenderExport', () => {
 	it('returns true for export const prerender = true', () => {

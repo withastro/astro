@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { AstroLoggerMessage } from '../../../dist/core/logger/core.js';
-import { AstroLogger } from '../../../dist/core/logger/core.js';
+import type { AstroLoggerMessage } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import { createBasicSettings, createFixture, defaultLogger } from '../test-utils.ts';
@@ -583,5 +583,49 @@ describe('routing - createRoutesList', () => {
 			{ type: 'page', route: '/[c]-d' },
 			{ type: 'page', route: '/a-[b]' },
 		]);
+	});
+
+	it('internal routes skip prerender detection and only exist in dev and server builds', async () => {
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `<h1>test</h1>`,
+			'/src/pages/[...slug].astro': `<h1>test</h1>`,
+			'/src/internal.ts': `export const GET = () => new Response();`,
+		});
+		const internalRoutes = [
+			{ pattern: '/_internal', entrypoint: 'src/internal.ts', prerender: true },
+		];
+
+		const staticSettings = await createBasicSettings({ root: fixture.path, output: 'static' });
+		staticSettings.buildOutput = 'static';
+		const build = await createRoutesList(
+			{ cwd: fixture.path, settings: staticSettings, internalRoutes },
+			defaultLogger,
+		);
+		assert.equal(
+			build.routes.some((route) => route.route === '/_internal'),
+			false,
+		);
+
+		const dev = await createRoutesList(
+			{ cwd: fixture.path, settings: staticSettings, internalRoutes },
+			defaultLogger,
+			{ dev: true },
+		);
+		assert.equal(staticSettings.buildOutput, 'static');
+		const index = dev.routes.findIndex((route) => route.route === '/_internal');
+		const internal = dev.routes[index];
+		assert.equal(internal.origin, 'internal');
+		assert.equal(internal.prerender, false);
+		assert.equal(internal.type, 'endpoint');
+		// Ahead of every project route
+		assert.ok(dev.routes.slice(0, index).every((route) => route.origin === 'internal'));
+
+		const serverSettings = await createBasicSettings({ root: fixture.path, output: 'server' });
+		serverSettings.buildOutput = 'server';
+		const serverBuild = await createRoutesList(
+			{ cwd: fixture.path, settings: serverSettings, internalRoutes },
+			defaultLogger,
+		);
+		assert.ok(serverBuild.routes.some((route) => route.route === '/_internal'));
 	});
 });

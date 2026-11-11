@@ -1,5 +1,5 @@
-import type { ComponentInstance } from '../../types/astro.js';
-import type { SinglePageBuiltModule } from '../build/types.js';
+import type { ComponentInstance } from '../../index.js';
+import type { SinglePageBuiltModule } from '../../index.js';
 
 // A stub of a component instance for a given route
 export const RedirectComponentInstance: ComponentInstance = {

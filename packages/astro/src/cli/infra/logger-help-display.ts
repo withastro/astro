@@ -1,4 +1,4 @@
-import type { AstroLogger } from '../../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { AstroVersionProvider, HelpDisplay, TextStyler } from '../definitions.js';
 import type { HelpPayload } from '../domain/help-payload.js';
 import type { Flags } from '../flags.js';

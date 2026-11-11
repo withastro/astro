@@ -6,16 +6,19 @@ import { fileURLToPath } from 'node:url';
 import { init, parse } from 'es-module-lexer/minimal';
 
 const distRoot = fileURLToPath(new URL('../../../dist/', import.meta.url));
-const srcRoot = fileURLToPath(new URL('../../../src/', import.meta.url));
+const packagesRoot = fileURLToPath(new URL('../../../../', import.meta.url));
+const srcRoots = ['astro/src', 'vite-plugin-router/src'].map((dir) => path.join(packagesRoot, dir));
 
 const runtimeInternalPrefix = '@astrojs/runtime/_internal/';
+const routerInternalPrefix = '@astrojs/vite-plugin-router/_internal/';
 const renderScopeModule = fileURLToPath(
 	import.meta.resolve(`${runtimeInternalPrefix}core/render-scope/scope.js`),
 );
 
 /**
  * Walk the static + dynamic import graph of a built module, following relative
- * specifiers and `@astrojs/runtime/_internal/*` imports, and return every visited file.
+ * specifiers and the `@astrojs/runtime/_internal/*` and `@astrojs/vite-plugin-router/_internal/*`
+ * imports, and return every visited file.
  */
 async function collectModuleGraph(entry: string): Promise<Map<string, string>> {
 	await init();
@@ -32,7 +35,10 @@ async function collectModuleGraph(entry: string): Promise<Map<string, string>> {
 			// Relative specifiers and the render runtime package are followed; other bare
 			// and node: specifiers are leaves (asserted on separately via the source
 			// text). Non-literal dynamic imports have no resolvable specifier.
-			if (specifier?.startsWith(runtimeInternalPrefix)) {
+			if (
+				specifier?.startsWith(runtimeInternalPrefix) ||
+				specifier?.startsWith(routerInternalPrefix)
+			) {
 				queue.push(fileURLToPath(import.meta.resolve(specifier)));
 				continue;
 			}
@@ -72,17 +78,22 @@ describe('render scope edge safety', () => {
 
 	it('node-scope.ts is only imported by Node-only build code in core/build/', () => {
 		const importers: string[] = [];
-		for (const file of walkSourceFiles(srcRoot)) {
-			if (file.endsWith(`core${path.sep}render-scope${path.sep}node-scope.ts`)) continue;
-			const source = fs.readFileSync(file, 'utf-8');
-			if (source.includes('render-scope/node-scope')) {
-				importers.push(path.relative(srcRoot, file));
+		for (const srcRoot of srcRoots) {
+			for (const file of walkSourceFiles(srcRoot)) {
+				if (file.endsWith(`core${path.sep}render-scope${path.sep}node-scope.ts`)) continue;
+				const source = fs.readFileSync(file, 'utf-8');
+				if (source.includes('render-scope/node-scope')) {
+					importers.push(path.relative(packagesRoot, file));
+				}
 			}
 		}
 		assert.ok(importers.length > 0);
 		for (const importer of importers) {
 			assert.ok(
-				importer.startsWith(path.join('core', 'build') + path.sep),
+				importer.startsWith(path.join('vite-plugin-router', 'src', 'core', 'build') + path.sep) ||
+					importer.startsWith(
+						path.join('vite-plugin-router', 'src', 'internal', 'core', 'build') + path.sep,
+					),
 				`${importer} imports node-scope.ts`,
 			);
 		}

@@ -1,8 +1,8 @@
-import type { AstroConfig } from '../../types/public/config.js';
-import type { Params } from '../../types/public/common.js';
-import type { ValidRedirectStatus } from '../../types/public/config.js';
-import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { BuildFormat, TrailingSlash } from '../../../index.js';
+import type { Params } from '../../../index.js';
+import type { ValidRedirectStatus } from '../../../index.js';
+import { prependForwardSlash, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
+import type { RouteData } from '../../../index.js';
 import { getParams } from '../render/params-and-props.js';
 import { routeComparator } from './priority.js';
 
@@ -11,9 +11,9 @@ import { routeComparator } from './priority.js';
  * Controls base matching, trailing slash handling, and build output format.
  */
 export interface RouterOptions {
-	base: AstroConfig['base'];
-	trailingSlash: AstroConfig['trailingSlash'];
-	buildFormat: NonNullable<AstroConfig['build']>['format'];
+	base: string;
+	trailingSlash: TrailingSlash;
+	buildFormat: BuildFormat;
 }
 
 interface RouterMatchRoute {

@@ -1,4 +1,4 @@
-import type { AstroLogger } from '../../../dist/core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 
 /**
  * Minimal logger stub for constructing `AstroCookies`, which needs one to

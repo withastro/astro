@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
-import { resolvePath } from '../../../dist/core/viteUtils.js';
+import { resolvePath } from '@astrojs/vite-plugin-router/_internal/core/viteUtils.js';
 
 describe('resolvePath', () => {
 	let root: string;

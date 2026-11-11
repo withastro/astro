@@ -1,12 +1,12 @@
 import type { RenderErrorOptions } from '../app/base.js';
-import type { RouteData } from '../../types/public/index.js';
+import type { RouteData } from '../../../index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { REROUTABLE_STATUS_CODES } from '../constants.js';
 import { getEnvironment } from '../environment/index.js';
-import { renderBuildError } from './build-handler.js';
-import { renderDefaultError } from './default-handler.js';
-import { renderDevError } from './dev-handler.js';
+import { renderBuildError } from '../../../core/errors/build-handler.js';
+import { renderDefaultError } from '../../../core/errors/default-handler.js';
+import { renderDevError } from '../../../core/errors/dev-handler.js';
 
 /**
  * A strategy for rendering error responses (404, 500, etc.).

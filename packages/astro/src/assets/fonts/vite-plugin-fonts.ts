@@ -5,13 +5,13 @@ import type { AddressInfo } from 'node:net';
 import { isAbsolute } from 'node:path';
 import colors from 'piccolore';
 import type { Plugin, ResolvedConfig } from 'vite';
-import { pathToDirectoryURL } from '../../core/build/common.js';
+import { pathToDirectoryURL } from '@astrojs/vite-plugin-router/_internal/core/build/common.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { copyCachedFile } from '../../core/fs/index.js';
-import type { AstroLogger } from '../../core/logger/core.js';
+import { copyCachedFile } from '@astrojs/vite-plugin-router/_internal/core/fs/index.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
 import type { AstroSettings } from '../../types/astro.js';
 import {

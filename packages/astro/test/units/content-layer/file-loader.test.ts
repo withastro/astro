@@ -5,7 +5,7 @@ import { file } from '../../../dist/content/loaders/file.js';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
-import { AstroLogger } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
 describe('File Loader', () => {

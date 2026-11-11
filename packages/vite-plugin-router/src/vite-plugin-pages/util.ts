@@ -1,5 +1,5 @@
 import { fileExtension } from '@astrojs/internal-helpers/path';
-import { VIRTUAL_PAGE_MODULE_ID } from './const.js';
+import { VIRTUAL_PAGE_MODULE_ID } from '../internal/vite-plugin-pages/const.js';
 
 // This is an arbitrary string that we use to replace the dot of the extension.
 const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';

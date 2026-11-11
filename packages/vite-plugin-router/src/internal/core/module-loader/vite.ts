@@ -4,8 +4,8 @@ import { pathToFileURL } from 'node:url';
 import type * as vite from 'vite';
 import type { RunnableDevEnvironment } from 'vite';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
-import { getViteErrorPayload } from '../errors/dev/vite.js';
-import type { ModuleLoader, ModuleLoaderEventEmitter } from './runner.js';
+import { getViteErrorPayload } from '../../../core/errors/dev/vite.js';
+import type { ModuleLoader, ModuleLoaderEventEmitter } from '../../../core/module-loader/runner.js';
 
 export function createViteLoader(
 	viteServer: vite.ViteDevServer,

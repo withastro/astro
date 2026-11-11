@@ -1,58 +1,52 @@
+import type { ContextProvider, RequestAPIContext } from '../../../index.js';
 import colors from 'piccolore';
 import {
 	collapseDuplicateSlashes,
 	prependForwardSlash,
 	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
-import { deserializeActionResult } from '../../actions/runtime/client.js';
-import { createCallAction, createGetActionResult, hasActionPayload } from '../../actions/utils.js';
-import type { ActionAPIContext } from '../../actions/runtime/types.js';
-import type { ComponentInstance } from '../../types/astro.js';
-import type { Params, Props, RewritePayload } from '../../types/public/common.js';
-import type { APIContext, AstroGlobal } from '../../types/public/context.js';
-import type { RouteData, SSRResult } from '../../types/public/internal.js';
+import type { ComponentInstance } from '../../../index.js';
+import type { Params, Props, RewritePayload } from '../../../index.js';
+import type { APIContext } from '../../../index.js';
+import type { AstroGlobal } from '@astrojs/vite-plugin-astro';
+import type { RouteData } from '../../../index.js';
+import type { SSRResult } from '@astrojs/vite-plugin-astro';
 import { AstroCookies } from '../cookies/index.js';
-import { Slots } from '../render/index.js';
+import { Slots } from '@astrojs/runtime/_internal/core/render/slots.js';
 import {
 	ASTRO_GENERATOR,
 	fetchStateSymbol,
 	originPathnameSymbol,
 	responseSentSymbol,
 } from '../constants.js';
-import type { CspKind } from '../csp/config.js';
+import type { CspKind } from '@astrojs/runtime/_internal/core/csp/sources.js';
 import { normalizeCspResourceEntry, pushDirective } from '../csp/runtime.js';
 import { generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import {
-	computeCurrentLocale as computeCurrentLocaleUtil,
-	computeCurrentLocaleFromParams,
-	computePreferredLocale as computePreferredLocaleUtil,
-	computePreferredLocaleList as computePreferredLocaleListUtil,
-} from '../../i18n/utils.js';
 
-import { getParams, getProps } from '../render/index.js';
+import { getParams, getProps } from '../render/params-and-props.js';
 import { executeRewrite } from '../rewrites/handler.js';
-import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { validateAndDecodePathname } from '../util/pathname.js';
 import { setPathname } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
-import { computePathnameFromDomain } from '../i18n/domain.js';
+import { resolveRoutingPathname } from '../routing/extensions.js';
 import {
 	getCustom404Route,
 	getDefaultStatusCode,
 	routeHasHtmlExtension,
 } from '../routing/helpers.js';
 import type { RenderErrorOptions, ResolvedRenderOptions } from '../app/base.js';
-import { getRenderOptions } from '../app/render-options.js';
+import { getRenderOptions } from '../../../core/app/render-options.js';
 import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validate-headers.js';
 import type { SSRManifest } from '../app/types.js';
 import { getEnvironment, type RequestLogPayload } from '../environment/index.js';
 import { getLogger } from '../logger/manifest-logger.js';
 import { astroToRuntimeLogger, type AstroLogger } from '../logger/core.js';
-import { getSite } from '../manifest/derived.js';
+import { getSite } from '../../../core/manifest/derived.js';
 import { getRouteCache } from '../render/route-cache.js';
 import { getRouteTable, matchAllRoutes, matchRoute } from '../routing/route-table.js';
-import { getServerIslands } from '../server-islands/mappings.js';
+import { getServerIslands } from '../../../core/server-islands/mappings.js';
+import { getLoadedPipeline } from './pipeline.js';
 
 const slotValuesSymbol = Symbol('astro.slotValues');
 
@@ -84,20 +78,6 @@ export interface FacadeHooks {
 	renderError?: (request: Request, options: RenderErrorOptions) => Promise<Response>;
 	/** Late-bound `app.logThisRequest` dispatch (dev request lines). */
 	logRequest?: (payload: RequestLogPayload) => void;
-}
-
-/**
- * Describes a lazily-created value that handlers can contribute to the
- * request context. `create` is called at most once (on first `resolve`);
- * `finalize` runs during `finalizeAll` to clean up / persist.
- *
- * @internal Not for use by 3rd-party code. May change without notice.
- */
-export interface ContextProvider<T> {
-	/** Factory called lazily on the first `resolve(key)`. */
-	create: () => T;
-	/** Optional cleanup / persist callback. Receives the created value. */
-	finalize?: (value: T) => Promise<void> | void;
 }
 
 /**
@@ -262,6 +242,8 @@ export class FetchState implements AstroFetchState {
 			this.#status = getDefaultStatusCode(this.manifest, this.routeData, this.pathname);
 		}
 	}
+	/** Status text of the rendered page's `Astro.response`; `'OK'` when unset. */
+	statusText: string | undefined;
 	/** Whether user middleware should be skipped for this request. */
 	skipMiddleware = false;
 	/**
@@ -309,8 +291,8 @@ export class FetchState implements AstroFetchState {
 	 * stable and distinct from a valid-but-empty result.
 	 */
 	props: APIContext['props'] | null = null;
-	/** Memoized `ActionAPIContext` (see `getActionAPIContext`). */
-	actionApiContext: ActionAPIContext | null = null;
+	/** Memoized `RequestAPIContext` (see `getActionAPIContext`). */
+	actionApiContext: RequestAPIContext | null = null;
 	/** Memoized `APIContext` (see `getAPIContext`). */
 	apiContext: APIContext | null = null;
 
@@ -332,13 +314,7 @@ export class FetchState implements AstroFetchState {
 	 * isn't served from a locale-mapped domain. When set, `this.pathname` is
 	 * derived from it so locale/param resolution match the route pattern.
 	 */
-	#domainPathname: string | undefined;
-	/** Memoized current locale. */
-	#currentLocale: APIContext['currentLocale'];
-	/** Memoized preferred locale. */
-	#preferredLocale: APIContext['preferredLocale'];
-	/** Memoized preferred locale list. */
-	#preferredLocaleList: APIContext['preferredLocaleList'];
+	domainPathname: string | undefined;
 
 	constructor(
 		manifest: SSRManifest,
@@ -378,23 +354,13 @@ export class FetchState implements AstroFetchState {
 		const pathname = this.#computePathname(publicPathname);
 		setPathname(url, publicPathname);
 		setPathname(url, collapseDuplicateSlashes(url.pathname));
-		// For domain-based i18n routing, the locale prefix is derived from the
-		// request's Host header rather than its URL. When a locale is detected,
-		// the resulting pathname includes the prefix (e.g. /en/boats/1/foo) that
-		// the matched route pattern expects — use it instead of the raw URL
-		// pathname so param and locale resolution produce correct values.
-		const domainPathname = computePathnameFromDomain(
-			request,
-			url,
-			manifest.i18n,
-			manifest.base,
-			manifest.trailingSlash,
-			manifest.allowedDomains,
-			this.logger,
-			pathname,
-		);
+		// An `extendRouting()` module may derive the pathname from more than the URL:
+		// domain-based i18n routing takes the locale prefix from the Host header, so
+		// the resulting pathname (e.g. /en/boats/1/foo) is the one the matched route
+		// pattern expects. Use it so param and locale resolution produce correct values.
+		const domainPathname = resolveRoutingPathname(manifest, request, url, this.logger, pathname);
 		if (domainPathname) {
-			this.#domainPathname = domainPathname;
+			this.domainPathname = domainPathname;
 			this.pathname = domainPathname;
 		} else {
 			this.pathname = pathname;
@@ -441,7 +407,7 @@ export class FetchState implements AstroFetchState {
 	/**
 	 * Creates the SSR result for the current page render.
 	 */
-	async createResult(mod: ComponentInstance, ctx: ActionAPIContext): Promise<SSRResult> {
+	async createResult(mod: ComponentInstance): Promise<SSRResult> {
 		const manifest = this.manifest;
 		// `getEnvironment` is read at point of use (not captured at construction)
 		// so mid-life re-registrations (build's two-phase init) are observed.
@@ -474,13 +440,9 @@ export class FetchState implements AstroFetchState {
 			(await env.componentMetadata(manifest, routeData)) ?? manifest.componentMetadata;
 		const headers = new Headers({ 'Content-Type': 'text/html' });
 		const partial = typeof this.partial === 'boolean' ? this.partial : Boolean(mod.partial);
-		const actionResult = hasActionPayload(this.locals)
-			? deserializeActionResult(this.locals._actionPayload.actionResult)
-			: undefined;
-		const status = this.status;
 		const response = {
-			status: actionResult?.error ? actionResult?.error.status : status,
-			statusText: actionResult?.error ? actionResult?.error.type : 'OK',
+			status: this.status,
+			statusText: this.statusText ?? 'OK',
 			get headers() {
 				return headers;
 			},
@@ -499,7 +461,7 @@ export class FetchState implements AstroFetchState {
 			componentMetadata,
 			compressHTML,
 			cookies: this.cookies,
-			createAstro: (props, slots) => state.createAstro(result, props, slots, ctx),
+			createAstro: (props, slots) => state.createAstro(result, props, slots),
 			links,
 			// SAFETY: createResult is only called after route resolution, so routeData
 			// is always set and the params getter always returns a value.
@@ -513,7 +475,6 @@ export class FetchState implements AstroFetchState {
 			request: this.request,
 			scripts,
 			styles,
-			actionResult,
 			async getServerIslandNameMap() {
 				const serverIslands = await getServerIslands(manifest);
 				return serverIslands.serverIslandNameMap ?? new Map();
@@ -564,6 +525,9 @@ export class FetchState implements AstroFetchState {
 			internalFetchHeaders: manifest.internalFetchHeaders,
 		};
 
+		// Renderers read the result of the request's action from `SSRResult.actionResult`
+		// (`@astrojs/react` form state). A feature provides it as the `actionResult` value.
+		Reflect.set(result, 'actionResult', this.resolve('actionResult'));
 		this.result = result;
 		return result;
 	}
@@ -575,7 +539,6 @@ export class FetchState implements AstroFetchState {
 		result: SSRResult,
 		props: Record<string, any>,
 		slotValues: Record<string, any> | null,
-		apiContext: ActionAPIContext,
 	): AstroGlobal {
 		// The page partial (prototype for the Astro global) is cached for the
 		// lifetime of the request since it only depends on route-level state
@@ -584,9 +547,9 @@ export class FetchState implements AstroFetchState {
 		// changes, so we must recreate it to pick up the new state.
 		let astroPagePartial;
 		if (this.isRewriting) {
-			this.#astroPagePartial = this.createAstroPagePartial(result, apiContext);
+			this.#astroPagePartial = this.createAstroPagePartial(result);
 		}
-		this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
+		this.#astroPagePartial ??= this.createAstroPagePartial(result);
 		astroPagePartial = this.#astroPagePartial;
 		const Astro: AstroComponentPartial = Object.assign(Object.create(astroPagePartial), {
 			props,
@@ -605,10 +568,7 @@ export class FetchState implements AstroFetchState {
 	/**
 	 * Creates the Astro page-level partial (prototype for Astro global).
 	 */
-	createAstroPagePartial(
-		result: SSRResult,
-		apiContext: ActionAPIContext,
-	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
+	createAstroPagePartial(result: SSRResult): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const state = this;
 		const { cookies, locals, params, logger, url } = this;
 		const { response } = result;
@@ -624,8 +584,6 @@ export class FetchState implements AstroFetchState {
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			return await state.rewrite(reroutePayload);
 		};
-
-		const callAction = createCallAction(apiContext);
 
 		const partial: Record<string, any> = {
 			generator: ASTRO_GENERATOR,
@@ -648,26 +606,13 @@ export class FetchState implements AstroFetchState {
 			get clientAddress() {
 				return state.getClientAddress();
 			},
-			get currentLocale() {
-				return state.computeCurrentLocale();
-			},
 			params,
-			get preferredLocale() {
-				return state.computePreferredLocale();
-			},
-			get preferredLocaleList() {
-				return state.computePreferredLocaleList();
-			},
 			locals,
 			redirect,
 			rewrite,
 			request: this.request,
 			response,
 			site: getSite(this.manifest),
-			getActionResult: createGetActionResult(locals),
-			get callAction() {
-				return callAction;
-			},
 			url,
 			get originPathname() {
 				return getOriginPathname(state.request);
@@ -782,88 +727,6 @@ export class FetchState implements AstroFetchState {
 		};
 	}
 
-	computeCurrentLocale() {
-		const {
-			url,
-			manifest: { i18n },
-			routeData,
-		} = this;
-		if (!i18n || !routeData) return;
-
-		const { defaultLocale, locales, strategy } = i18n;
-
-		const fallbackTo =
-			strategy === 'pathname-prefix-other-locales' || strategy === 'domains-prefix-other-locales'
-				? defaultLocale
-				: undefined;
-
-		if (this.#currentLocale) {
-			return this.#currentLocale;
-		}
-
-		let computedLocale;
-		if (isRouteServerIsland(routeData)) {
-			let referer = this.request.headers.get('referer');
-			if (referer) {
-				if (URL.canParse(referer)) {
-					referer = new URL(referer).pathname;
-				}
-				computedLocale = computeCurrentLocaleUtil(referer, locales, defaultLocale);
-			}
-		} else {
-			let pathname = routeData.pathname;
-			// For domain-based i18n the locale prefix comes from the Host header,
-			// not the URL. `this.pathname` carries the locale-prefixed path the
-			// route matched against (e.g. `/en/boats/1/foo`), whereas `url.pathname`
-			// does not. This matters for dynamic routes, which have no static
-			// `routeData.pathname` to fall back to. See #16854.
-			if (this.#domainPathname) {
-				pathname = this.pathname;
-			} else if (url && !routeData.pattern.test(url.pathname)) {
-				for (const fallbackRoute of routeData.fallbackRoutes) {
-					if (fallbackRoute.pattern.test(url.pathname)) {
-						pathname = fallbackRoute.pathname;
-						break;
-					}
-				}
-			}
-			pathname =
-				pathname && !isRoute404or500(routeData) ? pathname : (url.pathname ?? this.pathname);
-			computedLocale = computeCurrentLocaleUtil(pathname, locales, defaultLocale);
-			// routeData.params is the route's parameter *names* (e.g. ['lang']);
-			// this.params is the resolved *values* for this request (e.g. { lang: 'en' }).
-			// If the route has parameters, the locale may be embedded in them.
-			if (routeData.params.length > 0) {
-				// SAFETY: routeData is set (guarded above), so the params getter resolves.
-				const localeFromParams = computeCurrentLocaleFromParams(this.params!, locales);
-				if (localeFromParams) {
-					computedLocale = localeFromParams;
-				}
-			}
-		}
-
-		this.#currentLocale = computedLocale ?? fallbackTo;
-		return this.#currentLocale;
-	}
-
-	computePreferredLocale() {
-		const {
-			manifest: { i18n },
-			request,
-		} = this;
-		if (!i18n) return;
-		return (this.#preferredLocale ??= computePreferredLocaleUtil(request, i18n.locales));
-	}
-
-	computePreferredLocaleList() {
-		const {
-			manifest: { i18n },
-			request,
-		} = this;
-		if (!i18n) return;
-		return (this.#preferredLocaleList ??= computePreferredLocaleListUtil(request, i18n.locales));
-	}
-
 	/**
 	 * Lazily loads the route's component module. Returns the cached
 	 * instance if already loaded. The promise is cached so concurrent
@@ -931,48 +794,29 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * Adds lazy getters to `target` for each registered provider key.
-	 * Used by context creation (APIContext, Astro global) so that
-	 * provider values like `session` and `cache` appear as properties
-	 * without hard-coding the keys.
-	 *
-	 * Always defines a `session` getter (returning `undefined` when no
-	 * provider is registered) so `ctx.session` / `Astro.session` is a
-	 * present property regardless of whether the sessions handler was
-	 * included in the pipeline.
+	 * Adds lazy getters to `target` for each provided key and for each key
+	 * registered with `api.astroRouter.extendRenderContext()`. Used by
+	 * context creation (APIContext, Astro global) so that provider values
+	 * like `session` and `cache` appear as properties without hard-coding
+	 * the keys. A registered key without a provider reads `undefined`.
 	 */
 	defineProviderGetters(target: Record<string, any>): void {
 		const state = this;
-		if (this.#providers) {
-			for (const key of this.#providers.keys()) {
-				Object.defineProperty(target, key, {
-					get: () => state.resolve(key),
-					enumerable: true,
-					configurable: true,
-				});
-			}
-		}
-		// Ensure `session` is always a defined property even when the
-		// sessions handler is not part of the pipeline. Warns once on
-		// access so users know they need to configure session storage.
-		if (!this.#providers?.has('session')) {
-			let warned = false;
-			Object.defineProperty(target, 'session', {
-				get() {
-					if (!warned) {
-						warned = true;
-						state.logger.warn(
-							'session',
-							'`Astro.session` was accessed but no session storage is configured. ' +
-								'Either configure the storage manually or use an adapter that provides session storage. ' +
-								'For more information, see https://docs.astro.build/en/guides/sessions/',
-						);
-					}
-					return undefined;
-				},
+		const define = (key: string) => {
+			Object.defineProperty(target, key, {
+				get: () => state.resolve(key),
 				enumerable: true,
 				configurable: true,
 			});
+		};
+		if (this.#providers) {
+			for (const key of this.#providers.keys()) define(key);
+		}
+		const pipeline = getLoadedPipeline(this.manifest);
+		if (pipeline) {
+			for (const { key } of pipeline.renderContextExtensions) {
+				if (!this.#providers?.has(key)) define(key);
+			}
 		}
 	}
 
@@ -1202,10 +1046,10 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * Returns the `ActionAPIContext` for this render, creating it lazily.
+	 * Returns the `RequestAPIContext` for this render, creating it lazily.
 	 * Used by middleware, actions, and page dispatch.
 	 */
-	getActionAPIContext(): ActionAPIContext {
+	getActionAPIContext(): RequestAPIContext {
 		if (this.actionApiContext !== null) return this.actionApiContext;
 
 		const state = this;
@@ -1219,9 +1063,6 @@ export class FetchState implements AstroFetchState {
 			get clientAddress() {
 				return state.getClientAddress();
 			},
-			get currentLocale() {
-				return state.computeCurrentLocale();
-			},
 			generator: ASTRO_GENERATOR,
 			get locals() {
 				return state.locals;
@@ -1232,12 +1073,6 @@ export class FetchState implements AstroFetchState {
 			// SAFETY: getActionAPIContext is only called after route resolution,
 			// so routeData is always set and the params getter always returns a value.
 			params: this.params!,
-			get preferredLocale() {
-				return state.computePreferredLocale();
-			},
-			get preferredLocaleList() {
-				return state.computePreferredLocaleList();
-			},
 			request: this.request,
 			site: getSite(this.manifest),
 			url: this.url,
@@ -1257,7 +1092,7 @@ export class FetchState implements AstroFetchState {
 		// FetchState hard-coding the provider keys.
 		this.defineProviderGetters(ctx);
 
-		this.actionApiContext = ctx as ActionAPIContext;
+		this.actionApiContext = ctx as RequestAPIContext;
 		return this.actionApiContext;
 	}
 
@@ -1285,13 +1120,13 @@ export class FetchState implements AstroFetchState {
 
 		(actionApiContext as any)[fetchStateSymbol] = this;
 
+		// Feature members (`getActionResult`, `currentLocale`, …) are render
+		// context extensions, defined as getters by `defineProviderGetters`.
 		const apiContext = Object.assign(actionApiContext, {
 			props: this.props!,
 			redirect,
 			rewrite,
-			getActionResult: createGetActionResult(actionApiContext.locals),
-			callAction: createCallAction(actionApiContext),
-		});
+		}) as APIContext;
 		// A composable handler such as `actions()` can run before anything has
 		// awaited `getProps()`. Memoizing only resolved props lets the next call
 		// copy them onto the same context object (#18229).

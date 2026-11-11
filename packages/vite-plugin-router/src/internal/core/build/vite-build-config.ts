@@ -1,31 +1,23 @@
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
-import type { RouteData } from '../../types/public/internal.js';
-import type { AstroSettings } from '../../types/astro.js';
+import type { RouteData } from '../../../index.js';
 import {
 	getClientOutputDirectory,
 	getPrerenderOutputDirectory,
 	getServerOutputDirectory,
-} from '../../prerender/utils.js';
+} from './common.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import { CHUNKS_PATH } from './consts.js';
-import {
-	isLegacyAdapter,
-	LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
-	RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
-} from './plugins/plugin-ssr.js';
-import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import { getImageServiceEnvironmentOptions } from './image-service.js';
-import { IMAGE_SERVICE_ENVIRONMENT_NAME } from '../../assets/consts.js';
+import { CHUNKS_PATH } from '../../../core/build/consts.js';
+import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from '../../../core/build/plugins/util.js';
 import { cleanChunkName } from './util.js';
 import { makeAstroPageEntryPointFileName } from './static-build.js';
+import type { StaticBuildOptionsInput } from './types.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
 export interface CreateViteBuildConfigOptions {
-	/** The resolved Astro settings. */
-	settings: AstroSettings;
+	options: Pick<StaticBuildOptionsInput, 'config' | 'buildOutput' | 'host'>;
 	/** The base Vite config produced by createVite(). */
 	viteConfig: vite.InlineConfig;
 	/** All routes to be built. */
@@ -49,8 +41,8 @@ export interface CreateViteBuildConfigOptions {
  * merging behavior (e.g. user rollup output overrides).
  */
 export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.InlineConfig {
-	const { settings, viteConfig, routes, plugins, builder, isRolldownInput } = opts;
-	const legacyAdapter = !settings.adapter || isLegacyAdapter(settings.adapter);
+	const { options, viteConfig, routes, plugins, builder, isRolldownInput } = opts;
+	const { config, buildOutput, host } = options;
 	const userTreeshake = viteConfig.build?.rolldownOptions?.treeshake;
 
 	// Separate Astro-managed environment keys from user-defined ones so that the
@@ -105,9 +97,7 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 					// and produce noisy warnings about slow plugins during normal builds.
 					pluginTimings: false,
 				},
-				...(legacyAdapter && settings.buildOutput === 'server'
-					? { input: LEGACY_SSR_ENTRY_VIRTUAL_MODULE }
-					: {}),
+				...(host.serverEntry && buildOutput === 'server' ? { input: host.serverEntry.id } : {}),
 				output: {
 					hoistTransitiveImports: false,
 					format: 'esm',
@@ -138,9 +128,9 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 						const name = assetInfo.names?.[0] ?? '';
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
 							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-							return `${settings.config.build.assets}/${sanitizedName}.[hash][extname]`;
+							return `${config.build.assets}/${sanitizedName}.[hash][extname]`;
 						}
-						return `${settings.config.build.assets}/[name].[hash][extname]`;
+						return `${config.build.assets}/[name].[hash][extname]`;
 					},
 					...viteConfig.build?.rolldownOptions?.output,
 					entryFileNames(chunkInfo) {
@@ -151,13 +141,13 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 								routes,
 							);
 						} else if (
-							chunkInfo.facadeModuleId === RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE ||
+							(host.serverEntry && chunkInfo.facadeModuleId === host.serverEntry.resolvedId) ||
 							// This catches the case when the adapter uses `entrypointResolution: 'auto'`. When doing so,
 							// the adapter must set rolldownOptions.input or Astro sets it from `serverEntrypoint`.
 							isRolldownInput(chunkInfo.name) ||
 							isRolldownInput(chunkInfo.facadeModuleId)
 						) {
-							return settings.config.build.serverEntry;
+							return config.build.serverEntry;
 						} else {
 							return '[name].mjs';
 						}
@@ -174,21 +164,17 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 		plugins,
 		builder,
 		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
-		base: settings.config.base,
+		base: config.base,
 		environments: {
 			...userEnvironments,
-			[IMAGE_SERVICE_ENVIRONMENT_NAME]: getImageServiceEnvironmentOptions(settings),
+			...host.environments,
 			[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]: {
 				...userPrerender,
 				build: {
 					emitAssets: true,
-					outDir: fileURLToPath(getPrerenderOutputDirectory(settings)),
+					outDir: fileURLToPath(getPrerenderOutputDirectory(options)),
 					rolldownOptions: {
-						// Only skip the default prerender entrypoint if an adapter with `entrypointResolution: 'self'` is used
-						// AND provides a custom prerenderer. Otherwise, use the default.
-						...(!legacyAdapter && settings.prerenderer
-							? {}
-							: { input: 'astro/entrypoints/prerender' }),
+						...(host.prerenderEntry ? { input: host.prerenderEntry } : {}),
 						output: {
 							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
@@ -203,7 +189,7 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 				build: {
 					emitAssets: true,
 					target: 'esnext',
-					outDir: fileURLToPath(getClientOutputDirectory(settings)),
+					outDir: fileURLToPath(getClientOutputDirectory(options)),
 					copyPublicDir: true,
 					sourcemap: userClient?.build?.sourcemap ?? viteConfig.build?.sourcemap ?? false,
 					minify: userClient?.build?.minify ?? viteConfig.build?.minify ?? true,
@@ -216,10 +202,10 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 							// via the environment-specific config.
 							...viteConfig.build?.rolldownOptions?.output,
 							entryFileNames(chunkInfo) {
-								return `${settings.config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
+								return `${config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
 							},
 							chunkFileNames(chunkInfo) {
-								return `${settings.config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
+								return `${config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
 							},
 							assetFileNames(assetInfo) {
 								// Strip the @_@ extension-masking pattern from asset names.
@@ -227,9 +213,9 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 								const name = assetInfo.names?.[0] ?? '';
 								if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
 									const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-									return `${settings.config.build.assets}/${sanitizedName}.[hash][extname]`;
+									return `${config.build.assets}/${sanitizedName}.[hash][extname]`;
 								}
-								return `${settings.config.build.assets}/[name].[hash][extname]`;
+								return `${config.build.assets}/[name].[hash][extname]`;
 							},
 							...userClient?.build?.rolldownOptions?.output,
 						},
@@ -239,10 +225,18 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 			[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: {
 				...userSsr,
 				build: {
-					outDir: fileURLToPath(getServerOutputDirectory(settings)),
+					outDir: fileURLToPath(getServerOutputDirectory(options)),
 					rolldownOptions: {
 						output: {
 							...userSsr?.build?.rolldownOptions?.output,
+							// Workaround for a Rolldown chunking bug (upstream issue pending): Rolldown merges its
+							// runtime helpers into an existing chunk, and that host can be a page chunk. The server
+							// entry then imports the page chunk statically, so pages evaluate at startup, before an
+							// adapter sets up the environment with `setGetEnv()`. Neither `codeSplitting` groups
+							// (they never match the runtime module) nor `chunkOptimization` prevent it; wrapping
+							// modules in source order keeps the runtime in its own chunk. Remove this once Rolldown
+							// stops merging its runtime into dynamically imported chunks.
+							strictExecutionOrder: true,
 						},
 					},
 				},

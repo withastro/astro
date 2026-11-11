@@ -1,0 +1,68 @@
+{
+  "name": "@astrojs/vite-plugin-router",
+  "description": "Vite plugin for Astro file-based pages, routing, and the server request pipeline.",
+  "version": "0.0.0",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/vite-plugin-router"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "exports": {
+    ".": "./dist/index.js",
+    "./defaults": "./dist/defaults.js",
+    "./_internal/*": "./dist/internal/*",
+    "./components/*": "./components/*"
+  },
+  "imports": {
+    "#astro-internal/ambient-manifest": {
+      "types": "./src/core/manifest/ambient-source.ts",
+      "default": "./dist/core/manifest/ambient-source.js"
+    }
+  },
+  "files": [
+    "components",
+    "dist"
+  ],
+  "scripts": {
+    "prepublish": "pnpm build",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/runtime": "workspace:*",
+    "@astrojs/vite-plugin-astro": "workspace:*",
+    "cookie": "^2.0.2",
+    "devalue": "^6.0.3",
+    "es-module-lexer": "^3.0.4",
+    "html-escaper": "3.0.3",
+    "p-limit": "^7.3.3",
+    "piccolore": "^0.1.3",
+    "shiki": "^4.6.0",
+    "tinyglobby": "^0.2.17",
+    "zod": "^4.6.7"
+  },
+  "peerDependencies": {
+    "vite": "^8.3.3"
+  },
+  "devDependencies": {
+    "@types/html-escaper": "3.0.4",
+    "astro-scripts": "workspace:*",
+    "vite": "^8.3.3"
+  },
+  "keywords": [
+    "astro",
+    "withastro",
+    "vite",
+    "vite-plugin"
+  ],
+  "publishConfig": {
+    "provenance": true
+  }
+}

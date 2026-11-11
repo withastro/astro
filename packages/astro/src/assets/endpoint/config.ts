@@ -1,37 +1,16 @@
-import { resolveInjectedRoute } from '../../core/routing/create-manifest.js';
-import { parseRoute } from '../../core/routing/parse-route.js';
-import type { AstroSettings, RoutesList } from '../../types/astro.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { InjectedRoute } from '@astrojs/vite-plugin-router';
+import type { AstroSettings } from '../../types/astro.js';
 
-export function injectImageEndpoint(
-	settings: AstroSettings,
-	manifest: RoutesList,
-	mode: 'dev' | 'build',
-	cwd?: string,
-) {
-	manifest.routes.unshift(getImageEndpointData(settings, mode, cwd));
-}
-
-function getImageEndpointData(
+/** The image endpoint, added to the route table as an internal route. */
+export function getImageEndpointRoute(
 	settings: AstroSettings,
 	mode: 'dev' | 'build',
-	cwd?: string,
-): RouteData {
-	const endpointEntrypoint =
-		settings.config.image.endpoint.entrypoint === undefined // If not set, use default endpoint
-			? mode === 'dev'
-				? 'astro/assets/endpoint/dev'
-				: 'astro/assets/endpoint/generic'
-			: settings.config.image.endpoint.entrypoint;
-
-	const component = resolveInjectedRoute(endpointEntrypoint, settings.config.root, cwd).component;
-
-	return parseRoute(settings.config.image.endpoint.route, settings, {
-		component,
-		type: 'endpoint',
-		origin: 'internal',
-		isIndex: false,
-		prerender: false,
-		params: [],
-	});
+): InjectedRoute {
+	const { endpoint } = settings.config.image;
+	return {
+		pattern: endpoint.route,
+		entrypoint:
+			endpoint.entrypoint ??
+			(mode === 'dev' ? 'astro/assets/endpoint/dev' : 'astro/assets/endpoint/generic'),
+	};
 }

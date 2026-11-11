@@ -2,10 +2,11 @@ import type { Server } from 'node:http';
 import type { CspHash } from '../core/csp/config.js';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
-import type { AstroLogger, AstroLoggerLevel } from '../core/logger/core.js';
+import type {
+	AstroLogger,
+	AstroLoggerLevel,
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { AstroPreferences } from '../preferences/index.js';
-import type { AstroComponentFactory } from '../runtime/server/index.js';
-import type { GetStaticPaths } from './public/common.js';
 import type { AstroConfig } from './public/config.js';
 import type { ContentEntryType, DataEntryType } from './public/content.js';
 import type {
@@ -16,20 +17,14 @@ import type {
 	InjectedScriptStage,
 	InjectedType,
 } from './public/integrations.js';
-import type { InternalInjectedRoute, ResolvedInjectedRoute, RouteData } from './public/internal.js';
+import type { InternalInjectedRoute, ResolvedInjectedRoute } from './public/internal.js';
 import type { DevToolbarAppEntry } from './public/toolbar.js';
 
-export type SerializedRouteData = Omit<
-	RouteData,
-	'generate' | 'pattern' | 'redirectRoute' | 'fallbackRoutes'
-> & {
-	pattern: string;
-	redirectRoute: SerializedRouteData | undefined;
-	fallbackRoutes: SerializedRouteData[];
-	_meta: {
-		trailingSlash: AstroConfig['trailingSlash'];
-	};
-};
+export type {
+	ComponentInstance,
+	RoutesList,
+	SerializedRouteData,
+} from '@astrojs/vite-plugin-router';
 
 export interface AstroSettings {
 	config: AstroConfig;
@@ -80,26 +75,9 @@ export interface AstroSettings {
 	fontsHttpServer: Server | null;
 }
 
-/** Generic interface for a component (Astro, Svelte, React, etc.) */
-export interface ComponentInstance {
-	default: AstroComponentFactory;
-	css?: string[];
-	partial?: boolean;
-	prerender?: boolean;
-	getStaticPaths?: GetStaticPaths;
-}
-
-export interface RoutesList {
-	routes: RouteData[];
-}
-
 export interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: AstroLogger;
 }
 
-export interface ImportedDevStyle {
-	id: string;
-	url: string;
-	content: string;
-}
+export type { ImportedDevStyle } from '@astrojs/vite-plugin-router';

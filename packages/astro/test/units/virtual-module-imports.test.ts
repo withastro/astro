@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { init, parse } from 'es-module-lexer/minimal';
 import { vitePluginCacheProvider } from '../../dist/core/cache/vite-plugin.js';
-import { vitePluginFetchable } from '../../dist/core/fetch/vite-plugin.js';
+import { vitePluginFetchable } from '@astrojs/vite-plugin-router/_internal/core/fetch/vite-plugin.js';
 import { vitePluginMiddleware } from '../../dist/core/middleware/vite-plugin.js';
 import { vitePluginSessionDriver } from '../../dist/core/session/vite-plugin.js';
 
@@ -23,7 +23,11 @@ describe('virtual modules that import a resolved path', () => {
 			session: { driver: 'fs-lite' },
 			cache: { provider: { entrypoint: 'some-module' } },
 		},
-		middlewares: { pre: [resolvedPath], post: [] },
+	} as never;
+	const routerRegistry = {
+		config: { srcDir: new URL('src/', root) },
+		middleware: { pre: [resolvedPath], post: [] },
+		freeze() {},
 	} as never;
 
 	const cases = [
@@ -35,10 +39,12 @@ describe('virtual modules that import a resolved path', () => {
 
 	for (const [name, createPlugin, resolvedId] of cases) {
 		it(`${name} imports a path that contains an apostrophe`, async () => {
-			const code = await loadVirtualModule(createPlugin({ settings }), resolvedId);
+			const code = await loadVirtualModule(createPlugin({ settings, routerRegistry }), resolvedId);
 			await init();
 			const [imports] = parse(code);
-			const specifiers = imports.map((entry) => entry.n).filter((n) => n !== 'astro:middleware');
+			const specifiers = imports
+				.map((entry) => entry.n)
+				.filter((n) => !n?.endsWith('/core/middleware/sequence.js'));
 			assert.ok(specifiers.length > 0);
 			for (const specifier of specifiers) {
 				assert.equal(specifier, resolvedPath);

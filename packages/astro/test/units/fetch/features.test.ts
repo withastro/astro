@@ -1,44 +1,39 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-	ALL_FETCH_FEATURES,
-	FetchFeatures,
-	getUsedFeatures,
-	markFeatureUsed,
-} from '../../../dist/core/fetch/features.js';
+	isHandlerUsed,
+	markAllHandlersUsed,
+	markHandlerUsed,
+} from '@astrojs/vite-plugin-router/_internal/core/fetch/features.js';
 import { createManifest } from '../app/test-helpers.ts';
 
 describe('features module', () => {
-	it('getUsedFeatures defaults to 0', () => {
-		assert.equal(getUsedFeatures(createManifest()), 0);
+	it('reports no handler as used by default', () => {
+		assert.equal(isHandlerUsed(createManifest(), 'redirects'), false);
 	});
 
-	it('markFeatureUsed ORs bits into the bitmask', () => {
+	it('records handlers by name', () => {
 		const manifest = createManifest();
-		markFeatureUsed(manifest, FetchFeatures.redirects);
-		assert.equal(getUsedFeatures(manifest), FetchFeatures.redirects);
+		markHandlerUsed(manifest, 'redirects');
+		assert.equal(isHandlerUsed(manifest, 'redirects'), true);
+		assert.equal(isHandlerUsed(manifest, 'actions'), false);
 
-		markFeatureUsed(manifest, FetchFeatures.actions);
-		assert.equal(getUsedFeatures(manifest), FetchFeatures.redirects | FetchFeatures.actions);
-
-		// Marking the same feature again is a no-op.
-		markFeatureUsed(manifest, FetchFeatures.redirects);
-		assert.equal(getUsedFeatures(manifest), FetchFeatures.redirects | FetchFeatures.actions);
+		markHandlerUsed(manifest, 'actions');
+		assert.equal(isHandlerUsed(manifest, 'actions'), true);
 	});
 
-	it('scopes the bitmask per manifest object', () => {
+	it('scopes the record per manifest object', () => {
 		const a = createManifest();
 		const b = createManifest();
-		markFeatureUsed(a, FetchFeatures.i18n);
-		assert.equal(getUsedFeatures(a), FetchFeatures.i18n);
-		assert.equal(getUsedFeatures(b), 0);
+		markHandlerUsed(a, 'i18n');
+		assert.equal(isHandlerUsed(a, 'i18n'), true);
+		assert.equal(isHandlerUsed(b, 'i18n'), false);
 	});
 
-	it('ALL_FETCH_FEATURES covers every feature bit', () => {
-		let all = 0;
-		for (const bit of Object.values(FetchFeatures)) {
-			all |= bit;
-		}
-		assert.equal(ALL_FETCH_FEATURES, all);
+	it('markAllHandlersUsed marks every name, including unknown ones', () => {
+		const manifest = createManifest();
+		markAllHandlersUsed(manifest);
+		assert.equal(isHandlerUsed(manifest, 'sessions'), true);
+		assert.equal(isHandlerUsed(manifest, 'my-feature'), true);
 	});
 });

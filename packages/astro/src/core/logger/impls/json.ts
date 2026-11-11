@@ -3,9 +3,9 @@ import {
 	type AstroLoggerDestination,
 	type AstroLoggerLevel,
 	levels,
-} from '../core.js';
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { AstroInlineConfig } from '../../../types/public/index.js';
-import { matchesLevel } from '../public.js';
+import { matchesLevel } from '@astrojs/vite-plugin-router/_internal/core/logger/public.js';
 
 export type JsonHandlerConfig = {
 	/**

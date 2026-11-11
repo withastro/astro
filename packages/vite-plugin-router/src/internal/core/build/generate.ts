@@ -1,47 +1,38 @@
 import nodeFs from 'node:fs';
-import os from 'node:os';
-import { fileURLToPath } from 'node:url';
 
 import { recordTiming, time } from '@astrojs/internal-helpers/timings';
 import PLimit from 'p-limit';
-import PQueue from 'p-queue';
 import colors from 'piccolore';
 import type { ViteBuilder } from 'vite';
-import {
-	generateImagesForPath,
-	prepareAssetsGenerationEnv,
-	StaticImageRegistry,
-} from '../../assets/build/generate.js';
-import type { SerializedStaticImage } from '../../assets/types.js';
-import { removeTrailingForwardSlash, trimSlashes } from '../../core/path.js';
-import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
-import type { AstroLogger } from '../logger/core.js';
+import { removeTrailingForwardSlash, trimSlashes } from '@astrojs/internal-helpers/path';
 import type {
-	AstroPrerenderer,
 	PathWithRoute,
+	Prerenderer,
+	PrerenderPathMetadata,
+	PrerenderPathRestoredContext,
 	PrerenderResult,
-	RouteToHeaders,
-} from '../../types/public/index.js';
-import type { RouteData, SSRError } from '../../types/public/internal.js';
-import { hashCryptoKey } from '@astrojs/runtime/_internal/core/encryption.js';
+	StaticPathsMetadata,
+} from '../../../index.js';
+import type { AstroLogger } from '../logger/core.js';
+import type { RouteData, SSRError } from '../../../index.js';
 import { ensureAsyncRenderScope } from '@astrojs/runtime/_internal/core/render-scope/node-scope.js';
 import type { RenderCollectors } from '@astrojs/runtime/_internal/core/render-scope/scope.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
-import { createRequest } from '../request.js';
+import { createRequest } from '../../../core/request.js';
 import { hasMetaRefreshTo, redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder, getUrlForPath } from './common.js';
-import { createDefaultPrerenderer } from './default-prerenderer.js';
-import { loadBuildImageService } from './image-service.js';
-import { createParallelPrerenderer, type ParallelPrerenderer } from './parallel-prerenderer.js';
-import { IncrementalBuildCache } from './incremental.js';
-import { computeConfigHash } from './config-hash/index.js';
-import { computeLockfileHash } from './lockfile/index.js';
+import { createDefaultPrerenderer } from '../../../core/build/default-prerenderer.js';
+import {
+	createParallelPrerenderer,
+	type ParallelPrerenderer,
+} from '../../../core/build/parallel-prerenderer.js';
+import type { IncrementalBuildCache } from './incremental.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import { buildPhase } from './timings/index.js';
-import type { StaticBuildOptions } from './types.js';
+import type { RouteToHeaders, StaticBuildOptions } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(
@@ -51,7 +42,7 @@ export async function generatePages(
 	builder: ViteBuilder,
 ) {
 	// Collects images resolved outside of any render, e.g. at module top level.
-	const buildCollectors: RenderCollectors<SerializedStaticImage> = {
+	const buildCollectors: RenderCollectors = {
 		staticImages: [],
 		referencedImages: new Set(),
 	};
@@ -65,50 +56,61 @@ async function generatePagesInBuildScope(
 	internals: BuildInternals,
 	prerenderOutputDir: URL,
 	builder: ViteBuilder,
-	buildCollectors: RenderCollectors<SerializedStaticImage>,
+	buildCollectors: RenderCollectors,
 ) {
 	const generatePagesTimer = performance.now();
 	const hasPagesToGenerate = hasPrerenderedPages(internals);
+	const routerRegistry = internals.routerRegistry!;
 
 	// Exit early when no prerendered pages were discovered to avoid setting up
 	// and tearing down the prerenderer for an empty set of routes.
 	if (!hasPagesToGenerate) {
+		await routerRegistry.prerenderDone({
+			prerenderer: undefined,
+			metadata: [],
+			builder,
+			outputDirectories: options.outputDirectories,
+		});
 		return;
 	}
 
-	const ssr = options.settings.buildOutput === 'server';
+	const ssr = options.buildOutput === 'server';
 	const logger = options.logger;
-	const images = new StaticImageRegistry();
-	images.addReferencedImages(internals.referencedImages);
+	// Image records and other per-path data, read back by `onPrerenderDone()` callbacks.
+	const prerenderMetadata: Partial<PrerenderPathMetadata>[] = [];
+	const collectMetadata = (metadata: StaticPathsMetadata | undefined) => {
+		// The image entries are the ones `PrerenderPathMetadata` declares.
+		if (metadata) prerenderMetadata.push(metadata as Partial<PrerenderPathMetadata>);
+	};
 
 	// Get or create the prerenderer
-	let prerenderer: AstroPrerenderer;
+	let prerenderer: Prerenderer;
 	let parallelPrerenderer: ParallelPrerenderer | undefined;
-	const settingsPrerenderer = options.settings.prerenderer;
-	if (!settingsPrerenderer && options.settings.config.experimental.parallelPrerender) {
+	const hostPrerenderer = options.host.prerenderer;
+	if (!hostPrerenderer && options.host.parallelPrerender) {
 		prerenderer = parallelPrerenderer = createParallelPrerenderer({
 			internals,
 			options,
 			prerenderOutputDir,
 		});
-	} else if (!settingsPrerenderer) {
+	} else if (!hostPrerenderer) {
 		// No custom prerenderer - create default
 		prerenderer = createDefaultPrerenderer({ internals, options, prerenderOutputDir });
-	} else if (typeof settingsPrerenderer === 'function') {
+	} else if (typeof hostPrerenderer === 'function') {
 		// Factory function - create default and pass it
 		const defaultPrerenderer = createDefaultPrerenderer({
 			internals,
 			options,
 			prerenderOutputDir,
 		});
-		prerenderer = settingsPrerenderer(defaultPrerenderer, {
+		prerenderer = hostPrerenderer(defaultPrerenderer, {
 			outputDirectories: options.outputDirectories,
 		});
 	} else {
 		// Direct prerenderer object - use as-is
-		prerenderer = settingsPrerenderer;
+		prerenderer = hostPrerenderer;
 	}
-	if (settingsPrerenderer && options.settings.config.experimental.parallelPrerender) {
+	if (hostPrerenderer && options.host.parallelPrerender) {
 		logger.warn(
 			'build',
 			`\`experimental.parallelPrerender\` is not supported by the "${prerenderer.name}" prerenderer and will be ignored.`,
@@ -123,22 +125,7 @@ async function generatePagesInBuildScope(
 	const routeToHeaders: RouteToHeaders = new Map();
 
 	// Incremental build support
-	let cache: IncrementalBuildCache | null = null;
-	if (options.settings.config.experimental.incrementalBuild) {
-		const [configHash, lockfileHash, keyDigest] = await Promise.all([
-			computeConfigHash(options.settings.config),
-			computeLockfileHash(fileURLToPath(options.settings.config.root)),
-			options.key.then(hashCryptoKey),
-		]);
-		cache = IncrementalBuildCache.load(
-			options.settings,
-			configHash,
-			lockfileHash,
-			keyDigest,
-			internals.contentEntryRenderHashes ?? new Map(),
-			options.force,
-		);
-	}
+	const cache = await options.host.loadIncrementalCache(internals, options);
 
 	try {
 		// Get all static paths with their routes from the prerenderer
@@ -148,17 +135,11 @@ async function generatePagesInBuildScope(
 			pathsWithRoutes = staticPaths;
 		} else {
 			pathsWithRoutes = staticPaths.paths;
-			images.addMetadata(staticPaths.metadata);
+			collectMetadata(staticPaths.metadata);
 		}
 
-		// Check if i18n domains are configured (incompatible with prerendering)
-		const hasI18nDomains =
-			ssr &&
-			options.settings.config.i18n?.domains &&
-			Object.keys(options.settings.config.i18n.domains).length > 0;
-
 		// Filter paths for conflicts (same path from multiple routes)
-		const { config } = options.settings;
+		const { config, host } = options;
 		// Maps each normalized pathname to the route that first claimed it,
 		// so conflict warnings identify the actual winning route.
 		const builtPaths = new Map<string, RouteData>();
@@ -166,13 +147,7 @@ async function generatePagesInBuildScope(
 		const fallbackPaths: typeof pathsWithRoutes = [];
 		for (const pathWithRoute of pathsWithRoutes) {
 			const { pathname, route } = pathWithRoute;
-			// i18n domains won't work with prerendered routes
-			if (hasI18nDomains && route.prerender) {
-				throw new AstroError({
-					...AstroErrorData.NoPrerenderedRoutesWithDomains,
-					message: AstroErrorData.NoPrerenderedRoutesWithDomains.message(route.component),
-				});
-			}
+			if (route.prerender) host.validatePrerenderedRoute(route);
 
 			const normalized = removeTrailingForwardSlash(pathname);
 
@@ -184,7 +159,7 @@ async function generatePagesInBuildScope(
 				const winningRoute = builtPaths.get(normalized)!;
 
 				// Warn or error based on config.
-				if (config.prerenderConflictBehavior === 'error') {
+				if (host.prerenderConflictBehavior === 'error') {
 					throw new AstroError({
 						...AstroErrorData.PrerenderRouteConflict,
 						message: AstroErrorData.PrerenderRouteConflict.message(
@@ -194,7 +169,7 @@ async function generatePagesInBuildScope(
 						),
 						hint: AstroErrorData.PrerenderRouteConflict.hint(winningRoute.route, route.route),
 					});
-				} else if (config.prerenderConflictBehavior === 'warn') {
+				} else if (host.prerenderConflictBehavior === 'warn') {
 					const msg = AstroErrorData.PrerenderRouteConflict.message(
 						winningRoute.route,
 						route.route,
@@ -236,7 +211,7 @@ async function generatePagesInBuildScope(
 									logger,
 									cache,
 									cacheKey,
-									images,
+									collectMetadata,
 								),
 							),
 						);
@@ -256,14 +231,14 @@ async function generatePagesInBuildScope(
 						logger,
 						cache,
 						cacheKey,
-						images,
+						collectMetadata,
 					);
 				}
 			}
 		}
 
 		if (parallelPrerenderer) {
-			images.addMetadata(await parallelPrerenderer.finish());
+			collectMetadata(await parallelPrerenderer.finish());
 		}
 
 		// After generation, propagate distURL from the deserialized routes (used during generation)
@@ -298,7 +273,7 @@ async function generatePagesInBuildScope(
 			let pruned = 0;
 			for (const orphanFile of orphans) {
 				try {
-					await cache.deleteOutputFile(options.settings, orphanFile);
+					await cache.deleteOutputFile(orphanFile);
 					pruned++;
 				} catch (err) {
 					logger.warn(
@@ -310,143 +285,32 @@ async function generatePagesInBuildScope(
 			if (pruned > 0) {
 				logger.info('build', `Pruned ${pruned} stale file(s) from the incremental cache.`);
 			}
-			cache.writeManifest(options.settings);
+			cache.writeManifest();
 		}
 
-		images.addMetadata({
-			staticImages: buildCollectors.staticImages,
+		collectMetadata({
+			staticImages: buildCollectors.staticImages!,
 			referencedImages: [...buildCollectors.referencedImages!],
 		});
-
-		// Must happen before teardown since collectStaticImages fetches from the prerender server
-		if (prerenderer.collectStaticImages) {
-			images.addStaticImageList(await prerenderer.collectStaticImages());
-		}
 
 		logger.info(
 			null,
 			colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
 		);
 
-		const staticImageList = images.images;
-		if (staticImageList.size) {
-			logger.info(
-				'SKIP_FORMAT',
-				`${colors.bgGreen(colors.black(` generating optimized images `))}`,
-			);
-
-			const totalCount = Array.from(staticImageList.values())
-				.map((x) => x.transforms.size)
-				.reduce((a, b) => a + b, 0);
-			const cpuCount = os.availableParallelism();
-			const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount, {
-				loadImageService: () => loadBuildImageService(builder, options.settings),
-				referencedImages: images.referencedImages,
-			});
-			const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
-			const errors: Error[] = [];
-
-			const assetsTimer = performance.now();
-			for (const [originalPath, transforms] of staticImageList) {
-				// Process each source image in parallel based on the queue’s concurrency
-				// (`cpuCount`). Process each transform for a source image sequentially.
-				//
-				// # Design Decision:
-				// We have 3 source images (A.png, B.png, C.png) and 3 transforms for
-				// each:
-				// ```
-				// A1.png A2.png A3.png
-				// B1.png B2.png B3.png
-				// C1.png C2.png C3.png
-				// ```
-				//
-				// ## Option 1
-				// Enqueue all transforms indiscriminantly
-				// ```
-				// |_A1.png   |_B2.png   |_C1.png
-				// |_B3.png   |_A2.png   |_C3.png
-				// |_C2.png   |_A3.png   |_B1.png
-				// ```
-				// * Advantage: Maximum parallelism, saturate CPU
-				// * Disadvantage: Spike in context switching
-				//
-				// ## Option 2
-				// Enqueue all transforms, but constrain processing order by source image
-				// ```
-				// |_A3.png   |_B1.png   |_C2.png
-				// |_A1.png   |_B3.png   |_C1.png
-				// |_A2.png   |_B2.png   |_C3.png
-				// ```
-				// * Advantage: Maximum parallelism, saturate CPU (same as Option 1) in
-				//   hope to avoid context switching
-				// * Disadvantage: Context switching still occurs and performance still
-				//   suffers
-				//
-				// ## Option 3
-				// Enqueue each source image, but perform the transforms for that source
-				// image sequentially
-				// ```
-				// \_A1.png   \_B1.png   \_C1.png
-				//  \_A2.png   \_B2.png   \_C2.png
-				//   \_A3.png   \_B3.png   \_C3.png
-				// ```
-				// * Advantage: Less context switching
-				// * Disadvantage: If you have a low number of source images with high
-				//   number of transforms then this is suboptimal.
-				//
-				// ## BEST OPTION:
-				// **Option 3**. Most projects will have a higher number of source images
-				// with a few transforms on each. Even though Option 2 should be faster
-				// and _should_ prevent context switching, this was not observed in
-				// nascent tests. Context switching was high and the overall performance
-				// was half of Option 3.
-				//
-				// If looking to optimize further, please consider the following:
-				// * Avoid `queue.add()` in an async for loop. Notice the `await
-				//   queue.onIdle();` after this loop. We do not want to create a scenario
-				//   where tasks are added to the queue after the queue.onIdle() resolves.
-				//   This can break tests and create annoying race conditions.
-				// * Exposing a concurrency property in `astro.config.mjs` to allow users
-				//   to override Node’s os.availableParallelism() default.
-				// * Create a proper performance benchmark for asset transformations of
-				//   projects in varying sizes of source images and transforms.
-				queue
-					.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
-					.catch((e) => {
-						logger.warn('build', `Unable to generate optimized image for ${originalPath}: ${e}`);
-						errors.push(
-							new Error(`Error generating image for ${originalPath}: ${e}`, { cause: e }),
-						);
-					});
-			}
-
-			await queue.onIdle();
-			if (errors.length === 1) {
-				throw errors[0];
-			} else if (errors.length > 1) {
-				throw new AggregateError(
-					errors,
-					`${errors.length} errors occurred during asset generation`,
-				);
-			}
-
-			const assetsTimeEnd = performance.now();
-			logger.info(
-				null,
-				colors.green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`),
-			);
-		}
+		// Runs before teardown: callbacks may read from the prerenderer (`collectStaticImages`).
+		await routerRegistry.prerenderDone({
+			prerenderer,
+			metadata: prerenderMetadata,
+			builder,
+			outputDirectories: options.outputDirectories,
+		});
 	} finally {
 		// Always teardown to avoid leaking adapter resources when generation fails.
 		await prerenderer.teardown?.();
 	}
 
-	await runHookBuildGenerated({
-		settings: options.settings,
-		logger,
-		routeToHeaders,
-		dir: options.outputDirectories.client,
-	});
+	await options.host.onGenerated(routeToHeaders, options.outputDirectories.client);
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
@@ -474,7 +338,7 @@ function normalizePrerenderResult(result: Response | PrerenderResult): Prerender
 }
 
 interface RenderToPathPayload {
-	prerenderer: AstroPrerenderer;
+	prerenderer: Prerenderer;
 	pathname: string;
 	route: RouteData;
 	options: StaticBuildOptions;
@@ -514,7 +378,7 @@ export async function renderPath({
 	routeToHeaders = new Map(),
 	logger,
 }: RenderToPathPayload): Promise<RenderPathResult | null> {
-	const { config } = options.settings;
+	const { config } = options;
 
 	// Do not render the fallback route if there is already a translated page
 	// with the same path
@@ -653,9 +517,8 @@ export async function renderPath({
 	}
 
 	// Track headers for static headers feature
-	const integrationRoute = toIntegrationResolvedRoute(route, config.trailingSlash);
-	if (options.settings.adapter?.adapterFeatures?.staticHeaders) {
-		routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
+	if (options.host.adapter?.adapterFeatures?.staticHeaders) {
+		routeToHeaders.set(pathname, { headers: responseHeaders, route });
 	}
 
 	// Public files take priority over generated routes
@@ -679,7 +542,7 @@ export async function renderPath({
  * Orchestrates rendering via `renderPath()` and writes the result to the filesystem.
  */
 async function generatePathWithPrerenderer(
-	prerenderer: AstroPrerenderer,
+	prerenderer: Prerenderer,
 	pathname: string,
 	route: RouteData,
 	options: StaticBuildOptions,
@@ -688,10 +551,10 @@ async function generatePathWithPrerenderer(
 	logger: AstroLogger,
 	cache: IncrementalBuildCache | null,
 	cacheKey: string | undefined,
-	images: StaticImageRegistry,
+	collectMetadata: (metadata: StaticPathsMetadata | undefined) => void,
 ): Promise<void> {
 	const timeStart = performance.now();
-	const { config } = options.settings;
+	const { config } = options;
 
 	const filePath = getOutputFilename(config.build.format, pathname, route);
 
@@ -717,8 +580,7 @@ async function generatePathWithPrerenderer(
 		cache?.canSkip(route.component, pathname, dependencyHash, cacheKey, hasServerIsland)
 	) {
 		const existsInDist = nodeFs.existsSync(outFile);
-		const restored =
-			!existsInDist && (await cache.restoreOutputFile(options.settings, relativeOutFile, outFile));
+		const restored = !existsInDist && (await cache.restoreOutputFile(relativeOutFile, outFile));
 
 		if (existsInDist || restored) {
 			// The page is not rendered, so its optimized-image transforms are never
@@ -726,20 +588,22 @@ async function generatePathWithPrerenderer(
 			// still emits the images its restored HTML references.
 			const restoredImages = cache.previousStaticImages(route.component, pathname);
 			const restoredReferencedImages = cache.previousReferencedImages(route.component, pathname);
-			images.addMetadata({
-				staticImages: restoredImages,
-				referencedImages: restoredReferencedImages,
+			internals.routerRegistry!.prerenderPathRestored({
+				pathname,
+				route,
+				// The image entries are the ones `PrerenderPathMetadata` declares.
+				metadata: {
+					staticImages: restoredImages,
+					referencedImages: restoredReferencedImages,
+				} as PrerenderPathRestoredContext['metadata'],
 			});
 
 			// Likewise, the route contributes no response headers when it is not
 			// rendered. Replay them so a `staticHeaders` adapter still writes this
 			// route into its headers file.
 			const restoredHeaders = cache.previousHeaders(route.component, pathname);
-			if (restoredHeaders && options.settings.adapter?.adapterFeatures?.staticHeaders) {
-				routeToHeaders.set(pathname, {
-					headers: new Headers(restoredHeaders),
-					route: toIntegrationResolvedRoute(route, config.trailingSlash),
-				});
+			if (restoredHeaders && options.host.adapter?.adapterFeatures?.staticHeaders) {
+				routeToHeaders.set(pathname, { headers: new Headers(restoredHeaders), route });
 			}
 
 			// Record in the new cache so orphan detection knows this path is still alive,
@@ -799,7 +663,7 @@ async function generatePathWithPrerenderer(
 		routeToHeaders,
 		logger,
 	});
-	images.addMetadata(result?.metadata);
+	collectMetadata(result?.metadata);
 	const contentEntryKeys = result?.metadata?.contentEntryKeys;
 	const staticImages = result?.metadata?.staticImages;
 	const referencedImages = result?.metadata?.referencedImages;
@@ -823,7 +687,7 @@ async function generatePathWithPrerenderer(
 
 	// Without a cache key or render metadata, the path cannot be skipped safely.
 	if (cache && cacheKey !== undefined && result.metadata !== undefined) {
-		await cache.writeOutputFile(options.settings, relativeOutFile, result.body);
+		await cache.writeOutputFile(relativeOutFile, result.body);
 		cache.record(
 			route.component,
 			dependencyHash,
@@ -856,8 +720,8 @@ function logRenderTime(logger: AstroLogger, timeStart: number, notCreated: boole
 }
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
-	const trailingSlash = opts.settings.config.trailingSlash;
-	const buildFormat = opts.settings.config.build.format;
+	const trailingSlash = opts.config.trailingSlash;
+	const buildFormat = opts.config.build.format;
 	const pageName = shouldAppendForwardSlash(trailingSlash, buildFormat)
 		? pathname.replace(/\/?$/, '/').replace(/^\//, '')
 		: pathname.replace(/^\//, '');

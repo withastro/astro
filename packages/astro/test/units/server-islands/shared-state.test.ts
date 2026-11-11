@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { ServerIslandsState } from '../../../dist/core/server-islands/shared-state.js';
+import { ServerIslandsState } from '@astrojs/vite-plugin-router/_internal/core/server-islands/shared-state.js';
 
 describe('ServerIslandsState', () => {
 	it('tracks island discovery and deduplicates by resolved path', () => {

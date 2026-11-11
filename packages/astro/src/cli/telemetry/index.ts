@@ -1,4 +1,4 @@
-import type { AstroLogger } from '../../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import * as msg from '../../core/messages/runtime.js';
 import { telemetry } from '../../events/index.js';
 import { createLoggerFromFlags, type Flags } from '../flags.js';

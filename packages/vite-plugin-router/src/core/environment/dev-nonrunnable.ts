@@ -1,25 +1,27 @@
-import type { ComponentInstance, ImportedDevStyle } from '../../types/astro.js';
-import type { RewritePayload } from '../../types/public/common.js';
-import type { DevToolbarMetadata } from '../../types/public/index.js';
-import type {
-	RouteData,
-	SSRComponentMetadata,
-	SSRElement,
-	SSRManifest,
-} from '../../types/public/internal.js';
+import type { SSRComponentMetadata, SSRElement } from '@astrojs/vite-plugin-astro';
+import type { RewritePayload } from '../../context.js';
+import type { ComponentInstance } from '../../routing.js';
+import type { ImportedDevStyle, RouteData } from '../../types.js';
+import type { SSRManifest } from '../../internal/core/app/types.js';
 import { stringifyForScript } from '@astrojs/runtime/_internal/server/escape.js';
-import type { RequestLogPayload } from './index.js';
-import type { SinglePageBuiltModule } from '../build/types.js';
-import { ASTRO_VERSION } from '../constants.js';
-import { getLogger } from '../logger/manifest-logger.js';
-import { req } from '../messages/runtime.js';
-import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
-import { getDefaultRoutes } from '../routing/default.js';
-import { createRewriteRouteValidator } from '../routing/rewrite-validate.js';
-import { findRouteToRewrite } from '../routing/rewrite.js';
-import { getRouteTable } from '../routing/route-table.js';
-import type { HeadElements, RenderEnvironment, TryRewriteResult } from './index.js';
+import type { RequestLogPayload } from '../../internal/core/environment/index.js';
+import type { SinglePageBuiltModule } from '../../internal/core/build/types.js';
+import { getLogger } from '../../internal/core/logger/manifest-logger.js';
+import { req } from '../../internal/core/messages/request.js';
+import { RedirectSinglePageBuiltModule } from '../../internal/core/redirects/index.js';
+import {
+	createModuleScriptElement,
+	createStylesheetElementSet,
+} from '../../internal/core/render/ssr-element.js';
+import { getDefaultRoutes } from '../../internal/core/routing/default.js';
+import { createRewriteRouteValidator } from '../../internal/core/routing/rewrite-validate.js';
+import { findRouteToRewrite } from '../../internal/core/routing/rewrite.js';
+import { getRouteTable } from '../../internal/core/routing/route-table.js';
+import type {
+	HeadElements,
+	RenderEnvironment,
+	TryRewriteResult,
+} from '../../internal/core/environment/index.js';
 
 // The dev environment that cannot load modules at runtime through the Vite
 // environment APIs (e.g. requests executed inside workerd). The
@@ -140,9 +142,10 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 					children: '',
 				});
 
-				const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
+				const additionalMetadata = {
 					root: manifest.rootDir.toString(),
-					version: ASTRO_VERSION,
+					// Replaced with the version of `astro` when the package is built.
+					version: process.env.ASTRO_VERSION ?? 'development',
 					latestAstroVersion: manifest.devToolbar.latestAstroVersion,
 					debugInfo: manifest.devToolbar.debugInfoOutput ?? '',
 					placement: manifest.devToolbar.placement,

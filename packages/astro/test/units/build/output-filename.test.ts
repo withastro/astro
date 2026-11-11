@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getOutputFilename } from '../../../dist/core/output-filename.js';
+import { getOutputFilename } from '@astrojs/vite-plugin-router/_internal/core/output-filename.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 
 function route(overrides: Partial<RouteData>): RouteData {

@@ -3,12 +3,15 @@ import { describe, it } from 'node:test';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
-import { matchAllRoutes, matchRoute } from '../../../dist/core/routing/match.js';
-import { matchRoute as devMatch } from '../../../dist/core/routing/dev.js';
-import { setEnvironment } from '../../../dist/core/environment/index.js';
-import { productionEnvironment } from '../../../dist/core/environment/production.js';
-import { setLogger } from '../../../dist/core/logger/manifest-logger.js';
-import { updateRouteTable } from '../../../dist/core/routing/route-table.js';
+import {
+	matchAllRoutes,
+	matchRoute,
+} from '@astrojs/vite-plugin-router/_internal/core/routing/match.js';
+import { matchRoute as devMatch } from '@astrojs/vite-plugin-router/_internal/core/routing/dev.js';
+import { setEnvironment } from '@astrojs/vite-plugin-router/_internal/core/environment/index.js';
+import { productionEnvironment } from '@astrojs/vite-plugin-router/_internal/core/environment/production.js';
+import { setLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/manifest-logger.js';
+import { updateRouteTable } from '@astrojs/vite-plugin-router/_internal/core/routing/route-table.js';
 import { createRouteData } from '../mocks.ts';
 import { defaultLogger } from '../test-utils.ts';
 import { createManifest } from '../app/test-helpers.ts';

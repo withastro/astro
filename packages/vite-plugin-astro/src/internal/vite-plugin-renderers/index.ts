@@ -9,7 +9,7 @@ import {
 	ASTRO_RENDERERS_MODULE_ID,
 	RESOLVED_APP_ENTRYPOINT_MODULE_PREFIX,
 	RESOLVED_ASTRO_RENDERERS_MODULE_ID,
-} from '../../vite-plugin-renderers/const.js';
+} from './const.js';
 
 export { ASTRO_RENDERERS_MODULE_ID };
 

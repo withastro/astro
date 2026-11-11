@@ -4,9 +4,9 @@ import {
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import type { RoutingStrategies } from '../core/app/common.js';
-import type { SSRManifest } from '../core/app/types.js';
-import { shouldAppendForwardSlash } from '../core/build/util.js';
-import { getFetchStateFromAPIContext } from '../core/fetch/fetch-state.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
+import { shouldAppendForwardSlash } from '@astrojs/vite-plugin-router/_internal/core/build/util.js';
+import { getFetchStateFromAPIContext } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import {
 	i18nNoLocaleFoundInPath,
 	MissingLocale,

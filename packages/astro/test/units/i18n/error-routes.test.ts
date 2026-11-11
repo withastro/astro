@@ -1,6 +1,19 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getErrorRoutePath, isLocalizedErrorRoute } from '../../../dist/i18n/error-routes.js';
+import i18nRouting from '../../../dist/core/i18n/routing-extension.js';
+import { getErrorRoutePath as getRoutePath } from '@astrojs/vite-plugin-router/_internal/core/routing/extensions.js';
+import { isLocalizedErrorRoute } from '../../../dist/i18n/error-routes.js';
+
+function getErrorRoutePath(
+	pathname: string,
+	status: 404 | 500,
+	routes: { route: string }[],
+	locales: any,
+	appendTrailingSlash = false,
+) {
+	const manifest: any = { routing: [i18nRouting], i18n: locales ? { locales } : undefined };
+	return getRoutePath(manifest, pathname, status, routes, appendTrailingSlash);
+}
 
 describe('getErrorRoutePath', () => {
 	const routes = [{ route: '/404' }, { route: '/500' }, { route: '/pt/404' }, { route: '/it/500' }];

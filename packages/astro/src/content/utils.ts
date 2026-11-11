@@ -14,9 +14,9 @@ import {
 } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { errorMap } from '@astrojs/vite-plugin-astro/_internal/core/errors/index.js';
 import { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
-import { normalizePath } from '../core/viteUtils.js';
+import { normalizePath } from '@astrojs/vite-plugin-router/_internal/core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { ContentEntryType, DataEntryType } from '../types/public/content.js';

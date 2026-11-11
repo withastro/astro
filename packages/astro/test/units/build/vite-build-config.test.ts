@@ -1,14 +1,26 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createViteBuildConfig } from '../../../dist/core/build/vite-build-config.js';
-import { createBasicSettings } from '../test-utils.ts';
+import { createViteBuildConfig } from '@astrojs/vite-plugin-router/_internal/core/build/vite-build-config.js';
+import { createBuildHost } from '../../../dist/core/build/host.js';
+import { toRouterConfig } from '../../../dist/core/router-config.js';
+import type { AstroSettings } from '../../../dist/types/astro.js';
+import { createBasicSettings, defaultLogger } from '../test-utils.ts';
 
 const noopIsRolldownInput = () => false;
 
+type BuildConfigOverrides = Partial<
+	Omit<Parameters<typeof createViteBuildConfig>[0], 'options'> & { settings: AstroSettings }
+>;
+
 /** Shorthand to call createViteBuildConfig with minimal defaults. */
-function buildConfig(overrides: Partial<Parameters<typeof createViteBuildConfig>[0]> = {}) {
+function buildConfig(overrides: BuildConfigOverrides = {}) {
+	const settings = overrides.settings!;
 	return createViteBuildConfig({
-		settings: overrides.settings!,
+		options: {
+			config: toRouterConfig(settings),
+			buildOutput: settings.buildOutput ?? 'static',
+			host: createBuildHost(settings, defaultLogger),
+		},
 		viteConfig: overrides.viteConfig ?? {},
 		routes: overrides.routes ?? [],
 		plugins: overrides.plugins ?? [],

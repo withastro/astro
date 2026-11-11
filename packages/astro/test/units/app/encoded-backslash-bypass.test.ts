@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { App } from '../../../dist/core/app/app.js';
-import { parseRoute } from '../../../dist/core/routing/parse-route.js';
+import { App } from '@astrojs/vite-plugin-router/_internal/core/app/app.js';
+import { parseRoute } from '@astrojs/vite-plugin-router/_internal/core/routing/parse-route.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import type { MiddlewareHandler } from '../../../dist/types/public/common.js';
 import { createManifest, createRouteInfo } from './test-helpers.ts';
@@ -16,9 +16,10 @@ import { createManifest, createRouteInfo } from './test-helpers.ts';
  */
 
 const routeOptions: Parameters<typeof parseRoute>[1] = {
-	config: { base: '/', trailingSlash: 'ignore' },
+	base: '/',
+	trailingSlash: 'ignore',
 	pageExtensions: [],
-} as any;
+};
 
 // Dynamic route: /users/[slug]
 const userSlugRouteData = parseRoute('users/[slug]', routeOptions, {

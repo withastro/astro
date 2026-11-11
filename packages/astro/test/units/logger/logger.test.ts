@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { AstroLoggerDestination } from '../../../dist/core/logger/core.js';
-import { AstroIntegrationLogger, AstroLogger } from '../../../dist/core/logger/core.js';
+import type { AstroLoggerDestination } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import {
+	AstroIntegrationLogger,
+	AstroLogger,
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 
 describe('AstroLogger', () => {
 	function createSpyDestination() {

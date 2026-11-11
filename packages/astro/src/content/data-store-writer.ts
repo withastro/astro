@@ -1,7 +1,7 @@
 import { promises as fs, type PathLike } from 'node:fs';
 import * as devalue from 'devalue';
 import xxhash, { type XXHashAPI } from 'xxhash-wasm';
-import { emptyDir } from '../core/fs/index.js';
+import { emptyDir } from '@astrojs/vite-plugin-router/_internal/core/fs/index.js';
 import { DATA_STORE_MANIFEST_FILE } from './consts.js';
 
 /** A chunked store manifest: each collection maps to its content-addressed part files. */

@@ -1,6 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { collectErrorMetadata, renderErrorMarkdown } from '../../../dist/core/errors/dev/utils.js';
+import {
+	collectErrorMetadata,
+	renderErrorMarkdown,
+} from '@astrojs/vite-plugin-router/_internal/core/errors/dev/utils.js';
 
 describe('renderErrorMarkdown', () => {
 	describe('html target', () => {

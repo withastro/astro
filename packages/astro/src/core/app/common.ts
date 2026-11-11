@@ -1,5 +1,5 @@
 import type { AstroConfig } from '../../types/public/index.js';
-import type { SSRManifest } from './types.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 
 export type RoutingStrategies =
 	| 'manual'

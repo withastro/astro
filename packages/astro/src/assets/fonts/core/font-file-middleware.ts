@@ -1,9 +1,9 @@
-import type { AstroLogger } from '../../../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { FontFetcher, FontTypeExtractor } from '../definitions.js';
 import type { FontFileById } from '../types.js';
 import { isAstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { formatErrorMessage } from '../../../core/messages/runtime.js';
-import { collectErrorMetadata } from '../../../core/errors/dev/utils.js';
+import { collectErrorMetadata } from '@astrojs/vite-plugin-router/_internal/core/errors/dev/utils.js';
 import type { ServerResponse } from 'node:http';
 
 interface MinimalResponse {

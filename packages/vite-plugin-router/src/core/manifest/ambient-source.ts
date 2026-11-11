@@ -1,4 +1,4 @@
-import type { SSRManifest } from '../app/types.js';
+import type { SSRManifest } from '../../internal/core/app/types.js';
 
 // This module is the NON-VITE fallback for the '#astro-internal/ambient-manifest'
 // specifier (mapped here by the package.json `imports` field). In every

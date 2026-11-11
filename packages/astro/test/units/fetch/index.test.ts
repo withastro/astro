@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
-import { getUsedFeatures } from '../../../dist/core/fetch/features.js';
+import { setAmbientManifest } from '@astrojs/vite-plugin-router/_internal/core/manifest/ambient.js';
+import { isHandlerUsed } from '@astrojs/vite-plugin-router/_internal/core/fetch/features.js';
+import {
+	applyRenderContextExtensions,
+	loadPipeline,
+} from '@astrojs/vite-plugin-router/_internal/core/fetch/pipeline.js';
 import {
 	FetchState,
 	astro,
@@ -13,7 +17,6 @@ import {
 	pages,
 	i18n,
 } from '../../../dist/core/fetch/index.js';
-import { ALL_FETCH_FEATURES } from '../../../dist/core/fetch/features.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import {
 	createEndpoint,
@@ -24,7 +27,10 @@ import {
 } from '../mocks.ts';
 import { dynamicPart, spreadPart, staticPart } from '../routing/test-helpers.ts';
 import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
-import type { RouteInfo, SSRManifest } from '../../../dist/core/app/types.js';
+import type {
+	RouteInfo,
+	SSRManifest,
+} from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import { SpyLogger } from '../test-utils.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
@@ -904,11 +910,13 @@ describe('astro() combined handler', () => {
 		// astro() is the "batteries-included" handler — it should mark
 		// every feature as used so the one-shot warnMissingFeatures check
 		// in BaseApp never fires a false positive.
-		assert.equal(
-			getUsedFeatures(state.manifest) & ALL_FETCH_FEATURES,
-			ALL_FETCH_FEATURES,
-			'astro() should mark all pipeline features as used',
-		);
+		for (const name of ['redirects', 'middleware', 'sessions', 'actions', 'i18n', 'cache']) {
+			assert.equal(
+				isHandlerUsed(state.manifest, name),
+				true,
+				`astro() should mark ${name} as used`,
+			);
+		}
 	});
 });
 
@@ -1302,7 +1310,9 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 			},
 		});
 		// Use BaseFetchState directly to pass clientAddress via options
-		const { FetchState: BaseFetchState } = await import('../../../dist/core/fetch/fetch-state.js');
+		const { FetchState: BaseFetchState } = await import(
+			'@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js'
+		);
 		const state = new BaseFetchState(app.manifest, request, {
 			clientAddress: '10.0.0.1',
 			addCookieHeader: false,
@@ -1473,8 +1483,9 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 // #region session stub getter
 
 describe('session stub getter', () => {
-	it('session property is always defined on the context even without session config', () => {
+	it('session property is always defined on the context even without session config', async () => {
 		const state = createMockFetchState();
+		await applyRenderContextExtensions(state, await loadPipeline(state.manifest));
 		const target: Record<string, any> = {};
 		state.defineProviderGetters(target);
 		assert.ok('session' in target, 'session should be a defined property');
@@ -1486,6 +1497,7 @@ describe('session stub getter', () => {
 		const logger = new SpyLogger();
 		const pipeline = createBasicPipeline({ logger });
 		const state = createMockFetchState({ pipeline });
+		await applyRenderContextExtensions(state, await loadPipeline(state.manifest));
 
 		const target: Record<string, any> = {};
 		state.defineProviderGetters(target);

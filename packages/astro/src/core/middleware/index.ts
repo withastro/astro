@@ -8,13 +8,13 @@ import type { Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 import { DisabledAstroCache } from '../cache/runtime/noop.js';
 import { ASTRO_GENERATOR } from '../constants.js';
-import { AstroCookies } from '../cookies/index.js';
+import { AstroCookies } from '@astrojs/vite-plugin-router/_internal/core/cookies/index.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import type { AstroLogger } from '../logger/core.js';
-import { getLogger } from '../logger/manifest-logger.js';
-import { tryGetAmbientManifest } from '../manifest/ambient.js';
-import { getOriginPathname } from '../routing/rewrite.js';
-import { sequence } from './sequence.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import { getLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/manifest-logger.js';
+import { tryGetAmbientManifest } from '@astrojs/vite-plugin-router/_internal/core/manifest/ambient.js';
+import { getOriginPathname } from '@astrojs/vite-plugin-router/_internal/core/routing/rewrite.js';
+import { sequence } from '@astrojs/vite-plugin-router/_internal/core/middleware/sequence.js';
 
 /**
  * Payload for creating a context to be passed to Astro middleware
@@ -229,4 +229,4 @@ function trySerializeLocals(value: unknown) {
 
 // NOTE: this export must export only the functions that will be exposed to user-land as officials APIs
 export { createContext, sequence, trySerializeLocals };
-export { defineMiddleware } from './defineMiddleware.js';
+export { defineMiddleware } from '@astrojs/vite-plugin-router/_internal/core/middleware/defineMiddleware.js';

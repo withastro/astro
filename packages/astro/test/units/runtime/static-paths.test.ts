@@ -1,9 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { setEnvironment } from '../../../dist/core/environment/index.js';
-import { productionEnvironment } from '../../../dist/core/environment/production.js';
-import { StaticPaths } from '../../../dist/runtime/prerender/static-paths.js';
-import type { StaticPathsApp } from '../../../dist/runtime/prerender/static-paths.js';
+import { setEnvironment } from '@astrojs/vite-plugin-router/_internal/core/environment/index.js';
+import { productionEnvironment } from '@astrojs/vite-plugin-router/_internal/core/environment/production.js';
+import { StaticPaths } from '@astrojs/vite-plugin-router/_internal/runtime/prerender/static-paths.js';
+import type { StaticPathsApp } from '@astrojs/vite-plugin-router/_internal/runtime/prerender/static-paths.js';
 import { ensureAsyncRenderScope } from '@astrojs/runtime/_internal/core/render-scope/node-scope.js';
 import { recordReferencedImage } from '@astrojs/runtime/_internal/core/render-scope/record.js';
 import { uninstallRenderScope } from '@astrojs/runtime/_internal/core/render-scope/scope.js';

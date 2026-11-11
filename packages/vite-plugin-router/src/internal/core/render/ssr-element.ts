@@ -1,6 +1,11 @@
 import { getAssetsPrefix } from '../../assets/utils/getAssetsPrefix.js';
-import { fileExtension, joinPaths, prependForwardSlash, slash } from '../../core/path.js';
-import type { SSRElement } from '../../types/public/internal.js';
+import {
+	fileExtension,
+	joinPaths,
+	prependForwardSlash,
+	slash,
+} from '@astrojs/internal-helpers/path';
+import type { SSRElement } from '@astrojs/vite-plugin-astro';
 import type { AssetsPrefix, StylesheetAsset } from '../app/types.js';
 
 const URL_PARSE_BASE = 'https://astro.build';

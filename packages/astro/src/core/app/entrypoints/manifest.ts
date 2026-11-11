@@ -5,4 +5,4 @@ export {
 	deserializeRouteInfo,
 	serializeRouteData,
 	serializeRouteInfo,
-} from '../manifest.js';
+} from '@astrojs/vite-plugin-router/_internal/core/app/manifest.js';

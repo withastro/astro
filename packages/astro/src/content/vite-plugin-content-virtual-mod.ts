@@ -4,8 +4,8 @@ import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServe
 import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { rootRelativePath } from '../core/viteUtils.js';
-import { isAstroClientEnvironment } from '../environments.js';
+import { rootRelativePath } from '@astrojs/vite-plugin-router/_internal/core/viteUtils.js';
+import { isAstroClientEnvironment } from '@astrojs/vite-plugin-router/_internal/environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroPluginMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/index.js';
 import { createDefaultAstroMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/metadata.js';

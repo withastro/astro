@@ -1,1 +1,1 @@
-export * from '../transitions/router.js';
+export * from '@astrojs/vite-plugin-router/_internal/transitions/router.js';

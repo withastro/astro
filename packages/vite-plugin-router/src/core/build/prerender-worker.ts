@@ -1,13 +1,14 @@
 import { parentPort, workerData } from 'node:worker_threads';
 import { parse, stringify } from 'devalue';
-import type { SerializedStaticImage } from '../../assets/types.js';
-import { StaticPaths } from '../../runtime/prerender/static-paths.js';
-import type { RouteData } from '../../types/public/internal.js';
-import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { deserializeRouteData, serializeRouteData } from '../app/manifest.js';
-import { renderForPrerender } from '../app/prerender.js';
+import { StaticPaths } from '../../internal/runtime/prerender/static-paths.js';
+import type { RouteData } from '../../index.js';
+import { deserializeRouteData, serializeRouteData } from '../../internal/core/app/manifest.js';
+import { renderForPrerender } from '../../internal/core/app/prerender.js';
 import { ensureAsyncRenderScope } from '@astrojs/runtime/_internal/core/render-scope/node-scope.js';
-import type { RenderCollectors } from '@astrojs/runtime/_internal/core/render-scope/scope.js';
+import type {
+	RenderCollectors,
+	StaticImageRecord,
+} from '@astrojs/runtime/_internal/core/render-scope/scope.js';
 import { createRequest } from '../request.js';
 import type { BuildApp } from './app.js';
 import type {
@@ -24,7 +25,7 @@ const data = workerData as ParallelPrerenderWorkerData;
 
 const renderScope = ensureAsyncRenderScope();
 const workerCollectors = {
-	staticImages: [] as SerializedStaticImage[],
+	staticImages: [] as StaticImageRecord[],
 	referencedImages: new Set<string>(),
 } satisfies RenderCollectors;
 
@@ -67,11 +68,15 @@ async function start() {
 	app.setInternals({
 		pagesByKeys: new Map(data.pagesByKeys),
 		entrySpecifierToBundleMap: new Map(
-			data.pageScript ? [[PAGE_SCRIPT_ID, data.pageScript]] : undefined,
+			data.pageScripts.flatMap(([specifier, bundle]) =>
+				bundle === undefined ? [] : [[specifier, bundle] as const],
+			),
 		),
+		pageScripts: data.pageScripts.map(([specifier]) => specifier),
 	});
 	app.setOptions({
-		settings: { scripts: data.scripts, redirectPage: data.redirectPage },
+		headInlineScripts: data.headInlineScripts,
+		redirectPage: data.redirectPage,
 		logger: {
 			options: {
 				destination: {

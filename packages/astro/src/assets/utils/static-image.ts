@@ -6,7 +6,7 @@ import {
 } from '@astrojs/internal-helpers/path';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { ImageMetadata, ImageTransform, SerializedStaticImage } from '../types.js';
-import { getAssetsPrefix } from './getAssetsPrefix.js';
+import { getAssetsPrefix } from '@astrojs/vite-plugin-router/_internal/assets/utils/getAssetsPrefix.js';
 import { hashTransform, propsToFilename } from './hash.js';
 import { isESMImportedImage } from './imageKind.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './url.js';

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
 import type { Socket } from 'node:net';
-import type { RemotePattern } from '../../types/public/config.js';
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
 import { deserializeManifest } from './manifest.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';

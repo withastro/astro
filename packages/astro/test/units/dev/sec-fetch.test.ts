@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { RemotePattern } from '@astrojs/internal-helpers/remote';
-import { secFetchMiddleware } from '../../../dist/vite-plugin-astro-server/sec-fetch.js';
+import { secFetchMiddleware } from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/sec-fetch.js';
 import { createRequestAndResponse, defaultLogger } from '../test-utils.ts';
 
 /**

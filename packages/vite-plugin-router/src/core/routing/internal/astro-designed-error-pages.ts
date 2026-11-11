@@ -1,7 +1,7 @@
-import notFoundTemplate from '../../../template/4xx.js';
-import type { ComponentInstance } from '../../../types/astro.js';
-import type { RouteData } from '../../../types/public/internal.js';
-import { DEFAULT_404_COMPONENT } from '../../constants.js';
+import notFoundTemplate from '../../../internal/template/4xx.js';
+import type { ComponentInstance } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
+import { DEFAULT_404_COMPONENT } from '../../../internal/core/constants.js';
 
 export const DEFAULT_404_ROUTE: RouteData = {
 	component: DEFAULT_404_COMPONENT,

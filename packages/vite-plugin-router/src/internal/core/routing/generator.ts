@@ -1,6 +1,5 @@
 import { collapseDuplicateLeadingSlashes } from '@astrojs/internal-helpers/path';
-import type { AstroConfig } from '../../types/public/config.js';
-import type { RoutePart } from '../../types/public/internal.js';
+import type { RoutePart } from '../../../types.js';
 
 /**
  * Sanitizes the parameters object by normalizing string values and replacing certain characters with their URL-encoded equivalents.
@@ -49,7 +48,7 @@ type RouteGenerator = (data?: any) => string;
 
 export function getRouteGenerator(
 	segments: RoutePart[][],
-	addTrailingSlash: AstroConfig['trailingSlash'],
+	addTrailingSlash: 'always' | 'never' | 'ignore',
 ): RouteGenerator {
 	return (params: any = {}): string => {
 		const sanitizedParams = sanitizeParams(params ?? {});

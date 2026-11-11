@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import { patchOverlay } from '../core/errors/overlay.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../environment-names.js';
+import { patchOverlay } from '../../core/errors/overlay.js';
 
 export function vitePluginAstroServerClient(): Plugin {
 	return {

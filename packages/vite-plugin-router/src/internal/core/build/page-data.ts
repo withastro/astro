@@ -1,13 +1,13 @@
 import colors from 'piccolore';
-import type { AstroSettings, RoutesList } from '../../types/astro.js';
+import type { RoutesList } from '../../../index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { debug } from '../logger/core.js';
 import { DEFAULT_COMPONENTS } from '../routing/default.js';
-import { makePageDataKey } from './plugins/util.js';
+import { makePageDataKey } from '../../../core/build/plugins/util.js';
 import type { AllPagesData } from './types.js';
 
 interface CollectPagesDataOptions {
-	settings: AstroSettings;
+	buildOutput: 'static' | 'server';
 	logger: AstroLogger;
 	manifest: RoutesList;
 }
@@ -19,7 +19,7 @@ interface CollectPagesDataResult {
 
 // Examines the routes and returns a collection of information about each page.
 export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDataResult {
-	const { settings, manifest } = opts;
+	const { buildOutput, manifest } = opts;
 
 	const assets: Record<string, string> = {};
 	const allPages: AllPagesData = {};
@@ -47,7 +47,7 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 				styles: [],
 			};
 
-			if (settings.buildOutput === 'static') {
+			if (buildOutput === 'static') {
 				const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
 				debug(
 					'build',

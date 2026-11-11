@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { AstroConfig } from '../../../dist/types/public/config.js';
-import { Router } from '../../../dist/core/routing/router.js';
+import { Router } from '@astrojs/vite-plugin-router/_internal/core/routing/router.js';
 import { makeRoute, staticPart } from './test-helpers.ts';
 
 /**

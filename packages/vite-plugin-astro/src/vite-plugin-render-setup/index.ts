@@ -3,7 +3,7 @@ import type { Plugin } from 'vite';
 import type { AstroRenderer } from '@astrojs/runtime/types';
 import { CLIENT_DIRECTIVES_MODULE_ID } from '../vite-plugin-client-directives/index.js';
 import { COMPONENT_ASSETS_MODULE_ID } from '../vite-plugin-component-assets/index.js';
-import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/const.js';
+import { ASTRO_RENDERERS_MODULE_ID } from '../internal/vite-plugin-renderers/const.js';
 import { specialQueriesRE } from '../internal/vite-plugin-utils/index.js';
 
 export const RENDER_SETUP_MODULE_ID = 'virtual:astro:render-setup';

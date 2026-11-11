@@ -1,6 +1,6 @@
-import type { SerializedRouteData } from '../../types/astro.js';
-import type { AstroConfig, RouteData } from '../../types/public/index.js';
-import type { RoutesList } from '../../types/astro.js';
+import type { SerializedRouteData } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
+import type { RoutesList } from '../../../index.js';
 import { decodeKey } from '@astrojs/runtime/_internal/core/encryption.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import type {
@@ -10,7 +10,7 @@ import type {
 	SerializedRouteInfo,
 } from './types.js';
 
-export type { SerializedRouteData } from '../../types/astro.js';
+export type { SerializedRouteData } from '../../../routing.js';
 
 export function deserializeManifest(
 	serializedManifest: SerializedSSRManifest,
@@ -67,7 +67,7 @@ export function deserializeManifest(
 
 export function serializeRouteData(
 	routeData: RouteData,
-	trailingSlash: AstroConfig['trailingSlash'],
+	trailingSlash: 'always' | 'never' | 'ignore',
 ): SerializedRouteData {
 	return {
 		...routeData,
@@ -109,7 +109,7 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 
 export function serializeRouteInfo(
 	routeInfo: RouteInfo,
-	trailingSlash: AstroConfig['trailingSlash'],
+	trailingSlash: 'always' | 'never' | 'ignore',
 ): SerializedRouteInfo {
 	return {
 		styles: routeInfo.styles,

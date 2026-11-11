@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Hono } from 'hono';
-import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
-import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
+import { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
+import { setAmbientManifest } from '@astrojs/vite-plugin-router/_internal/core/manifest/ambient.js';
 import {
 	astro,
 	cache,

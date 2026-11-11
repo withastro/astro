@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getAssetsPrefix } from '../../../dist/assets/utils/getAssetsPrefix.js';
+import { getAssetsPrefix } from '@astrojs/vite-plugin-router/_internal/assets/utils/getAssetsPrefix.js';
 import { etag } from '../../../dist/assets/utils/etag.js';
 import { deterministicString } from '../../../dist/assets/utils/deterministic-string.js';
 import { getOrigQueryParams } from '../../../dist/assets/utils/queryParams.js';

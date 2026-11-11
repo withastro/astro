@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getPattern } from '../../../dist/core/routing/pattern.js';
+import { getPattern } from '@astrojs/vite-plugin-router/_internal/core/routing/pattern.js';
 
 describe('getPattern', () => {
 	describe('root route (empty segments)', () => {

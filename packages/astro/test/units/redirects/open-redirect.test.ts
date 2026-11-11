@@ -1,8 +1,8 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { redirectIsExternal } from '../../../dist/core/redirects/render.js';
-import { getRouteGenerator } from '../../../dist/core/routing/generator.js';
+import { redirectIsExternal } from '@astrojs/vite-plugin-router/_internal/core/redirects/render.js';
+import { getRouteGenerator } from '@astrojs/vite-plugin-router/_internal/core/routing/generator.js';
 
 describe('Protocol-relative URLs in redirects', () => {
 	describe('redirectIsExternal', () => {

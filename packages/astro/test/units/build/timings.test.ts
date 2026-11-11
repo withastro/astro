@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import { setBuildTimings } from '@astrojs/internal-helpers/timings';
-import { BuildTimingsCollector } from '../../../dist/core/build/timings/collector.js';
-import { renderCliReport } from '../../../dist/core/build/timings/report-cli.js';
-import { buildTimingsPlugin } from '../../../dist/core/build/timings/vite-plugins.js';
+import { BuildTimingsCollector } from '@astrojs/vite-plugin-router/_internal/core/build/timings/collector.js';
+import { renderCliReport } from '@astrojs/vite-plugin-router/_internal/core/build/timings/report-cli.js';
+import { buildTimingsPlugin } from '@astrojs/vite-plugin-router/_internal/core/build/timings/vite-plugins.js';
 
 const context = { root: '/project/', output: 'static' };
 
