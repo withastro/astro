@@ -16,7 +16,7 @@
     "@benchmark/adapter": "workspace:*",
     "@benchmark/timer": "workspace:*",
     "astro": "workspace:*",
-    "autocannon": "^8.0.0",
+    "autocannon": "^9.0.0",
     "markdown-table": "^3.1.0",
     "mri": "^1.2.0",
     "port-authority": "^2.0.1",
