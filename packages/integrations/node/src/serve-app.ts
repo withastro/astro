@@ -26,16 +26,18 @@ const requestContext = new AsyncLocalStorage<{
 const abortedRequestErrors = new WeakSet<Error>();
 let unhandledRejectionListenerInstalled = false;
 
-function installUnhandledRejectionListener() {
+/**
+ * `fallbackLogger` is the adapter logger of the first handler, used for rejections
+ * that happen outside any request.
+ */
+function installUnhandledRejectionListener(fallbackLogger: { error: (message: string) => void }) {
 	if (unhandledRejectionListenerInstalled) return;
 	unhandledRejectionListenerInstalled = true;
 	process.on('unhandledRejection', (reason) => {
 		const store = requestContext.getStore();
 		if (!store) {
 			const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
-			// No request-scoped logger is available outside a handler; keep prior behavior
-			// for truly global rejections by writing to stderr and marking failure.
-			console.error(`Unhandled rejection outside request context\n${error}`);
+			fallbackLogger.error(`Unhandled rejection outside request context\n${error}`);
 			process.exitCode = 1;
 			return;
 		}
@@ -89,7 +91,7 @@ async function readErrorPageFromDisk(
  */
 export function createAppHandler(app: BaseApp, options: Options): RequestHandler {
 	const logger = app.adapterLogger;
-	installUnhandledRejectionListener();
+	installUnhandledRejectionListener(logger);
 
 	const client = resolveClientDir(options);
 
