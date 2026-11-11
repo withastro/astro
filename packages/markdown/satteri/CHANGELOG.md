@@ -1,5 +1,11 @@
 # @astrojs/markdown-satteri
 
+## 0.4.9
+
+### Patch Changes
+
+- [#18698](https://github.com/withastro/astro/pull/18698) [`d13beeb`](https://github.com/withastro/astro/commit/d13beeb66c753f03cbdbf4509cf2c527c816f1a4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes MDX `optimize` emptying `<style>` and `<script>` elements nested in static HTML from plugins, and turning SVG attributes like `marker-end` into `markerEnd` when `ignoreElementNames` is set
+
 ## 0.4.8
 
 ### Patch Changes

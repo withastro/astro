@@ -1,5 +1,12 @@
 # @astrojs/vue-renderer
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`e9916e1`](https://github.com/withastro/astro/commit/e9916e1bff5f3e740d533a6f504630bd6c528ddf)]:
+  - @astrojs/runtime@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes

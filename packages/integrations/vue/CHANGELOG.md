@@ -1,5 +1,12 @@
 # @astrojs/vue
 
+## 7.1.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/vue-renderer@0.1.1
+
 ## 7.1.4
 
 ### Patch Changes

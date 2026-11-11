@@ -1,5 +1,12 @@
 # @astrojs/svelte
 
+## 9.1.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/svelte-renderer@0.1.1
+
 ## 9.1.4
 
 ### Patch Changes
