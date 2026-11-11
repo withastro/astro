@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { init, parse } from 'es-module-lexer/minimal';
 import { vitePluginCacheProvider } from '../../dist/core/cache/vite-plugin.js';
 import { vitePluginFetchable } from '@astrojs/vite-plugin-router/_internal/core/fetch/vite-plugin.js';
-import { vitePluginMiddleware } from '../../dist/core/middleware/vite-plugin.js';
+import { vitePluginMiddleware } from '@astrojs/vite-plugin-router/_internal/core/middleware/vite-plugin.js';
 import { vitePluginSessionDriver } from '../../dist/core/session/vite-plugin.js';
 
 const root = new URL("./arc's site/", import.meta.url);
