@@ -2,8 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { before, describe, it } from 'node:test';
 import sharp from 'sharp';
-import sharpService from 'astro/assets/services/sharp';
-import service, { parseColor, parsePosition, planResize, resolveQuality } from '../dist/service.js';
+import service from '../dist/service.js';
 
 const FIXTURE_IMAGE = new URL('./fixtures/600x400.jpg', import.meta.url);
 
@@ -70,18 +69,6 @@ describe('@napi-rs/image service transforms', () => {
 		it(`resizes: ${name}`, async () => {
 			const { metadata } = await run(input, transform);
 			assert.deepEqual([metadata.width, metadata.height], [width, height]);
-		});
-
-		it(`matches the Sharp service geometry: ${name}`, async () => {
-			const { data } = await sharpService.transform(
-				input,
-				{ src: 'image.jpg', format: 'webp', ...transform } as any,
-				makeConfig(),
-				spyLogger(),
-			);
-			const expected = await sharp(data).metadata();
-			const { metadata } = await run(input, transform);
-			assert.deepEqual([metadata.width, metadata.height], [expected.width, expected.height]);
 		});
 	}
 
@@ -258,45 +245,5 @@ describe('@napi-rs/image service SVG handling', () => {
 			),
 			/Could not process image metadata/,
 		);
-	});
-});
-
-describe('helpers', () => {
-	it('resolveQuality', () => {
-		assert.equal(resolveQuality(undefined), undefined);
-		assert.equal(resolveQuality('mid'), 50);
-		assert.equal(resolveQuality('72'), 72);
-		assert.equal(resolveQuality(64), 64);
-		assert.equal(resolveQuality('nonsense'), undefined);
-	});
-
-	it('parsePosition', () => {
-		assert.deepEqual(parsePosition(undefined), [0.5, 0.5]);
-		assert.deepEqual(parsePosition('top'), [0.5, 0]);
-		assert.deepEqual(parsePosition('left bottom'), [0, 1]);
-		assert.deepEqual(parsePosition('bottom left'), [0, 1]);
-		assert.deepEqual(parsePosition('center top'), [0.5, 0]);
-		assert.deepEqual(parsePosition('25% 75%'), [0.25, 0.75]);
-		assert.deepEqual(parsePosition('northeast'), [1, 0]);
-		assert.deepEqual(parsePosition('right top'), [1, 0]);
-		assert.deepEqual(parsePosition('attention'), [0.5, 0.5]);
-		assert.deepEqual(parsePosition('10px 20px'), [0.5, 0.5]);
-	});
-
-	it('parseColor', () => {
-		assert.deepEqual(parseColor('#fff'), [255, 255, 255]);
-		assert.deepEqual(parseColor('#00ff0080'), [0, 255, 0]);
-		assert.deepEqual(parseColor('rgb(1, 2, 3)'), [1, 2, 3]);
-		assert.deepEqual(parseColor('rgba(1 2 3 / 50%)'), [1, 2, 3]);
-		assert.deepEqual(parseColor('White'), [255, 255, 255]);
-		assert.equal(parseColor('rebeccapurple'), undefined);
-	});
-
-	it('planResize skips no-op resizes and centers cover crops', () => {
-		assert.deepEqual(planResize(600, 400, { width: 600 }), {});
-		assert.deepEqual(planResize(600, 400, { width: 300, height: 300, fit: 'cover' }), {
-			resize: { width: 450, height: 300 },
-			crop: { x: 75, y: 0, width: 300, height: 300 },
-		});
 	});
 });

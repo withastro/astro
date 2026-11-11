@@ -1,35 +1,26 @@
-import type {
-	AvifConfig,
-	ChromaSubsampling,
-	FastResizeFilter as FastResizeFilterEnum,
-	PngEncodeOptions,
-	Transformer as TransformerClass,
+import {
+	type AvifConfig,
+	FastResizeFilter,
+	type PngEncodeOptions,
+	ResizeFit,
+	Transformer,
 } from '@napi-rs/image';
 import type { ImageOutputFormat, LocalImageService } from 'astro';
 import { baseService } from 'astro/assets';
 import { imageMetadata } from 'astro/assets/utils';
 import { AstroError } from 'astro/errors';
 
-type ResizeFilterName = 'box' | 'bilinear' | 'hamming' | 'catmullRom' | 'mitchell' | 'lanczos3';
-
 export interface NapiImageServiceConfig {
 	/** Images with more pixels than this are rejected. Defaults to 0x3FFF * 0x3FFF; `false` disables the limit. */
 	limitInputPixels?: number | false;
-	/** Resampling filter used when resizing. Defaults to `lanczos3`. */
-	resizeFilter?: ResizeFilterName;
 	/** Default JPEG options. `quality` defaults to 80. */
 	jpeg?: { quality?: number };
-	/** Default PNG encoder options passed to `Transformer.png()`. */
+	/** Default PNG options passed to `Transformer.png()`. */
 	png?: PngEncodeOptions;
 	/** Default WebP options. `quality` defaults to 80. */
-	webp?: { quality?: number; lossless?: boolean };
-	/**
-	 * Default AVIF options passed to `Transformer.avif()`. `quality` defaults to 50.
-	 * `chromaSubsampling` accepts strings such as `'4:2:0'` in addition to the enum.
-	 */
-	avif?: Omit<AvifConfig, 'chromaSubsampling'> & {
-		chromaSubsampling?: ChromaSubsampling | '4:4:4' | '4:2:2' | '4:2:0' | '4:0:0';
-	};
+	webp?: { quality?: number };
+	/** Default AVIF options passed to `Transformer.avif()`. `quality` defaults to 50. */
+	avif?: AvifConfig;
 }
 
 type ImageFit = 'fill' | 'contain' | 'cover' | 'none' | 'scale-down' | 'outside' | 'inside';
@@ -45,9 +36,17 @@ interface Transform {
 	background?: string;
 }
 
-const DEFAULT_LIMIT_INPUT_PIXELS = 0x3fff * 0x3fff;
+interface Size {
+	width: number;
+	height: number;
+}
 
-const DEFAULT_QUALITY = { jpeg: 80, webp: 80, avif: 50 } as const;
+interface ResizePlan {
+	resize?: Size;
+	crop?: Size & { x: number; y: number };
+}
+
+const DEFAULT_LIMIT_INPUT_PIXELS = 0x3fff * 0x3fff;
 
 const QUALITY_PRESETS: Record<string, number> = { low: 25, mid: 50, high: 80, max: 100 };
 
@@ -61,147 +60,75 @@ const FIT_MAP: Record<ImageFit, 'fill' | 'inside' | 'cover' | 'outside'> = {
 	inside: 'inside',
 };
 
-export function resolveQuality(quality: Transform['quality']): number | undefined {
-	if (quality === undefined || quality === '') return undefined;
+function resolveQuality(quality: Transform['quality']): number | undefined {
 	if (typeof quality === 'number') return quality;
-	if (quality in QUALITY_PRESETS) return QUALITY_PRESETS[quality];
-	const parsed = Number.parseInt(quality, 10);
+	if (!quality) return undefined;
+	const parsed = QUALITY_PRESETS[quality] ?? Number.parseInt(quality, 10);
 	return Number.isNaN(parsed) ? undefined : parsed;
 }
 
-export interface ResizePlan {
-	resize?: { width: number; height: number };
-	crop?: { x: number; y: number; width: number; height: number };
+function positionRatios(position: string | undefined): [number, number] {
+	const words = position?.toLowerCase().split(/\s+/) ?? [];
+	const x = words.includes('left') ? 0 : words.includes('right') ? 1 : 0.5;
+	const y = words.includes('top') ? 0 : words.includes('bottom') ? 1 : 0.5;
+	return [x, y];
 }
 
 // Computed here because @napi-rs/image's resize upscales, and images must never be enlarged.
-export function planResize(
-	sourceWidth: number,
-	sourceHeight: number,
-	transform: Pick<Transform, 'width' | 'height' | 'fit' | 'position'>,
-): ResizePlan {
-	const targetWidth = transform.width ? Math.round(transform.width) : undefined;
-	const targetHeight = transform.height ? Math.round(transform.height) : undefined;
-	const scaled = (scale: number) => ({
-		width: Math.max(1, Math.round(sourceWidth * scale)),
-		height: Math.max(1, Math.round(sourceHeight * scale)),
+function planResize(source: Size, transform: Transform): ResizePlan {
+	const scaled = (scale: number): Size => ({
+		width: Math.max(1, Math.round(source.width * scale)),
+		height: Math.max(1, Math.round(source.height * scale)),
 	});
-	const plan = (size: { width: number; height: number }): ResizePlan =>
-		size.width === sourceWidth && size.height === sourceHeight ? {} : { resize: size };
+	const plan = (size: Size): ResizePlan =>
+		size.width === source.width && size.height === source.height ? {} : { resize: size };
+	const width = transform.width && Math.round(transform.width);
+	const height = transform.height && Math.round(transform.height);
 
-	if (targetWidth && targetHeight) {
-		const fit = transform.fit ? (FIT_MAP[transform.fit] ?? 'inside') : 'cover';
-		const xScale = targetWidth / sourceWidth;
-		const yScale = targetHeight / sourceHeight;
-		switch (fit) {
-			case 'fill':
-				return plan({
-					width: Math.min(targetWidth, sourceWidth),
-					height: Math.min(targetHeight, sourceHeight),
-				});
-			case 'inside':
-				return plan(scaled(Math.min(xScale, yScale, 1)));
-			case 'outside':
-				return plan(scaled(Math.min(Math.max(xScale, yScale), 1)));
-			case 'cover': {
-				const size = scaled(Math.min(Math.max(xScale, yScale), 1));
-				const result = plan(size);
-				const width = Math.min(targetWidth, size.width);
-				const height = Math.min(targetHeight, size.height);
-				if (width < size.width || height < size.height) {
-					const [xRatio, yRatio] = parsePosition(transform.position);
-					result.crop = {
-						x: Math.round((size.width - width) * xRatio),
-						y: Math.round((size.height - height) * yRatio),
-						width,
-						height,
-					};
-				}
-				return result;
+	if (!width || !height) {
+		if (width) return plan(scaled(Math.min(width / source.width, 1)));
+		if (height) return plan(scaled(Math.min(height / source.height, 1)));
+		return {};
+	}
+
+	const xScale = width / source.width;
+	const yScale = height / source.height;
+	switch (transform.fit ? FIT_MAP[transform.fit] : 'cover') {
+		case 'fill':
+			return plan({
+				width: Math.min(width, source.width),
+				height: Math.min(height, source.height),
+			});
+		case 'outside':
+			return plan(scaled(Math.min(Math.max(xScale, yScale), 1)));
+		case 'cover': {
+			const size = scaled(Math.min(Math.max(xScale, yScale), 1));
+			const crop = { width: Math.min(width, size.width), height: Math.min(height, size.height) };
+			const result = plan(size);
+			if (crop.width < size.width || crop.height < size.height) {
+				const [xRatio, yRatio] = positionRatios(transform.position);
+				result.crop = {
+					...crop,
+					x: Math.round((size.width - crop.width) * xRatio),
+					y: Math.round((size.height - crop.height) * yRatio),
+				};
 			}
+			return result;
 		}
+		default:
+			return plan(scaled(Math.min(xScale, yScale, 1)));
 	}
-	if (targetWidth) return plan(scaled(Math.min(targetWidth / sourceWidth, 1)));
-	if (targetHeight) return plan(scaled(Math.min(targetHeight / sourceHeight, 1)));
-	return {};
 }
 
-const KEYWORD_RATIOS: Record<string, { axis: 'x' | 'y' | 'both'; ratio: number }> = {
-	left: { axis: 'x', ratio: 0 },
-	right: { axis: 'x', ratio: 1 },
-	top: { axis: 'y', ratio: 0 },
-	bottom: { axis: 'y', ratio: 1 },
-	center: { axis: 'both', ratio: 0.5 },
-	centre: { axis: 'both', ratio: 0.5 },
-};
-
-const GRAVITY_RATIOS: Record<string, [number, number]> = {
-	north: [0.5, 0],
-	northeast: [1, 0],
-	east: [1, 0.5],
-	southeast: [1, 1],
-	south: [0.5, 1],
-	southwest: [0, 1],
-	west: [0, 0.5],
-	northwest: [0, 0],
-};
-
-export function parsePosition(position: string | undefined): [number, number] {
-	const value = position?.trim().toLowerCase().replace(/\s+/g, ' ');
-	if (!value) return [0.5, 0.5];
-	const gravity = GRAVITY_RATIOS[value.replace(/ /g, '')];
-	if (gravity) return gravity;
-
-	let x: number | undefined;
-	let y: number | undefined;
-	const unqualified: number[] = [];
-	for (const token of value.split(' ')) {
-		const keyword = KEYWORD_RATIOS[token];
-		if (keyword?.axis === 'x') x = keyword.ratio;
-		else if (keyword?.axis === 'y') y = keyword.ratio;
-		else if (keyword) unqualified.push(keyword.ratio);
-		else if (/^-?\d+(\.\d+)?%$/.test(token)) unqualified.push(Number.parseFloat(token) / 100);
-		else return [0.5, 0.5];
-	}
-	for (const ratio of unqualified) {
-		if (x === undefined) x = ratio;
-		else if (y === undefined) y = ratio;
-	}
-	const clamp = (n: number) => Math.min(1, Math.max(0, n));
-	return [clamp(x ?? 0.5), clamp(y ?? 0.5)];
-}
-
-const NAMED_COLORS: Record<string, [number, number, number]> = {
-	black: [0, 0, 0],
-	white: [255, 255, 255],
-	red: [255, 0, 0],
-	green: [0, 128, 0],
-	blue: [0, 0, 255],
-	gray: [128, 128, 128],
-	grey: [128, 128, 128],
-};
-
-export function parseColor(color: string): [number, number, number] | undefined {
-	const value = color.trim().toLowerCase();
-	if (value in NAMED_COLORS) return NAMED_COLORS[value];
-	const hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(value)?.[1];
-	if (hex) {
-		const full = hex.length <= 4 ? [...hex].map((c) => c + c).join('') : hex;
-		return [0, 2, 4].map((i) => Number.parseInt(full.slice(i, i + 2), 16)) as [
-			number,
-			number,
-			number,
-		];
-	}
-	const rgb = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)\s*(?:[,/]\s*[\d.]+%?\s*)?\)$/.exec(value);
-	if (rgb) {
-		return [rgb[1], rgb[2], rgb[3]].map((n) => Math.min(255, Number(n))) as [
-			number,
-			number,
-			number,
-		];
-	}
-	return undefined;
+function parseHexColor(color: string): [number, number, number] | undefined {
+	const hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(color.trim())?.[1];
+	if (!hex) return undefined;
+	const full = hex.length <= 4 ? [...hex].map((c) => c + c).join('') : hex;
+	return [0, 2, 4].map((i) => Number.parseInt(full.slice(i, i + 2), 16)) as [
+		number,
+		number,
+		number,
+	];
 }
 
 function flattenAlphaToRgba(
@@ -226,66 +153,22 @@ function flattenAlphaToRgba(
 	return out;
 }
 
-const CHROMA_SUBSAMPLING: Record<string, number> = {
-	'4:4:4': 0,
-	'4:2:2': 1,
-	'4:2:0': 2,
-	'4:0:0': 3,
-};
-
-const FILTERS: Record<ResizeFilterName, keyof typeof FastResizeFilterEnum> = {
-	box: 'Box',
-	bilinear: 'Bilinear',
-	hamming: 'Hamming',
-	catmullRom: 'CatmullRom',
-	mitchell: 'Mitchell',
-	lanczos3: 'Lanczos3',
-};
-
-let napi: typeof import('@napi-rs/image') | undefined;
-
-async function loadNapi(): Promise<typeof import('@napi-rs/image')> {
-	try {
-		napi ??= await import('@napi-rs/image');
-	} catch (cause) {
-		const error = new AstroError(
-			'Could not load `@napi-rs/image`.',
-			'Make sure `@napi-rs/image` is installed with optional dependencies enabled so the native binary for your platform is available.',
-		);
-		error.cause = cause;
-		throw error;
-	}
-	return napi;
-}
-
 function encode(
-	image: TransformerClass,
+	image: Transformer,
 	format: string,
 	quality: number | undefined,
 	config: NapiImageServiceConfig,
 ): Promise<Buffer> {
 	switch (format) {
 		case 'webp':
-			if (quality === undefined && config.webp?.lossless) return image.webpLossless();
-			return image.webp(quality ?? config.webp?.quality ?? DEFAULT_QUALITY.webp);
-		case 'avif': {
-			const { chromaSubsampling, ...avif } = config.avif ?? {};
-			return image.avif({
-				...avif,
-				quality: quality ?? avif.quality ?? DEFAULT_QUALITY.avif,
-				...(chromaSubsampling !== undefined && {
-					chromaSubsampling:
-						typeof chromaSubsampling === 'string'
-							? CHROMA_SUBSAMPLING[chromaSubsampling]
-							: chromaSubsampling,
-				}),
-			});
-		}
+			return image.webp(quality ?? config.webp?.quality ?? 80);
+		case 'avif':
+			return image.avif({ ...config.avif, quality: quality ?? config.avif?.quality ?? 50 });
 		case 'png':
 			return image.png(config.png);
 		case 'jpeg':
 		case 'jpg':
-			return image.jpeg(quality ?? config.jpeg?.quality ?? DEFAULT_QUALITY.jpeg);
+			return image.jpeg(quality ?? config.jpeg?.quality ?? 80);
 		default:
 			throw new AstroError(
 				`The @napi-rs/image service cannot output \`${format}\` images.`,
@@ -332,9 +215,7 @@ const napiImageService: LocalImageService<NapiImageServiceConfig> = {
 			);
 		}
 
-		const { Transformer, FastResizeFilter, ResizeFit } = await loadNapi();
-		const plan = planResize(metadata.width, metadata.height, transform);
-		const quality = resolveQuality(transform.quality);
+		const plan = planResize(metadata, transform);
 
 		try {
 			let image =
@@ -351,7 +232,7 @@ const napiImageService: LocalImageService<NapiImageServiceConfig> = {
 				image = image.fastResize({
 					...resize,
 					fit: ResizeFit.Fill,
-					filter: FastResizeFilter[FILTERS[config.resizeFilter ?? 'lanczos3']],
+					filter: FastResizeFilter.Lanczos3,
 				});
 			}
 			if (plan.crop) {
@@ -359,10 +240,10 @@ const napiImageService: LocalImageService<NapiImageServiceConfig> = {
 			}
 
 			if (transform.background) {
-				const color = parseColor(transform.background);
+				const color = parseHexColor(transform.background);
 				if (!color) {
 					logger.warn(
-						`The @napi-rs/image service does not understand the background color "${transform.background}" for "${transform.src}"; it was ignored.`,
+						`The @napi-rs/image service only supports hex background colors; "${transform.background}" for "${transform.src}" was ignored.`,
 					);
 				} else {
 					const size = plan.crop ?? resize ?? metadata;
@@ -375,6 +256,7 @@ const napiImageService: LocalImageService<NapiImageServiceConfig> = {
 				}
 			}
 
+			const quality = resolveQuality(transform.quality);
 			return { data: await encode(image, outputFormat, quality, config), format: outputFormat };
 		} catch (error) {
 			if (error instanceof AstroError) throw error;
