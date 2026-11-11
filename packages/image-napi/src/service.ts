@@ -11,7 +11,7 @@ import { imageMetadata } from 'astro/assets/utils';
 import { AstroError } from 'astro/errors';
 
 export interface NapiImageServiceConfig {
-	/** Images with more pixels than this are rejected. Defaults to 0x3FFF * 0x3FFF; `false` disables the limit. */
+	/** Maximum number of pixels in a source image, or `false` for no limit. Defaults to 16383 × 16383 (about 268 megapixels). */
 	limitInputPixels?: number | false;
 	/** Default JPEG options. `quality` defaults to 80. */
 	jpeg?: { quality?: number };
@@ -46,7 +46,7 @@ interface ResizePlan {
 	crop?: Size & { x: number; y: number };
 }
 
-const DEFAULT_LIMIT_INPUT_PIXELS = 0x3fff * 0x3fff;
+const DEFAULT_LIMIT_INPUT_PIXELS = 16_383 * 16_383;
 
 const QUALITY_PRESETS: Record<string, number> = { low: 25, mid: 50, high: 80, max: 100 };
 
@@ -210,7 +210,7 @@ const napiImageService: LocalImageService<NapiImageServiceConfig> = {
 		const limit = config.limitInputPixels ?? DEFAULT_LIMIT_INPUT_PIXELS;
 		if (limit !== false && metadata.width * metadata.height > limit) {
 			throw new AstroError(
-				`"${transform.src}" (${metadata.width}x${metadata.height}) exceeds the pixel limit of ${limit}.`,
+				`"${transform.src}" (${metadata.width}x${metadata.height}) exceeds the limit of ${limit.toLocaleString('en-US')} pixels.`,
 				'Use a smaller image or raise `limitInputPixels` in the @napi-rs/image service config.',
 			);
 		}

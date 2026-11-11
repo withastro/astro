@@ -179,7 +179,7 @@ describe('@napi-rs/image service transforms', () => {
 				makeConfig({}, { limitInputPixels: 1000 }),
 				spyLogger(),
 			),
-			/exceeds the pixel limit/,
+			/exceeds the limit of 1,000 pixels/,
 		);
 	});
 
