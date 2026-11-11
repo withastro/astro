@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { RouterRegistry } from '@astrojs/vite-plugin-router/_internal/registry.js';
-import {
-	serializedManifestPlugin,
-	SERIALIZED_MANIFEST_RESOLVED_ID,
-} from '../../../dist/manifest/serialized.js';
+import { SERIALIZED_MANIFEST_RESOLVED_ID } from '@astrojs/vite-plugin-router/_internal/core/constants.js';
+import { MIDDLEWARE_MODULE_ID } from '@astrojs/vite-plugin-router/_internal/core/middleware/vite-plugin.js';
+import { SERVER_ISLAND_MANIFEST } from '@astrojs/vite-plugin-router/_internal/core/server-islands/vite-plugin-server-islands.js';
+import { serializedManifestPlugin } from '@astrojs/vite-plugin-router/_internal/manifest/serialized.js';
 import type { ResolvedConfig } from 'vite';
 import { toRouterConfig } from '../../../dist/core/router-config.js';
 import { vitePluginRouterRegistrations } from '../../../dist/core/router-registrations.js';
+import { getManifestHostFields } from '../../../dist/core/router-options.js';
 import { createBasicSettings, type AstroSettings } from '../test-utils.ts';
 
 /**
@@ -23,10 +24,11 @@ async function getManifest(settings: AstroSettings) {
 		plugins: [{ name: '@astrojs/vite-plugin-router', api: { astroRouter: routerRegistry.api } }],
 	});
 	const plugin = serializedManifestPlugin({
-		settings,
 		command: 'dev',
 		sync: false,
 		routerRegistry,
+		hostFields: () => getManifestHostFields(settings),
+		modules: { middleware: MIDDLEWARE_MODULE_ID, serverIslandMappings: SERVER_ISLAND_MANIFEST },
 	});
 	const load = plugin.load;
 	// @ts-expect-error: Property `handler` does not exist on `load`

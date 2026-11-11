@@ -4,8 +4,7 @@ import { RouterRegistry } from '@astrojs/vite-plugin-router/_internal/registry.j
 import {
 	isMiddlewarePath,
 	vitePluginMiddleware,
-} from '../../../dist/core/middleware/vite-plugin.js';
-import { createBasicSettings } from '../test-utils.ts';
+} from '@astrojs/vite-plugin-router/_internal/core/middleware/vite-plugin.js';
 
 describe('middleware HMR path matching', () => {
 	it('matches middleware.ts (single-file pattern)', () => {
@@ -43,8 +42,7 @@ describe('middleware HMR path matching', () => {
 
 describe('middleware HMR hotUpdate handler', () => {
 	async function getHandler() {
-		const settings = await createBasicSettings();
-		const plugin = vitePluginMiddleware({ settings, routerRegistry: new RouterRegistry() });
+		const plugin = vitePluginMiddleware({ routerRegistry: new RouterRegistry() });
 		const hook = plugin.hotUpdate;
 		const handler = typeof hook === 'function' ? hook : hook?.handler;
 		assert.ok(handler, 'plugin should expose a hotUpdate handler');

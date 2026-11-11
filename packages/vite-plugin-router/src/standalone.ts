@@ -15,6 +15,7 @@ import {
 	vitePluginServerIslands,
 } from './internal/core/server-islands/vite-plugin-server-islands.js';
 import { serializedManifestPlugin } from './internal/manifest/serialized.js';
+import type { RouterPluginCli } from './internal/cli.js';
 import type { RouterRegistry } from './internal/registry.js';
 import type { RoutesList } from './routing.js';
 import { standaloneBuildPlugins } from './standalone-build.js';
@@ -26,17 +27,21 @@ import { astroDevCssPlugin } from './internal/vite-plugin-css/index.js';
 import { vitePluginAstroServerClient } from './internal/vite-plugin-overlay/index.js';
 import { pluginPage, pluginPages } from './internal/vite-plugin-pages/index.js';
 import astroPluginRoutes from './internal/vite-plugin-routes/index.js';
+import vitePluginStaticPaths from './internal/vite-plugin-static-paths/index.js';
 
 const PACKAGE_NAME = '@astrojs/vite-plugin-router';
 
 /**
  * The plugins `router()` adds besides the API plugins: route table, page and manifest modules,
- * middleware, server islands, the dev server and the production build. The `astro` CLI composes the same plugins with
- * options computed from its settings.
+ * middleware, server islands, the dev server and the production build.
+ *
+ * With `cli` (the `astro` CLI), the plugins use the CLI's route table and host data in place of
+ * the defaults of a plain Vite project, the dev server plugins are added only for
+ * `command: 'dev'`, and the production build plugins are left out: `astro build` drives the build.
  */
-export function standalonePlugins(registry: RouterRegistry): Plugin[] {
-	const logger = new AstroLogger({ destination: consoleLogger(), level: 'info' });
-	const routesList: RoutesList = { routes: [] };
+export function standalonePlugins(registry: RouterRegistry, cli?: RouterPluginCli): Plugin[] {
+	const logger = cli?.logger ?? new AstroLogger({ destination: consoleLogger(), level: 'info' });
+	const routesList: RoutesList = cli?.routesList ?? { routes: [] };
 	let buildOutput: 'static' | 'server' = 'static';
 	let dev = true;
 	// Filled from `astro()` once Vite resolved its config.
@@ -49,94 +54,119 @@ export function standalonePlugins(registry: RouterRegistry): Plugin[] {
 		);
 	}
 
-	return [
-		{
-			name: `${PACKAGE_NAME}:standalone`,
-			config(_, env) {
-				dev = env.command === 'serve';
-				// The dev server renders every route; Vite's SPA fallback would rewrite them to `/index.html`.
-				return { appType: 'custom' };
-			},
-			configResolved(config) {
-				renderers.length = 0;
-				renderers.push(...getAstroApi(config).renderers);
-			},
-			configEnvironment(name, environmentOptions) {
-				const consumer = environmentOptions.consumer ?? (name === 'client' ? 'client' : 'server');
-				if (consumer !== 'server') return;
-				// The runtime imports virtual modules, so Vite must process the package rather than
-				// externalize it.
-				return { resolve: { noExternal: [PACKAGE_NAME] } };
-			},
+	const devServer = createVitePluginAstroServer({
+		logger,
+		isPage: cli?.isPage ?? ((file) => routeOf(file)?.type === 'page'),
+		renderers: cli?.renderers ?? renderers,
+		headElements: cli?.headElements,
+		prepare: cli?.prepareDevServer,
+	});
+
+	const viteProjectPlugin: Plugin = {
+		name: `${PACKAGE_NAME}:standalone`,
+		config(_, env) {
+			dev = env.command === 'serve';
+			// The dev server renders every route; Vite's SPA fallback would rewrite them to `/index.html`.
+			return { appType: 'custom' };
 		},
-		astroPluginRoutes({
-			routerRegistry: registry,
-			logger,
-			routesList,
-			createRoutes: async (registrations) => {
-				const created = await createRoutesList(
-					{
-						config: registry.config,
-						...registrations,
-						serverIslands: registry.config.output === 'server',
-					},
-					logger,
-					{ dev },
-				);
-				buildOutput = created.buildOutput;
-				return created;
-			},
-			isRouteFile: (file) => routeOf(file) !== undefined,
-		}),
-		pluginPage({ routesList }),
-		...astroDevCssPlugin({ routesList }),
-		pluginPages({ routesList }),
+		configResolved(config) {
+			renderers.length = 0;
+			renderers.push(...getAstroApi(config).renderers);
+		},
+		configEnvironment(name, environmentOptions) {
+			const consumer = environmentOptions.consumer ?? (name === 'client' ? 'client' : 'server');
+			if (consumer !== 'server') return;
+			// The runtime imports virtual modules, so Vite must process the package rather than
+			// externalize it.
+			return { resolve: { noExternal: [PACKAGE_NAME] } };
+		},
+	};
+
+	return [
+		...(cli ? [] : [viteProjectPlugin]),
 		serializedManifestPlugin({
-			sync: false,
+			command: cli?.command,
+			sync: cli?.sync ?? false,
 			routerRegistry: registry,
-			hostFields: async () => ({
-				serverLike: buildOutput === 'server',
-				middlewareMode: 'classic',
-				adapterName: '',
-				clientDirectives: [],
-				userAssetsBase: undefined,
-				csp: undefined,
-				devToolbar: {
-					enabled: false,
-					latestAstroVersion: undefined,
-					debugInfoOutput: '',
-					placement: undefined,
-				},
-				logLevel: 'info',
-			}),
+			hostFields:
+				cli?.manifestHostFields ??
+				(async () => ({
+					serverLike: buildOutput === 'server',
+					middlewareMode: 'classic',
+					adapterName: '',
+					clientDirectives: [],
+					userAssetsBase: undefined,
+					csp: undefined,
+					devToolbar: {
+						enabled: false,
+						latestAstroVersion: undefined,
+						debugInfoOutput: '',
+						placement: undefined,
+					},
+					logLevel: 'info',
+				})),
 			modules: {
 				middleware: MIDDLEWARE_MODULE_ID,
 				serverIslandMappings: SERVER_ISLAND_MANIFEST,
+				logger: cli?.loggerModuleId,
 			},
 		}),
-		vitePluginMiddleware({ routerRegistry: registry }),
-		vitePluginServerIslands({
-			serverIslandsState: new ServerIslandsState(),
-			canRenderOnDemand: () => registry.config.output === 'server',
-		}),
-		vitePluginFetchable({ routerRegistry: registry }),
-		vitePluginServerApp(),
-		vitePluginApp(),
-		{
-			...createVitePluginAstroServer({
-				logger,
-				isPage: (file) => routeOf(file)?.type === 'page',
-				renderers,
-			}),
-			apply: 'serve',
-		},
-		vitePluginAstroServerClient(),
-		...standaloneBuildPlugins({
-			registry,
+		vitePluginStaticPaths(),
+		astroPluginRoutes({
+			routerRegistry: registry,
 			logger,
+			command: cli?.command,
 			routesList,
-			getBuildOutput: () => buildOutput,
-			getServerOutput: () => registry.config.serverOutput,
+			hostRoutes: cli !== undefined,
+			createRoutes:
+				cli?.createRoutes ??
+				(async (registrations) => {
+					const created = await createRoutesList(
+						{
+							config: registry.config,
+							...registrations,
+							serverIslands: registry.config.output === 'server',
+						},
+						logger,
+						{ dev },
+					);
+					buildOutput = created.buildOutput;
+					return created;
+				}),
+			isRouteFile: cli?.isRouteFile ?? ((file) => routeOf(file) !== undefined),
+			onRouteSetup: cli?.onRouteSetup,
+			headInlineScripts: cli?.headInlineScripts,
 		}),
+		pluginPage({ routesList }),
+		pluginPages({ routesList }),
+		vitePluginApp(),
+		vitePluginServerApp(),
+		vitePluginFetchable({ routerRegistry: registry, fetchFile: cli?.fetchFile }),
+		// The dev server plugins slow `astro build` down: its file watcher triggers them often.
+		...(cli?.command === 'build'
+			? []
+			: [
+					cli ? devServer : { ...devServer, apply: 'serve' as const },
+					vitePluginAstroServerClient(),
+				]),
+		...astroDevCssPlugin({
+			routesList,
+			command: cli?.command,
+			cssContentCache: cli?.cssContentCache,
+		}),
+		vitePluginMiddleware({ routerRegistry: registry, validate: cli?.validateMiddleware }),
+		vitePluginServerIslands({
+			serverIslandsState: cli?.serverIslandsState ?? new ServerIslandsState(),
+			canRenderOnDemand: cli?.canRenderOnDemand ?? (() => registry.config.output === 'server'),
+		}),
+		...(cli
+			? []
+			: standaloneBuildPlugins({
+					registry,
+					logger,
+					routesList,
+					getBuildOutput: () => buildOutput,
+					getServerOutput: () => registry.config.serverOutput,
+				})),
 	];
 }
