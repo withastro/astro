@@ -1,13 +1,23 @@
+import { getAstroApi } from '@astrojs/vite-plugin-astro';
 import type { AstroGlobalExtensions } from '@astrojs/vite-plugin-astro';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { RouterConfig } from '../config.js';
+import {
+	type RouterPluginOptions,
+	RouterPluginOptionsSchema,
+	type ResolvedRouterPluginOptions,
+} from '../options.js';
 import { pipelineModulePlugin } from '../pipeline-module.js';
 import { clientRouterInitPlugin } from '../transitions/client-router-init.js';
 import {
 	type TransitionsModuleIds,
 	vitePluginTransitions,
 } from '../transitions/vite-plugin-transitions.js';
-import type { RouterRegistry } from './registry.js';
+import { RouterRegistry } from './registry.js';
+import { standalonePlugins } from '../standalone.js';
+import { vitePluginServerOutput } from './vite-plugin-server-output/index.js';
 import type {
 	InjectedRoute,
 	PrerenderDoneContext,
@@ -236,6 +246,52 @@ export function routerApiPlugins(
 		clientRouterInitPlugin(registry),
 		vitePluginTransitions(transitionsModuleIds),
 	];
+}
+
+/**
+ * Serves and builds the pages in `src/pages/`. Requires `astro()` from
+ * `@astrojs/vite-plugin-astro`, in any position of Vite's `plugins`.
+ */
+export default function router(options: RouterPluginOptions = {}): Plugin[] {
+	const resolved = RouterPluginOptionsSchema.parse(options);
+	const registry = new RouterRegistry((config) => resolveRouterConfig(resolved, config));
+	return [
+		...routerApiPlugins(registry),
+		vitePluginServerOutput(() => options.serverOutput),
+		...standalonePlugins(registry),
+		{
+			name: `${PLUGIN_NAME}:requires-astro`,
+			configResolved(config) {
+				getAstroApi(config);
+			},
+		},
+	];
+}
+
+function dirUrl(path: string): URL {
+	return pathToFileURL(path.endsWith('/') ? path : `${path}/`);
+}
+
+function resolveRouterConfig(
+	options: ResolvedRouterPluginOptions,
+	config: ResolvedConfig,
+): RouterConfig {
+	const outDir = dirUrl(resolve(config.root, config.build.outDir));
+	return {
+		...getAstroApi(config).config,
+		...options,
+		srcDir: dirUrl(resolve(config.root, options.srcDir)),
+		build: {
+			...options.build,
+			client: new URL(options.build.client, outDir),
+			server: new URL(options.build.server, outDir),
+			assetsPrefix: undefined,
+		},
+		outDir,
+		cacheDir: dirUrl(config.cacheDir),
+		pageExtensions: [],
+		serverHeaders: config.server.headers,
+	};
 }
 
 /**
