@@ -71,14 +71,11 @@ export interface CollectionStorageSnapshot {
 }
 
 export interface CollectionStorageWriter {
-	/**
-	 * Writes every entry of a collection. Astro calls it at most once per collection, and waits for
-	 * it to resolve before writing the next collection.
-	 */
+	/** Saves the entries of one collection. Astro calls it at most once per collection, in sequence. */
 	write(collection: string, entries: StoredEntry[]): Promise<void>;
 	/**
-	 * Finishes the snapshot. Astro calls it once, after the last `write()`, and only reads the
-	 * snapshot after it resolves. `listSnapshots()` must not return the snapshot before then.
+	 * Does the work that needs the whole snapshot, if any, after the last `write()`. Drivers that
+	 * implement `listSnapshots()` record the snapshot and its `committedAt` date here.
 	 */
 	commit(): Promise<void>;
 }
