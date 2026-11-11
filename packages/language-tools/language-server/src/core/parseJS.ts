@@ -1,8 +1,6 @@
 import { ExtractedScriptType, type ExtractedScript } from '@astrojs/astro2tsx';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
-import type { Segment } from 'muggle-string';
-import { toString } from 'muggle-string';
-import { buildMappings } from '../buildMappings';
+import { buildMappings, getText, type CodeSegment } from '../buildMappings';
 
 export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 	const embeddedJSCodes: VirtualCode[] = [];
@@ -113,17 +111,18 @@ function mergeJSContexts(inlineScripts: ExtractedScript[]): VirtualCode | undefi
 		return undefined;
 	}
 
-	const codes: Segment<CodeInformation>[] = [];
+	const codes: CodeSegment<CodeInformation>[] = [];
 
 	for (const javascriptContext of inlineScripts) {
-		codes.push([
-			// Add a semicolon to the end of the event attribute to attempt to prevent errors from spreading to the rest of the document
-			// This is not perfect, but it's better than nothing
-			// See: https://github.com/microsoft/vscode/blob/e8e04769ec817a3374c3eaa26a08d3ae491820d5/extensions/html-language-features/server/src/modes/embeddedSupport.ts#L192
-			javascriptContext.content + ';',
-			undefined,
-			javascriptContext.position.start,
-			{
+		// Add a semicolon to the end of the event attribute to attempt to prevent errors from spreading to the rest of the document
+		// This is not perfect, but it's better than nothing
+		// See: https://github.com/microsoft/vscode/blob/e8e04769ec817a3374c3eaa26a08d3ae491820d5/extensions/html-language-features/server/src/modes/embeddedSupport.ts#L192
+		const text = javascriptContext.content + ';';
+		codes.push({
+			text,
+			start: javascriptContext.position.start,
+			end: javascriptContext.position.start + text.length,
+			data: {
 				verification: true,
 				completion: true,
 				semantic: true,
@@ -131,11 +130,11 @@ function mergeJSContexts(inlineScripts: ExtractedScript[]): VirtualCode | undefi
 				structure: true,
 				format: false,
 			},
-		]);
+		});
 	}
 
 	const mappings = buildMappings(codes);
-	const text = toString(codes);
+	const text = getText(codes);
 
 	return {
 		id: 'inline.mjs',
