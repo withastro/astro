@@ -137,10 +137,34 @@ describe('@napi-rs/image service transforms', () => {
 		assert.deepEqual(await pixel('right'), [0, 0, 255]);
 	});
 
-	it('warns that background is not supported', async () => {
-		const { warnings } = await run(input, { width: 100, background: '#fff' });
-		assert.equal(warnings.length, 1);
-		assert.match(warnings[0], /does not support `background`/);
+	it('flattens transparency onto the background color', async () => {
+		const translucentRed = await sharp({
+			create: {
+				width: 200,
+				height: 100,
+				channels: 4,
+				background: { r: 255, g: 0, b: 0, alpha: 0.5 },
+			},
+		})
+			.png()
+			.toBuffer();
+		const { data, metadata } = await run(new Uint8Array(translucentRed), {
+			width: 50,
+			height: 50,
+			fit: 'cover',
+			format: 'png',
+			background: 'blue',
+		});
+		const raw = await sharp(data).ensureAlpha().raw().toBuffer();
+		assert.deepEqual([metadata.width, metadata.height], [50, 50]);
+		assert.deepEqual([...raw.subarray(0, 4)], [128, 0, 127, 255]);
+	});
+
+	it('rejects invalid background colors', async () => {
+		await assert.rejects(
+			run(input, { width: 100, background: 'not-a-color' }),
+			/"not-a-color" is not a valid background color/,
+		);
 	});
 
 	it('passes GIFs through unoptimized with a warning', async () => {

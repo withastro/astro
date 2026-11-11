@@ -26,7 +26,8 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@napi-rs/image": "^1.15.0"
+    "@napi-rs/image": "^1.15.0",
+    "color": "^5.0.3"
   },
   "peerDependencies": {
     "astro": "^7.0.0"

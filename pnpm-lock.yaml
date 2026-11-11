@@ -4421,6 +4421,9 @@ importers:
       '@napi-rs/image':
         specifier: ^1.15.0
         version: 1.15.0
+      color:
+        specifier: ^5.0.3
+        version: 5.0.3
     devDependencies:
       astro:
         specifier: workspace:*

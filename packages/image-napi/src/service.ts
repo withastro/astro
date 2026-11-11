@@ -1,5 +1,7 @@
+import Color from 'color';
 import {
 	type AvifConfig,
+	CompressionType,
 	FastResizeFilter,
 	type PngEncodeOptions,
 	ResizeFit,
@@ -120,6 +122,25 @@ function planResize(source: Size, transform: Transform): ResizePlan {
 	}
 }
 
+function parseBackground(background: string, src: string): Buffer {
+	let rgb: number[];
+	try {
+		rgb = Color(background).rgb().round().array();
+	} catch {
+		throw new AstroError(
+			`"${background}" is not a valid background color for "${src}".`,
+			'Use a CSS color such as `#fff`, `white` or `rgb(255 255 255)`.',
+		);
+	}
+	return Buffer.from([rgb[0], rgb[1], rgb[2], 255]);
+}
+
+async function flatten(image: Transformer, size: Size, opaquePixel: Buffer): Promise<Transformer> {
+	const base = Buffer.alloc(size.width * size.height * 4, opaquePixel);
+	const overlay = await image.png({ compressionType: CompressionType.Fast });
+	return Transformer.fromRgbaPixels(base, size.width, size.height).composite(overlay);
+}
+
 function encode(
 	image: Transformer,
 	format: string,
@@ -182,12 +203,7 @@ const napiImageService: LocalImageService<NapiImageServiceConfig> = {
 			);
 		}
 
-		if (transform.background) {
-			logger.warn(
-				`The @napi-rs/image service does not support \`background\`; it was ignored for "${transform.src}".`,
-			);
-		}
-
+		const background = transform.background && parseBackground(transform.background, transform.src);
 		const plan = planResize(metadata, transform);
 
 		try {
@@ -210,6 +226,9 @@ const napiImageService: LocalImageService<NapiImageServiceConfig> = {
 			}
 			if (plan.crop) {
 				image = image.crop(plan.crop.x, plan.crop.y, plan.crop.width, plan.crop.height);
+			}
+			if (background) {
+				image = await flatten(image, plan.crop ?? resize ?? metadata, background);
 			}
 
 			const quality = resolveQuality(transform.quality);
