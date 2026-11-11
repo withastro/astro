@@ -2,11 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { baseMiddleware } from '../../../dist/vite-plugin-astro-server/base.js';
 import { trailingSlashMiddleware } from '../../../dist/vite-plugin-astro-server/trailing-slash.js';
-import {
-	createBasicSettings,
-	createRequestAndResponse,
-	defaultLogger,
-} from '../test-utils.ts';
+import { createBasicSettings, createRequestAndResponse, defaultLogger } from '../test-utils.ts';
 
 const malformedPaths = ['/%', '/%C0%AF'];
 
