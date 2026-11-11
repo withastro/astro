@@ -93,7 +93,7 @@ function planResize(source: Size, transform: Transform): ResizePlan {
 
 	const xScale = width / source.width;
 	const yScale = height / source.height;
-	switch (transform.fit ? FIT_MAP[transform.fit] : 'cover') {
+	switch (transform.fit ? (FIT_MAP[transform.fit] ?? 'inside') : 'cover') {
 		case 'fill':
 			return plan({
 				width: Math.min(width, source.width),
@@ -115,7 +115,7 @@ function planResize(source: Size, transform: Transform): ResizePlan {
 			}
 			return result;
 		}
-		default:
+		case 'inside':
 			return plan(scaled(Math.min(xScale, yScale, 1)));
 	}
 }
