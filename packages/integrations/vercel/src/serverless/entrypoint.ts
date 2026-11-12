@@ -5,7 +5,7 @@ import {
 	ASTRO_PATH_HEADER,
 	ASTRO_PATH_PARAM,
 	ASTRO_PATH_TOKEN_PARAM,
-} from '../index.js';
+} from './constants.js';
 import { middlewareSecret, skewProtection } from 'virtual:astro-vercel:config';
 import { createApp } from 'astro/app/entrypoint';
 import { getClientIpAddress } from '@astrojs/internal-helpers/request';

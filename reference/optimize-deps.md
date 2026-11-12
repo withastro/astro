@@ -2,7 +2,7 @@
 
 ## Why this matters
 
-`astro build` uses Rollup and handles CJS→ESM transformation reliably. `astro dev` uses Vite 7's dev server, which serves modules individually and relies on esbuild's **dep optimizer** to pre-bundle certain dependencies as ESM before they reach the runtime. When a dep bypasses the optimizer — especially with ESM-only runtimes like Cloudflare Workers (workerd) — you get errors like `require is not defined` at runtime in dev, even though the build works fine.
+`astro build` uses Vite's Rolldown-based build and handles CJS→ESM transformation reliably. `astro dev` uses Vite's dev server, which serves modules individually and relies on the Rolldown-backed **dep optimizer** to pre-bundle certain dependencies as ESM before they reach the runtime. When a dep bypasses the optimizer — especially with ESM-only runtimes like Cloudflare Workers (workerd) — you get errors like `require is not defined` at runtime in dev, even though the build works fine.
 
 This is a category of subtle bugs. There is rarely one definitive fix — the right approach depends on _why_ the dep was missed by the optimizer.
 
@@ -12,9 +12,9 @@ This is a category of subtle bugs. There is rarely one definitive fix — the ri
 
 ### The two phases
 
-**Phase 1 — Scan:** esbuild crawls `optimizeDeps.entries` to discover which deps need pre-bundling. When it finds a bare import like `import foo from 'some-pkg'` and `some-pkg` resolves to `node_modules`, it adds it to `depImports`. It does **not** recurse into `node_modules` packages — it records the top-level dep and marks it external.
+**Phase 1 — Scan:** Rolldown crawls `optimizeDeps.entries` to discover which deps need pre-bundling. When it finds a bare import like `import foo from 'some-pkg'` and `some-pkg` resolves to `node_modules`, it adds it to `depImports`. It does **not** recurse into `node_modules` packages — it records the top-level dep and marks it external.
 
-**Phase 2 — Bundle:** esbuild bundles each discovered dep as its own entry point, transforming CJS→ESM. Transitive deps inside that bundle are either inlined (if they're JS/TS) or externalized (if they're non-JS or in a separate `node_modules` package that esbuild doesn't follow into).
+**Phase 2 — Bundle:** Rolldown bundles each discovered dep as its own entry point, transforming CJS→ESM. Transitive deps inside that bundle are either inlined (if they're JS/TS) or externalized (if they're non-JS or in a separate `node_modules` package that Rolldown doesn't follow into).
 
 The key insight: **the scan is intentionally shallow**. A dep's transitive deps are only pre-bundled if they are themselves discovered in the scan, or if they are directly inlined when bundling the parent dep.
 
@@ -24,7 +24,7 @@ Entries listed in `optimizeDeps.include` are added directly to `depImports` with
 
 ### What `optimizeDeps.entries` does
 
-Glob patterns or file paths that tell esbuild _where to start scanning_. By default Vite uses `**/*.html`. In Astro, `vite-plugin-environment` sets these to include source `.astro`, `.jsx`, `.tsx`, etc. files. Entries are crucial — if the scanner never reaches a file that imports a problematic dep, the dep will never be discovered.
+Glob patterns or file paths that tell Rolldown _where to start scanning_. By default Vite uses `**/*.html`. In Astro, `vite-plugin-environment` sets these to include source `.astro`, `.jsx`, `.tsx`, etc. files. Entries are crucial — if the scanner never reaches a file that imports a problematic dep, the dep will never be discovered.
 
 ### `noDiscovery`
 
@@ -34,23 +34,16 @@ When an adapter (e.g. `@cloudflare/vite-plugin`) sets `optimizeDeps.noDiscovery:
 
 Only files matching `/\.[cm]?[jt]s$/` are considered optimizable. **`.astro`, `.vue`, `.svelte`, and other non-JS files are NOT optimizable.** This means:
 
-- Non-JS files in `node_modules` are **externalized** during optimization bundling — esbuild does not follow into them.
+- Non-JS files in `node_modules` are **externalized** during optimization bundling — Rolldown does not follow into them.
 - A CJS dep that is only reachable through a `.astro` file in `node_modules` will not be discovered unless that `.astro` file is itself in `optimizeDeps.entries`.
 
 This is a common source of bugs: a package ships `.astro` components that import CJS deps. The `.astro` component is in `node_modules`, so it's not in the project's source entries, and it's not optimizable, so the optimizer never sees its imports.
 
-### The `platform` and `createRequire` banner
+### `platform` and CJS interop
 
-When esbuild bundles deps for a `node` platform environment, Vite injects:
+When the optimizer bundles deps for a `node` platform environment, Rolldown transforms CJS deps and provides `require` interop so they work at runtime in Node.js.
 
-```js
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-```
-
-at the top of each optimized dep. This allows CJS `require()` calls to work at runtime in Node.js.
-
-For `browser` / `webworker` platform environments (like Cloudflare Workers), this banner is **not injected**. Any `require()` call that survives into the optimized output will fail at runtime in workerd. This means CJS deps that aren't fully inlined and transformed will break.
+For `browser` / `webworker` platform environments (like Cloudflare Workers), that interop is not available. Any `require()` call that survives into the optimized output will fail at runtime in workerd, so CJS deps must be fully inlined and transformed.
 
 ---
 
@@ -63,7 +56,7 @@ This plugin implements the `configEnvironment` Vite hook. For each Vite environm
 Key things it does:
 
 - Sets `optimizeDeps.entries` to include source files: `src/**/*.{jsx,tsx,vue,svelte,html,astro}` and `**/node_modules/**/*.astro`
-- The `**/node_modules/**/*.astro` entry is important: it causes esbuild to scan `.astro` files inside installed packages, which allows their CJS deps to be discovered and pre-bundled.
+- The `**/node_modules/**/*.astro` entry is important: it causes Rolldown to scan `.astro` files inside installed packages, which allows their CJS deps to be discovered and pre-bundled.
 - Only sets entries when `_options.optimizeDeps?.noDiscovery === false` — i.e. only for environments where the full scan is enabled.
 - Sets `ONLY_DEV_EXTERNAL` — a hardcoded list of CJS deps that should be externalized in dev (kept as a fallback/legacy workaround list).
 
@@ -118,14 +111,14 @@ console.log(
 
 ### Step 3: Check if the dep is being discovered
 
-Add logging to Vite's `esbuildScanPlugin` `onResolve` handler (in `node_modules/.pnpm/vite@.../chunks/config.js`):
+Add logging to Vite's `rolldownScanPlugin` `resolveId` hook (in `node_modules/.pnpm/vite@.../dist/node/chunks/node.js`):
 
 ```js
-// Inside onResolve({ filter: /^[\w@][^:]/ })
+// Inside the rolldownScanPlugin resolveId hook
 if (moduleListContains(exclude, id)) {
   console.log(`[dep-scan] EXCLUDED: ${id}`);
 }
-if (isOptimizable(resolved, optimizeDepsOptions)) {
+if (resolved && isOptimizable(resolved, optimizeDepsOptions)) {
   console.log(`[dep-scan] FOUND dep: ${id} -> ${resolved}`);
 } else {
   console.log(`[dep-scan] NOT optimizable: ${id} -> ${resolved}`);
@@ -157,7 +150,7 @@ If a package is being put in `optimizeDeps.exclude` by vitefu, its imports won't
 
 ### Step 6: Check `computeEntries`
 
-Add logging to `computeEntries` in Vite's config chunk to see what entries actually get passed to esbuild:
+Add logging to `computeEntries` in Vite's dep chunk to see what entries actually get passed to Rolldown:
 
 ```js
 async function computeEntries(environment) {
@@ -203,19 +196,25 @@ optimizeDeps: {
 
 The `>` notation resolves transitive deps. This is a targeted fix but doesn't generalize.
 
-### Add `resolveDir` to custom esbuild `onLoad` handlers
+### Give custom plugin virtual modules a resolvable id
 
-If you write a custom esbuild plugin that loads a file and returns contents, always include `resolveDir`:
+If you write a custom Rolldown/Vite plugin that loads a virtual module, return an absolute path from `resolveId` so relative imports inside the loaded code resolve correctly:
 
 ```js
-return {
-  contents,
-  loader: 'ts',
-  resolveDir: dirname(args.path), // required for imports to resolve correctly
-};
+resolveId(source) {
+  if (source === 'virtual:my-module') {
+    // An absolute id gives relative imports a directory to resolve from
+    return path.join(process.cwd(), 'virtual-my-module.js');
+  }
+},
+load(id) {
+  if (id.endsWith('virtual-my-module.js')) {
+    return { code, map: null };
+  }
+},
 ```
 
-Without `resolveDir`, esbuild won't know where to resolve imports from the returned contents, and the imports will silently fail to be discovered.
+Without a resolvable id, Rolldown cannot resolve imports from the loaded code and they will silently fail to be discovered.
 
 ### Check `ONLY_DEV_EXTERNAL`
 
@@ -231,4 +230,4 @@ Without `resolveDir`, esbuild won't know where to resolve imports from the retur
 | `packages/astro/src/core/create-vite.ts`                                    | Calls `crawlFrameworkPkgs`, wires up all Vite plugins                                                                 |
 | `packages/integrations/cloudflare/src/index.ts`                             | Cloudflare adapter `configEnvironment` — sets explicit `include` list, registers `rolldownAstroFrontmatterScanPlugin` |
 | `packages/integrations/cloudflare/src/rolldown-plugin-astro-frontmatter.ts` | Rolldown plugin that extracts frontmatter from `.astro` files during dep scan                                         |
-| `vite/dist/node/chunks/config.js` (in node_modules)                         | Contains Vite's dependency scanner and optimizer implementation                                                       |
+| `vite/dist/node/chunks/node.js` (in node_modules)                           | Contains Vite's dependency scanner and optimizer implementation                                                       |

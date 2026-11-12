@@ -8,7 +8,11 @@ import type { RequestLogPayload } from '../core/environment/index.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
-import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
+import {
+	AggregateError,
+	CSSError,
+	MarkdownError,
+} from '@astrojs/runtime/_internal/core/errors/index.js';
 import { getLogger } from '../core/logger/manifest-logger.js';
 import { req } from '../core/messages/runtime.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
@@ -24,7 +28,7 @@ import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { getRouteTable } from '../core/routing/route-table.js';
 import { isPage } from '../core/util.js';
 import { resolveIdToUrl } from '../core/viteUtils.js';
-import { stringifyForScript } from '../runtime/server/escape.js';
+import { stringifyForScript } from '@astrojs/runtime/_internal/server/escape.js';
 import type { AstroSettings, ComponentInstance, ImportedDevStyle } from '../types/astro.js';
 import type { RewritePayload } from '../types/public/common.js';
 import type { DevToolbarMetadata } from '../types/public/index.js';
@@ -114,15 +118,6 @@ export function createRunnableEnvironment({
 			return RedirectComponentInstance;
 		}
 
-		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
-
-		// First check built-in routes
-		for (const route of getDefaultRoutes(manifest)) {
-			if (route.matchesComponent(filePath)) {
-				return route.instance;
-			}
-		}
-
 		// Important: This needs to happen first, in case a renderer provides polyfills.
 		if (settings) {
 			const renderers__ = settings.renderers.map((r) => loadRenderer(r, loader));
@@ -131,6 +126,15 @@ export function createRunnableEnvironment({
 				manifest,
 				renderers_.filter((r): r is SSRLoadedRenderer => Boolean(r)),
 			);
+		}
+
+		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
+
+		// Check built-in routes
+		for (const route of getDefaultRoutes(manifest)) {
+			if (route.matchesComponent(filePath)) {
+				return route.instance;
+			}
 		}
 
 		try {
@@ -275,7 +279,9 @@ export function createRunnableEnvironment({
 		},
 
 		errorStrategy: 'dev',
+		rendersRedirectPage: () => false,
 		injectCspMetaTagsOnErrorPages: true,
+		logsStreamErrors: false,
 
 		logRequest(manifest: SSRManifest, payload: RequestLogPayload): void {
 			const { pathname, method, statusCode, isRewrite, timeStart } = payload;

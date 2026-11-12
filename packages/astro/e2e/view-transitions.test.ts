@@ -4,6 +4,8 @@ import { type DevServer, testFactory, waitForHydrate, warmupDevServer } from './
 declare global {
 	interface Window {
 		preloads: string[];
+		restoredScrollY?: number;
+		initialScrollRestoration?: ScrollRestoration;
 		clientSideRouterForTestsParkedHere?: (
 			url: string,
 			options?: { history?: 'auto' | 'replace' | 'push' },
@@ -355,6 +357,71 @@ test.describe('View Transitions', () => {
 		expect(oldScrollY).toEqual(newScrollY);
 	});
 
+	test('Scroll position restored instantly with smooth scroll-behavior', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/smooth-scroll'));
+		await expect(page.locator('#smooth-scroll')).toBeVisible();
+
+		await page.evaluate(() => window.scrollTo({ top: 2000, behavior: 'instant' }));
+		await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(2000);
+
+		await page.click('#click-one');
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+
+		// Read scrollY synchronously after the router restores it, before a smooth scroll could progress
+		await page.evaluate(() =>
+			document.addEventListener(
+				'astro:after-swap',
+				() => (window.restoredScrollY = window.scrollY),
+				{ once: true },
+			),
+		);
+		await page.goBack();
+		await expect.poll(() => page.evaluate(() => window.restoredScrollY)).toBe(2000);
+	});
+
+	test('Reload leaves scroll restoration to the browser', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await expect(page.locator('#longpage')).toBeInViewport();
+
+		await page.evaluate(() => window.scrollTo({ top: 1000, behavior: 'instant' }));
+		await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(1000);
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
+
+		// Capture the mode the browser sees at document start, before the router's module runs
+		await page.addInitScript(() => {
+			window.initialScrollRestoration = history.scrollRestoration;
+		});
+		await page.reload();
+		await expect(page.locator('#longpage')).toBeAttached();
+
+		expect(await page.evaluate(() => window.initialScrollRestoration)).toBe('auto');
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
+	});
+
+	test('History navigation after a cancelled unload restores manual scroll restoration', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await expect(page.locator('#longpage')).toBeInViewport();
+		await page.click('#click-one');
+		await expect(page.locator('#one')).toBeVisible();
+
+		// Simulate a `beforeunload` that doesn't end in an unload (e.g. a cancelled prompt)
+		await page.evaluate(() => window.dispatchEvent(new Event('beforeunload')));
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('auto');
+
+		await page.goBack();
+		await expect(page.locator('#longpage')).toBeVisible();
+		await page.goForward();
+		await expect(page.locator('#one')).toBeVisible();
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
+	});
+
 	test('Fragment scroll position restored on back button', async ({ page, astro }) => {
 		// Go to the long page
 		await page.goto(astro.resolveUrl('/long-page'));
@@ -613,6 +680,21 @@ test.describe('View Transitions', () => {
 		expect(marker).toBe('yes');
 		// The placeholder of page 2 was replaced by the carried-over subtree.
 		await expect(page.locator('#nested-placeholder')).toHaveCount(0);
+	});
+
+	test('reified <video muted> preserves the muted IDL property after navigation', async ({
+		page,
+		astro,
+	}) => {
+		// Regression for #18152: reifyMediaElements() copies the muted content attribute
+		// via setAttribute(), but Chrome does not sync it to video.muted on script-created
+		// elements. The fix explicitly sets the property after cloning attributes.
+		await page.goto(astro.resolveUrl('/one'));
+		await page.click('#click-video-muted');
+		const vid = page.locator('#muted-vid');
+		await expect(vid).toBeVisible();
+		const muted = await vid.evaluate((el) => (el as HTMLVideoElement).muted);
+		expect(muted).toBe(true);
 	});
 
 	test('React Islands can persist using transition:persist', async ({ page, astro }) => {
@@ -1050,7 +1132,7 @@ test.describe('View Transitions', () => {
 		// go to external page
 		await page.click('#click-redirect-external');
 		await page.waitForURL('https://example.com/', { waitUntil: 'commit', timeout: 5000 });
-		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
+		await expect(page, 'should have content').toHaveTitle('Example Domain');
 		await expectLoads(2);
 	});
 

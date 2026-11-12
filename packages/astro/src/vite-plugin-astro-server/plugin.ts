@@ -10,7 +10,7 @@ import {
 	devServerAppReadySymbol,
 } from '../core/constants.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { matchAllRoutes } from '../core/routing/match.js';
@@ -35,10 +35,19 @@ export default function createVitePluginAstroServer({
 	settings,
 	logger,
 }: AstroPluginOptions): vite.Plugin {
+	const disposers = new WeakMap<vite.Environment, () => void>();
+
 	return {
 		name: 'astro:server',
 		applyToEnvironment(environment) {
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+		},
+		closeBundle() {
+			const dispose = disposers.get(this.environment);
+			if (dispose) {
+				disposers.delete(this.environment);
+				dispose();
+			}
 		},
 		async configureServer(viteServer) {
 			// Skip Astro dev server setup when running inside Vitest. The dev server
@@ -91,10 +100,10 @@ export default function createVitePluginAstroServer({
 					})
 				: Promise.resolve();
 
-			const ssrHandlerPromise = runnableSsrEnvironment
+			let ssrHandlerPromise = runnableSsrEnvironment
 				? contentConfigLoad.then(() => createHandler(runnableSsrEnvironment))
 				: undefined;
-			const prerenderHandlerPromise = runnablePrerenderEnvironment
+			let prerenderHandlerPromise = runnablePrerenderEnvironment
 				? contentConfigLoad.then(() => createHandler(runnablePrerenderEnvironment))
 				: undefined;
 
@@ -147,8 +156,13 @@ export default function createVitePluginAstroServer({
 
 			if (runnableSsrEnvironment || runnablePrerenderEnvironment) {
 				process.on('unhandledRejection', handleUnhandledRejection);
-				viteServer.httpServer?.on('close', () => {
+			}
+
+			if (ssrEnvironment) {
+				disposers.set(ssrEnvironment, () => {
 					process.off('unhandledRejection', handleUnhandledRejection);
+					ssrHandlerPromise = undefined;
+					prerenderHandlerPromise = undefined;
 				});
 			}
 
@@ -195,8 +209,13 @@ export default function createVitePluginAstroServer({
 								return next();
 							}
 
+							const currentPrerenderHandlerPromise = prerenderHandlerPromise;
+							if (!currentPrerenderHandlerPromise) {
+								return next();
+							}
+
 							try {
-								const prerenderHandler = await prerenderHandlerPromise!;
+								const prerenderHandler = await currentPrerenderHandlerPromise;
 								const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
 								const { routes } = (await prerenderHandler.environment.runner.import(
 									'virtual:astro:routes',
@@ -228,14 +247,19 @@ export default function createVitePluginAstroServer({
 
 				if (runnableSsrEnvironment) {
 					// Note that this function has a name so other middleware can find it.
-					viteServer.middlewares.use(async function astroDevHandler(request, response) {
+					viteServer.middlewares.use(async function astroDevHandler(request, response, next) {
 						if (request.url === undefined || !request.method) {
 							response.writeHead(500, 'Incomplete request');
 							response.end();
 							return;
 						}
 
-						const ssrHandler = await ssrHandlerPromise!;
+						const currentSsrHandlerPromise = ssrHandlerPromise;
+						if (!currentSsrHandlerPromise) {
+							return next();
+						}
+
+						const ssrHandler = await currentSsrHandlerPromise;
 						localStorage.run(request, () => {
 							ssrHandler.handler(request, response);
 						});

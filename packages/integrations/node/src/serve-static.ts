@@ -70,7 +70,10 @@ export function createStaticHandler(
 			let pathname = urlPath;
 
 			if (headersMap && headersMap.length > 0) {
+				// Skip the body so this throwaway Request doesn't start consuming `req`
+				// before the SSR handler reads it (#18561).
 				const request = createRequestFromNodeRequest(req, {
+					skipBody: true,
 					port: options.port,
 				});
 				const routeData = app.match(request, true);

@@ -38,11 +38,19 @@ export async function transform(
 		}
 	} else {
 		content = await assets.fetch(imageSrc);
+		if (!content.ok) {
+			return new Response('Not Found', { status: 404 });
+		}
 	}
 
 	if (!content.body) {
 		return new Response(null, { status: 404 });
 	}
 
-	return transformStream(content.body, url.searchParams, images);
+	return transformStream(
+		content.body,
+		url.searchParams,
+		images,
+		content.headers.get('content-type'),
+	);
 }

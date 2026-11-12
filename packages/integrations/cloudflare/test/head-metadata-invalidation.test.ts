@@ -59,7 +59,7 @@ describe('Head metadata invalidation in dev', () => {
 		);
 
 		const html = await (await fixture.fetch('/')).text();
-		const templateOpen = html.indexOf('<template id="theme-icons">');
+		const templateOpen = html.indexOf('<template id="theme-icons"');
 		const templateClose = html.indexOf('</template>');
 		assert.ok(templateOpen !== -1 && templateClose > templateOpen);
 

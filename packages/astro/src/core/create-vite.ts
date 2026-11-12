@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
@@ -26,23 +27,20 @@ import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
 import { vitePluginApp } from '../vite-plugin-app/index.js';
 import { vitePluginFetchable } from './fetch/vite-plugin.js';
-import astroVitePlugin from '../vite-plugin-astro/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
-import { astroDevCssPlugin } from '../vite-plugin-css/index.js';
-import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
-import astroHeadPlugin from '../vite-plugin-head/index.js';
-import astroHmrReloadPlugin from '../vite-plugin-hmr-reload/index.js';
+import { astroDevCssContentCachePlugin, astroDevCssPlugin } from '../vite-plugin-css/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import { pluginPage, pluginPages } from '../vite-plugin-pages/index.js';
-import vitePluginRenderers from '../vite-plugin-renderers/index.js';
 import astroPluginRoutes from '../vite-plugin-routes/index.js';
 import vitePluginStaticPaths from '../vite-plugin-static-paths/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
+import astro from '@astrojs/vite-plugin-astro';
+import { toAstroCli, toAstroOptions } from './astro-options.js';
 import type { AstroLogger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
@@ -154,8 +152,8 @@ export async function createVite(
 		config: settings.config,
 	});
 	const serverIslandsState = new ServerIslandsState();
-	// Shared cache of CSS content by module ID. Populated by the dev-css plugin's
-	// transform hook and consumed by the content asset propagation plugin to avoid
+	// Shared cache of CSS content by module ID. Populated by the dev-css content cache
+	// plugin's transform hook and consumed by the content asset propagation plugin to avoid
 	// re-processing CSS modules with `?inline` (which produces different
 	// scoped-name hashes with Lightning CSS).
 	const cssContentCache = new Map<string, string>();
@@ -187,12 +185,6 @@ export async function createVite(
 				},
 			},
 			serializedManifestPlugin({ settings, command, sync }),
-			vitePluginRenderers({
-				settings,
-				routesList,
-				serverIslandsState,
-				command: command === 'dev' ? 'serve' : 'build',
-			}),
 			vitePluginStaticPaths(),
 			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs, command }),
 			astroVirtualManifestPlugin({ settings }),
@@ -201,7 +193,10 @@ export async function createVite(
 			pluginPages({ routesList }),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
-			astroVitePlugin({ settings, logger }),
+			...astro(
+				toAstroOptions(settings),
+				toAstroCli(settings, { logger, command, routesList, serverIslandsState }),
+			),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
@@ -217,7 +212,6 @@ export async function createVite(
 			htmlVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logger }),
 			astroScriptsPageSSRPlugin({ settings }),
-			astroHeadPlugin(),
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
 			astroContentAssetPropagationPlugin({ settings, cssContentCache }),
@@ -226,7 +220,6 @@ export async function createVite(
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
 			astroDevToolbar({ settings, logger }),
-			vitePluginFileURL(),
 			astroInternationalization({ settings }),
 			vitePluginActions({ fs, settings }),
 			vitePluginServerIslands({ settings, logger, serverIslandsState }),
@@ -235,7 +228,6 @@ export async function createVite(
 			vitePluginCacheProvider({ settings }),
 			vitePluginLogger({ settings }),
 			astroContainer(),
-			astroHmrReloadPlugin(),
 			vitePluginChromedevtools({ settings }),
 			command === 'dev' && vitePluginDevStatus(),
 		],
@@ -288,6 +280,24 @@ export async function createVite(
 			],
 		},
 		build: { assetsDir: settings.config.build.assets },
+		css: !isBuild
+			? {
+					modules: {
+						// Vite's default postcss-modules scoped-name generator hashes the CSS
+						// *content*, so every declaration edit changes class names. In dev this
+						// breaks HMR for server-rendered HTML because the DOM still references
+						// the previous names. Use a path-based hash instead so selectors stay
+						// stable and Vite's CSS HMR can swap rules without a full page reload.
+						generateScopedName(name, filename) {
+							const hash = createHash('sha256')
+								.update(filename + '\0' + name)
+								.digest('base64url')
+								.substring(0, 5);
+							return `_${name}_${hash}`;
+						},
+					},
+				}
+			: undefined,
 		environments: {
 			[ASTRO_VITE_ENVIRONMENT_NAMES.astro]: {
 				// This is all that's needed to create a new RunnableDevEnvironment
@@ -349,6 +359,12 @@ export async function createVite(
 		result = vite.mergeConfig(result, settings.config.vite || {});
 	}
 	result = vite.mergeConfig(result, commandConfig);
+	if (command === 'dev') {
+		// Appended last so it sees CSS after integration plugins have transformed it.
+		result = vite.mergeConfig(result, {
+			plugins: [astroDevCssContentCachePlugin({ cssContentCache })],
+		});
+	}
 
 	return result;
 }

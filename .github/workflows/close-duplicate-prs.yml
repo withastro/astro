@@ -1,0 +1,41 @@
+name: 'PR: Close Duplicates'
+
+# pull_request_target gives pull requests from forks a write token. The checkout
+# below reads the base branch only and never runs code from the pull request.
+on:
+  pull_request_target:
+    types: [closed]
+  # The weekly sweep closes duplicates that predate this workflow or were missed.
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+# Queue runs so that two merges fixing the same issue cannot both act on the
+# same open pull request.
+concurrency:
+  group: pr-close-duplicates
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  close:
+    if: github.repository == 'withastro/astro' && (github.event_name != 'pull_request_target' || github.event.pull_request.merged == true)
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    permissions:
+      contents: read # Checkout the base branch
+      issues: write # Comment on duplicate pull requests
+      pull-requests: write # Close duplicate pull requests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Close duplicate pull requests
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const { run } = await import('${{ github.workspace }}/.github/scripts/close-duplicate-prs.mjs');
+            await run({ github, context, core });

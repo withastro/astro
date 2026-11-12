@@ -96,9 +96,11 @@ export function baseMiddleware(
 		let pathname: string;
 		try {
 			pathname = decodeURI(new URL(url, 'http://localhost').pathname);
-		} catch (e) {
-			/* malformed uri */
-			return next(e);
+		} catch {
+			// Malformed percent-encoding must be a client error, not an uncaught 500. (#18650)
+			res.statusCode = 400;
+			res.end('Bad Request');
+			return;
 		}
 
 		const decision = evaluateBaseRewrite(

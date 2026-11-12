@@ -1,4 +1,5 @@
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
+import { time, timedVisitorPlugins } from '@astrojs/internal-helpers/timings';
 import {
 	defaultExcludeLanguages,
 	markdownConfigDefaults,
@@ -216,7 +217,7 @@ export function createHighlightPlugin(
 				}
 
 				const code = ctx.textContent(codeChild).replace(/\n$/, '');
-				return highlight(code, lang, meta);
+				return time('highlight', lang, () => highlight(code, lang, meta));
 			},
 		},
 	};
@@ -269,7 +270,8 @@ export async function createHighlightFn(
 		const { htmlToHast } = await loadSatteri();
 		return async (code, lang) => {
 			const { html, classLanguage } = await runHighlighterWithAstro(lang, code);
-			const pre = `<pre class="${classLanguage}" data-language="${lang}"><code class="${classLanguage}">${html}</code></pre>`;
+			const className = escapeAttribute(classLanguage);
+			const pre = `<pre class="${className}" data-language="${escapeAttribute(lang)}"><code class="${className}">${html}</code></pre>`;
 			const tree = htmlToHast(pre, { fragment: true });
 			return ('children' in tree ? tree.children[0] : undefined) as HastNode;
 		};
@@ -321,17 +323,22 @@ export async function createSatteriMarkdownProcessor(
 			hastPlugins.push(createImageMarkerPlugin());
 			hastPlugins.push(createHeadingIdsPlugin());
 
-			const { html, data } = await s.markdownToHtml(content, {
-				mdastPlugins: allMdastPlugins,
-				hastPlugins,
-				features: {
-					gfm: gfm !== false,
-					smartPunctuation: smartypants !== false,
-					...userFeatures,
-				},
-				fileURL: renderOpts?.fileURL,
-				data: { astro },
-			});
+			const { html, data } = await time(
+				'markdown-file',
+				String(renderOpts?.fileURL ?? 'unknown'),
+				() =>
+					s.markdownToHtml(content, {
+						mdastPlugins: timedVisitorPlugins('markdown-plugin', allMdastPlugins),
+						hastPlugins: timedVisitorPlugins('markdown-plugin', hastPlugins),
+						features: {
+							gfm: gfm !== false,
+							smartPunctuation: smartypants !== false,
+							...userFeatures,
+						},
+						fileURL: renderOpts?.fileURL,
+						data: { astro },
+					}),
+			);
 
 			// Read the returned bag, not the seeded reference, so a plugin that replaces
 			// `ctx.data.astro` wholesale is honored.
@@ -347,4 +354,8 @@ export async function createSatteriMarkdownProcessor(
 			};
 		},
 	};
+}
+
+function escapeAttribute(value: string) {
+	return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }

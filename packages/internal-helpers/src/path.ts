@@ -235,8 +235,14 @@ export function isParentDirectory(parentPath: string, childPath: string): boolea
 		return false;
 	}
 
-	const normalizedParent = appendForwardSlash(slash(parentPath).toLowerCase());
-	const normalizedChild = slash(childPath).toLowerCase();
+	// Windows drive-letter paths live on case-insensitive filesystems, so
+	// fold case there. Everywhere else, compare exactly: on case-sensitive
+	// filesystems, `/app/DIST/client` is a different directory from
+	// `/app/dist/client` and must not be treated as being inside it.
+	const caseInsensitive = isWindowsAbsolutePath(parentPath) && isWindowsAbsolutePath(childPath);
+	const fold = (p: string) => (caseInsensitive ? p.toLowerCase() : p);
+	const normalizedParent = appendForwardSlash(fold(slash(parentPath)));
+	const normalizedChild = fold(slash(childPath));
 
 	// Don't allow same path (parent can't be parent of itself)
 	if (normalizedParent === normalizedChild || normalizedParent === normalizedChild + '/') {
@@ -244,6 +250,12 @@ export function isParentDirectory(parentPath: string, childPath: string): boolea
 	}
 
 	return normalizedChild.startsWith(normalizedParent);
+}
+
+const WINDOWS_ABSOLUTE_PATH = /^[a-zA-Z]:[\\/]/;
+
+function isWindowsAbsolutePath(path: string) {
+	return WINDOWS_ABSOLUTE_PATH.test(path);
 }
 
 export function slash(path: string) {

@@ -93,6 +93,16 @@ describe('Static headers', () => {
 		);
 	});
 
+	it('passes the request body through to on-demand routes', async () => {
+		const res = await fetch(`http://${server.host}:${server.port}/echo`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: 'message=hello',
+		});
+		assert.equal(res.status, 200);
+		assert.equal(await res.text(), 'message=hello');
+	});
+
 	it('survives a request with a malformed port in the Host header', async () => {
 		// A malformed port makes the URL unparseable while the static handler
 		// builds a Request to look up per-route headers. The request must not

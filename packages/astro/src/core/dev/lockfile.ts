@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import findProcess from 'find-proc';
+import { getProcessInfo } from 'tinyps';
 import type { ResolvedServerUrls } from 'vite';
 
 export type ServerCommand = 'dev' | 'preview';
@@ -84,13 +84,16 @@ export function serializeLockFile(data: LockFileData): string {
 /**
  * Check if a process with the given PID is alive.
  * Signal 0 does not kill the process — it only checks whether the process exists.
+ * A process that exists but cannot be signaled by the current user (`EPERM`) counts as alive.
  */
 export function isProcessAlive(pid: number): boolean {
 	try {
 		process.kill(pid, 0);
 		return true;
-	} catch {
-		return false;
+	} catch (err) {
+		// Sandboxed agents and other users get EPERM for a running server; deleting its
+		// lock would orphan it. (#18543)
+		return (err as NodeJS.ErrnoException)?.code === 'EPERM';
 	}
 }
 
@@ -107,14 +110,10 @@ export function isAstroCommand(command: string): boolean {
 
 interface ProcessInfo {
 	pid: number;
-	cmd?: string;
+	command?: string;
 }
 
-type ProcessLookup = (
-	by: 'pid',
-	value: number,
-	options: { logLevel: 'error' },
-) => Promise<ProcessInfo[]>;
+type ProcessLookup = (pid: number) => Promise<ProcessInfo | undefined>;
 
 /**
  * Check whether the live process recorded in a lock file is still Astro.
@@ -122,7 +121,7 @@ type ProcessLookup = (
  */
 export async function isLockFileProcessAlive(
 	data: LockFileData,
-	find: ProcessLookup = findProcess,
+	find: ProcessLookup = getProcessInfo,
 ): Promise<boolean> {
 	// The current process cannot be the server recorded in the lock file — it hasn't
 	// started one yet. In Docker containers the PID namespace resets on restart, so the
@@ -137,10 +136,11 @@ export async function isLockFileProcessAlive(
 	}
 
 	try {
-		const processInfo = (await find('pid', data.pid, { logLevel: 'error' })).find(
-			({ pid }) => pid === data.pid,
-		);
-		return processInfo?.cmd === undefined || isAstroCommand(processInfo.cmd);
+		const processInfo = await find(data.pid);
+		if (processInfo === undefined) {
+			return false;
+		}
+		return processInfo.command === undefined || isAstroCommand(processInfo.command);
 	} catch {
 		return true;
 	}
@@ -207,18 +207,33 @@ export function evaluateExistingServer(
 }
 
 /**
+ * Send `signal` to the server process `pid`.
+ *
+ * Errors meaning the process is already gone are ignored.
+ * @throws If the current user is not permitted to signal the process (`EPERM`).
+ */
+export function signalServerProcess(pid: number, signal: NodeJS.Signals): void {
+	try {
+		process.kill(pid, signal);
+	} catch (err) {
+		if ((err as NodeJS.ErrnoException)?.code === 'EPERM') {
+			throw new Error(
+				`Cannot stop the server (pid ${pid}): permission denied. Stop it from the environment that started it.`,
+			);
+		}
+	}
+}
+
+/**
  * Kill the dev server identified by `data` and clean up its lock file.
  *
  * Sends SIGTERM and waits up to {@link GRACEFUL_SHUTDOWN_TIMEOUT} for the
  * process to exit, escalating to SIGKILL if it is still alive. The lock file
- * is always removed afterwards so a new server can start.
+ * is removed afterwards so a new server can start.
+ * @throws If the process cannot be signaled; the lock file is kept in that case.
  */
 export async function killDevServer(root: URL, data: LockFileData): Promise<void> {
-	try {
-		process.kill(data.pid, 'SIGTERM');
-	} catch {
-		// Process may have already exited between check and kill
-	}
+	signalServerProcess(data.pid, 'SIGTERM');
 
 	// Wait for graceful shutdown before escalating to SIGKILL
 	const deadline = Date.now() + GRACEFUL_SHUTDOWN_TIMEOUT;
@@ -229,11 +244,7 @@ export async function killDevServer(root: URL, data: LockFileData): Promise<void
 
 	// If still alive after timeout, force kill
 	if (isProcessAlive(data.pid)) {
-		try {
-			process.kill(data.pid, 'SIGKILL');
-		} catch {
-			// Already dead
-		}
+		signalServerProcess(data.pid, 'SIGKILL');
 	}
 
 	// Clean up the lock file in case the process didn't remove it

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 import { projectName } from '../dist/index.js';
 import { mockExit, mockPrompt, type ProjectNameContext, setup } from './test-utils.ts';
@@ -171,5 +172,29 @@ describe('project name', async () => {
 		};
 		await projectName(context);
 		assert.equal(context.projectName, 'empty');
+	});
+
+	it('prompt with dot', async () => {
+		const context: ProjectNameContext = {
+			projectName: '',
+			cwd: '',
+			prompt: mockPrompt({ name: '.' }),
+			exit: mockExit,
+		};
+		await projectName(context);
+		assert.equal(context.cwd, '.');
+		assert.equal(context.projectName, path.basename(process.cwd()));
+	});
+
+	it('prompt with dot slash', async () => {
+		const context: ProjectNameContext = {
+			projectName: '',
+			cwd: '',
+			prompt: mockPrompt({ name: './' }),
+			exit: mockExit,
+		};
+		await projectName(context);
+		assert.equal(context.cwd, './');
+		assert.equal(context.projectName, path.basename(process.cwd()));
 	});
 });

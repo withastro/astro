@@ -17,9 +17,6 @@ interface DevOptions {
 	flags: Flags;
 }
 
-/**
- * `yargs-parser` camel-cases `--ignore-lock` to `flags.ignoreLock`.
- */
 export function isIgnoreLock(flags: Flags): boolean {
 	return flags.ignoreLock === true;
 }

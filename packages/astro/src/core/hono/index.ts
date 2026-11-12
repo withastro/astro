@@ -5,6 +5,7 @@ import {
 	cache as fetchCache,
 	i18n as fetchI18n,
 	middleware as fetchMiddleware,
+	notFound as fetchNotFound,
 	pages as fetchPages,
 	redirects as fetchRedirects,
 	sessions as fetchSessions,
@@ -67,6 +68,14 @@ export function middleware(): HonoMiddlewareHandler {
 export function redirects(): HonoMiddlewareHandler {
 	return async (context, honoNext) => {
 		const response = fetchRedirects(getFetchState(context));
+		if (response) return response;
+		await honoNext();
+	};
+}
+
+export function notFound(): HonoMiddlewareHandler {
+	return async (context, honoNext) => {
+		const response = await fetchNotFound(getFetchState(context));
 		if (response) return response;
 		await honoNext();
 	};

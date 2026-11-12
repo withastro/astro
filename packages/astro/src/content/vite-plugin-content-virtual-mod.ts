@@ -3,12 +3,12 @@ import { fileURLToPath } from 'node:url';
 import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import { isAstroClientEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
-import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
+import type { AstroPluginMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/index.js';
+import { createDefaultAstroMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/metadata.js';
 import {
 	ASSET_IMPORTS_FILE,
 	ASSET_IMPORTS_RESOLVED_STUB_ID,
@@ -136,18 +136,21 @@ function getDevDataStoreFile(settings: AstroSettings): URL {
  * write on some platforms (notably Windows, see #17335), leaving dev serving
  * stale content until a restart. Subscribing to the store's own write
  * notifications makes invalidation of this process's writes deterministic.
+ * The caller can suppress client reloads during initial sync without skipping
+ * server-side invalidation.
  */
 export function attachDataStoreInvalidation(
 	store: MutableDataStore,
 	server: ViteDevServer,
 	settings: AstroSettings,
+	{ shouldNotifyClient = () => true }: { shouldNotifyClient?: () => boolean } = {},
 ) {
 	const dataStorePath = fileURLToPath(getDevDataStoreFile(settings));
 	const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 	store.onFileWritten((path) => {
 		if (path === dataStorePath) {
 			markDirectInvalidation(dataStorePath);
-			invalidateDataStore(server);
+			invalidateDataStore(server, { notifyClient: shouldNotifyClient() });
 			invalidateAssetImports(server, assetImportsPath);
 		} else if (path === assetImportsPath) {
 			markDirectInvalidation(assetImportsPath);

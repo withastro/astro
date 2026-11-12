@@ -5,7 +5,7 @@ import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type * as z from 'zod/v4';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
@@ -77,6 +77,10 @@ export class ContentLayer {
 	 */
 	get loading() {
 		return this.#queue.size > 0 || this.#queue.pending > 0;
+	}
+
+	get store() {
+		return this.#store;
 	}
 
 	/**
