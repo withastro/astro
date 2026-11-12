@@ -30,8 +30,7 @@ import { getContentImageResolver } from './image-context.js';
  */
 export type ContentImageField = {
 	[IMAGE_FIELD_MARKER]: true;
-	src: string;
-} & Partial<Omit<OmitBrand<ImageMetadata>, 'src' | 'fsPath'>>;
+} & OmitBrand<ImageMetadata>;
 
 /** The part of the schema context `image()` needs. */
 export type ImageContext = { filePath?: string };
@@ -44,7 +43,7 @@ function throwImageNotFound(src: string): never {
 }
 
 function createImageMarker(src: string): ContentImageField {
-	return { [IMAGE_FIELD_MARKER]: true, src: `${IMAGE_IMPORT_PREFIX}${src}` };
+	return { [IMAGE_FIELD_MARKER]: true, src: `${IMAGE_IMPORT_PREFIX}${src}`, fsPath: '' } as ContentImageField;
 }
 
 /**
