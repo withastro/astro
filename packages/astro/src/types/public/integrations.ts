@@ -107,7 +107,6 @@ export interface AstroAdapterFeatures {
 }
 
 /**
- * @internal
  * Configuration for Astro's client-side code from adapters.
  * This is used internally to inject adapter-specific behavior into client code.
  */
