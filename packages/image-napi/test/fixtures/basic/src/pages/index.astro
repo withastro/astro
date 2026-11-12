@@ -1,0 +1,7 @@
+---
+import { Image, Picture } from 'astro:assets';
+import landscape from '../assets/landscape.jpg';
+---
+<Image id="image" src={landscape} width={300} alt="" />
+<Image id="cropped" src={landscape} width={200} height={200} fit="cover" format="avif" alt="" />
+<Picture id="picture" src={landscape} widths={[150, 450]} formats={['avif', 'webp']} alt="" />
