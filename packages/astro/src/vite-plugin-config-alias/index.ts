@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { CompilerOptions } from 'typescript';
 import { normalizePath, type Plugin as VitePlugin } from 'vite';
 
 import type { AstroSettings } from '../types/astro.js';
@@ -15,7 +14,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	const { tsConfig, tsConfigPath } = settings;
 	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return null;
 
-	const { baseUrl, paths } = tsConfig.compilerOptions as CompilerOptions;
+	const { baseUrl, paths } = tsConfig.compilerOptions;
 
 	// If paths exist but baseUrl doesn't, default to "." (tsconfig directory)
 	const effectiveBaseUrl = baseUrl ?? (paths ? '.' : undefined);
