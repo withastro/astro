@@ -276,4 +276,52 @@ describe('Container', () => {
 
 		assert.match(result, /Is open/);
 	});
+
+	it('Renders a component to a string', async () => {
+		const Page = createComponent(
+			(result, props, slots) =>
+				render`<div>${props.message}${renderSlot(result, slots.default)}</div>`,
+		);
+		const container = await experimental_AstroContainer.create();
+		const result = await container.renderComponent(Page, {
+			props: { message: 'Hello ' },
+			slots: { default: 'World' },
+		});
+
+		assert.equal(result, '<div>Hello World</div>');
+	});
+
+	it('Astro.site reflects astroConfig.site', async () => {
+		const $Astro = createAstro('https://example.com');
+		const SitePage = createComponent((result, props, slots) => {
+			const Astro = result.createAstro($Astro, props, slots);
+			const site = Astro.site;
+			return render`${maybeRenderHead()}<div>${site ? site.toString() : 'SITE_UNDEFINED'}</div>`;
+		});
+
+		const container = await experimental_AstroContainer.create({
+			astroConfig: {
+				site: 'https://example.com',
+			},
+		});
+
+		const response = await container.renderToString(SitePage);
+
+		assert.match(response, /https:\/\/example\.com/);
+		assert.doesNotMatch(response, /SITE_UNDEFINED/);
+	});
+
+	it('Astro.site is undefined when astroConfig.site is not set', async () => {
+		const $Astro = createAstro(undefined);
+		const SitePage = createComponent((result, props, slots) => {
+			const Astro = result.createAstro($Astro, props, slots);
+			const site = Astro.site;
+			return render`${maybeRenderHead()}<div>${site ? site.toString() : 'SITE_UNDEFINED'}</div>`;
+		});
+
+		const container = await experimental_AstroContainer.create();
+		const response = await container.renderToString(SitePage);
+
+		assert.match(response, /SITE_UNDEFINED/);
+	});
 });

@@ -1,7 +1,12 @@
+import { reexportRenderer } from '@astrojs/internal-helpers/renderer';
+import solidRenderer from '@astrojs/solid-js-renderer';
 import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
-import type { PluginOption, Plugin } from 'vite';
+import type { PluginOption } from 'vite';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
+
+const fromRendererPackage = (renderer: AstroRenderer) =>
+	reexportRenderer(renderer, '@astrojs/solid-js-renderer', '@astrojs/solid-js');
 
 // TODO: keep in sync with https://github.com/thetarnav/solid-devtools/blob/main/packages/main/src/vite/index.ts#L7
 type DevtoolsPluginOptions = {
@@ -45,10 +50,7 @@ function getViteConfiguration(
 	{ include, exclude }: Options,
 	devtoolsPlugin: DevtoolsPlugin | null,
 ) {
-	const plugins: PluginOption[] = [
-		solid({ include, exclude, ssr: true }),
-		configEnvironmentPlugin(),
-	];
+	const plugins: PluginOption[] = [solid({ include, exclude, ssr: true })];
 
 	if (devtoolsPlugin) {
 		plugins.push(devtoolsPlugin({ autoname: true }));
@@ -71,6 +73,9 @@ export interface Options extends Pick<ViteSolidPluginOptions, 'include' | 'exclu
 	devtools?: boolean;
 }
 
+/**
+ * The Solid integration: `vite-plugin-solid` plus the renderer from `@astrojs/solid-js-renderer`.
+ */
 export default function (options: Options = {}): AstroIntegration {
 	return {
 		name: '@astrojs/solid-js',
@@ -87,7 +92,7 @@ export default function (options: Options = {}): AstroIntegration {
 					!!options.devtools && command === 'dev',
 				);
 
-				addRenderer(getContainerRendererImpl());
+				addRenderer(fromRendererPackage(solidRenderer()));
 				updateConfig({
 					vite: getViteConfiguration(options, devtoolsPlugin),
 				});
@@ -108,20 +113,6 @@ export default function (options: Options = {}): AstroIntegration {
 					);
 				}
 			},
-		},
-	};
-}
-
-function configEnvironmentPlugin(): Plugin {
-	return {
-		name: '@astrojs/solid:config-environment',
-		configEnvironment(environmentName) {
-			return {
-				optimizeDeps: {
-					include: environmentName === 'client' ? ['@astrojs/solid-js/client.js'] : [],
-					exclude: ['@astrojs/solid-js/server.js'],
-				},
-			};
 		},
 	};
 }

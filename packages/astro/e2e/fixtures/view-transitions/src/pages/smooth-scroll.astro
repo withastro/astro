@@ -1,0 +1,13 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<article id="smooth-scroll" style="height: 5000px">
+		<a id="click-one" href="/one" style="position: fixed; top: 0">go to 1</a>
+	</article>
+</Layout>
+<style is:global>
+	html {
+		scroll-behavior: smooth;
+	}
+</style>

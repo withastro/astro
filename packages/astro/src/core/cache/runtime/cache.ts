@@ -5,8 +5,8 @@ import type {
 	InvalidateOptions,
 	LiveDataEntry,
 } from '../types.js';
-import { AstroError } from '../../errors/errors.js';
-import { CacheNotEnabled } from '../../errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
+import { CacheNotEnabled } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import { defaultSetHeaders, isLiveDataEntry } from './utils.js';
 
 const APPLY_HEADERS = Symbol.for('astro:cache:apply');
@@ -121,6 +121,15 @@ export class AstroCache implements CacheLike {
 			this.#provider?.setHeaders?.(finalOptions, request) ?? defaultSetHeaders(finalOptions);
 		for (const [key, value] of headers) {
 			response.headers.set(key, value);
+		}
+		if (
+			!response.headers.has('Cache-Control') &&
+			!response.headers.has('Expires') &&
+			(response.headers.has('Last-Modified') || response.headers.has('ETag'))
+		) {
+			// `no-cache` requires revalidation before a stored response is reused.
+			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control#no-cache
+			response.headers.set('Cache-Control', 'no-cache');
 		}
 	}
 

@@ -147,6 +147,27 @@ describe('Actions via App', () => {
 		assert.equal(res.status, 404);
 	});
 
+	it('does not resolve properties of an action function as a path', async () => {
+		let calls = 0;
+		const counterApp = createActionsApp({
+			increment: defineAction({
+				handler: async () => {
+					calls += 1;
+					return { calls };
+				},
+			}),
+		});
+
+		const req = new Request('http://example.com/_actions/increment.orThrow', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({}),
+		});
+		const res = await counterApp.render(req);
+		assert.equal(res.status, 404);
+		assert.equal(calls, 0);
+	});
+
 	it('returns 404 for GET requests', async () => {
 		const req = new Request('http://example.com/_actions/subscribe', {
 			method: 'GET',
@@ -730,6 +751,54 @@ describe('Actions routing options', () => {
 		const data = devalue.parse(await res.text());
 		assert.equal(data.channel, 'bholmesdev');
 		assert.equal(data.comment, 'Hello, World!');
+	});
+});
+
+// #endregion
+
+// #region Malformed request handling
+
+describe('Actions malformed request handling', () => {
+	const app = createActionsApp({
+		greet: defineAction({
+			accept: 'form',
+			input: z.object({ name: z.string() }),
+			handler: async ({ name }) => `Hello, ${name}!`,
+		}),
+	});
+
+	it('returns 400 for malformed JSON body', async () => {
+		const req = new Request('http://example.com/_actions/greet', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: 'a=b',
+		});
+		const res = await app.render(req);
+		assert.equal(res.status, 400);
+		const body = await res.json();
+		assert.equal(body.code, 'BAD_REQUEST');
+		assert.equal(body.message, 'Invalid JSON request body');
+	});
+
+	it('returns 404 for undecodable action name', async () => {
+		const req = new Request('http://example.com/_actions/%25', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: '{}',
+		});
+		const res = await app.render(req);
+		assert.equal(res.status, 404);
+	});
+
+	it('returns 404 for undecodable form action name', async () => {
+		const formData = new FormData();
+		formData.append('name', 'Astro');
+		const req = new Request('http://example.com/test?_action=%25', {
+			method: 'POST',
+			body: formData,
+		});
+		const res = await app.render(req);
+		assert.equal(res.status, 404);
 	});
 });
 

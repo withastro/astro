@@ -1,14 +1,15 @@
 import { stringify as devalueStringify } from 'devalue';
 import * as z from 'zod/v4/core';
-import type { Pipeline } from '../../core/base-pipeline.js';
 import { shouldAppendForwardSlash } from '../../core/build/util.js';
-import { pipelineSymbol, REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import { REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import { getFetchStateFromAPIContext } from '../../core/fetch/fetch-state.js';
+import { getAction } from '../load.js';
 import {
 	ActionCalledFromServerError,
 	ActionNotFoundError,
 	ActionsReturnedInvalidDataError,
-} from '../../core/errors/errors-data.js';
-import { AstroError } from '../../core/errors/errors.js';
+} from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { BodySizeLimitError, readBodyWithLimit } from '../../core/request-body.js';
 import type { APIContext } from '../../types/public/index.js';
@@ -170,17 +171,17 @@ export function getActionContext(context: APIContext): AstroActionContext {
 			calledFrom: callerInfo.from,
 			name: callerInfo.name,
 			handler: async () => {
-				const pipeline: Pipeline = Reflect.get(context, pipelineSymbol);
+				const { manifest } = getFetchStateFromAPIContext(context);
 				const callerInfoName = shouldAppendForwardSlash(
-					pipeline.manifest.trailingSlash,
-					pipeline.manifest.buildFormat,
+					manifest.trailingSlash,
+					manifest.buildFormat,
 				)
 					? removeTrailingForwardSlash(callerInfo.name)
 					: callerInfo.name;
 
 				let baseAction;
 				try {
-					baseAction = await pipeline.getAction(callerInfoName);
+					baseAction = await getAction(manifest, callerInfoName);
 				} catch (error) {
 					// Check if this is an ActionNotFoundError by comparing the name property
 					// We use this approach instead of instanceof because the error might be
@@ -193,10 +194,15 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					) {
 						return { data: undefined, error: new ActionError({ code: 'NOT_FOUND' }) };
 					}
+					// decodeURIComponent in getAction throws URIError for malformed
+					// percent-encoded action names (e.g. a lone "%").
+					if (error instanceof URIError) {
+						return { data: undefined, error: new ActionError({ code: 'NOT_FOUND' }) };
+					}
 					throw error;
 				}
 
-				const bodySizeLimit = pipeline.manifest.actionBodySizeLimit;
+				const bodySizeLimit = manifest.actionBodySizeLimit;
 				let input;
 				try {
 					input = await parseRequestBody(context.request, bodySizeLimit);
@@ -206,6 +212,12 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					}
 					if (e instanceof TypeError) {
 						return { data: undefined, error: new ActionError({ code: 'UNSUPPORTED_MEDIA_TYPE' }) };
+					}
+					if (e instanceof SyntaxError) {
+						return {
+							data: undefined,
+							error: new ActionError({ code: 'BAD_REQUEST', message: 'Invalid JSON request body' }),
+						};
 					}
 					throw e;
 				}

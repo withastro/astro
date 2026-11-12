@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { HeadPropagator } from '../../../../dist/core/head-propagation/buffer.js';
-import { collectPropagatedHeadParts } from '../../../../dist/core/head-propagation/buffer.js';
+import type { HeadPropagator } from '@astrojs/runtime/_internal/core/head-propagation/buffer.js';
+import { collectPropagatedHeadParts } from '@astrojs/runtime/_internal/core/head-propagation/buffer.js';
 import type { SSRResult } from '../../../../dist/types/public/internal.js';
 
 const headAndContentSym = Symbol.for('astro.headAndContent');
@@ -110,6 +110,26 @@ describe('head propagation buffer', () => {
 		assert.deepEqual(collected, ['<style>.from-async-slot{color:red}</style>']);
 		// The queue is fully drained.
 		assert.equal(result._metadata.pendingSlotEvaluations.length, 0);
+	});
+
+	it('leaves pending slot pre-renders untouched when awaitPendingSlots is false', async () => {
+		// A slot pre-render that never settles, like the enclosing slot of an
+		// island that is collecting head content from inside that slot.
+		const neverSettles = new Promise<void>(() => {});
+		const result = createResult([neverSettles]);
+		const propagators = new Set<HeadPropagator>([
+			{ init: () => createHeadAndContentLike('<style>.a{}</style>') },
+		]);
+
+		const collected = await collectPropagatedHeadParts({
+			propagators,
+			result,
+			isHeadAndContent,
+			awaitPendingSlots: false,
+		});
+
+		assert.deepEqual(collected, ['<style>.a{}</style>']);
+		assert.deepEqual(result._metadata.pendingSlotEvaluations, [neverSettles]);
 	});
 
 	it('drains nested async slot pre-renders queued while collecting', async () => {

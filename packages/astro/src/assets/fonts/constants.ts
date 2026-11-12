@@ -51,3 +51,12 @@ export const GENERIC_FALLBACK_NAMES = [
 ] as const;
 
 export const FONTS_TYPES_FILE = 'fonts.d.ts';
+
+/**
+ * Variable name used in the font-file-url-resolver virtual module to hold
+ * the ephemeral font HTTP server address. The incremental build plugin
+ * strips the variable declaration (which contains an OS-assigned port that
+ * changes every build) from the module source before hashing so that the
+ * dependency hash is deterministic across builds.
+ */
+export const FONTS_SERVER_ADDRESS_PLACEHOLDER = '__ASTRO_FONTS_SERVER_ADDRESS__';

@@ -66,21 +66,34 @@ export function createRequestFromNodeRequest(
 
 	const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
 	const protocol = isEncrypted ? 'https' : 'http';
-	const hostname =
+	const untrustedHostname =
 		typeof req.headers.host === 'string'
 			? req.headers.host
 			: typeof req.headers[':authority'] === 'string'
 				? req.headers[':authority']
-				: serverPort
-					? `localhost:${serverPort}`
-					: 'localhost';
+				: undefined;
 
-	let url: URL;
-	try {
-		url = new URL(`${protocol}://${hostname}${req.url}`);
-	} catch {
-		url = new URL(`${protocol}://${hostname}`);
-	}
+	// Forwarded headers are applied later by FetchState, but the forwarded protocol is
+	// needed here to validate Host against protocol-specific allowedDomains patterns.
+	const validatedForwardedHeaders = validateForwardedHeaders(
+		getFirstForwardedValue(req.headers['x-forwarded-proto']),
+		getFirstForwardedValue(req.headers['x-forwarded-host']),
+		getFirstForwardedValue(req.headers['x-forwarded-port']),
+		allowedDomains,
+		{ protocol, host: untrustedHostname },
+	);
+	const validatedHostname = validateHost(
+		untrustedHostname,
+		validatedForwardedHeaders.protocol ?? protocol,
+		allowedDomains,
+	);
+
+	// Only a Host matching allowedDomains may control Request.url. Otherwise, fall back
+	// to an origin controlled by the server, matching createRequest's security posture.
+	const fallbackHostname = serverPort ? `localhost:${serverPort}` : 'localhost';
+	const hostname = validatedHostname ?? fallbackHostname;
+
+	const url = buildRequestUrl(protocol, hostname, req.url, serverPort);
 
 	const options: RequestInit = {
 		method: req.method || 'GET',
@@ -98,22 +111,8 @@ export function createRequestFromNodeRequest(
 
 	// Resolve client address. Trust X-Forwarded-For only when the Host
 	// header is validated against allowedDomains (same rule as createRequest).
-	const untrustedHostname = req.headers.host ?? req.headers[':authority'];
-	const validatedHostname = validateHost(
-		typeof untrustedHostname === 'string' ? untrustedHostname : undefined,
-		protocol,
-		allowedDomains,
-	);
-	// Only treat X-Forwarded-Host as trusted when it actually matches
-	// allowedDomains, mirroring `createRequest`. Checking that the header
-	// is merely present would accept any value.
-	const validatedForwardedHost = validateForwardedHeaders(
-		undefined,
-		getFirstForwardedValue(req.headers['x-forwarded-host']),
-		undefined,
-		allowedDomains,
-	).host;
-	const hostValidated = validatedHostname !== undefined || validatedForwardedHost !== undefined;
+	const hostValidated =
+		validatedHostname !== undefined || validatedForwardedHeaders.host !== undefined;
 	const forwardedClientIp = hostValidated
 		? getFirstForwardedValue(req.headers['x-forwarded-for'])
 		: undefined;
@@ -153,6 +152,10 @@ export function createRequest(
 		getFirstForwardedValue(req.headers['x-forwarded-host']),
 		getFirstForwardedValue(req.headers['x-forwarded-port']),
 		allowedDomains,
+		{
+			protocol: providedProtocol,
+			host: typeof untrustedHostname === 'string' ? untrustedHostname : undefined,
+		},
 	);
 
 	const protocol = validated.protocol ?? providedProtocol;
@@ -175,15 +178,7 @@ export function createRequest(
 		validated.port ??
 		(!validated.host && !validatedHostname && serverPort ? String(serverPort) : undefined);
 
-	let url: URL;
-	try {
-		const hostnamePort = getHostnamePort(hostname, port);
-		url = new URL(`${protocol}://${hostnamePort}${req.url}`);
-	} catch {
-		// Fallback using validated hostname to prevent SSRF
-		const hostnamePort = getHostnamePort(hostname, port);
-		url = new URL(`${protocol}://${hostnamePort}`);
-	}
+	const url = buildRequestUrl(protocol, getHostnamePort(hostname, port), req.url, serverPort);
 
 	const options: RequestInit = {
 		method: req.method || 'GET',
@@ -314,6 +309,8 @@ export async function writeResponse(source: Response, destination: ServerRespons
 			// an error in the ReadableStream's cancel callback, but
 			// also because of an error anywhere in the stream.
 			reader.cancel().catch((err) => {
+				// The page renderer has already logged its own errors through the configured logger.
+				if (err?.[Symbol.for('astro.streamErrorLogged')]) return;
 				console.error(
 					'There was an uncaught error in the middle of the stream while rendering %s.',
 					destination.req.url,
@@ -399,6 +396,33 @@ function getHostnamePort(hostname: string | string[] | undefined, port?: string)
 	const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
 	const hostnamePort = portInHostname ? hostname : `${hostname}${port ? `:${port}` : ''}`;
 	return hostnamePort;
+}
+
+/**
+ * Builds the request URL from a client-supplied host, which may contain an
+ * unparseable port (e.g. `example.com:65536`). Parsing degrades in steps so
+ * that construction always yields a URL:
+ *
+ * 1. Full URL including the request path.
+ * 2. Origin only, dropping a request path that alone made the URL invalid.
+ * 3. A host the server controls, when the host itself is unparseable — using
+ *    the listening port when known so the origin still carries the right port.
+ */
+function buildRequestUrl(
+	protocol: string,
+	hostnamePort: string,
+	requestPath: string | undefined,
+	serverPort?: number,
+): URL {
+	const path = requestPath ?? '';
+	if (URL.canParse(`${protocol}://${hostnamePort}${path}`)) {
+		return new URL(`${protocol}://${hostnamePort}${path}`);
+	}
+	if (URL.canParse(`${protocol}://${hostnamePort}`)) {
+		return new URL(`${protocol}://${hostnamePort}`);
+	}
+	const fallbackHost = serverPort ? `localhost:${serverPort}` : 'localhost';
+	return new URL(`${protocol}://${fallbackHost}`);
 }
 
 function makeRequestHeaders(req: NodeRequest): Headers {

@@ -5,6 +5,8 @@ import {
 	type AstroInlineConfig,
 } from 'astro/_internal/test/test-utils';
 
+export { SpyLogger } from 'astro/_internal/test/units/test-utils';
+
 export type { Fixture, DevServer, AstroInlineConfig };
 
 export interface VercelOutputConfig {

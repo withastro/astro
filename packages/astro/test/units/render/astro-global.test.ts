@@ -243,6 +243,22 @@ describe('Astro Global', () => {
 });
 
 describe('Astro Global Defaults', () => {
+	it('can access slots after the Astro global is frozen', async () => {
+		const Slotted = createComponent((result: any, props: any, slots: any) => {
+			const Astro = result.createAstro(props, slots);
+			Object.freeze(Astro);
+			return render`<p>${Astro.slots.has('default')}</p>`;
+		});
+		const page = createComponent(
+			(result: any) =>
+				render`${renderComponent(result, 'Slotted', Slotted, {}, { default: () => render`slot content` })}`,
+		);
+		const app = createTestApp([createPage(page, { route: '/', isIndex: true })]);
+		const response = await app.render(new Request('https://example.com/'));
+
+		assert.match(await response.text(), /<p>true<\/p>/);
+	});
+
 	it('Astro.request.url with no site or base', async () => {
 		const page = createIndexPage();
 		const app = createTestApp([createPage(page, { route: '/', isIndex: true })]);

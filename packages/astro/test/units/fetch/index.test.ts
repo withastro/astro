@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { appSymbol } from '../../../dist/core/constants.js';
+import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
+import { getUsedFeatures } from '../../../dist/core/fetch/features.js';
 import {
 	FetchState,
 	astro,
@@ -8,10 +9,11 @@ import {
 	redirects,
 	actions,
 	middleware,
+	notFound,
 	pages,
 	i18n,
 } from '../../../dist/core/fetch/index.js';
-import { ALL_PIPELINE_FEATURES } from '../../../dist/core/base-pipeline.js';
+import { ALL_FETCH_FEATURES } from '../../../dist/core/fetch/features.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import {
 	createEndpoint,
@@ -20,7 +22,9 @@ import {
 	createTestApp,
 	createMockFetchState,
 } from '../mocks.ts';
-import { dynamicPart, spreadPart } from '../routing/test-helpers.ts';
+import { dynamicPart, spreadPart, staticPart } from '../routing/test-helpers.ts';
+import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
+import type { RouteInfo, SSRManifest } from '../../../dist/core/app/types.js';
 import { SpyLogger } from '../test-utils.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
@@ -29,25 +33,28 @@ const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
 });
 
 /**
- * Stamps the `appSymbol` onto a request so `getApp()` inside the
- * `astro/fetch` module can find the associated App.
+ * Registers the app's manifest as the ambient manifest so the public
+ * one-arg `FetchState(request)` (and everything downstream) can resolve
+ * it — the post-refactor replacement for stamping `appSymbol` onto the
+ * request. Returns the request unchanged for call-site compatibility.
  */
 function stampApp(request: Request, app: ReturnType<typeof createTestApp>): Request {
-	Reflect.set(request, appSymbol, app);
+	setAmbientManifest(app.manifest);
 	return request;
 }
 
 // #region FetchState constructor
 
 describe('FetchState (astro/fetch)', () => {
-	it('throws when the request has no attached app', () => {
+	it('throws when no ambient manifest is available', () => {
+		setAmbientManifest(undefined);
 		assert.throws(
 			() => new FetchState(new Request('http://example.com/')),
-			/without an attached app/,
+			/outside of an Astro server/,
 		);
 	});
 
-	it('constructs successfully when the request has an attached app', () => {
+	it('constructs successfully when an ambient manifest is registered', () => {
 		const app = createTestApp([createPage(simplePage, { route: '/' })]);
 		const request = stampApp(new Request('http://example.com/'), app);
 		const state = new FetchState(request);
@@ -119,6 +126,93 @@ describe('FetchState (astro/fetch)', () => {
 		assert.equal(state.routeData!.type, 'endpoint');
 		assert.equal(state.pathname, '/file.html', '.html should be preserved for endpoint routes');
 	});
+
+	it('restores the trailing slash after stripping .html when trailingSlash is always', () => {
+		// Regression test for #17726: with `build.format: 'preserve'` the build
+		// requests `/welcome.html`, and route patterns are compiled with the
+		// configured trailing slash. Stripping `.html` without restoring the `/`
+		// leaves a pathname that no longer matches its own route, so the params
+		// come back empty and `stringifyParams()` throws `Missing parameter`.
+		const app = createTestApp([createPage(simplePage, { route: '/welcome' })], {
+			trailingSlash: 'always',
+		});
+		const request = stampApp(new Request('http://example.com/welcome.html'), app);
+		const state = new FetchState(request);
+
+		assert.equal(state.pathname, '/welcome/', 'trailing slash should survive .html stripping');
+	});
+
+	it('does not add a trailing slash when trailingSlash is not always', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/welcome' })], {
+			trailingSlash: 'ignore',
+		});
+		const request = stampApp(new Request('http://example.com/welcome.html'), app);
+		const state = new FetchState(request);
+
+		assert.equal(state.pathname, '/welcome', 'pathname should be left without a trailing slash');
+	});
+
+	it('reverts .html stripping when it breaks a dynamic page route pattern match', () => {
+		// Regression test for #17827: `/index.html` matched by `[slug]` gets
+		// stripped to `/`, which no longer matches the dynamic route pattern.
+		// The stripping must be reverted so param extraction does not crash.
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(simplePage, {
+				route: '/[slug]',
+				pathname: undefined,
+				segments: [[dynamicPart('slug')]],
+			}),
+		]);
+		const request = stampApp(new Request('http://example.com/index.html'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set');
+		assert.equal(
+			state.pathname,
+			'/index.html',
+			'pathname must keep .html when stripping would break the route pattern',
+		);
+	});
+
+	it('reverts .html stripping for nested dynamic page routes', () => {
+		// Regression test for #17827: `/other/index.html` matched by
+		// `/other/[slug]` gets stripped to `/other/`, which may not
+		// match the route pattern. The stripping must be reverted.
+		const app = createTestApp([
+			createPage(simplePage, {
+				route: '/other/[slug]',
+				pathname: undefined,
+				segments: [[staticPart('other')], [dynamicPart('slug')]],
+			}),
+		]);
+		const request = stampApp(new Request('http://example.com/other/index.html'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set');
+		assert.equal(
+			state.pathname,
+			'/other/index.html',
+			'pathname must keep .html when stripping would break the route pattern',
+		);
+	});
+
+	it('still strips .html for dynamic page routes when the pattern matches after stripping', () => {
+		// `/foo.html` matched by `[slug]` strips to `/foo`, which still
+		// matches the dynamic pattern. The strip should proceed normally.
+		const app = createTestApp([
+			createPage(simplePage, {
+				route: '/[slug]',
+				pathname: undefined,
+				segments: [[dynamicPart('slug')]],
+			}),
+		]);
+		const request = stampApp(new Request('http://example.com/foo.html'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set');
+		assert.equal(state.pathname, '/foo', '.html should be stripped when the pattern still matches');
+	});
 });
 
 // #endregion
@@ -163,6 +257,43 @@ describe('trailingSlash()', () => {
 		assert.equal(result.status, 301);
 		assert.equal(result.headers.get('location'), '/about');
 	});
+
+	it('includes the redirect target (not the incoming path) in the response body', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			trailingSlash: 'always',
+		});
+		const request = stampApp(new Request('http://example.com/about'), app);
+		const state = new FetchState(request);
+
+		const result = trailingSlash(state);
+		assert.ok(result instanceof Response);
+		const body = await result.text();
+		assert.ok(
+			body.includes('/about/'),
+			'body should contain the redirect target with trailing slash',
+		);
+		assert.ok(
+			!body.includes('url=/about"'),
+			'meta refresh should not point to the incoming path without trailing slash',
+		);
+	});
+
+	it('preserves query string in the redirect response body', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			trailingSlash: 'always',
+		});
+		const request = stampApp(new Request('http://example.com/about?ref=nav'), app);
+		const state = new FetchState(request);
+
+		const result = trailingSlash(state);
+		assert.ok(result instanceof Response);
+		assert.equal(result.headers.get('location'), '/about/?ref=nav');
+		const body = await result.text();
+		assert.ok(
+			body.includes('/about/?ref=nav'),
+			'body should include the full redirect target with query string',
+		);
+	});
 });
 
 // #endregion
@@ -203,6 +334,50 @@ describe('redirects()', () => {
 		const response = await result;
 		assert.equal(response.status, 301);
 		assert.equal(response.headers.get('location'), 'https://other-site.com/landing');
+	});
+});
+
+// #endregion
+
+// #region notFound()
+
+describe('notFound()', () => {
+	it('returns undefined when a route matches', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		assert.equal(notFound(state), undefined);
+	});
+
+	it('serves a prerendered 404 page through prerenderedErrorPageFetch', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(notFoundPage, { route: '/404', prerender: true }),
+		]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+		const fetchedUrls: string[] = [];
+		state.renderOptions.prerenderedErrorPageFetch = async (url: string) => {
+			fetchedUrls.push(url);
+			return new Response('<h1>Prerendered 404</h1>', {
+				headers: { 'Content-Type': 'text/html' },
+			});
+		};
+
+		const response = await notFound(state);
+
+		assert.ok(response);
+		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('X-Astro-Error'), null);
+		assert.deepEqual(
+			fetchedUrls.map((url) => new URL(url).pathname),
+			['/404.html'],
+		);
+		assert.equal(await response.text(), '<h1>Prerendered 404</h1>');
 	});
 });
 
@@ -427,6 +602,71 @@ describe('pages()', () => {
 		assert.equal(response.status, 500);
 		const text = await response.text();
 		assert.match(text, /<h1>my custom 500<\/h1>/);
+	});
+
+	it('renders a localized 404 route with a 404 status', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Não encontrado</h1>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(notFoundPage, { route: '/pt/404' })],
+			{
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt'],
+					strategy: 'manual',
+					fallbackType: 'rewrite',
+					fallback: {},
+					domains: {},
+					domainLookupTable: {},
+				},
+			},
+		);
+		const request = stampApp(new Request('http://example.com/pt/404'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 404);
+		const text = await response.text();
+		assert.match(text, /<h1>Não encontrado<\/h1>/);
+	});
+
+	it('renders a localized 500 route with a 500 status', async () => {
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Erro</h1>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(errorPage, { route: '/pt/500' })],
+			{
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt'],
+					strategy: 'manual',
+					fallbackType: 'rewrite',
+					fallback: {},
+					domains: {},
+					domainLookupTable: {},
+				},
+			},
+		);
+		const request = stampApp(new Request('http://example.com/pt/500'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 500);
+	});
+
+	it('honors a status set on the state before rendering', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+		state.status = 503;
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 503);
 	});
 
 	it('returns a marked 404 for the app post-check when the custom 404 route is prerendered', async () => {
@@ -665,8 +905,8 @@ describe('astro() combined handler', () => {
 		// every feature as used so the one-shot warnMissingFeatures check
 		// in BaseApp never fires a false positive.
 		assert.equal(
-			state.pipeline.usedFeatures & ALL_PIPELINE_FEATURES,
-			ALL_PIPELINE_FEATURES,
+			getUsedFeatures(state.manifest) & ALL_FETCH_FEATURES,
+			ALL_FETCH_FEATURES,
 			'astro() should mark all pipeline features as used',
 		);
 	});
@@ -697,6 +937,94 @@ describe('Composed pipeline', () => {
 
 		assert.equal(final.status, 200);
 		assert.match(await final.text(), /<h1>Hello<\/h1>/);
+	});
+
+	it('passes resolved props to middleware and endpoints when actions() runs before middleware()', async () => {
+		let middlewareProps: unknown;
+		const app = createTestApp(
+			[createEndpoint({ GET: ({ props }: any) => Response.json(props) }, { route: '/echo' })],
+			{
+				middleware: async () => ({
+					onRequest: async (ctx: any, next: any) => {
+						middlewareProps = ctx.props;
+						return next();
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/echo'), app);
+		const state = new FetchState(request);
+
+		assert.equal(await actions(state), undefined);
+		const response = await middleware(state, () => pages(state));
+
+		assert.deepEqual(middlewareProps, {});
+		assert.deepEqual(await response.json(), {});
+	});
+
+	it('passes resolved props to endpoints when pages() runs without middleware()', async () => {
+		const app = createTestApp([
+			createEndpoint({ GET: ({ props }: any) => Response.json(props) }, { route: '/echo' }),
+		]);
+		const request = stampApp(new Request('http://example.com/echo'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.deepEqual(await response.json(), {});
+	});
+});
+
+describe('Composed pipeline with an over-encoded path', () => {
+	// Encoded more times than `validateAndDecodePathname` decodes.
+	const overEncodedUrl = 'http://example.com/api/%2525252525252525252561dmin';
+
+	function createOverEncodedState(onMiddleware?: () => void) {
+		const app = createTestApp([createPage(simplePage, { route: '/api/admin' })], {
+			trailingSlash: 'always',
+			middleware: async () => ({
+				onRequest: async (_ctx: any, next: any) => {
+					onMiddleware?.();
+					return next();
+				},
+			}),
+		});
+		return new FetchState(stampApp(new Request(overEncodedUrl), app));
+	}
+
+	it('trailingSlash() returns 400 instead of a redirect', async () => {
+		const response = trailingSlash(createOverEncodedState());
+		assert.equal(response?.status, 400);
+		assert.equal(await response?.text(), '');
+	});
+
+	it('middleware() returns 400 without running user middleware', async () => {
+		let middlewareRan = false;
+		const state = createOverEncodedState(() => {
+			middlewareRan = true;
+		});
+		const response = await middleware(state, () => pages(state));
+		assert.equal(response.status, 400);
+		assert.equal(await response.text(), '');
+		assert.equal(middlewareRan, false, 'user middleware should not run');
+	});
+
+	it('redirects() returns 400', async () => {
+		const response = await redirects(createOverEncodedState());
+		assert.equal(response?.status, 400);
+		assert.equal(await response?.text(), '');
+	});
+
+	it('actions() returns 400', async () => {
+		const response = await actions(createOverEncodedState());
+		assert.equal(response?.status, 400);
+		assert.equal(await response?.text(), '');
+	});
+
+	it('pages() returns 400', async () => {
+		const response = await pages(createOverEncodedState());
+		assert.equal(response.status, 400);
+		assert.equal(await response.text(), '');
 	});
 });
 
@@ -836,7 +1164,7 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 
 	it('applies X-Forwarded-Proto when allowedDomains is configured', () => {
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
-			allowedDomains: [{ hostname: '**' }],
+			allowedDomains: [{ hostname: 'localhost' }],
 		});
 		const request = stampApp(
 			new Request('http://localhost:4321/', {
@@ -924,6 +1252,85 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		assert.equal(state.url.hostname, 'localhost');
 	});
 
+	for (const host of [
+		'evil.com:443@example.com',
+		'evil.com:@example.com',
+		'evil.com:8080@example.com',
+		'evil.com@example.com',
+		'example.com?',
+		'example.com#',
+		'example.com%2f',
+	]) {
+		it(`ignores X-Forwarded-Host "${host}" that is not a plain host`, () => {
+			const app = createTestApp([createPage(simplePage, { route: '/' })], {
+				allowedDomains: [{ hostname: 'example.com' }],
+			});
+			const request = stampApp(
+				new Request('http://localhost:4321/', {
+					headers: {
+						'x-forwarded-proto': 'https',
+						'x-forwarded-host': host,
+					},
+				}),
+				app,
+			);
+			const state = new FetchState(request);
+
+			assert.equal(state.url.hostname, 'localhost');
+			assert.equal(new URL(state.request.url).hostname, 'localhost');
+		});
+	}
+
+	it('applies the hostname and port of an X-Forwarded-Host with a port', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com', port: '8443' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com:8443',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.href, 'https://example.com:8443/');
+		assert.equal(state.request.url, 'https://example.com:8443/');
+	});
+
+	it('does not apply X-Forwarded-Proto that the entry for the request host does not allow', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'domain1.com', protocol: 'https' }, { hostname: 'domain2.com' }],
+		});
+		const request = stampApp(
+			new Request('https://domain1.com/', {
+				headers: { 'x-forwarded-proto': 'http' },
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.href, 'https://domain1.com/');
+		assert.equal(state.request.url, 'https://domain1.com/');
+	});
+
+	it('applies X-Forwarded-Proto that the entry for the request host allows', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'domain1.com', protocol: 'https' }, { hostname: 'domain2.com' }],
+		});
+		const request = stampApp(
+			new Request('https://domain2.com/', {
+				headers: { 'x-forwarded-proto': 'http' },
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.href, 'http://domain2.com/');
+	});
+
 	it('resolves clientAddress from X-Forwarded-For when host is trusted', () => {
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			allowedDomains: [{ hostname: 'example.com' }],
@@ -975,9 +1382,7 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		});
 		// Use BaseFetchState directly to pass clientAddress via options
 		const { FetchState: BaseFetchState } = await import('../../../dist/core/fetch/fetch-state.js');
-		const { appSymbol: sym } = await import('../../../dist/core/constants.js');
-		Reflect.set(request, sym, app);
-		const state = new BaseFetchState(app.pipeline, request, {
+		const state = new BaseFetchState(app.manifest, request, {
 			clientAddress: '10.0.0.1',
 			addCookieHeader: false,
 			locals: undefined,
@@ -1068,7 +1473,11 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		assert.equal(new URL(state.request.url).hostname, 'localhost');
 	});
 
-	it('carries appSymbol onto the reconstructed request so the app still resolves', async () => {
+	it('renders through the full pipeline after request reconstruction', async () => {
+		// Replaces the removed "carries appSymbol onto the reconstructed
+		// request" test (the symbol is gone — review R2b): the reconstructed
+		// request carries nothing, and the chain still renders because static
+		// data is read from `state.manifest`, never from the request.
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			allowedDomains: [{ hostname: 'example.com' }],
 		});
@@ -1082,7 +1491,6 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		const state = new FetchState(request);
 
 		assert.notEqual(state.request, original);
-		assert.equal(Reflect.get(state.request, appSymbol), app);
 		const response = await astro(state);
 		assert.equal(response.status, 200);
 	});
@@ -1171,6 +1579,35 @@ describe('session stub getter', () => {
 		void target.session;
 		const warningsAfter = logger.logs.filter((l) => l.level === 'warn' && l.label === 'session');
 		assert.equal(warningsAfter.length, 1, 'should not warn a second time');
+	});
+});
+
+// #endregion
+
+// #region Goal 3: bare construction (ambient manifest only)
+
+describe('Goal 3: new FetchState(request) from a bare Request', () => {
+	it('constructs and routes with only setAmbientManifest — no App, no request symbols', async () => {
+		// Deliberately no `App` (and no `createTestApp`): the manifest is
+		// registered ambiently, exactly like a bundled worker where the
+		// manifest virtual module is the only static input. The public
+		// one-arg constructor and the composable `astro()` helper must work
+		// from the bare Request alone.
+		const { routeData, module } = createPage(simplePage, { route: '/' });
+		const manifest = createManifest({
+			routes: [createRouteInfo(routeData) as RouteInfo],
+			pageMap: new Map([[routeData.component, module]]) as unknown as SSRManifest['pageMap'],
+		});
+		setAmbientManifest(manifest as unknown as SSRManifest);
+		try {
+			const state = new FetchState(new Request('http://example.com/'));
+			assert.equal(state.routeData?.route, '/', 'route resolved from the ambient manifest');
+			const response = await astro(state);
+			assert.equal(response.status, 200);
+			assert.match(await response.text(), /<h1>Hello<\/h1>/);
+		} finally {
+			setAmbientManifest(undefined);
+		}
 	});
 });
 

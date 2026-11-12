@@ -26,7 +26,9 @@ const products = await getProducts(Astro.request);
 
 		<Container tag="main">
 			<ProductListing products={products}>
-				<h2 class="product-listing-title" slot="title">Product Listing</h2>
+				<h2 class="product-listing-title" slot="title">
+					Product Listing
+				</h2>
 			</ProductListing>
 		</Container>
 	</body>

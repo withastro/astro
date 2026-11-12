@@ -23,6 +23,11 @@ export interface FontProviderInitContext {
 	 * The project root, useful for resolving local files paths.
 	 */
 	root: URL;
+	/**
+	 * Requests a provider API, retrying transient failures. Requests are routed through a
+	 * proxy if one is configured, so providers should always request the upstream URL.
+	 */
+	fetch: (url: string, init?: RequestInit) => Promise<Response>;
 }
 
 type Awaitable<T> = T | Promise<T>;
@@ -55,13 +60,54 @@ export interface FontProvider<
 	 * Optional callback, used to return the list of available font names.
 	 */
 	listFonts?: (() => Awaitable<Array<string> | undefined>) | undefined;
+	/**
+	 * Optional callback, used to return the properties available for a given font family.
+	 * It allows Astro to warn about configured values a provider cannot serve. Return
+	 * `undefined` when the family is unknown to the provider.
+	 */
+	getFontProperties?:
+		| ((options: GetFontPropertiesOptions) => Awaitable<FontProperties | undefined>)
+		| undefined;
+}
+
+export interface GetFontPropertiesOptions {
+	/**
+	 * The font family name, as identified by the font provider.
+	 */
+	familyName: string;
+}
+
+/**
+ * Describes what a provider can actually serve for a given font family. Any
+ * `undefined` property means the provider does not expose that information,
+ * not that nothing is available.
+ */
+export interface FontProperties {
+	/**
+	 * Weights available for the font family. Values are either discrete weights (`"400"`)
+	 * or variable ranges expressed as `"<min> <max>"` (`"100 900"`).
+	 */
+	weights?: Array<string> | undefined;
+	/**
+	 * Styles available for the font family.
+	 */
+	styles?: Array<Style> | undefined;
+	/**
+	 * Subsets available for the font family.
+	 */
+	subsets?: Array<string> | undefined;
+	/**
+	 * Formats the provider can serve. This reflects provider capability rather than
+	 * per-family availability, so some formats may not exist for every family.
+	 */
+	formats?: Array<FontType> | undefined;
 }
 
 export interface FamilyProperties {
 	/**
-	 * @default `"swap"`
-	 *
 	 * Defines [how a font displays](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display) based on when it is downloaded and ready for use.
+	 *
+	 * @default "swap"
 	 */
 	display?: Display | undefined;
 	/**
@@ -132,8 +178,6 @@ export type FontFamily<TFontProvider extends FontProvider = FontProvider> = Fami
 		 */
 		provider: TFontProvider;
 		/**
-		 * @default `[400]`
-		 *
 		 * An array of [font weights](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If no value is specified in your configuration, only weight `400` is
 		 * included by default to prevent unnecessary downloads. You will need to include this property to access any other font weights.
 		 *
@@ -142,29 +186,29 @@ export type FontFamily<TFontProvider extends FontProvider = FontProvider> = Fami
 		 * ```js
 		 * weight: "100 900"
 		 * ```
+		 *
+		 * @default [400]
 		 */
 		weights?: [Weight, ...Array<Weight>] | undefined;
 		/**
-		 * @default `["normal", "italic"]`
-		 *
 		 * An array of [font styles](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
+		 *
+		 * @default ["normal", "italic"]
 		 */
 		styles?: [Style, ...Array<Style>] | undefined;
 		/**
-		 * @default `["latin"]`
-		 *
 		 * Defines a list of [font subsets](https://knaap.dev/posts/font-subsetting/).
+		 *
+		 * @default ["latin"]
 		 */
 		subsets?: [string, ...Array<string>] | undefined;
 		/**
-		 * @default `["woff2"]`
-		 *
 		 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).
+		 *
+		 * @default ["woff2"]
 		 */
 		formats?: [FontType, ...Array<FontType>] | undefined;
 		/**
-		 * @default `["sans-serif"]`
-		 *
 		 * An array of fonts to use when your chosen font is unavailable, or loading. Fallback fonts will be chosen in the order listed. The first available font will be used:
 		 *
 		 * ```js
@@ -179,12 +223,14 @@ export type FontFamily<TFontProvider extends FontProvider = FontProvider> = Fami
 		 *
 		 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to
 		 * generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
+		 *
+		 * @default ["sans-serif"]
 		 */
 		fallbacks?: Array<string> | undefined;
 		/**
-		 * @default `true`
-		 *
 		 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how `fallbacks` are generated.
+		 *
+		 * @default true
 		 */
 		optimizedFallbacks?: boolean | undefined;
 	};

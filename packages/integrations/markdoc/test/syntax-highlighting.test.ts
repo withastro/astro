@@ -144,6 +144,31 @@ const hello = "yes";
 			const preCss = parsePreTag(cssBlock as string);
 			assert.equal(preCss.classList.contains('language-css'), true);
 		});
+
+		it('displays code for unsupported languages as text', async () => {
+			const ast = Markdoc.parse('```vue\n<template><b>hi</b></template>\n```');
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await setupConfig({ extends: [prism()] }, undefined);
+			const content = (await Markdoc.transform(ast, config)) as Tag;
+			const [block] = content.children;
+
+			const pre = parsePreTag(block as string);
+			assert.equal(pre.classList.contains('language-vue'), true);
+			assert.equal(pre.querySelector('b'), null);
+			assert.equal(pre.textContent, '<template><b>hi</b></template>\n');
+		});
+
+		it('escapes the language in the generated attributes', async () => {
+			const ast = Markdoc.parse('```a"b\ntest\n```');
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await setupConfig({ extends: [prism()] }, undefined);
+			const content = (await Markdoc.transform(ast, config)) as Tag;
+			const [block] = content.children;
+
+			const pre = parsePreTag(block as string);
+			assert.equal(pre.getAttribute('class'), 'language-a"b');
+			assert.equal(pre.attributes.length, 1);
+		});
 	});
 });
 

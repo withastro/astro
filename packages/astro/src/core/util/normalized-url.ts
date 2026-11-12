@@ -10,20 +10,33 @@ export function createNormalizedUrl(requestUrl: string): URL {
 }
 
 /**
+ * Assigns `url.pathname` only when the value differs.
+ * The setter re-parses the whole URL, so a no-op write is still expensive.
+ */
+export function setPathname(url: URL, pathname: string): void {
+	if (url.pathname !== pathname) {
+		url.pathname = pathname;
+	}
+}
+
+/**
  * Normalizes an already-parsed URL in place: decodes and validates the
  * pathname, collapses duplicate slashes. Returns the same URL object.
+ *
+ * Collapse runs after the decode is written back: the pathname setter
+ * rewrites `\` to `/`, so a decoded backslash only becomes `//` once assigned.
  */
 export function normalizeUrl(url: URL): URL {
 	try {
-		url.pathname = validateAndDecodePathname(url.pathname);
+		setPathname(url, validateAndDecodePathname(url.pathname));
 	} catch {
 		// For decoding failures (truly malformed URLs), fall back gracefully.
 		try {
-			url.pathname = decodeURI(url.pathname);
+			setPathname(url, decodeURI(url.pathname));
 		} catch {
 			// If even basic decoding fails, return URL as-is
 		}
 	}
-	url.pathname = collapseDuplicateSlashes(url.pathname);
+	setPathname(url, collapseDuplicateSlashes(url.pathname));
 	return url;
 }

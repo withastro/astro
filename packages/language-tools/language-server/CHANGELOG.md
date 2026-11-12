@@ -1,5 +1,55 @@
 # @astrojs/language-server
 
+## 2.17.3
+
+### Patch Changes
+
+- [#18460](https://github.com/withastro/astro/pull/18460) [`044148d`](https://github.com/withastro/astro/commit/044148d5cfbc90e0277b3205a52ec73bc452bb7e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Speeds up `astro check` by skipping a 10 ms editor-cancellation wait that ran before checking each file
+
+## 2.17.2
+
+### Patch Changes
+
+- [#18110](https://github.com/withastro/astro/pull/18110) [`ffdf774`](https://github.com/withastro/astro/commit/ffdf774b6fe5d39b196aef268b1d1e1c11c52cc0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix organize imports for Astro files whose frontmatter ends with imports.
+
+## 2.17.1
+
+### Patch Changes
+
+- [#17578](https://github.com/withastro/astro/pull/17578) [`7cc0b00`](https://github.com/withastro/astro/commit/7cc0b0076e9630e3ced20e44950eee1a9ce6fb5a) Thanks [@renovate](https://github.com/apps/renovate)! - Fixes a case where rich content diagnostics and snippet edits would not work
+
+## 2.17.0
+
+### Minor Changes
+
+- [#17676](https://github.com/withastro/astro/pull/17676) [`49d4294`](https://github.com/withastro/astro/commit/49d429480c7399bcebcb3b24fd37893403cfbf1b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improves type checking and editor support for `.astro` files.
+  
+  The language server now uses our all-new Biome powered `astro2tsx` implementation. This new version has much better support for incomplete syntax, generic types and various edge cases.
+  
+  In the vast majority of cases, no changes should be required to your code, and any change should be the result of more accurate types or behavior.
+
+### Patch Changes
+
+- [#17542](https://github.com/withastro/astro/pull/17542) [`fae64dd`](https://github.com/withastro/astro/commit/fae64ddfc344e2fbe4d1610465c75bbe0604ba77) Thanks [@IAmYhvr](https://github.com/IAmYhvr)! - Fixes the AstroComponent suffix not being removed from Svelte and Vue imports in `.astro` files.
+
+## 2.16.16
+
+### Patch Changes
+
+- [#17715](https://github.com/withastro/astro/pull/17715) [`a51c533`](https://github.com/withastro/astro/commit/a51c533224687120f0b279f740bdd80b62bc3769) Thanks [@wakqasahmed](https://github.com/wakqasahmed)! - Fixes `astro check` silently skipping `.astro` files that are only reachable through a TypeScript project reference (a tsconfig referenced via `references` in another tsconfig). These files are now checked and reported like any other `.astro` file.
+
+## 2.16.15
+
+### Patch Changes
+
+- [#17820](https://github.com/withastro/astro/pull/17820) [`89e5349`](https://github.com/withastro/astro/commit/89e53492d2358596afbb327ef8bb80a44cd59807) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `source.organizeImports` leaking generated Astro component exports into `.astro` files
+
+## 2.16.14
+
+### Patch Changes
+
+- [#17618](https://github.com/withastro/astro/pull/17618) [`2630631`](https://github.com/withastro/astro/commit/263063116c8fa36474b255b7d4ecf43a0a55ffe2) Thanks [@lazerg](https://github.com/lazerg)! - Fixes the missing "Add all missing imports" and "Add import from" quick fixes for Astro components
+
 ## 2.16.13
 
 ### Patch Changes

@@ -1,5 +1,5 @@
 import { isAbsolute } from 'node:path';
-import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { FontFileContentResolver } from '../definitions.js';
 
 type ReadFileSync = (path: string) => string;

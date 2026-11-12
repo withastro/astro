@@ -27,3 +27,23 @@ describe('Building with concurrency > 1', () => {
 		assert.equal(built, false, 'Build should not complete');
 	});
 });
+
+describe('Building i18n fallbacks with concurrency > 1', () => {
+	let fixture: Fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/build-concurrency-i18n-fallback/',
+			build: {
+				concurrency: 4,
+			},
+			outDir: './dist/build-concurrency-i18n-fallback/',
+		});
+	});
+
+	it('builds rewrite fallbacks after their source pages', async () => {
+		await fixture.build();
+
+		assert.match(await fixture.readFile('/es/articles/slow-page/index.html'), /Article: slow-page/);
+	});
+});

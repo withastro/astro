@@ -1,3 +1,4 @@
+import type { StylesheetAsset } from '@astrojs/vite-plugin-astro';
 import type { ActionClient } from '../../actions/runtime/types.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
@@ -22,13 +23,10 @@ import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.j
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
 import type { MiddlewareMode } from '../../types/public/integrations.js';
 import type { BaseApp } from './base.js';
-import type { LoggerHandlerConfig } from '../logger/config.js';
 
 type ComponentPath = string;
 
-export type StylesheetAsset =
-	| { type: 'inline'; content: string }
-	| { type: 'external'; src: string };
+export type { StylesheetAsset };
 
 type ScriptAsset =
 	| { children: string; stage: string }
@@ -146,8 +144,6 @@ export type SSRManifest = {
 	};
 	internalFetchHeaders?: Record<string, string>;
 	logLevel: AstroLoggerLevel;
-	// Configuration that tells us how to load the logger
-	loggerConfig: LoggerHandlerConfig | undefined;
 };
 
 export type SSRActions = {
@@ -207,6 +203,10 @@ export type SSRManifestCSP = {
 		resources: CspResourceEntry[];
 		hashes: CspHashEntry[];
 	};
+	/** Static speculation rules JSON to inject in the head when CSP + clientPrerender are both enabled. */
+	speculationRulesContent?: string;
+	/** Import map JSON whose `integrity` map covers every client script, injected in the head when `strictDynamic` is enabled. */
+	importMapContent?: string;
 };
 
 export interface SSRManifestSession extends BaseSessionConfig {
@@ -239,7 +239,9 @@ export type SerializedSSRManifest = Omit<
 	cacheDir: string;
 	outDir: string;
 	publicDir: string;
+	/** The resolved Vite client output directory for this build. */
 	buildClientDir: string;
+	/** The resolved Vite SSR output directory for this build. */
 	buildServerDir: string;
 	routes: SerializedRouteInfo[];
 	assets: string[];

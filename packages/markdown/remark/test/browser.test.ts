@@ -1,19 +1,22 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import esbuild from 'esbuild';
+import { rolldown } from 'rolldown';
 
 describe('Bundle for browsers', async () => {
-	it('esbuild browser build should work', async () => {
+	it('rolldown browser build should work', async () => {
 		try {
-			const result = await esbuild.build({
+			const bundle = await rolldown({
+				input: '@astrojs/markdown-remark',
 				platform: 'browser',
-				entryPoints: ['@astrojs/markdown-remark'],
-				bundle: true,
-				write: false,
 			});
-			assert.ok(result.outputFiles.length > 0);
+			try {
+				const result = await bundle.generate({ format: 'esm' });
+				assert.ok(result.output.length > 0);
+			} finally {
+				await bundle.close();
+			}
 		} catch (error) {
-			// Capture any esbuild errors and fail the test
+			// Capture any rolldown errors and fail the test
 			assert.fail((error as Error).message);
 		}
 	});

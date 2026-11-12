@@ -3,16 +3,16 @@ import { describe, it } from 'node:test';
 import * as devalue from 'devalue';
 import { ImmutableDataStore } from '../../../dist/content/data-store.js';
 
-function serialize(entries: Array<[string, any]>): string {
-	return devalue.stringify(new Map(entries));
+function serialize(id: string, entry: any): string {
+	return `${devalue.stringify([id, entry])}\n`;
 }
 
 describe('Content Layer - manifestToMap', () => {
 	it('parses a collection with a single part', () => {
-		const part = serialize([
-			['one', { id: 'one', data: { n: 1 } }],
-			['two', { id: 'two', data: { n: 2 } }],
-		]);
+		const part = `${serialize('one', { id: 'one', data: { n: 1 } })}${serialize('two', {
+			id: 'two',
+			data: { n: 2 },
+		})}`;
 		const map = ImmutableDataStore.manifestToMap({ blog: [part] });
 		assert.deepEqual([...map.keys()], ['blog']);
 		const blog: any = map.get('blog');
@@ -21,8 +21,8 @@ describe('Content Layer - manifestToMap', () => {
 		assert.deepEqual(blog.get('two'), { id: 'two', data: { n: 2 } });
 	});
 
-	it('concatenates multiple parts before parsing', () => {
-		const serialized = serialize([['a', { id: 'a', data: { n: 1 } }]]);
+	it('parses an entry split across multiple parts', () => {
+		const serialized = serialize('a', { id: 'a', data: { n: 1 } });
 		const mid = Math.floor(serialized.length / 2);
 		const parts = [serialized.slice(0, mid), serialized.slice(mid)];
 		const map = ImmutableDataStore.manifestToMap({ blog: parts });
@@ -31,8 +31,8 @@ describe('Content Layer - manifestToMap', () => {
 	});
 
 	it('rebuilds multiple collections', () => {
-		const blog = serialize([['post', { id: 'post', data: { title: 'Hi' } }]]);
-		const authors = serialize([['jane', { id: 'jane', data: { name: 'Jane' } }]]);
+		const blog = serialize('post', { id: 'post', data: { title: 'Hi' } });
+		const authors = serialize('jane', { id: 'jane', data: { name: 'Jane' } });
 		const map = ImmutableDataStore.manifestToMap({ blog: [blog], authors: [authors] });
 		assert.deepEqual([...map.keys()], ['blog', 'authors']);
 		const blogMap: any = map.get('blog');
@@ -42,7 +42,7 @@ describe('Content Layer - manifestToMap', () => {
 	});
 
 	it('accepts parts as raw-import namespaces ({ default: string })', () => {
-		const serialized = serialize([['a', { id: 'a', data: { n: 1 } }]]);
+		const serialized = serialize('a', { id: 'a', data: { n: 1 } });
 		const mid = Math.floor(serialized.length / 2);
 		const parts = [{ default: serialized.slice(0, mid) }, serialized.slice(mid)];
 		const map = ImmutableDataStore.manifestToMap({ blog: parts });

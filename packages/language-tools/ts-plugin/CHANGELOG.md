@@ -1,5 +1,27 @@
 # @astrojs/ts-plugin
 
+## 1.11.0
+
+### Minor Changes
+
+- [#18647](https://github.com/withastro/astro/pull/18647) [`f1c5a5f`](https://github.com/withastro/astro/commit/f1c5a5fa8f7478f1424efbc0883e8bbfe75e6e86) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the Node.js version requirement to `^20.19.0 || >=22.12.0`.
+
+### Patch Changes
+
+- [#18647](https://github.com/withastro/astro/pull/18647) [`f1c5a5f`](https://github.com/withastro/astro/commit/f1c5a5fa8f7478f1424efbc0883e8bbfe75e6e86) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes TypeScript auto-import suggestions to use the `.astro` component name instead of its generated TSX name.
+
+## 1.10.12
+
+### Patch Changes
+
+- [#17651](https://github.com/withastro/astro/pull/17651) [`504333c`](https://github.com/withastro/astro/commit/504333c2a0c7da3ca06e39ce37eee832192ba8ea) Thanks [@sxzz](https://github.com/sxzz)! - Refactors internal version handling to use a smaller, ESM-native dependency
+
+## 1.10.11
+
+### Patch Changes
+
+- [#17668](https://github.com/withastro/astro/pull/17668) [`bef9db5`](https://github.com/withastro/astro/commit/bef9db51186d7201604fc561e1c599a0610d54b0) Thanks [@lazerg](https://github.com/lazerg)! - Fixes Astro's ambient types leaking into unrelated TypeScript projects. In a monorepo with hoisted `node_modules`, the plugin found the shared `astro` install from any project and injected `env.d.ts` and `astro-jsx.d.ts` into it, which pulled `@types/node` into projects that never asked for it. The plugin now only injects those types when the project actually depends on `astro` or has an `astro.config.*` file.
+
 ## 1.10.10
 
 ### Patch Changes

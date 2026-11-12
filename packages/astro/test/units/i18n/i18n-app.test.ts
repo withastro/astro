@@ -5,7 +5,10 @@ import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import type { Locales } from '../../../dist/types/public/config.js';
-import { createPage, createTestApp } from '../mocks.ts';
+import { createPage, createTestApp, createRouteData } from '../mocks.ts';
+import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
+import { App } from '../../../dist/core/app/app.js';
+import type { SSRManifest, RouteInfo } from '../../../dist/core/app/types.js';
 import { dynamicPart, spreadPart, staticPart } from '../routing/test-helpers.ts';
 
 interface I18nConfigOverrides {
@@ -180,9 +183,12 @@ describe('i18n via App - domains-prefix-always', () => {
 
 	const middleware = createI18nMiddleware(i18n, '/', 'ignore', 'directory');
 
-	function createDomainApp() {
+	function createDomainApp(
+		allowedDomains = [{ hostname: 'example.pt' }, { hostname: 'it.example.com' }],
+	) {
 		return createTestApp([localeCatchAll('en'), localeCatchAll('pt'), localeCatchAll('it')], {
 			i18n,
+			allowedDomains,
 			middleware: () => ({ onRequest: middleware }),
 		});
 	}
@@ -204,6 +210,22 @@ describe('i18n via App - domains-prefix-always', () => {
 		const res = await app.render(
 			new Request('https://it.example.com/about', {
 				headers: { 'X-Forwarded-Host': 'it.example.com', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'it');
+	});
+
+	it('ignores a locale domain in X-Forwarded-Host when it is not allowed', async () => {
+		const app = createDomainApp([{ hostname: 'it.example.com' }]);
+		const res = await app.render(
+			new Request('https://it.example.com/about', {
+				headers: {
+					Host: 'it.example.com',
+					'X-Forwarded-Host': 'example.pt',
+					'X-Forwarded-Proto': 'https',
+				},
 			}),
 		);
 		assert.equal(res.status, 200);
@@ -317,6 +339,7 @@ describe('i18n via App - domains-prefix-always with trailingSlash: never', () =>
 	function createDomainApp() {
 		return createTestApp([localeSpreadCatchAll('fi'), localeSpreadCatchAll('en')], {
 			i18n,
+			allowedDomains: [{ hostname: 'example.com' }, { hostname: 'example.fi' }],
 			trailingSlash: 'never',
 			middleware: () => ({ onRequest: middleware }),
 		});
@@ -392,7 +415,11 @@ describe('i18n via App - domains-prefix-other-locales', () => {
 				}),
 				localeCatchAll('pt'),
 			],
-			{ i18n, middleware: () => ({ onRequest: middleware }) },
+			{
+				i18n,
+				allowedDomains: [{ hostname: 'example.pt' }],
+				middleware: () => ({ onRequest: middleware }),
+			},
 		);
 	}
 
@@ -452,6 +479,7 @@ describe('i18n via App - domains-prefix-other-locales with dynamic params (#1685
 		enPage.routeData.pathname = undefined;
 		return createTestApp([fiPage, enPage], {
 			i18n,
+			allowedDomains: [{ hostname: 'en.example.com' }],
 			middleware: () => ({ onRequest: middleware }),
 		});
 	}
@@ -585,7 +613,11 @@ describe('i18n via App - domain with localhost and ports (#12385)', () => {
 				}),
 				localeCatchAll('zh'),
 			],
-			{ i18n, middleware: () => ({ onRequest: middleware }) },
+			{
+				i18n,
+				allowedDomains: [{ hostname: 'zh.test' }],
+				middleware: () => ({ onRequest: middleware }),
+			},
 		);
 	}
 
@@ -664,5 +696,137 @@ describe('i18n via AstroHandler (no middleware) - prefix-always (#16800)', () =>
 		const app = createHandlerApp();
 		const res = await app.render(new Request('http://example.com/about'));
 		assert.equal(res.status, 404);
+	});
+});
+
+// #17778: i18n fallback rewrite returns 404 (not 500) when the fallback target
+// is a prerendered route whose component is not available at runtime.
+describe('i18n fallback rewrite with prerendered routes not in pageMap', () => {
+	it('returns 404 when fallback rewrite targets a prerendered route with no runtime component', async () => {
+		const i18n = makeI18nConfig({
+			defaultLocale: 'en',
+			locales: ['en', 'es'],
+			strategy: 'pathname-prefix-other-locales' as RoutingStrategies,
+			fallbackType: 'rewrite',
+			fallback: { es: 'en' },
+		});
+
+		// Build a manifest where the prerendered blog routes appear in
+		// manifest.routes (so findRouteToRewrite can match them) but NOT
+		// in pageMap (simulating the production runtime where prerendered
+		// components are not bundled into the server entry).
+		const indexPage = createPage(localePage, {
+			route: '/',
+			component: 'src/pages/index.astro',
+		});
+		const enBlogRoute = createRouteData({
+			route: '/blog/[...slug]',
+			component: 'src/pages/blog/[...slug].astro',
+			prerender: true,
+			pathname: undefined,
+			segments: [[staticPart('blog')], [spreadPart('slug')]],
+		});
+		const esBlogRoute = createRouteData({
+			route: '/es/blog/[...slug]',
+			component: 'src/pages/es/blog/[...slug].astro',
+			prerender: true,
+			pathname: undefined,
+			segments: [[staticPart('es')], [staticPart('blog')], [spreadPart('slug')]],
+		});
+
+		const routes: RouteInfo[] = [
+			createRouteInfo(indexPage.routeData) as RouteInfo,
+			createRouteInfo(enBlogRoute) as RouteInfo,
+			createRouteInfo(esBlogRoute) as RouteInfo,
+		];
+		// Only the SSR index page goes into pageMap; prerendered routes
+		// are excluded, matching real production behavior.
+		const pageMap = new Map<string, () => Promise<Record<string, unknown>>>();
+		pageMap.set(indexPage.routeData.component, indexPage.module);
+
+		const manifest = createManifest({
+			routes,
+			pageMap: pageMap as unknown as SSRManifest['pageMap'],
+			i18n,
+		});
+
+		const app = new App(manifest as unknown as SSRManifest);
+		const res = await app.render(new Request('http://example.com/es/blog/missing-post'));
+		assert.equal(res.status, 404, 'should return 404, not 500');
+	});
+});
+
+// An on-demand page reached through one of its i18n fallback routes renders
+// with the 302 that `getDefaultStatusCode` assigns to fallback matches. The
+// fallback logic must turn that render into the configured fallback instead of
+// serving it as a bodyful 302 without `Location` (#18473).
+describe('i18n fallback for on-demand routes reached through a fallback route', () => {
+	const redirectingPage = createComponent((result, props, slots) => {
+		const Astro = result.createAstro(props, slots);
+		return Astro.redirect('/de/success');
+	});
+
+	const forbiddenPage = createComponent((result, props, slots) => {
+		const Astro = result.createAstro(props, slots);
+		Astro.response.status = 403;
+		return render`<h1 id="forbidden">Forbidden</h1>`;
+	});
+
+	function createFallbackApp(
+		fallbackType: 'rewrite' | 'redirect',
+		{ component = localePage, base = '/' } = {},
+	) {
+		const livePage = createPage(component, { route: '/live' });
+		livePage.routeData.fallbackRoutes.push(
+			createRouteData({
+				route: '/de/live',
+				type: 'fallback',
+				component: livePage.routeData.component,
+			}),
+		);
+		const i18n = makeI18nConfig({
+			locales: ['en', 'de'],
+			strategy: 'pathname-prefix-other-locales' as RoutingStrategies,
+			fallbackType,
+			fallback: { de: 'en' },
+		});
+		return createTestApp([livePage], { i18n, base });
+	}
+
+	it('rewrites to the default locale page', async () => {
+		const app = createFallbackApp('rewrite');
+		const res = await app.render(new Request('http://example.com/de/live'));
+		assert.equal(res.status, 200);
+		assert.equal(res.headers.has('Location'), false);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'de');
+		assert.equal($('#path').text(), '/live');
+	});
+
+	it('redirects to the default locale page and keeps the query string', async () => {
+		const app = createFallbackApp('redirect');
+		const res = await app.render(new Request('http://example.com/de/live?a=1'));
+		assert.equal(res.status, 302);
+		assert.equal(res.headers.get('Location'), '/live?a=1');
+	});
+
+	it('applies the fallback under a base path', async () => {
+		const app = createFallbackApp('redirect', { base: '/docs' });
+		const res = await app.render(new Request('http://example.com/docs/de/live'));
+		assert.equal(res.status, 302);
+		assert.equal(res.headers.get('Location'), '/docs/live');
+	});
+
+	it('keeps a redirect issued by the page', async () => {
+		const app = createFallbackApp('rewrite', { component: redirectingPage });
+		const res = await app.render(new Request('http://example.com/de/live'));
+		assert.equal(res.status, 302);
+		assert.equal(res.headers.get('Location'), '/de/success');
+	});
+
+	it('keeps a status set by the page', async () => {
+		const app = createFallbackApp('rewrite', { component: forbiddenPage });
+		const res = await app.render(new Request('http://example.com/de/live'));
+		assert.equal(res.status, 403);
 	});
 });

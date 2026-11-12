@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as kit from '@volar/kit';
 import { Diagnostic, DiagnosticSeverity } from '@volar/language-server';
@@ -12,6 +13,12 @@ import { getVueLanguagePlugin } from './core/vue.js';
 import { create as createAstroService } from './plugins/astro.js';
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
 import { getAstroInstall } from './utils.js';
+
+const volarCommon: typeof import('@volar/language-service/lib/utils/common.js') = createRequire(
+	require.resolve('@volar/kit'),
+)('@volar/language-service/lib/utils/common.js');
+let activeChecks = 0;
+let originalSleep = volarCommon.sleep;
 
 // Export those for downstream consumers
 export { Diagnostic, DiagnosticSeverity };
@@ -83,59 +90,70 @@ export class AstroCheck {
 			hints: 0,
 			fileResult: [],
 		};
-		for (const file of files) {
-			if (cancel()) {
-				result.status = 'cancelled';
-				return result;
-			}
-			const fileDiagnostics = await this.linter.check(file);
-
-			// Filter diagnostics based on the logErrors level
-			const fileDiagnosticsToPrint = fileDiagnostics.filter((diag) => {
-				const severity = diag.severity ?? DiagnosticSeverity.Error;
-				switch (logErrors?.level ?? 'hint') {
-					case 'error':
-						return severity <= DiagnosticSeverity.Error;
-					case 'warning':
-						return severity <= DiagnosticSeverity.Warning;
-					case 'hint':
-						return severity <= DiagnosticSeverity.Hint;
+		// Skip Volar's LSP cancellation wait in the CLI: https://github.com/withastro/astro/issues/18310
+		if (activeChecks++ === 0) {
+			originalSleep = volarCommon.sleep;
+			volarCommon.sleep = () => Promise.resolve();
+		}
+		try {
+			for (const file of files) {
+				if (cancel()) {
+					result.status = 'cancelled';
+					return result;
 				}
-			});
+				const fileDiagnostics = await this.linter.check(file);
 
-			if (fileDiagnostics.length > 0) {
-				const errorText = this.linter.printErrors(file, fileDiagnosticsToPrint);
-
-				if (logErrors !== undefined && errorText) {
-					console.info(errorText);
-				}
-
-				const fileSnapshot = this.linter.language.scripts.get(URI.file(file))?.snapshot;
-				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
-
-				result.fileResult.push({
-					errors: fileDiagnostics,
-					fileContent: fileContent ?? '',
-					fileUrl: pathToFileURL(file),
-					text: errorText,
+				// Filter diagnostics based on the logErrors level
+				const fileDiagnosticsToPrint = fileDiagnostics.filter((diag) => {
+					const severity = diag.severity ?? DiagnosticSeverity.Error;
+					switch (logErrors?.level ?? 'hint') {
+						case 'error':
+							return severity <= DiagnosticSeverity.Error;
+						case 'warning':
+							return severity <= DiagnosticSeverity.Warning;
+						case 'hint':
+							return severity <= DiagnosticSeverity.Hint;
+					}
 				});
 
-				result.errors += fileDiagnostics.filter(
-					(diag) => diag.severity === DiagnosticSeverity.Error,
-				).length;
-				result.warnings += fileDiagnostics.filter(
-					(diag) => diag.severity === DiagnosticSeverity.Warning,
-				).length;
-				result.hints += fileDiagnostics.filter(
-					(diag) => diag.severity === DiagnosticSeverity.Hint,
-				).length;
+				if (fileDiagnostics.length > 0) {
+					const errorText = this.linter.printErrors(file, fileDiagnosticsToPrint);
+
+					if (logErrors !== undefined && errorText) {
+						console.info(errorText);
+					}
+
+					const fileSnapshot = this.linter.language.scripts.get(URI.file(file))?.snapshot;
+					const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
+
+					result.fileResult.push({
+						errors: fileDiagnostics,
+						fileContent: fileContent ?? '',
+						fileUrl: pathToFileURL(file),
+						text: errorText,
+					});
+
+					result.errors += fileDiagnostics.filter(
+						(diag) => diag.severity === DiagnosticSeverity.Error,
+					).length;
+					result.warnings += fileDiagnostics.filter(
+						(diag) => diag.severity === DiagnosticSeverity.Warning,
+					).length;
+					result.hints += fileDiagnostics.filter(
+						(diag) => diag.severity === DiagnosticSeverity.Hint,
+					).length;
+				}
+
+				result.fileChecked += 1;
 			}
 
-			result.fileChecked += 1;
+			result.status = 'completed';
+			return result;
+		} finally {
+			if (--activeChecks === 0) {
+				volarCommon.sleep = originalSleep;
+			}
 		}
-
-		result.status = 'completed';
-		return result;
 	}
 
 	private initialize() {
@@ -152,13 +170,17 @@ export class AstroCheck {
 
 		if (tsconfigPath) {
 			const includeProjectReference = true;
+			const extraFileExtensions = languagePlugins.flatMap(
+				(plugin) => plugin.typescript?.extraFileExtensions ?? [],
+			);
+			const allExtraFileNames: string[] = [];
 			this.linter = kit.createTypeScriptChecker(
 				languagePlugins,
 				services,
 				tsconfigPath,
 				includeProjectReference,
 				({ project }) => {
-					const { languageServiceHost } = project.typescript!;
+					const { configFileName, languageServiceHost } = project.typescript!;
 					const astroInstall = getAstroInstall([this.workspacePath]);
 
 					addAstroTypes(
@@ -166,8 +188,33 @@ export class AstroCheck {
 						this.ts,
 						languageServiceHost,
 					);
+
+					const extraFileNames = this.getExtraFileNamesFromReferences(
+						configFileName,
+						extraFileExtensions,
+					);
+					if (extraFileNames.length > 0) {
+						allExtraFileNames.push(...extraFileNames);
+
+						const originalGetScriptFileNames =
+							languageServiceHost.getScriptFileNames.bind(languageServiceHost);
+						languageServiceHost.getScriptFileNames = () => [
+							...new Set([...originalGetScriptFileNames(), ...extraFileNames]),
+						];
+					}
 				},
 			);
+
+			// `getRootFileNames()` (used by `lint()` to enumerate the whole project when no
+			// explicit file list is given) reads project references' file lists from an
+			// internal host that the per-project `languageServiceHost` patch above can't reach,
+			// so it needs its own, separate merge here.
+			if (allExtraFileNames.length > 0) {
+				const originalGetRootFileNames = this.linter.getRootFileNames.bind(this.linter);
+				this.linter.getRootFileNames = () => [
+					...new Set([...originalGetRootFileNames(), ...allExtraFileNames]),
+				];
+			}
 		} else {
 			this.linter = kit.createTypeScriptInferredChecker(
 				languagePlugins,
@@ -213,6 +260,37 @@ export class AstroCheck {
 					`See https://github.com/withastro/roadmap/discussions/1321 to track support.`,
 			);
 		}
+	}
+
+	/**
+	 * `@volar/kit`'s `createTypeScriptChecker` re-parses the root tsconfig with the language
+	 * plugins' `extraFileExtensions` (so `.astro` files are included), but for project
+	 * references it reuses TypeScript's own resolved `commandLine`, which never includes
+	 * extra extensions. That silently drops `.astro`/`.vue`/`.svelte` files that are only
+	 * reachable through a referenced tsconfig. `setup` is invoked once per project (the root
+	 * and each reference), so this re-parses that project's own tsconfig the same way the
+	 * root one already is, and returns the extra file names found, for the caller to merge
+	 * into the language service host's root file list.
+	 */
+	private getExtraFileNamesFromReferences(
+		configFileName: string | undefined,
+		extraFileExtensions: import('typescript').FileExtensionInfo[],
+	): string[] {
+		if (!configFileName || extraFileExtensions.length === 0) {
+			return [];
+		}
+
+		const commandLine = this.ts.parseJsonSourceFileConfigFileContent(
+			this.ts.readJsonConfigFile(configFileName, this.ts.sys.readFile),
+			this.ts.sys,
+			dirname(configFileName),
+			undefined,
+			configFileName,
+			undefined,
+			extraFileExtensions,
+		);
+
+		return commandLine.fileNames;
 	}
 
 	private getTsconfig() {

@@ -416,6 +416,21 @@ describe('node', () => {
 				assert.equal(result.url, 'https://example.com:3000/');
 			});
 
+			it('rejects Host header with a duplicated port', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com:8080:8080',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				// A host carrying two ports is invalid and must not validate,
+				// so it falls back to localhost rather than being interpolated verbatim.
+				assert.equal(result.url, 'https://localhost/');
+			});
+
 			it('accepts Host header with wildcard pattern in allowedDomains', () => {
 				const result = createRequest(
 					{
@@ -556,6 +571,121 @@ describe('node', () => {
 					{ allowedDomains: [{ hostname: '**.example.com' }] },
 				);
 				assert.equal(result.url, 'https://forwarded.example.com/');
+			});
+		});
+
+		describe('protocol, host and port together', () => {
+			const plainSocket = { encrypted: false, remoteAddress: '2.2.2.2' };
+
+			it('does not produce http for an https-only forwarded host without X-Forwarded-Proto', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: plainSocket,
+						headers: { host: 'internal:4321', 'x-forwarded-host': 'domain1.com' },
+					},
+					{ allowedDomains: [{ hostname: 'domain1.com', protocol: 'https' }] },
+				);
+				assert.equal(result.url, 'http://localhost/');
+			});
+
+			it('ignores X-Forwarded-Port that is only listed for another host', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: plainSocket,
+						headers: {
+							'x-forwarded-host': 'a.com',
+							'x-forwarded-proto': 'https',
+							'x-forwarded-port': '8443',
+						},
+					},
+					{
+						allowedDomains: [
+							{ hostname: 'a.com', protocol: 'https' },
+							{ hostname: 'b.com', port: '8443' },
+						],
+					},
+				);
+				assert.equal(result.url, 'https://a.com/');
+			});
+
+			it('matches an entry with port 443 against an https host without a port', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: plainSocket,
+						headers: {
+							'x-forwarded-host': 'staging.myapp.com',
+							'x-forwarded-proto': 'https',
+						},
+					},
+					{
+						allowedDomains: [{ hostname: 'staging.myapp.com', protocol: 'https', port: '443' }],
+					},
+				);
+				assert.equal(result.url, 'https://staging.myapp.com/');
+			});
+		});
+
+		describe('host syntax', () => {
+			// Only a plain `hostname[:port]` is a valid host. Other syntax is rejected before
+			// matching, so the host that is matched is the host that is used.
+			const invalidHosts = [
+				'evil.com:443@example.com',
+				'evil.com:@example.com',
+				'evil.com@example.com',
+				'example.com?',
+				'example.com#',
+				'example.com%2f',
+				'example.com ',
+				'exa mple.com',
+			];
+
+			for (const host of invalidHosts) {
+				it(`ignores x-forwarded-host "${host}"`, () => {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							headers: { host: 'example.com', 'x-forwarded-host': host },
+						},
+						{ allowedDomains: [{ hostname: 'example.com' }] },
+					);
+					assert.equal(result.url, 'https://example.com/');
+				});
+
+				it(`ignores Host header "${host}"`, () => {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							headers: { host },
+						},
+						{ allowedDomains: [{ hostname: 'example.com' }] },
+					);
+					assert.equal(result.url, 'https://localhost/');
+				});
+			}
+
+			it('accepts an upper-case x-forwarded-host', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: { 'x-forwarded-host': 'EXAMPLE.com' },
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('accepts an x-forwarded-host with a port', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: { 'x-forwarded-host': 'example.com:8443' },
+					},
+					{ allowedDomains: [{ hostname: 'example.com', port: '8443' }] },
+				);
+				assert.equal(result.url, 'https://example.com:8443/');
 			});
 		});
 
@@ -759,6 +889,48 @@ describe('node', () => {
 				assert.equal(result.url, 'https://myapp.example.com/');
 			});
 
+			it('ignores non-http(s) x-forwarded-proto when allowedDomains mixes patterns with and without protocol', () => {
+				const allowedDomains = [
+					{ hostname: 'localhost' },
+					{ hostname: 'example.com', protocol: 'https' },
+				];
+				for (const forwardedProto of ['ftp', 'ws', 'file', 'evil']) {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+							headers: {
+								host: 'localhost',
+								'x-forwarded-proto': forwardedProto,
+							},
+						},
+						{ allowedDomains },
+					);
+					assert.equal(result.url, 'http://localhost/', `x-forwarded-proto: ${forwardedProto}`);
+				}
+			});
+
+			it('accepts http(s) x-forwarded-proto when allowedDomains mixes patterns with and without protocol', () => {
+				const allowedDomains = [
+					{ hostname: 'localhost' },
+					{ hostname: 'example.com', protocol: 'https' },
+				];
+				for (const forwardedProto of ['http', 'https']) {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+							headers: {
+								host: 'localhost',
+								'x-forwarded-proto': forwardedProto,
+							},
+						},
+						{ allowedDomains },
+					);
+					assert.equal(result.url, `${forwardedProto}://localhost/`);
+				}
+			});
+
 			it('constructs correct URL behind reverse proxy with all forwarded headers', () => {
 				// Simulates: Reverse proxy terminates TLS, connects to Astro via HTTP,
 				// forwards original protocol/host/port via X-Forwarded-* headers
@@ -862,6 +1034,68 @@ describe('node', () => {
 	});
 
 	describe('createRequestFromNodeRequest', () => {
+		describe('host', () => {
+			it('falls back to localhost when allowedDomains is not configured', () => {
+				const result = createRequestFromNodeRequest({
+					...mockNodeRequest,
+					headers: { host: 'example.com' },
+				});
+				assert.equal(result.url, 'https://localhost/');
+			});
+
+			it('includes the server port when allowedDomains is empty', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: { host: 'example.com' },
+					},
+					{ allowedDomains: [], port: 4321 },
+				);
+				assert.equal(result.url, 'http://localhost:4321/');
+			});
+
+			it('preserves Host when it matches allowedDomains', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						headers: { host: 'example.com' },
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('rejects Host when it does not match allowedDomains', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: { host: 'attacker.example.net' },
+					},
+					{ allowedDomains: [{ protocol: 'http', hostname: 'example.com' }], port: 4321 },
+				);
+				assert.equal(result.url, 'http://localhost:4321/');
+			});
+
+			it('uses the validated forwarded protocol to validate Host', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'example.com',
+							'x-forwarded-proto': 'https',
+						},
+					},
+					{ allowedDomains: [{ protocol: 'https', hostname: 'example.com' }] },
+				);
+				// FetchState applies the forwarded protocol later. This helper only needs it
+				// to establish that the plain Host is trusted.
+				assert.equal(result.url, 'http://example.com/');
+			});
+		});
+
 		describe('x-forwarded-for', () => {
 			it('trusts x-forwarded-for when host matches allowedDomains', () => {
 				const result = createRequestFromNodeRequest(
@@ -919,6 +1153,44 @@ describe('node', () => {
 					},
 				});
 				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+		});
+
+		describe('malformed host header', () => {
+			// A Host header with an unparseable port makes the interpolated URL
+			// invalid. The construction must not throw: it falls back to a host the
+			// server controls so callers always receive a Request.
+			const malformedHosts = [
+				'example.com:65536',
+				'example.com:99999',
+				'example.com:abc',
+				'example.com:443:443',
+				'example.com:-1',
+			];
+
+			for (const host of malformedHosts) {
+				it(`does not throw for host "${host}"`, () => {
+					const build = () =>
+						createRequestFromNodeRequest({
+							...mockNodeRequest,
+							socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+							headers: { host },
+						});
+					assert.doesNotThrow(build);
+					assert.ok(URL.canParse(build().url));
+				});
+			}
+
+			it('preserves an allowed host with the maximum port', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: { host: 'example.com:65535' },
+					},
+					{ allowedDomains: [{ hostname: 'example.com', port: '65535' }] },
+				);
+				assert.equal(new URL(result.url).host, 'example.com:65535');
 			});
 		});
 	});
@@ -1138,6 +1410,43 @@ describe('node', () => {
 
 			assert.equal(result.signal.aborted, false);
 			assert.equal(socket.listenerCount('close'), 0);
+		});
+	});
+
+	describe('writeResponse stream errors', () => {
+		async function writeErroringBody(error: Error): Promise<unknown[][]> {
+			const body = new ReadableStream({
+				start(controller) {
+					controller.enqueue(new TextEncoder().encode('first chunk'));
+					setTimeout(() => controller.error(error), 0);
+				},
+			});
+			const destination = new MockServerResponse(mockNodeRequest) as any;
+			const printed: unknown[][] = [];
+			const originalConsoleError = console.error;
+			console.error = (...args: unknown[]) => printed.push(args);
+			try {
+				await writeResponse(new Response(body), destination);
+				destination.emit('close');
+				await new Promise((resolve) => setTimeout(resolve, 10));
+			} finally {
+				console.error = originalConsoleError;
+			}
+			return printed;
+		}
+
+		it('prints an error from a stream that the renderer did not log', async () => {
+			const error = new Error('Endpoint stream failed');
+			const printed = await writeErroringBody(error);
+			assert.equal(printed.length, 1);
+			assert.equal(printed[0].at(-1), error);
+		});
+
+		it('skips an error the renderer already logged', async () => {
+			const error = new Error('Failed after the page started streaming');
+			Reflect.set(error, Symbol.for('astro.streamErrorLogged'), true);
+			const printed = await writeErroringBody(error);
+			assert.equal(printed.length, 0);
 		});
 	});
 });

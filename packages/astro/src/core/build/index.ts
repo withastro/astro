@@ -17,8 +17,12 @@ import { resolveConfig } from '../config/config.js';
 import { loadOrCreateNodeLogger } from '../logger/load.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import {
+	createKey,
+	getEnvironmentKey,
+	hasEnvironmentKey,
+} from '@astrojs/runtime/_internal/core/encryption.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
@@ -27,7 +31,8 @@ import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { viteBuild } from './static-build.js';
-import type { StaticBuildOptions } from './types.js';
+import { buildPhase, printBuildTimings, withBuildTimings } from './timings/index.js';
+import type { StaticBuildOptionsInput } from './types.js';
 import { getTimeStat } from './util.js';
 import { warnIfCspResourceFallbackShadowing, warnIfCspWithShiki } from '../messages/runtime.js';
 
@@ -39,6 +44,13 @@ interface BuildOptions {
 	 * @default false
 	 */
 	devOutput?: boolean;
+
+	/**
+	 * Print a summary of where the build spent its time once it finishes.
+	 *
+	 * @default false
+	 */
+	timings?: boolean;
 }
 
 /**
@@ -51,8 +63,17 @@ export default async function build(
 	inlineConfig: AstroInlineConfig,
 	options: BuildOptions = {},
 ): Promise<void> {
+	if (options.timings) {
+		return withBuildTimings(() => runBuild(inlineConfig, options));
+	}
+	return runBuild(inlineConfig, options);
+}
+
+async function runBuild(inlineConfig: AstroInlineConfig, options: BuildOptions): Promise<void> {
 	ensureProcessNodeEnv(options.devOutput ? 'development' : 'production');
-	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
+	const { userConfig, astroConfig } = await buildPhase('resolve config', () =>
+		resolveConfig(inlineConfig, 'build'),
+	);
 	const logger = await loadOrCreateNodeLogger(astroConfig, inlineConfig ?? {});
 	telemetry.record(eventCliSession('build', userConfig));
 
@@ -75,6 +96,7 @@ export default async function build(
 		logger,
 		mode: inlineConfig.mode ?? 'production',
 		runtimeMode: options.devOutput ? 'development' : 'production',
+		force: inlineConfig.force ?? false,
 	});
 	await builder.run();
 }
@@ -93,6 +115,8 @@ interface AstroBuilderOptions extends BuildOptions {
 	 * Set to false for in-memory builds that don't need type generation.
 	 */
 	sync?: boolean;
+	/** Set by `astro build --force` to rebuild every page and ignore the incremental cache. */
+	force?: boolean;
 }
 
 export class AstroBuilder {
@@ -104,6 +128,7 @@ export class AstroBuilder {
 	private routesList: RoutesList;
 	private timer: Record<string, number>;
 	private sync: boolean;
+	private force: boolean;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		this.mode = options.mode;
@@ -111,6 +136,7 @@ export class AstroBuilder {
 		this.settings = settings;
 		this.logger = options.logger;
 		this.sync = options.sync ?? true;
+		this.force = options.force ?? false;
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
@@ -132,7 +158,9 @@ export class AstroBuilder {
 
 		// Skip filesystem route scanning if routesList was pre-populated (e.g. in-memory builds)
 		if (this.routesList.routes.length === 0) {
-			this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
+			this.routesList = await buildPhase('route discovery', () =>
+				createRoutesList({ settings: this.settings }, this.logger),
+			);
 		}
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
@@ -143,32 +171,36 @@ export class AstroBuilder {
 			throw new AstroError(AstroErrorData.NoAdapterInstalled);
 		}
 
-		const viteConfig = await createVite(
-			{
-				server: {
-					hmr: false,
-					middlewareMode: true,
+		const viteConfig = await buildPhase('vite config', () =>
+			createVite(
+				{
+					server: {
+						hmr: false,
+						middlewareMode: true,
+					},
 				},
-			},
-			{
-				routesList: this.routesList,
-				settings: this.settings,
-				logger: this.logger,
-				mode: this.mode,
-				command: 'build',
-				sync: false,
-			},
+				{
+					routesList: this.routesList,
+					settings: this.settings,
+					logger: this.logger,
+					mode: this.mode,
+					command: 'build',
+					sync: false,
+				},
+			),
 		);
 
 		if (this.sync) {
 			const { syncInternal } = await import('../sync/index.js');
-			await syncInternal({
-				mode: this.mode,
-				settings: this.settings,
-				logger,
-				fs,
-				command: 'build',
-			});
+			await buildPhase('content sync', () =>
+				syncInternal({
+					mode: this.mode,
+					settings: this.settings,
+					logger,
+					fs,
+					command: 'build',
+				}),
+			);
 		}
 
 		return { viteConfig };
@@ -212,7 +244,7 @@ export class AstroBuilder {
 		const hasKey = hasEnvironmentKey();
 		const keyPromise = hasKey ? getEnvironmentKey() : createKey();
 
-		const opts: StaticBuildOptions = {
+		const opts: StaticBuildOptionsInput = {
 			allPages,
 			settings: this.settings,
 			logger: this.logger,
@@ -222,9 +254,10 @@ export class AstroBuilder {
 			pageNames,
 			viteConfig,
 			key: keyPromise,
+			force: this.force,
 		};
 
-		await viteBuild(opts);
+		const { outputDirectories } = await viteBuild(opts);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
@@ -253,6 +286,7 @@ export class AstroBuilder {
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			settings: this.settings,
+			dir: outputDirectories.client,
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
@@ -274,7 +308,7 @@ export class AstroBuilder {
 	async run() {
 		this.settings.timer.start('Total build');
 
-		const setupData = await this.setup();
+		const setupData = await buildPhase('setup', () => this.setup());
 		try {
 			await this.build(setupData);
 		} catch (_err) {
@@ -284,6 +318,7 @@ export class AstroBuilder {
 			// Benchmark results
 			this.settings.timer.writeStats();
 		}
+		printBuildTimings(this.settings, this.logger);
 	}
 
 	private validateConfig() {

@@ -32,47 +32,51 @@ import {
 	getInjectableWebAnalyticsContent,
 	type VercelWebAnalyticsConfig,
 } from './lib/web-analytics.js';
-import { generateEdgeMiddleware } from './serverless/middleware.js';
+import {
+	ASTRO_LOCALS_HEADER,
+	ASTRO_MIDDLEWARE_SECRET_HEADER,
+	ASTRO_PATH_HEADER,
+	ASTRO_PATH_PARAM,
+	ASTRO_PATH_TOKEN_PARAM,
+	NODE_PATH,
+} from './serverless/constants.js';
+import { generateEdgeMiddleware, type IsrForwarding } from './serverless/middleware.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 
 const PACKAGE_NAME = '@astrojs/vercel';
 
-/**
- * The edge function calls the node server at /_render,
- * with the original path as the value of this header.
- */
-export const ASTRO_PATH_HEADER = 'x-astro-path';
-export const ASTRO_PATH_PARAM = 'x_astro_path';
-
-/**
- * ISR functions receive the target path through the `x_astro_path` query
- * parameter instead of a header. Because that parameter travels on the URL, it
- * is accompanied by this token so the entrypoint can confirm the path override
- * came from Astro's own build-time route rewrite rather than from an arbitrary
- * caller. The value is the per-build `middlewareSecret`.
- */
-export const ASTRO_PATH_TOKEN_PARAM = 'x_astro_path_token';
-
-/**
- * The edge function calls the node server at /_render,
- * with the locals serialized into this header.
- */
-export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
-export const ASTRO_MIDDLEWARE_SECRET_HEADER = 'x-astro-middleware-secret';
+export {
+	ASTRO_LOCALS_HEADER,
+	ASTRO_MIDDLEWARE_SECRET_HEADER,
+	ASTRO_PATH_HEADER,
+	ASTRO_PATH_PARAM,
+	ASTRO_PATH_TOKEN_PARAM,
+	NODE_PATH,
+};
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
-
-// Vercel routes the folder names to a path on the deployed website.
-// We attempt to avoid interfering by prefixing with an underscore.
-export const NODE_PATH = '_render';
 const MIDDLEWARE_PATH = '_middleware';
 
-// This isn't documented by vercel anywhere, but unlike serverless
-// and edge functions, isr functions are not passed the original path.
-// Instead, we have to use $0 to refer to the regex match from "src".
+// Unlike serverless and edge functions, ISR functions are not passed the
+// original path, so the route rewrite's `dest` carries it via a regex capture
+// group reference. Vercel's router substitutes `$1`–`$9` and `$<letters>`, but
+// not `$0`, so each ISR route's `src` pattern is wrapped in an outer capture
+// group (see `wrapPatternInCaptureGroup`) and referenced as `$1` here. See
+// https://github.com/withastro/astro/issues/18028 for the `$0` failure mode.
 // The path token is appended so the entrypoint can verify the rewrite
 // originated from this build's route table and not from an external caller.
 const getIsrPath = (pathToken: string) =>
-	`/_isr?${ASTRO_PATH_PARAM}=$0&${ASTRO_PATH_TOKEN_PARAM}=${pathToken}`;
+	`/_isr?${ASTRO_PATH_PARAM}=$1&${ASTRO_PATH_TOKEN_PARAM}=${pathToken}`;
+
+/**
+ * Wraps a route regex source in an outer capture group so the full match is
+ * available as `$1` in Vercel's route `dest` substitution. Inner groups shift
+ * to `$2`, `$3`, etc., but `dest` only references `$1`.
+ *
+ * `^\/one\/?$` → `^(\/one\/?)$`
+ */
+function wrapPatternInCaptureGroup(source: string): string {
+	return source.replace(/^\^(.*)\$$/, '^($1)$');
+}
 
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
@@ -127,6 +131,7 @@ function getAdapter({
 		adapterFeatures: {
 			buildOutput,
 			middlewareMode,
+			preserveBuildServerDir: true,
 			staticHeaders,
 		},
 		supportedAstroFeatures: {
@@ -266,6 +271,7 @@ export default function vercelAdapter({
 	let _buildTempFolder: URL;
 	let _serverEntry: string;
 	let _middlewareEntryPoint: URL | undefined;
+	let _hasServerBuild = false;
 	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
@@ -295,6 +301,9 @@ export default function vercelAdapter({
 					build: {
 						format: 'directory',
 						redirects: false,
+						...(config.output === 'static'
+							? { server: new URL('./.vercel/output/server/', config.root) }
+							: {}),
 					},
 					integrations: [
 						{
@@ -393,10 +402,12 @@ export default function vercelAdapter({
 				_serverEntry = config.build.serverEntry;
 			},
 			'astro:build:start': async () => {
+				_hasServerBuild = false;
 				// Ensure to have `.vercel/output` empty.
 				await emptyDir(new URL('./.vercel/output/', _config.root));
 			},
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
+				_hasServerBuild = true;
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
 
@@ -405,15 +416,16 @@ export default function vercelAdapter({
 			},
 			'astro:build:done': async ({ logger }: HookParameters<'astro:build:done'>) => {
 				const outDir = new URL('./.vercel/output/', _config.root);
+
 				if (staticDir) {
 					if (existsSync(staticDir)) {
-						emptyDir(staticDir);
+						await emptyDir(staticDir);
 					}
 					mkdirSync(new URL('./.vercel/output/static/', _config.root), {
 						recursive: true,
 					});
 
-					mkdirSync(new URL('./.vercel/output/server/', _config.root));
+					mkdirSync(new URL('./.vercel/output/server/', _config.root), { recursive: true });
 
 					if (_buildOutput !== 'static') {
 						cpSync(_config.build.server, new URL('./.vercel/output/_functions/', _config.root), {
@@ -428,9 +440,9 @@ export default function vercelAdapter({
 					middlewarePath?: string;
 				}> = [];
 
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					// Merge any includes from `vite.assetsInclude
-					if (_config.vite.assetsInclude) {
+					if (_buildOutput === 'server' && _config.vite.assetsInclude) {
 						const mergeGlobbedIncludes = (globPattern: unknown) => {
 							if (typeof globPattern === 'string') {
 								const entries = globSync(globPattern).map((p) => pathToFileURL(p));
@@ -460,7 +472,11 @@ export default function vercelAdapter({
 					);
 
 					const entryFile = new URL(_serverEntry, _buildTempFolder);
-					if (isr) {
+					// Routes the edge middleware forwards to `_isr` instead of `_render`.
+					const isrRoutes: string[] = [];
+					// Checked first: a dynamic ISR route can also match an excluded path.
+					const isrExcludedRoutes: string[] = [];
+					if (_buildOutput === 'server' && isr) {
 						const isrConfig = typeof isr === 'object' ? isr : {};
 						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 						if (isrConfig.exclude?.length) {
@@ -477,10 +493,9 @@ export default function vercelAdapter({
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of expandedExclusions) {
 								// vercel interprets src as a regex pattern, so we need to escape it
-								routeDefinitions.push({
-									src: escapeRegex(route),
-									dest,
-								});
+								const src = escapeRegex(route);
+								routeDefinitions.push({ src, dest });
+								isrExcludedRoutes.push(src);
 							}
 						}
 						await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
@@ -495,16 +510,26 @@ export default function vercelAdapter({
 							});
 
 							if (!excludeRouteFromIsr) {
-								const src = route.patternRegex.source;
-								const dest =
-									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
-										? NODE_PATH
-										: getIsrPath(middlewareSecret);
-								if (!route.isPrerendered)
-									routeDefinitions.push({
-										src,
-										dest,
-									});
+								let src = route.patternRegex.source;
+								const isInternal =
+									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands');
+
+								let dest = getIsrPath(middlewareSecret);
+								if (isInternal) {
+									dest = NODE_PATH;
+								} else if (_middlewareEntryPoint) {
+									// The middleware has to run before the cache is consulted.
+									dest = MIDDLEWARE_PATH;
+								} else {
+									// `dest` references `$1`, so wrap `src` to make the full
+									// match the first capture group.
+									src = wrapPatternInCaptureGroup(src);
+								}
+
+								if (!route.isPrerendered) {
+									routeDefinitions.push({ src, dest });
+									if (!isInternal) isrRoutes.push(src);
+								}
 							}
 						}
 					} else {
@@ -524,26 +549,24 @@ export default function vercelAdapter({
 							_middlewareEntryPoint,
 							MIDDLEWARE_PATH,
 							middlewareSecret,
+							{ isrRoutes, isrExcludedRoutes },
 						);
 					}
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				const vercelConfigJson = new URL('./.vercel/output/config.json', _config.root);
-				const finalRoutes: Route[] = [
-					{
-						src: `^/${_config.build.assets}/(.*)$`,
-						headers: {
-							'cache-control': 'public, max-age=31536000, immutable',
-						},
-						continue: true,
-					},
-				];
-				if (_buildOutput === 'server') {
+				const finalRoutes: Route[] = [];
+				if (_hasServerBuild) {
 					finalRoutes.push(...routeDefinitions);
 				}
 
 				if (fourOhFourRoute) {
 					if (_buildOutput === 'server') {
+						// When the 404 page is prerendered, serve /404.html with a
+						// forced 404 status.  When it is server-rendered, forward to
+						// the function without forcing a status so middleware rewrites
+						// to valid routes can return 200.  Genuinely unmatched paths
+						// still get 404 from the server-rendered 404.astro page.
 						finalRoutes.push({
 							src: '/.*',
 							dest: fourOhFourRoute.isPrerendered
@@ -551,7 +574,7 @@ export default function vercelAdapter({
 								: _middlewareEntryPoint
 									? MIDDLEWARE_PATH
 									: NODE_PATH,
-							status: 404,
+							...(fourOhFourRoute.isPrerendered && { status: 404 }),
 						});
 					} else {
 						finalRoutes.push({
@@ -573,11 +596,17 @@ export default function vercelAdapter({
 					trailingSlash = _config.trailingSlash === 'always';
 				}
 
-				const { routes: redirects = [], error } = getTransformedRoutes({
+				// `headers` are emitted before the `filesystem` handle, which hashed assets always hit.
+				const { routes: transformedRoutes, error } = getTransformedRoutes({
 					trailingSlash,
 					rewrites: [],
 					redirects: getRedirects(routes, _config),
-					headers: [],
+					headers: [
+						{
+							source: `/${_config.build.assets}/(.*)`,
+							headers: [{ key: 'cache-control', value: 'public, max-age=31536000, immutable' }],
+						},
+					],
 				});
 				if (error) {
 					throw new AstroError(
@@ -606,7 +635,7 @@ export default function vercelAdapter({
 					images = getDefaultImageConfig(_config.image);
 				}
 
-				const normalized = normalizeRoutes([...(redirects ?? []), ...finalRoutes]);
+				const normalized = normalizeRoutes([...(transformedRoutes ?? []), ...finalRoutes]);
 				if (normalized.error) {
 					throw new AstroError(
 						`Error generating routes: ${normalized.error.message}`,
@@ -638,7 +667,7 @@ export default function vercelAdapter({
 				});
 
 				// Remove temporary folder
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					await removeDir(_buildTempFolder);
 				}
 			},
@@ -659,7 +688,7 @@ function isAcceptedPattern(pattern: any): pattern is RemotePattern {
 	return true;
 }
 
-type Runtime = `nodejs${string}.x`;
+type Runtime = `nodejs${string}.x` | `bun${string}.x`;
 
 class VercelBuilder {
 	readonly NTF_CACHE = {};
@@ -741,7 +770,12 @@ class VercelBuilder {
 		});
 	}
 
-	async buildMiddlewareFolder(entry: URL, functionName: string, middlewareSecret: string) {
+	async buildMiddlewareFolder(
+		entry: URL,
+		functionName: string,
+		middlewareSecret: string,
+		isrForwarding?: IsrForwarding,
+	) {
 		const functionFolder = new URL(`./functions/${functionName}.func/`, this.outDir);
 
 		await generateEdgeMiddleware(
@@ -751,6 +785,7 @@ class VercelBuilder {
 			new URL('./middleware.mjs', functionFolder),
 			middlewareSecret,
 			this.logger,
+			isrForwarding,
 		);
 
 		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
@@ -760,7 +795,11 @@ class VercelBuilder {
 	}
 }
 
-function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
+export function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
+	if (process.versions.bun) {
+		const major = process.versions.bun.split('.')[0]; // '1.3.9' --> '1'
+		return `bun${major}.x`;
+	}
 	const version = process.version.slice(1); // 'v18.19.0' --> '18.19.0'
 	const major = version.split('.')[0]; // '18.19.0' --> '18'
 	const support = SUPPORTED_NODE_VERSIONS[major];

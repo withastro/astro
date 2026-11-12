@@ -6,6 +6,12 @@ import {
 	formatBackgroundOutput,
 	formatServerRunningMessage,
 } from '../../../dist/cli/dev/background.js';
+import {
+	buildBackgroundArgs,
+	formatServerRunningMessage as formatGenericServerRunningMessage,
+	previewServerCommand,
+} from '../../../dist/cli/server.js';
+import { getLogFileURL } from '../../../dist/core/dev/lockfile.js';
 
 // #region formatStopOutput
 describe('formatStopOutput', () => {
@@ -155,6 +161,103 @@ describe('formatServerRunningMessage', () => {
 	it('uses "already running" wording for an existing server', () => {
 		const output = formatServerRunningMessage(base, { existing: true });
 		assert.ok(output.startsWith('Dev server already running at http://localhost:4321 (pid 54576)'));
+	});
+});
+// #endregion
+
+// #region shared server utilities
+describe('shared server utilities', () => {
+	const base = {
+		pid: 54576,
+		port: 4321,
+		url: 'http://localhost:4321',
+		background: true,
+		startedAt: '2026-05-05T10:00:00.000Z',
+	};
+
+	it('formats preview server management commands', () => {
+		const output = formatGenericServerRunningMessage(base, previewServerCommand);
+		assert.equal(
+			output,
+			'Preview server running at http://localhost:4321 (pid 54576)\n' +
+				'  Stop:   astro preview stop\n' +
+				'  Status: astro preview status\n' +
+				'  Logs:   astro preview logs',
+		);
+	});
+
+	it('builds preview child process args without --background', () => {
+		assert.deepEqual(
+			buildBackgroundArgs('preview', {
+				_: [],
+				port: 3000,
+				host: true,
+				config: 'astro.config.mjs',
+				root: '.',
+				allowedHosts: 'example.com',
+				json: true,
+			}),
+			[
+				'preview',
+				'--port',
+				'3000',
+				'--host',
+				'--config',
+				'astro.config.mjs',
+				'--root',
+				'.',
+				'--allowed-hosts',
+				'example.com',
+				'--json',
+			],
+		);
+	});
+
+	it('forwards --mode, --site, --base, --out-dir, --verbose, --silent, and --open', () => {
+		assert.deepEqual(
+			buildBackgroundArgs('dev', {
+				_: [],
+				mode: 'staging',
+				site: 'https://example.com',
+				base: '/app',
+				outDir: 'build',
+				verbose: true,
+				silent: false,
+				open: '/dashboard',
+			}),
+			[
+				'dev',
+				'--mode',
+				'staging',
+				'--site',
+				'https://example.com',
+				'--base',
+				'/app',
+				'--out-dir',
+				'build',
+				'--verbose',
+				'--open',
+				'/dashboard',
+			],
+		);
+	});
+
+	it('forwards boolean --open without a value', () => {
+		assert.deepEqual(buildBackgroundArgs('dev', { _: [], open: true }), ['dev', '--open']);
+	});
+
+	it('does not forward --open when false', () => {
+		assert.deepEqual(buildBackgroundArgs('dev', { _: [], open: false }), ['dev']);
+	});
+
+	it('forwards --silent', () => {
+		assert.deepEqual(buildBackgroundArgs('dev', { _: [], silent: true }), ['dev', '--silent']);
+	});
+
+	it('uses separate dev and preview log files', () => {
+		const root = new URL('file:///project/');
+		assert.equal(getLogFileURL(root).href, 'file:///project/.astro/dev.log');
+		assert.equal(getLogFileURL(root, 'preview').href, 'file:///project/.astro/preview.log');
 	});
 });
 // #endregion

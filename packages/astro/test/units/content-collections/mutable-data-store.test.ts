@@ -128,6 +128,233 @@ describe('MutableDataStore', () => {
 		);
 	});
 
+	it('does not rewrite an empty content-assets.mjs when a store without asset imports is cleared', async () => {
+		const assetsFilePath = path.join(tmpDir, 'content-assets-empty-clear.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('items');
+
+		scoped.set({ id: 'one', data: { title: 'One' } });
+		await store.writeAssetImports(assetsFilePath);
+		const contentBefore = await fs.readFile(assetsFilePath, 'utf-8');
+
+		const writes: string[] = [];
+		store.onFileWritten((file) => writes.push(file));
+
+		scoped.clear();
+		scoped.set({ id: 'one', data: { title: 'Edited' } });
+		await store.writeAssetImports(assetsFilePath);
+		await store.waitUntilSaveComplete();
+
+		assert.equal(await fs.readFile(assetsFilePath, 'utf-8'), contentBefore);
+		assert.ok(
+			!writes.includes(assetsFilePath),
+			'content-assets.mjs should not be written when its content is unchanged',
+		);
+	});
+
+	for (const operation of ['delete', 'clear', 'clearAll'] as const) {
+		it(`does not rewrite empty asset imports after debounced ${operation} (#18573)`, async () => {
+			const assetsFile = pathToFileURL(path.join(tmpDir, `empty-assets-${operation}.mjs`));
+			const store = new MutableDataStore();
+			const writes: string[] = [];
+			store.onFileWritten((file) => writes.push(file));
+			store.scopedStore('items').set({ id: 'one', data: {} });
+			await store.writeAssetImports(assetsFile);
+			await store.waitUntilSaveComplete();
+			assert.equal(await fs.readFile(assetsFile, 'utf-8'), 'export default new Map();');
+			assert.equal(writes.length, 1, 'create the empty module exactly once');
+			writes.length = 0;
+
+			for (let i = 0; i < 2; i++) {
+				store.scopedStore('items').set({ id: 'one', data: { version: i } });
+				if (operation === 'delete') store.delete('items', 'one');
+				else if (operation === 'clear') store.clear('items');
+				else store.clearAll();
+				// Exercise the scheduled writer without an explicit writeAssetImports call.
+				await store.waitUntilSaveComplete();
+				assert.deepEqual(writes, [], 'unchanged empty modules must not notify the watcher');
+			}
+		});
+	}
+
+	it('writes exactly once when the last asset is removed and can add assets again (#18573)', async () => {
+		const assetsFile = path.join(tmpDir, 'assets-empty-transition.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('items');
+		const setImage = () =>
+			scoped.set({
+				id: 'one',
+				data: {},
+				filePath: 'src/content/items/one.json',
+				assetImports: ['./image.png'],
+			});
+		setImage();
+		await store.writeAssetImports(assetsFile);
+		await store.waitUntilSaveComplete();
+		const withImage = await fs.readFile(assetsFile, 'utf-8');
+		const writes: string[] = [];
+		store.onFileWritten((file) => writes.push(file));
+
+		scoped.delete('one');
+		await store.waitUntilSaveComplete();
+		assert.equal(await fs.readFile(assetsFile, 'utf-8'), 'export default new Map();');
+		assert.deepEqual(writes, [assetsFile], 'removing the last asset still invalidates once');
+
+		writes.length = 0;
+		setImage();
+		await store.waitUntilSaveComplete();
+		assert.equal(await fs.readFile(assetsFile, 'utf-8'), withImage);
+		assert.deepEqual(writes, [assetsFile], 'adding an asset after emptying still invalidates');
+	});
+
+	it('can retry an empty asset write after a filesystem error (#18573)', async () => {
+		const store = new MutableDataStore();
+		const directory = path.join(tmpDir, 'missing-assets-directory');
+		const assetsFile = path.join(directory, 'content-assets.mjs');
+		store.clearAll();
+		await assert.rejects(store.writeAssetImports(assetsFile), { name: 'UnknownFilesystemError' });
+		await fs.mkdir(directory);
+		await store.writeAssetImports(assetsFile);
+		await store.waitUntilSaveComplete();
+		assert.equal(await fs.readFile(assetsFile, 'utf-8'), 'export default new Map();');
+	});
+
+	it('removes stale module imports when an entry is deleted (via debounced write trigger)', async () => {
+		const modulesFilePath = path.join(tmpDir, 'content-modules-delete.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('docs');
+
+		scoped.set({
+			id: 'page-a',
+			data: {},
+			filePath: 'src/content/docs/page-a.mdx',
+			deferredRender: true,
+		});
+
+		scoped.set({
+			id: 'page-b',
+			data: {},
+			filePath: 'src/content/docs/page-b.mdx',
+			deferredRender: true,
+		});
+
+		await store.writeModuleImports(modulesFilePath);
+		const contentBefore = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('page-a.mdx'), 'should contain page-a before deletion');
+		assert.ok(contentBefore.includes('page-b.mdx'), 'should contain page-b before deletion');
+
+		// Do NOT call writeModuleImports() again here: that would rebuild and write
+		// synchronously regardless of whether delete() actually schedules a rewrite.
+		// Rely solely on the debounced trigger that delete() is supposed to schedule,
+		// flushed via waitUntilSaveComplete(), so this test exercises the real
+		// dev-server code path (a filesystem delete triggers a rewrite on its own).
+		scoped.delete('page-a');
+		await store.waitUntilSaveComplete();
+
+		const contentAfter = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(
+			!contentAfter.includes('page-a.mdx'),
+			'should NOT contain page-a after the entry is deleted',
+		);
+		assert.ok(contentAfter.includes('page-b.mdx'), 'should still contain page-b');
+	});
+
+	it('removes stale module imports when a collection is cleared (via debounced write trigger)', async () => {
+		const modulesFilePath = path.join(tmpDir, 'content-modules-clear.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('docs');
+
+		scoped.set({
+			id: 'page-1',
+			data: {},
+			filePath: 'src/content/docs/page-1.mdx',
+			deferredRender: true,
+		});
+
+		await store.writeModuleImports(modulesFilePath);
+		const contentBefore = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('page-1.mdx'), 'should contain page-1 before clear');
+
+		scoped.clear();
+		await store.waitUntilSaveComplete();
+
+		const contentAfter = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(
+			!contentAfter.includes('page-1.mdx'),
+			'should NOT contain page-1 after the collection is cleared',
+		);
+	});
+
+	it('removes stale module imports when the entire store is cleared via clearAll (via debounced write trigger)', async () => {
+		const modulesFilePath = path.join(tmpDir, 'content-modules-clear-all.mjs');
+		const store = new MutableDataStore();
+		const docsScoped = store.scopedStore('docs');
+		const blogScoped = store.scopedStore('blog');
+
+		docsScoped.set({
+			id: 'page-1',
+			data: {},
+			filePath: 'src/content/docs/page-1.mdx',
+			deferredRender: true,
+		});
+		blogScoped.set({
+			id: 'post-1',
+			data: {},
+			filePath: 'src/content/blog/post-1.mdx',
+			deferredRender: true,
+		});
+
+		await store.writeModuleImports(modulesFilePath);
+		const contentBefore = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('page-1.mdx'), 'should contain page-1 before clearAll');
+		assert.ok(contentBefore.includes('post-1.mdx'), 'should contain post-1 before clearAll');
+
+		store.clearAll();
+		await store.waitUntilSaveComplete();
+
+		const contentAfter = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(!contentAfter.includes('page-1.mdx'), 'should NOT contain page-1 after clearAll');
+		assert.ok(!contentAfter.includes('post-1.mdx'), 'should NOT contain post-1 after clearAll');
+	});
+
+	it('removes the old module import and adds the new one when an entry is renamed (issue #17707)', async () => {
+		// A rename is how glob.ts actually models it: delete the old id, then set the new one.
+		const modulesFilePath = path.join(tmpDir, 'content-modules-rename.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('docs');
+
+		scoped.set({
+			id: 'otp',
+			data: {},
+			filePath: 'src/content/docs/otp.mdx',
+			deferredRender: true,
+		});
+
+		await store.writeModuleImports(modulesFilePath);
+		const contentBefore = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('otp.mdx'), 'should contain the original file before rename');
+
+		// Rename: delete the old entry, then set the new one under a new id/filePath.
+		scoped.delete('otp');
+		scoped.set({
+			id: 'the-otp',
+			data: {},
+			filePath: 'src/content/docs/the-otp.mdx',
+			deferredRender: true,
+		});
+		await store.waitUntilSaveComplete();
+
+		const contentAfter = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(
+			!contentAfter.includes('"src/content/docs/otp.mdx"'),
+			'should NOT reference the old (renamed-away) file path',
+		);
+		assert.ok(
+			contentAfter.includes('the-otp.mdx'),
+			'should reference the new (renamed-to) file path',
+		);
+	});
+
 	it('reproduces race condition: concurrent writeToDisk() calls lose data', async () => {
 		const filePath = pathToFileURL(path.join(tmpDir, 'data-store.json'));
 		const store = await MutableDataStore.fromFile(filePath);
@@ -149,5 +376,44 @@ describe('MutableDataStore', () => {
 			collection.has('key2'),
 			'key2 should be present in the written file (this will FAIL before the fix)',
 		);
+	});
+
+	it('strips image prefixes and records their paths as out-of-band imageImports', () => {
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('blog');
+		const entryFilePath = 'src/content/blog/post.md';
+
+		scoped.set({
+			id: 'post',
+			filePath: entryFilePath,
+			data: {
+				cover: '__ASTRO_IMAGE_./hero.png',
+				gallery: ['__ASTRO_IMAGE_./a.png'],
+				nested: { icon: '__ASTRO_IMAGE_./icon.png' },
+				title: 'Hello',
+			},
+		});
+
+		const entry = store.get('blog', 'post') as any;
+
+		// The stored data holds plain, serializable src strings — no prefixes.
+		assert.equal(entry.data.cover, './hero.png');
+		assert.equal(entry.data.gallery[0], './a.png');
+		assert.equal(entry.data.nested.icon, './icon.png');
+		assert.equal(entry.data.title, 'Hello');
+
+		// The image field locations are recorded out-of-band.
+		assert.deepEqual(entry.imageImports, [['cover'], ['gallery', 0], ['nested', 'icon']]);
+		assert.deepEqual(new Set(entry.assetImports), new Set(['./hero.png', './a.png', './icon.png']));
+	});
+
+	it('does not set imageImports when the entry has no images', () => {
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('blog');
+
+		scoped.set({ id: 'plain', data: { title: 'Hello' } });
+
+		const entry = store.get('blog', 'plain') as any;
+		assert.equal(entry.imageImports, undefined);
 	});
 });

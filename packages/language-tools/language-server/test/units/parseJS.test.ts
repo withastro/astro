@@ -1,4 +1,4 @@
-import assert from 'node:assert';
+import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { astro2tsx } from '../../dist/core/astro2tsx.js';
 import { extractScriptTags } from '../../dist/core/parseJS.js';
@@ -35,5 +35,24 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 				format: false,
 			});
 		});
+	});
+
+	it('merges inline scripts and preserves their source mappings', () => {
+		const input = '<button onclick="foo()"></button><button onclick="bar()"></button>';
+		const { ranges } = astro2tsx(input, 'file.astro');
+		const [script] = extractScriptTags(ranges.scripts);
+
+		assert.strictEqual(script.snapshot.getText(0, script.snapshot.getLength()), 'foo();bar();');
+		assert.deepStrictEqual(
+			script.mappings.map(({ sourceOffsets, generatedOffsets, lengths }) => ({
+				sourceOffsets,
+				generatedOffsets,
+				lengths,
+			})),
+			[
+				{ sourceOffsets: [input.indexOf('foo()')], generatedOffsets: [0], lengths: [6] },
+				{ sourceOffsets: [input.indexOf('bar()')], generatedOffsets: [6], lengths: [6] },
+			],
+		);
 	});
 });

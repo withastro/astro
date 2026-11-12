@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Basics', () => {
 	let fixture: Fixture;
@@ -46,5 +46,34 @@ describe('Basics', () => {
 
 		const allPreValues = [...document.querySelectorAll('pre')].map((e) => e.textContent);
 		assert.deepEqual(allPreValues, ['2345', '0', '1', '1', '1', '10', '100', '1000']);
+	});
+
+	describe('dev', () => {
+		let devServer: DevServer;
+
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('starts with Vue devtools enabled', async () => {
+			const response = await fixture.fetch('/');
+			assert.equal(response.status, 200);
+		});
+
+		it('inlines Vue scoped styles transformed by the Vue plugin', async () => {
+			const html = await fixture.fetch('/scoped-style').then((res) => res.text());
+			const { document } = parseHTML(html);
+			const css = [...document.querySelectorAll('style[data-vite-dev-id]')]
+				.filter((style) => style.getAttribute('data-vite-dev-id')!.includes('ScopedStyle.vue'))
+				.map((style) => style.textContent)
+				.join('');
+
+			assert.match(css, /\.box\[data-v-[a-z0-9]+\]/);
+			assert.doesNotMatch(css, /v-bind/);
+		});
 	});
 });

@@ -1,4 +1,5 @@
 import { defaultExcludeLanguages } from '@astrojs/internal-helpers/markdown';
+import { time } from '@astrojs/internal-helpers/timings';
 import type { Element, Parent, Root } from 'hast';
 import { fromHtml } from 'hast-util-from-html';
 import { toText } from 'hast-util-to-text';
@@ -11,7 +12,7 @@ type Highlighter = (
 	options?: { meta?: string },
 ) => Promise<Root | string>;
 
-const languagePattern = /\blanguage-(\S+)\b/;
+const languagePattern = /\blanguage-(\S+)/;
 
 /**
  * A hast utility to syntax highlight code blocks with a given syntax highlighter.
@@ -82,7 +83,7 @@ export async function highlightCodeBlocks(
 	for (const { node, language, grandParent, parent } of nodes) {
 		const meta = (node.data as any)?.meta ?? node.properties.metastring ?? undefined;
 		const code = toText(node, { whitespace: 'pre' });
-		const result = await highlighter(code, language, { meta });
+		const result = await time('highlight', language, () => highlighter(code, language, { meta }));
 
 		let replacement: Element;
 		if (typeof result === 'string') {

@@ -15,8 +15,7 @@ describe('ts file default-importing an .astro component', () => {
 			root: './fixtures/ts-astro-import/',
 		});
 
-		// Clear the Vite cache so dep optimization runs from scratch
-		// and the esbuild scan actually exercises the plugin path under test.
+		// Clear the Vite cache so dependency optimization runs from scratch.
 		const viteCacheDir = new URL('./node_modules/.vite/', fixture.config.root);
 		rmSync(fileURLToPath(viteCacheDir), { recursive: true, force: true });
 
@@ -37,12 +36,7 @@ describe('ts file default-importing an .astro component', () => {
 	});
 
 	it('should not produce "No matching export" error when a .ts module default-imports a .astro component', async () => {
-		// Regression test for #16203. Without `namespace: 'file'` on the
-		// astro-frontmatter-scan onLoad handler, Vite's dep scanner resolves
-		// `.astro` files into the `html` namespace and the plugin still
-		// intercepts them, returning only the frontmatter (no `export default`)
-		// and producing:
-		//   No matching export in "html:/.../Component.astro" for import "default"
+		// The frontmatter scanner must provide a default export for `.astro` files.
 		const noMatchingExportLog = logs.find(
 			(log) =>
 				log.message &&

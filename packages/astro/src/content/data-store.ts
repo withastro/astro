@@ -35,6 +35,45 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	 */
 	deferredRender?: boolean;
 	assetImports?: Array<string>;
+	/**
+	 * Locations of image fields within `data`, recorded when the entry is stored.
+	 * Each path is the sequence of keys from `data` to a field that holds an image
+	 * src string. At read time these fields are resolved to `ImageMetadata` without
+	 * traversing or cloning the rest of `data`, so sibling values that devalue can
+	 * serialize but `structuredClone` cannot (e.g. class instances) are left
+	 * untouched.
+	 */
+	imageImports?: (string | number)[][];
+}
+
+/**
+ * Rebuilds a collection from ordered parts containing newline-delimited
+ * `devalue.stringify([id, entry])` records.
+ */
+export class ChunkedCollectionParser {
+	#entries = new Map<string, any>();
+	#remainder = '';
+
+	add(part: string) {
+		const content = this.#remainder + part;
+		const records = content.split('\n');
+		this.#remainder = records.pop()!;
+
+		for (const record of records) {
+			const parsed = devalue.parse(record);
+			if (!Array.isArray(parsed) || parsed.length !== 2 || typeof parsed[0] !== 'string') {
+				throw new Error('Invalid chunked data store entry');
+			}
+			this.#entries.set(parsed[0], parsed[1]);
+		}
+	}
+
+	finish() {
+		if (this.#remainder) {
+			throw new Error('Invalid chunked data store entry');
+		}
+		return this.#entries;
+	}
 }
 
 /**
@@ -89,22 +128,20 @@ export class ImmutableDataStore {
 	 * names have already been swapped for their contents.
 	 *
 	 * Each collection maps to a list of parts. A part is either a raw string
-	 * (when the store is loaded from disk) or an ESM namespace from a `?raw`
-	 * import (`{ default: string }`, when emitted into the virtual module at
-	 * runtime). A collection's parts are concatenated back into the exact
-	 * serialized string, then parsed with devalue. This is the inverse of
+	 * (when the store is loaded from disk) or an ESM namespace from a virtual
+	 * chunk import (`{ default: string }`, when emitted at runtime). Each part
+	 * contains independently serialized entry records. This is the inverse of
 	 * {@link import('./data-store-writer.js').ChunkedWriter} and stays free of
 	 * Node built-ins so it can run at runtime.
 	 */
 	static manifestToMap(manifest: Record<string, Array<string | { default: string }>>) {
 		const collections = new Map<string, Map<string, any>>();
 		for (const [collectionName, parts] of Object.entries(manifest)) {
-			let stringified = '';
+			const parser = new ChunkedCollectionParser();
 			for (const part of parts) {
-				stringified += typeof part === 'string' ? part : part.default;
+				parser.add(typeof part === 'string' ? part : part.default);
 			}
-			const entries: Map<string, any> = devalue.parse(stringified);
-			collections.set(collectionName, entries);
+			collections.set(collectionName, parser.finish());
 		}
 		return collections;
 	}

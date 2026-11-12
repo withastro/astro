@@ -20,7 +20,7 @@ describe('Formatting - Prettier', () => {
 		assert.deepStrictEqual(formatEdits, [
 			{
 				range: Range.create(0, 0, 3, 3),
-				newText: '---\n\n---\n',
+				newText: '---\n---\n',
 			},
 		]);
 	});
