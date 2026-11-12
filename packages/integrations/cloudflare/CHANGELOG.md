@@ -1,5 +1,367 @@
 # @astrojs/cloudflare
 
+## 14.4.7
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.6
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.5
+
+### Patch Changes
+
+- [#18562](https://github.com/withastro/astro/pull/18562) [`9055de2`](https://github.com/withastro/astro/commit/9055de2295c8a3b7503e39252cbb97e4bcbed095) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the passthrough `/_image` endpoint returning a 404 instead of `304 Not Modified` when the browser revalidates a cached local image with `If-None-Match`. Revalidation supports weak ETags, tag lists, and wildcard conditions for local and allowed remote images while preserving image-type validation.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.4
+
+### Patch Changes
+
+- [#18552](https://github.com/withastro/astro/pull/18552) [`549f88e`](https://github.com/withastro/astro/commit/549f88e7ca7fd427d04d4288f887b139a4892294) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a dev dependency scan error caused by object keys named `import` in frontmatter, such as the `import` option of `import.meta.glob()`
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.3
+
+### Patch Changes
+
+- [#18526](https://github.com/withastro/astro/pull/18526) [`d0504c2`](https://github.com/withastro/astro/commit/d0504c272deadc02a97a1078504f9a4698c09553) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `process is not defined` errors in client-side scripts and islands that reference `process.env`. The adapter's `process.env` define now applies only to the server output, so browser builds get Vite's default replacement.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.2
+
+### Patch Changes
+
+- [#18422](https://github.com/withastro/astro/pull/18422) [`07700d4`](https://github.com/withastro/astro/commit/07700d41fef1e5872b80d25e4226da867eca1c6f) Thanks [@cyface](https://github.com/cyface)! - Fixes the `/_image` endpoint returning a 500 error when `href` points to a missing file or a file that isn't an image. It now responds with a 404 or 400 instead.
+
+- [#18465](https://github.com/withastro/astro/pull/18465) [`f31f143`](https://github.com/withastro/astro/commit/f31f143b1b40b147c3b8c8db51a6dd431be2f529) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a custom `src/fetch.ts` rendering truncated pages without islands or hoisted scripts in `astro dev` when `prerenderEnvironment: 'node'` is set
+
+- [#18461](https://github.com/withastro/astro/pull/18461) [`8b77891`](https://github.com/withastro/astro/commit/8b77891ad30732a5385ada97bf5075b83a2e8f3d) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes options passed to `sharpImageService()` being ignored when generating images at build time with `imageService: 'compile'`
+
+- [#18468](https://github.com/withastro/astro/pull/18468) [`119263a`](https://github.com/withastro/astro/commit/119263a84f74ead8212cdc339f8da9552e4ddfd9) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `astro sync`, `astro check`, and `astro build` overwriting the dependency cache of a running `astro dev` server, which caused it to fail with "The file does not exist ... in the optimize deps directory" errors
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.1
+
+### Patch Changes
+
+- [#18351](https://github.com/withastro/astro/pull/18351) [`9669d81`](https://github.com/withastro/astro/commit/9669d811cb3e60c91d4eee7823222d6a34c1cb34) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `Cannot find package 'prismjs'` errors when `prismjs` isn't hoisted, such as with pnpm's global virtual store or `hoist=false`
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.0
+
+### Minor Changes
+
+- [#18177](https://github.com/withastro/astro/pull/18177) [`7d814e5`](https://github.com/withastro/astro/commit/7d814e5ac3e7c84b4e4fd4e6c7cc6820f553742c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Reworks image processing on prerendered pages to use Astro's built-in image pipeline. Requires `astro@^7.4.0`
+  
+  Images on prerendered pages now behave the same as on other adapters. Images optimized with the Cloudflare Images binding are now properly cached between builds, and image options such as `assetQueryParams` and `build.assetsPrefix` are applied the same way as everywhere else.
+
+### Patch Changes
+
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.3.4
+
+### Patch Changes
+
+- [#18213](https://github.com/withastro/astro/pull/18213) [`1e5523d`](https://github.com/withastro/astro/commit/1e5523d4be1dc009051eb1d95585da546322610e) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `globalThis.process` shim being prepended to client-side scripts. The shim is now only added to the server output.
+
+- [#18253](https://github.com/withastro/astro/pull/18253) [`78dca00`](https://github.com/withastro/astro/commit/78dca0053467840f5ad0b79b5350b218ccedc3a7) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `@astrojs/cloudflare/hono` usage example so `i18n()` is mounted before `pages()`. In the old order, `i18n()` never ran, so locale redirects and fallbacks were skipped.
+
+- [#18145](https://github.com/withastro/astro/pull/18145) [`02246c9`](https://github.com/withastro/astro/commit/02246c9047d8a54b1be1ccc176f88cd873ff0380) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes dev dependency scan failing when a frontmatter line starts with `import.meta` or `import(`
+
+- [#17677](https://github.com/withastro/astro/pull/17677) [`4f85749`](https://github.com/withastro/astro/commit/4f85749fc09865cb143e65fd10d42c80e8b21c60) Thanks [@andreialba](https://github.com/andreialba)! - Fixes remote images without a file extension failing with `400 Unsupported format: null` when using the `cloudflare-binding` image service
+  
+  Astro only adds the `f` (format) parameter to `/_image` URLs when it can infer a format from the source, and otherwise leaves it off so the image service resolves the format from the source itself. Extensionless remote images, such as GitHub avatars like `https://avatars.githubusercontent.com/u/1234`, take that path. The image transform endpoint now falls back to the source's media type when `f` is absent, passing SVG sources through unchanged and encoding everything else as WebP. This also fixes SVG images, which are requested as `f=svg` and previously failed the same way.
+
+- [#18057](https://github.com/withastro/astro/pull/18057) [`8db3024`](https://github.com/withastro/astro/commit/8db30243661f490003c8e38037b41d26d21a1f37) Thanks [@asqar](https://github.com/asqar)! - Fixes `astro build` failing with `fetch failed` / `connect ECONNREFUSED 127.0.0.1:<port>` during prerendering on hosts where `localhost` resolves to IPv6
+  
+  The prerenderer started its Vite preview server with `host: 'localhost'` and then built the fetch URL by re-stating that same hostname. `localhost` was therefore resolved twice, independently — once by `listen()` to pick a bind address and once by `fetch()` to pick a connect address — with nothing making the two agree. On hosts where those resolutions land on different families, the preview server listens on `::1` while `fetch` dials `127.0.0.1`, and every prerender request is refused. The URL is now derived from the address actually bound, so bind and connect agree by construction.
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.3.3
+
+### Patch Changes
+
+- [#18059](https://github.com/withastro/astro/pull/18059) [`30cb32e`](https://github.com/withastro/astro/commit/30cb32e82b68a09c776f5bd205b07db8e1c9285c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes image transforms without a specified quality outputting an higher quality than expected on certain formats
+
+- [#18091](https://github.com/withastro/astro/pull/18091) [`28d59a9`](https://github.com/withastro/astro/commit/28d59a92f99f6b1acbafb98e6b1e2f22bb74c71f) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `optimizeDeps.include` glob `astro/runtime/**` matching `.d.ts` files, which caused 83 unnecessary optimizer entries and empty output chunks per environment during dev
+
+- [#18032](https://github.com/withastro/astro/pull/18032) [`f7dbc6a`](https://github.com/withastro/astro/commit/f7dbc6a2b736bb26ef286c3bbcf66d19bf6b215f) Thanks [@adamchal](https://github.com/adamchal)! - Fixes image requests when using `imageService: 'compile'` with `passthroughImageService()`.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.3.2
+
+### Patch Changes
+
+- [#17958](https://github.com/withastro/astro/pull/17958) [`b95c574`](https://github.com/withastro/astro/commit/b95c574b2ef5ab5541888a860aad5bf2d3a765ea) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a build failure when the wrangler config uses the `exports` field to declare Durable Object classes
+
+- [#18022](https://github.com/withastro/astro/pull/18022) [`24946f7`](https://github.com/withastro/astro/commit/24946f745a6fc1e85b8ae271322a1a35b24a4857) Thanks [@matthewp](https://github.com/matthewp)! - Fixes cold `astro dev` crashes when using the passthrough image service
+
+- [#17842](https://github.com/withastro/astro/pull/17842) [`d68db73`](https://github.com/withastro/astro/commit/d68db7311132083dabee85e87a323542249f5228) Thanks [@adamchal](https://github.com/adamchal)! - Fixes broken images on static sites by transforming prerendered images at build time with the default Cloudflare Images binding
+
+- [#17945](https://github.com/withastro/astro/pull/17945) [`750b4db`](https://github.com/withastro/astro/commit/750b4dbe238f2a2b979503ffd780f46d19174ccb) Thanks [@matthewp](https://github.com/matthewp)! - Pre-bundles renderer server entrypoints and the default console logger during dev so they are included in the initial optimization pass, preventing a mid-request re-optimization that could crash the dev server on Cloudflare (workerd).
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.3.1
+
+### Patch Changes
+
+- [#17914](https://github.com/withastro/astro/pull/17914) [`a400504`](https://github.com/withastro/astro/commit/a40050476598ee856cd44cee6976a5d63c81db86) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a build crash when a custom worker entrypoint exports Durable Object classes alongside prerendered pages. The prerender worker no longer inherits `durable_objects`, `migrations`, or `workflows` from the entry worker config.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.3.0
+
+### Minor Changes
+
+- [#17795](https://github.com/withastro/astro/pull/17795) [`15e2deb`](https://github.com/withastro/astro/commit/15e2debc7e81d353410ff76a76c3bf75b7fb3070) Thanks [@matthewp](https://github.com/matthewp)! - Adds concurrent rendering support for `experimental.incrementalBuild`, including when using `@astrojs/cloudflare`
+
+  Incremental builds no longer disable caching when `build.concurrency` is greater than `1`. Projects that set `build.concurrency: 1` to keep the cache enabled can remove that workaround. Cloudflare builds also reduce serialization overhead for large prerendered pages.
+
+- [#17887](https://github.com/withastro/astro/pull/17887) [`35aa62e`](https://github.com/withastro/astro/commit/35aa62e60226d81cda281d0b9355abcfa29d889d) Thanks [@matthewp](https://github.com/matthewp)! - Adds a Cloudflare `finalize()` response handler for custom request handlers
+
+  Call `finalize()` to apply cookies and Cloudflare CDN cache defaults to the response from an `astro/fetch` pipeline:
+
+  ```ts
+  import { astro, FetchState } from 'astro/fetch';
+  import { cf, finalize } from '@astrojs/cloudflare/fetch';
+
+  export default {
+    async fetch(request: Request, env: Env, context: ExecutionContext) {
+      const state = new FetchState(request);
+      const asset = await cf(state, env, context);
+      if (asset) return asset;
+
+      return finalize(state, await astro(state));
+    },
+  };
+  ```
+
+  The `@astrojs/cloudflare/hono` middleware applies these response headers automatically. Cloudflare custom entrypoints also fall back to static assets when no Astro route matches and use the default server entrypoint when prerendering through workerd.
+
+### Patch Changes
+
+- [#17895](https://github.com/withastro/astro/pull/17895) [`41b88ac`](https://github.com/withastro/astro/commit/41b88ac0b14719bf46fc3c842ec9a71dd3c9a6af) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes cold `astro dev` crashes by adding `astro/app/manifest` and `@astrojs/cloudflare/cache/provider` to the `optimizeDeps.include` list
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.6
+
+### Patch Changes
+
+- [#17854](https://github.com/withastro/astro/pull/17854) [`07b919f`](https://github.com/withastro/astro/commit/07b919f23e3041c4cc9c4f33004a19a32a5294b3) Thanks [@ematipico](https://github.com/ematipico)! - Added `@astrojs/prism` to the list of dependencies to optimise. The dev server is now faster for sites that use Prism as code highlighter.
+
+- [#17850](https://github.com/withastro/astro/pull/17850) [`1301c37`](https://github.com/withastro/astro/commit/1301c374435897654bf52d80d91d0947b72cf1a1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes React SSR failures on the first Cloudflare dev request when JSON logging is enabled
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.5
+
+### Patch Changes
+
+- [#17819](https://github.com/withastro/astro/pull/17819) [`633855b`](https://github.com/withastro/astro/commit/633855b0cabd55cc7b913eb556a739a6a2d93dd2) Thanks [@matthewp](https://github.com/matthewp)! - Updates generated and default Cloudflare `compatibility_date` values to match the installed runtime and requires Wrangler `^4.125.0`
+
+- [#17675](https://github.com/withastro/astro/pull/17675) [`44d384c`](https://github.com/withastro/astro/commit/44d384c9c30cf52ee6491348611ae483747734e7) Thanks [@danielmlr](https://github.com/danielmlr)! - Adds the Worker version to the cache metadata of cached responses when the `CF_VERSION_METADATA` binding is configured. Responses carry an `astro-version:<id>` cache tag for version-specific purging, and responses that already send `Last-Modified` get a weak `ETag` that folds the version in. Conditional revalidation then returns fresh content after a deploy that changes rendered output but not content — most commonly the hashed asset URLs in server-rendered HTML. Without the binding, nothing changes.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.4
+
+### Patch Changes
+
+- [#17789](https://github.com/withastro/astro/pull/17789) [`7c541a7`](https://github.com/withastro/astro/commit/7c541a70c5c3688e7f159d8e1b39888a54f1bee4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes dep scanning failure when `.astro` frontmatter contains regex literals with quote characters (e.g. `/"/g`)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.2
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.1
+
+### Patch Changes
+
+- [#17627](https://github.com/withastro/astro/pull/17627) [`ba6a9f6`](https://github.com/withastro/astro/commit/ba6a9f6e4523fe4e88ea31d4664835d3ba1ff3bc) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes the `astro` peer dependency range from `^7.0.0` to `^7.2.0`. The adapter imports symbols (`beginContentEntryCollection`, `beginImageCollection`, `endContentEntryCollection`, `endImageCollection`) from `astro/app` that were added in Astro 7.2.0, so earlier versions fail at build time with a `MISSING_EXPORT` error.
+
+- Updated dependencies [[`0891ac9`](https://github.com/withastro/astro/commit/0891ac9de5a6996e5ebd227e3443f7f4a4ea935a)]:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.0
+
+### Minor Changes
+
+- [#16194](https://github.com/withastro/astro/pull/16194) [`2a59663`](https://github.com/withastro/astro/commit/2a59663984cfc33e96ff8e1019805c396030b01d) Thanks [@Daedalus-Icarus](https://github.com/Daedalus-Icarus)! - Adds opt-in build-time image optimization for the `cloudflare-binding` image service.
+
+  When enabled, the Cloudflare IMAGES binding transforms static images in the workerd prerender environment, and the optimized bytes are written directly to the output directory. If the binding fails, it falls back to Sharp.
+
+  To opt in, use the compound configuration form:
+
+  ```js
+  export default defineConfig({
+    adapter: cloudflare({
+      imageService: { build: 'cloudflare-binding', runtime: 'cloudflare-binding' },
+    }),
+  });
+  ```
+
+  The string shorthand `imageService: 'cloudflare-binding'` preserves the current runtime-only behavior and is unaffected.
+
+- [#16871](https://github.com/withastro/astro/pull/16871) [`90c98ae`](https://github.com/withastro/astro/commit/90c98ae21ef0444a4088b7081676b0f97915001f) Thanks [@adamchal](https://github.com/adamchal)! - When `session: false` is set in `astro.config`, the adapter no longer auto-wires the Cloudflare KV session driver. Combined with the matching `astro` change, this lets the session runtime tree-shake out of the Worker bundle.
+
+- [#17084](https://github.com/withastro/astro/pull/17084) [`961bbe5`](https://github.com/withastro/astro/commit/961bbe5fdf4a761adb479595dfb94dc2e80f2957) Thanks [@matthewp](https://github.com/matthewp)! - Supports Astro's experimental [incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/). When `experimental.incrementalBuild` is enabled, the adapter skips unchanged pages between builds.
+
+### Patch Changes
+
+- [#17576](https://github.com/withastro/astro/pull/17576) [`0a79753`](https://github.com/withastro/astro/commit/0a79753610ff4960ae6c9e6e334115f6ea0bc954) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes `/_image` returning 500 in dev mode when using `imageService: 'custom'`. Astro's default dev image endpoint imports `vite` and `node:fs`, which cannot be loaded inside workerd. The `custom` and fallback cases now use the generic fetch-based endpoint in dev, matching the other image service modes. A user-configured `image.endpoint` is left untouched.
+
+  Additionally, a dev-time warning is now logged when `imageService: 'custom'` resolves to the Sharp service (including when no `image.service` is configured), since Sharp's native binding cannot run inside workerd in dev or production.
+
+- [#17481](https://github.com/withastro/astro/pull/17481) [`0c32649`](https://github.com/withastro/astro/commit/0c32649d378600884f3977300d21cabe58090a97) Thanks [@ondraulehla](https://github.com/ondraulehla)! - Fixes a crash on `/_image` cache hits when the Cloudflare cache provider is enabled. Responses served from the Workers Cache API have immutable headers, and the request handler crashed with "Can't modify immutable headers" when applying its default `Cloudflare-CDN-Cache-Control: no-store` header to them. The handler now rebuilds the response with mutable headers when needed.
+
+- [#17347](https://github.com/withastro/astro/pull/17347) [`ce83c39`](https://github.com/withastro/astro/commit/ce83c3974447dbc0f84ddb7f10ff8b5aaceeab59) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `imageService: 'compile'` producing unoptimized images when `prerenderEnvironment` is set to `'node'`
+
+- [#17594](https://github.com/withastro/astro/pull/17594) [`2b8915a`](https://github.com/withastro/astro/commit/2b8915a6482f6a5f0ab76e14816080b9fa1b7aae) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a type-checking error when using `app.use(cf())` from `@astrojs/cloudflare/hono` in projects with `wrangler types`-generated `ExecutionContext` declarations
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.7
+
+### Patch Changes
+
+- [#17543](https://github.com/withastro/astro/pull/17543) [`bbc1ec9`](https://github.com/withastro/astro/commit/bbc1ec9715160e25eb6a6fee2e133386414c0c00) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Cloudflare couldn't load chunked collections via `experimental.collectionStorage: 'chunked'`.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.6
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.5
+
+### Patch Changes
+
+- [#17376](https://github.com/withastro/astro/pull/17376) [`0216368`](https://github.com/withastro/astro/commit/0216368c621dd033223ca91d670801fe423d631d) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a bug where an explicit `cache: { enabled: false }` in your wrangler config was overridden and forced to `true` when a Workers cache provider was configured
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.4
+
+### Patch Changes
+
+- [#17457](https://github.com/withastro/astro/pull/17457) [`d46ecd8`](https://github.com/withastro/astro/commit/d46ecd82c3869d758ed955e2567f908903053475) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a dev server crash when using Astro Actions with the Cloudflare adapter
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.3
+
+### Patch Changes
+
+- [#17363](https://github.com/withastro/astro/pull/17363) [`3f4efc5`](https://github.com/withastro/astro/commit/3f4efc5d2f4cf2e38f983bf5842bbd953b5bf923) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `astro preview --open` not opening a browser when using an adapter with a custom preview entrypoint, such as `@astrojs/cloudflare`
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.2
+
+### Patch Changes
+
+- [#17323](https://github.com/withastro/astro/pull/17323) [`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes build-time image optimization ignoring a custom image service registered by an integration
+
+  Previously, when using `imageService: 'compile'` or `imageService: 'custom'`, a custom image service was only respected if it was set directly in the `image.service` option of `astro.config`. If an integration registered the service instead, images were silently optimized with the default Sharp service at build time. A custom image service now transforms your images at build time no matter how it was configured.
+
+- [#17323](https://github.com/withastro/astro/pull/17323) [`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b) Thanks [@ematipico](https://github.com/ematipico)! - Prebundles `astro/components` and the `<ClientRouter />` transition runtime modules in the dev server environment so pages using them no longer trigger a mid-session dep optimizer reload, which caused React "Invalid hook call" errors in islands on the first request after a cold cache
+
+- [#17323](https://github.com/withastro/astro/pull/17323) [`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `vars` weren't available at build time. Now the adapter loads `vars` from the Wrangler config so `astro:env` public variables resolve at build time
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.0
+
+### Minor Changes
+
+- [#17099](https://github.com/withastro/astro/pull/17099) [`fdab7ce`](https://github.com/withastro/astro/commit/fdab7ceb09066e792632d530799758c5eb5828dc) Thanks [@adamchal](https://github.com/adamchal)! - Adds configured image service support with the `compile` and `custom` options.
+
+  The Cloudflare adapter supports various options that affect how images are processed for both pre-rendered and on-demand routes:
+  - Setting `imageService: 'compile'` now ensures it is used for pre-rendered routes. When no custom image service is defined, the behavior remains unchanged.
+  - With `imageService: 'custom'`, assets are now processed at build time for pre-rendered routes. If you have configured an image service, it will be bundled to handle images at runtime; otherwise, the behavior remains unchanged.
+  - The other `imageService` options remain unchanged.
+
+  Learn more about the [image service options](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#imageservice) available in the Cloudflare adapter guide.
+
+### Patch Changes
+
+- [#17236](https://github.com/withastro/astro/pull/17236) [`c411200`](https://github.com/withastro/astro/commit/c411200d0b6f45c3fa6f5ce626f3538e981db653) Thanks [@matthewp](https://github.com/matthewp)! - Prevents warnings in the Cloudflare adapter about optimizing the `@astrojs/cloudflare/entrypoints/server` module in dev.
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.0.2
+
+### Patch Changes
+
+- [#17049](https://github.com/withastro/astro/pull/17049) [`ffceaa2`](https://github.com/withastro/astro/commit/ffceaa240dd07568ad473568efe79f996f34d863) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes prerender errors being silently swallowed when pages throw during rendering in workerd, causing `astro build` to exit 0 and emit truncated HTML. The response body is now fully buffered inside workerd before being sent back to the build process, so streaming errors are caught and surfaced as build failures with clear error messages.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.0.1
 
 ### Patch Changes

@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { isParentDirectory, isRemotePath, normalizePathname } from '../dist/path.js';
+import {
+	isInternalPath,
+	isParentDirectory,
+	isRemotePath,
+	normalizePathname,
+} from '../dist/path.js';
 
 describe('isRemotePath', () => {
 	const remotePaths = [
@@ -675,6 +680,12 @@ describe('isParentDirectory', () => {
 			['src/components/Button', 'src/components'], // Parent longer
 			['/home/user', '/home'], // Reversed relationship
 
+			// Case-variant directories are distinct on case-sensitive filesystems
+			['/app/dist/client', '/app/DIST/client/secret.png'],
+			['/app/dist/client/', '/app/dist/CLIENT/secret.png'],
+			['/srv/app/dist', '/srv/App/dist/file.png'],
+			['src/components', 'SRC/components/Button.astro'],
+
 			// Different drives on Windows
 			['C:\\Users', 'D:\\Users'],
 			['C:\\', 'D:\\'],
@@ -846,5 +857,30 @@ describe('normalizePathname', () => {
 			assert.equal(normalizePathname('/about/', 'preserve', 'always'), '/about/');
 			assert.equal(normalizePathname('/', 'preserve', 'ignore'), '/');
 		});
+	});
+});
+
+describe('isInternalPath', () => {
+	it('recognizes known internal prefixes', () => {
+		assert.equal(isInternalPath('/_astro/index.js'), true);
+		assert.equal(isInternalPath('/@vite/client'), true);
+		assert.equal(isInternalPath('/.well-known/foo'), true);
+		assert.equal(isInternalPath('//example.com/press'), true);
+	});
+
+	it('treats backslash-prefixed paths like their forward-slash equivalent', () => {
+		// Browsers fold `\` to `/`, so `/\host` resolves like `//host`.
+		assert.equal(isInternalPath('/\\example.com/press'), true);
+		assert.equal(isInternalPath('/\\'), true);
+	});
+
+	it('does not flag regular paths', () => {
+		assert.equal(isInternalPath('/about'), false);
+		assert.equal(isInternalPath('/one/two'), false);
+	});
+
+	it('does not flag paths that are only slashes', () => {
+		assert.equal(isInternalPath('//'), false);
+		assert.equal(isInternalPath('///'), false);
 	});
 });

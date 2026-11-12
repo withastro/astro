@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { getParams } from '../../../dist/core/render/params-and-props.js';
+import { stringifyParams } from '../../../dist/core/routing/params.js';
 import { dynamicPart, makeRoute, spreadPart, staticPart } from './test-helpers.ts';
 import { createTestApp, createPage } from '../mocks.ts';
 
@@ -151,6 +152,55 @@ describe('getParams', () => {
 			const params = getParams(route, '/food.html');
 			assert.equal(params.category, 'food');
 		});
+
+		it('strips .html for endpoint routes when the pattern does not match otherwise', () => {
+			// Regression test for #17297: `.html`-suffixed requests to a dynamic endpoint
+			// (e.g. from `netlify dev` probing pretty-URL fallbacks) matched the route but
+			// failed to extract params, throwing "Missing parameter: id".
+			const route = makeRoute({
+				route: '/api/items/[id]/status',
+				segments: [
+					[staticPart('api')],
+					[staticPart('items')],
+					[dynamicPart('id')],
+					[staticPart('status')],
+				],
+				trailingSlash: 'ignore',
+				pathname: undefined,
+				type: 'endpoint',
+			});
+			assert.deepEqual(getParams(route, '/api/items/123/status'), { id: '123' });
+			assert.deepEqual(getParams(route, '/api/items/123/status.html'), { id: '123' });
+		});
+
+		it('strips /index.html for endpoint routes when the pattern does not match otherwise', () => {
+			const route = makeRoute({
+				route: '/api/items/[id]/status',
+				segments: [
+					[staticPart('api')],
+					[staticPart('items')],
+					[dynamicPart('id')],
+					[staticPart('status')],
+				],
+				trailingSlash: 'ignore',
+				pathname: undefined,
+				type: 'endpoint',
+			});
+			assert.deepEqual(getParams(route, '/api/items/123/status/index.html'), { id: '123' });
+		});
+
+		it('preserves .html captured by an endpoint param', () => {
+			// An endpoint whose param genuinely matches the `.html` pathname must keep the
+			// suffix — the fallback stripping only kicks in when the original pattern fails.
+			const route = makeRoute({
+				route: '/[path]',
+				segments: [[dynamicPart('path')]],
+				trailingSlash: 'ignore',
+				pathname: undefined,
+				type: 'endpoint',
+			});
+			assert.deepEqual(getParams(route, '/file.html'), { path: 'file.html' });
+		});
 	});
 
 	describe('no match', () => {
@@ -164,6 +214,50 @@ describe('getParams', () => {
 			const params = getParams(route, '/other/something');
 			assert.deepEqual(params, {});
 		});
+	});
+});
+
+describe('stringifyParams', () => {
+	it('should not append trailing slash for file extension endpoint routes with trailingSlash always (issue #17306)', () => {
+		const route = makeRoute({
+			route: '/og/[...slug].png',
+			segments: [[staticPart('og')], [spreadPart('...slug'), staticPart('.png')]],
+			trailingSlash: 'never',
+			pathname: undefined,
+			type: 'endpoint',
+		});
+
+		const result = stringifyParams({ slug: '概率论/参数估计' }, route, 'always');
+		assert.equal(result, '/og/概率论/参数估计.png');
+		// Verify the generated path matches the route pattern
+		assert.ok(route.pattern.test(result), 'generated path should match route pattern');
+	});
+
+	it('should not append trailing slash for single dynamic file extension endpoint', () => {
+		const route = makeRoute({
+			route: '/api/[name].json',
+			segments: [[staticPart('api')], [dynamicPart('name'), staticPart('.json')]],
+			trailingSlash: 'never',
+			pathname: undefined,
+			type: 'endpoint',
+		});
+
+		const result = stringifyParams({ name: 'bar' }, route, 'always');
+		assert.equal(result, '/api/bar.json');
+		assert.ok(route.pattern.test(result), 'generated path should match route pattern');
+	});
+
+	it('should still append trailing slash for endpoints without file extensions', () => {
+		const route = makeRoute({
+			route: '/api/[name]',
+			segments: [[staticPart('api')], [dynamicPart('name')]],
+			trailingSlash: 'always',
+			pathname: undefined,
+			type: 'endpoint',
+		});
+
+		const result = stringifyParams({ name: 'bar' }, route, 'always');
+		assert.equal(result, '/api/bar/');
 	});
 });
 

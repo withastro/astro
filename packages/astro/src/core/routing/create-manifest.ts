@@ -16,13 +16,14 @@ import {
 	InvalidRedirectDestination,
 	MissingIndexForInternationalization,
 	UnsupportedExternalRedirect,
-} from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
+} from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { hasFileExtension, removeLeadingForwardSlash, slash } from '../path.js';
 import { injectServerIslandRoute } from '../server-islands/endpoint.js';
 import { resolvePages } from '../util.js';
 import { ensure404Route } from './astro-designed-error-pages.js';
+import { isRoute3xx } from '@astrojs/runtime/_internal/core/routing/internal/route-errors.js';
 import { routeComparator } from './priority.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
@@ -241,13 +242,14 @@ function createFileBasedRoutes(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
+				const route = joinSegments(segments);
 				const trailingSlash = trailingSlashForPath(
 					pathname,
 					settings.config,
 					item.isPage ? 'page' : 'endpoint',
+					route,
 				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
-				const route = joinSegments(segments);
 				routes.push({
 					route,
 					isIndex: item.isIndex,
@@ -386,13 +388,14 @@ function createRoutesFromEntriesByDir(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
+				const route = joinSegments(segments);
 				const trailingSlash = trailingSlashForPath(
 					pathname,
 					settings.config,
 					item.isPage ? 'page' : 'endpoint',
+					route,
 				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
-				const route = joinSegments(segments);
 				routes.push({
 					route,
 					isIndex: item.isIndex,
@@ -442,8 +445,9 @@ const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,
 	type: 'page' | 'endpoint',
+	route?: string,
 ): AstroConfig['trailingSlash'] =>
-	type === 'endpoint' && pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
+	type === 'endpoint' && hasFileExtension(pathname ?? route ?? '') ? 'never' : config.trailingSlash;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
@@ -468,13 +472,13 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
 
-		const trailingSlash = trailingSlashForPath(pathname, config, type);
+		const route = joinSegments(segments);
+		const trailingSlash = trailingSlashForPath(pathname, config, type, route);
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const params = segments
 			.flat()
 			.filter((p) => p.dynamic)
 			.map((p) => p.content);
-		const route = joinSegments(segments);
 
 		routes.push({
 			type,
@@ -824,7 +828,9 @@ export function createI18nFallbackRoutes(
 
 	// Group page routes by locale
 	const routesByLocale = new Map<string, RouteData[]>();
-	const setRoutes = new Set(routes.filter((route) => route.type === 'page'));
+	const setRoutes = new Set(
+		routes.filter((route) => route.type === 'page' && !isRoute3xx(route.route)),
+	);
 
 	const filteredLocales = i18n.locales
 		.filter((loc) => {
@@ -1005,7 +1011,17 @@ function joinSegments(segments: RoutePart[][]): string {
 	return `/${arr.join('/')}`;
 }
 
+/**
+ * Swaps the first `from` locale segment of a route for `to`. Routes that already carry the
+ * `to` locale, and routes with no `from` segment, are returned unchanged. Matching is done on
+ * whole segments — the same way routes are grouped by locale above — so a locale code that is
+ * merely a prefix of another segment (`/en/enterprise`) is left alone.
+ */
 function replaceOrKeep(original: string, from: string, to: string): string {
 	if (original.startsWith(`/${to}/`) || original === `/${to}`) return original;
-	return original.replace(`/${from}/`, `/${to}/`).replace(`/${from}`, `/${to}`);
+	const segments = original.split('/');
+	const index = segments.indexOf(from);
+	if (index === -1) return original;
+	segments[index] = to;
+	return segments.join('/');
 }

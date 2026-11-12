@@ -6,7 +6,7 @@ import type { BaseApp } from 'astro/app';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
 import type { NodeAppHeadersJson, Options } from './types.js';
-import { createRequestFromNodeRequest } from 'astro/app/node';
+import { createRequestFromNodeRequest, getAbortControllerCleanup } from 'astro/app/node';
 
 /**
  * Resolves a URL path to a filesystem path within the client directory,
@@ -57,7 +57,9 @@ export function createStaticHandler(
 				fullUrl = fullUrl.slice(0, req.url.indexOf('#'));
 			}
 
-			const [urlPath, urlQuery] = fullUrl.split('?');
+			const qIndex = fullUrl.indexOf('?');
+			const urlPath = qIndex >= 0 ? fullUrl.slice(0, qIndex) : fullUrl;
+			const urlQuery = qIndex >= 0 ? fullUrl.slice(qIndex + 1) : '';
 			let fsPath = app.removeBase(urlPath);
 			try {
 				fsPath = decodeURI(fsPath);
@@ -68,10 +70,17 @@ export function createStaticHandler(
 			let pathname = urlPath;
 
 			if (headersMap && headersMap.length > 0) {
+				// Skip the body so this throwaway Request doesn't start consuming `req`
+				// before the SSR handler reads it (#18561).
 				const request = createRequestFromNodeRequest(req, {
+					skipBody: true,
 					port: options.port,
 				});
 				const routeData = app.match(request, true);
+				// The Request is only used for route matching above. Clean up the
+				// socket `close` listener that wireAbortController added, otherwise
+				// keep-alive connections accumulate listeners on every request.
+				getAbortControllerCleanup(req)?.();
 				if (routeData && routeData.prerender) {
 					// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
 					// must strip config.base from the incoming URL before matching, just as

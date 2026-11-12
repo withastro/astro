@@ -1,5 +1,5 @@
 import { isAbsolute } from 'node:path';
-import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { FontFileContentResolver } from '../definitions.js';
 
 type ReadFileSync = (path: string) => string;
@@ -17,10 +17,11 @@ export class FsFontFileContentResolver implements FontFileContentResolver {
 			return url;
 		}
 		try {
-			// We use the url and the file content for the id generation because:
-			// - The URL is not hashed unlike remote providers
-			// - A font file can renamed and swapped so we would incorrectly cache it
-			return url + this.#readFileSync(url);
+			// We only use the file content for the id generation to ensure
+			// deterministic output filenames regardless of the project's location
+			// on disk. The absolute path is excluded so that the same font file
+			// produces the same hash across different checkout directories.
+			return this.#readFileSync(url);
 		} catch (cause) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 		}

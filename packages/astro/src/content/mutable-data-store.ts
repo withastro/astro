@@ -1,10 +1,19 @@
 import { existsSync, promises as fs, type PathLike } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
-import { Traverse } from 'neotraverse/modern';
-import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { IMAGE_IMPORT_PREFIX } from './consts.js';
-import { type DataEntry, ImmutableDataStore } from './data-store.js';
+import { forEach } from 'neotraverse';
+import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
+import type { AstroLogger } from '../core/logger/core.js';
+import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
+import {
+	ChunkedWriter,
+	type DataStoreManifest,
+	type DataStoreWriter,
+	FileWriter,
+	serializeDataStore,
+} from './data-store-writer.js';
+import { ChunkedCollectionParser, type DataEntry, ImmutableDataStore } from './data-store.js';
 import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
@@ -16,7 +25,7 @@ const MAX_DEPTH = 10;
  * This is kept as a separate class to avoid needing node builtins at runtime, when read-only access is all that is needed.
  */
 export class MutableDataStore extends ImmutableDataStore {
-	#file?: PathLike;
+	#writer?: DataStoreWriter;
 
 	#assetsFile?: PathLike;
 	#modulesFile?: PathLike;
@@ -38,6 +47,35 @@ export class MutableDataStore extends ImmutableDataStore {
 	#writeInProgress = false;
 	#writeQueued = false;
 
+	#fileWrittenListeners = new Set<(path: string) => void>();
+
+	/**
+	 * Registers a listener called with the file path whenever this store writes a
+	 * file to disk (the data store itself, or the asset/module import files).
+	 * Writes that are skipped because the data on disk is already identical do
+	 * not notify. The dev server uses this to invalidate the content virtual
+	 * modules deterministically, instead of relying on the file watcher to
+	 * observe the write — on some platforms (notably Windows) the watcher can
+	 * miss the atomic rename that commits it.
+	 * Returns a function that removes the listener.
+	 */
+	onFileWritten(listener: (path: string) => void): () => void {
+		this.#fileWrittenListeners.add(listener);
+		return () => {
+			this.#fileWrittenListeners.delete(listener);
+		};
+	}
+
+	#notifyFileWritten(path: PathLike) {
+		if (this.#fileWrittenListeners.size === 0) {
+			return;
+		}
+		const normalized = path instanceof URL ? fileURLToPath(path) : path.toString();
+		for (const listener of this.#fileWrittenListeners) {
+			listener(normalized);
+		}
+	}
+
 	set(collectionName: string, key: string, value: unknown) {
 		const collection = this._collections.get(collectionName) ?? new Map();
 		collection.set(String(key), value);
@@ -51,6 +89,7 @@ export class MutableDataStore extends ImmutableDataStore {
 			collection.delete(String(key));
 			this.#saveToDiskDebounced();
 			this.#writeAssetsImportsDebounced();
+			this.#writeModulesImportsDebounced();
 		}
 	}
 
@@ -58,12 +97,14 @@ export class MutableDataStore extends ImmutableDataStore {
 		this._collections.delete(collectionName);
 		this.#saveToDiskDebounced();
 		this.#writeAssetsImportsDebounced();
+		this.#writeModulesImportsDebounced();
 	}
 
 	clearAll() {
 		this._collections.clear();
 		this.#saveToDiskDebounced();
 		this.#writeAssetsImportsDebounced();
+		this.#writeModulesImportsDebounced();
 	}
 
 	addAssetImport(assetImport: string, filePath?: string) {
@@ -115,6 +156,27 @@ export class MutableDataStore extends ImmutableDataStore {
 		}
 	}
 
+	/**
+	 * Rebuilds #moduleImports from the current entries in _collections.
+	 * This ensures stale module entries are removed when content files are
+	 * deleted or renamed, preventing Vite from attempting to resolve
+	 * non-existent files listed in content-modules.mjs.
+	 */
+	#rebuildModuleImports() {
+		this.#moduleImports.clear();
+		for (const collection of this._collections.values()) {
+			for (const entry of collection.values()) {
+				const typedEntry = entry as DataEntry;
+				if (typedEntry.deferredRender && typedEntry.filePath) {
+					const id = contentModuleToId(typedEntry.filePath);
+					if (id) {
+						this.#moduleImports.set(typedEntry.filePath, id);
+					}
+				}
+			}
+		}
+	}
+
 	async writeAssetImports(filePath: PathLike) {
 		this.#assetsFile = filePath;
 		this.#rebuildAssetImports();
@@ -125,6 +187,8 @@ export class MutableDataStore extends ImmutableDataStore {
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
+			this.#assetsDirty = false;
+			return;
 		}
 
 		if (!this.#assetsDirty && existsSync(filePath)) {
@@ -137,8 +201,8 @@ export class MutableDataStore extends ImmutableDataStore {
 		const exports: Array<string> = [];
 		// Sort asset imports to ensure deterministic output across builds
 		const sortedAssetImports = [...this.#assetImports].sort();
-		sortedAssetImports.forEach((id) => {
-			const symbol = importIdToSymbolName(id);
+		sortedAssetImports.forEach((id, index) => {
+			const symbol = `__ASTRO_IMAGE_IMPORT_${index}`;
 			imports.push(`import ${symbol} from ${JSON.stringify(id)};`);
 			exports.push(`[${JSON.stringify(id)}, ${symbol}]`);
 		});
@@ -156,6 +220,7 @@ export default new Map([${exports.join(', ')}]);
 
 	async writeModuleImports(filePath: PathLike) {
 		this.#modulesFile = filePath;
+		this.#rebuildModuleImports();
 
 		if (this.#moduleImports.size === 0) {
 			try {
@@ -163,6 +228,7 @@ export default new Map([${exports.join(', ')}]);
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
+			return;
 		}
 
 		if (!this.#modulesDirty && existsSync(filePath)) {
@@ -254,7 +320,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			clearTimeout(this.#saveTimeout);
 		}
 		this.#saveTimeout = undefined;
-		if (this.#file) {
+		if (this.#writer) {
 			await this.writeToDisk();
 		}
 		this.#maybeResolveSavePromise();
@@ -274,7 +340,7 @@ export default new Map([\n${lines.join(',\n')}]);
 
 		this.#saveTimeout = setTimeout(async () => {
 			this.#saveTimeout = undefined;
-			if (this.#file) {
+			if (this.#writer) {
 				await this.writeToDisk();
 			}
 			this.#maybeResolveSavePromise();
@@ -310,6 +376,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			// Write it to a temporary file first and then move it to prevent partial reads.
 			await fs.writeFile(tempFile, data);
 			await fs.rename(tempFile, filePath);
+			this.#notifyFileWritten(filePath);
 		} finally {
 			// We're done writing. Unflag the file and check if there are any pending writes for this file.
 			this.#writing.delete(fileKey);
@@ -329,7 +396,17 @@ export default new Map([\n${lines.join(',\n')}]);
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({ id: key, data, body, filePath, deferredRender, digest, rendered, assetImports }) => {
+			set: ({
+				id: key,
+				data,
+				body,
+				filePath,
+				deferredRender,
+				digest,
+				rendered,
+				assetImports,
+				imageImports: incomingImageImports,
+			}) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
 				}
@@ -341,11 +418,29 @@ export default new Map([\n${lines.join(',\n')}]);
 					}
 				}
 				const foundAssets = new Set<string>(assetImports);
-				// Check for image imports in the data. These will have been prefixed during schema parsing
-				new Traverse(data).forEach((_, val) => {
+				const imageImports: (string | number)[][] = [];
+				const seenImageImportPaths = new Set();
+				const recordImageImport = (imagePath: (string | number)[]) => {
+					const pathKey = JSON.stringify(imagePath);
+					if (seenImageImportPaths.has(pathKey)) {
+						return;
+					}
+					seenImageImportPaths.add(pathKey);
+					imageImports.push(imagePath);
+				};
+				for (const existingImagePath of incomingImageImports ?? []) {
+					recordImageImport([...existingImagePath]);
+				}
+				// Image fields are prefixed during schema parsing. Record their locations and
+				// strip the prefix so the stored data holds a plain, devalue-serializable src
+				// string. The recorded paths let read-time resolution rewrite only these fields
+				// without traversing or cloning the rest of the data.
+				forEach(data, function (ctx, val) {
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
+						recordImageImport(ctx.path.map((segment) => segment as string | number));
+						ctx.update(src);
 					}
 				});
 
@@ -368,6 +463,10 @@ export default new Map([\n${lines.join(',\n')}]);
 				if (foundAssets.size) {
 					entry.assetImports = Array.from(foundAssets);
 					this.addAssetImports(entry.assetImports, filePath);
+				}
+
+				if (imageImports.length) {
+					entry.imageImports = imageImports;
 				}
 
 				if (digest) {
@@ -422,29 +521,18 @@ export default new Map([\n${lines.join(',\n')}]);
 	}
 
 	toString() {
-		// Sort collections and their entries by key to ensure deterministic serialization.
-		// Entry insertion order can vary between builds due to concurrent file processing (pLimit),
-		// so we sort here to guarantee stable output hashes regardless of processing order.
-		const sorted = new Map(
-			[...this._collections.entries()]
-				.sort(([a], [b]) => a.localeCompare(b))
-				.map(([key, collection]) => [
-					key,
-					new Map([...collection.entries()].sort(([a], [b]) => a.localeCompare(b))),
-				]),
-		);
-		return devalue.stringify(sorted);
+		return serializeDataStore(this._collections);
 	}
 
 	async writeToDisk() {
 		if (!this.#dirty) {
 			return;
 		}
-		if (!this.#file) {
+		if (!this.#writer) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError);
 		}
 		// If a write is already in progress, queue this write and return.
-		// This ensures we don't pass stale data to #writeFileAtomic nor race
+		// This ensures we don't pass stale data to the writer nor race
 		// with the ongoing execution.
 		if (this.#writeInProgress) {
 			this.#writeQueued = true;
@@ -454,7 +542,10 @@ export default new Map([\n${lines.join(',\n')}]);
 			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
 			this.#writeInProgress = true;
-			await this.#writeFileAtomic(this.#file, this.toString());
+			const didWrite = await this.#writer.write(this._collections);
+			if (didWrite) {
+				this.#notifyFileWritten(this.#writer.target);
+			}
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		} finally {
@@ -498,14 +589,57 @@ export default new Map([\n${lines.join(',\n')}]);
 			if (existsSync(filePath)) {
 				const data = await fs.readFile(filePath, 'utf-8');
 				const store = await MutableDataStore.fromString(data);
-				store.#file = filePath;
+				store.#writer = new FileWriter(filePath);
 				return store;
 			} else {
 				await fs.mkdir(new URL('./', filePath), { recursive: true });
 			}
 		} catch {}
 		const store = new MutableDataStore();
-		store.#file = filePath;
+		store.#writer = new FileWriter(filePath);
+		return store;
+	}
+
+	/**
+	 * Loads a MutableDataStore from a chunked store directory, reading the manifest
+	 * and its referenced parts.
+	 * If the directory has no manifest yet (fresh build) it starts empty. If the
+	 * manifest exists but can't be read (corrupt cache), it warns and starts
+	 * empty so loaders rebuild it, rather than failing the sync.
+	 */
+	static async fromDir(dirPath: URL, chunkSize: number, logger: Pick<AstroLogger, 'warn'>) {
+		const manifestFile = new URL(`./${DATA_STORE_MANIFEST_FILE}`, dirPath);
+		if (existsSync(manifestFile)) {
+			try {
+				const manifestData = await fs.readFile(manifestFile, 'utf-8');
+				const manifest: DataStoreManifest = JSON.parse(manifestData);
+				const collections = new Map<string, Map<string, any>>();
+				for (const collectionName in manifest) {
+					const parser = new ChunkedCollectionParser();
+					for (const fileName of manifest[collectionName]) {
+						// Parsing each part before reading the next prevents raw collection
+						// contents from accumulating in memory during cache restoration.
+						parser.add(await fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'));
+					}
+					collections.set(collectionName, parser.finish());
+				}
+				const store = await MutableDataStore.fromMap(collections);
+				store.#writer = new ChunkedWriter(dirPath, chunkSize);
+				return store;
+			} catch (err) {
+				// The manifest exists but couldn't be read/parsed, or a referenced
+				// part is missing: the chunked cache is corrupt. Warn loudly and fall
+				// through to a fresh store so loaders rebuild it.
+				logger.warn(
+					'content',
+					`Could not read the chunked data store at ${fileURLToPath(dirPath)}, rebuilding from scratch. ${err instanceof Error ? err.message : err}`,
+				);
+			}
+		}
+		// Fresh build, or recovering from a corrupt cache: start empty.
+		await fs.mkdir(dirPath, { recursive: true });
+		const store = new MutableDataStore();
+		store.#writer = new ChunkedWriter(dirPath, chunkSize);
 		return store;
 	}
 }

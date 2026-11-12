@@ -119,6 +119,31 @@ test.describe('Dev Toolbar - Audits', () => {
 		expect(auditCode).toBe('perf-use-image-component');
 	});
 
+	test('does not fetch a loaded image again to read its size', async ({ page, astro }) => {
+		// Fetching an image again freezes an animated SVG's CSS animations in WebKit
+		const fetches: string[] = [];
+		page.on('request', (request) => {
+			if (request.resourceType() === 'fetch' && request.url().endsWith('/the-future.jpg')) {
+				fetches.push(request.url());
+			}
+		});
+
+		await page.goto(astro.resolveUrl('/audits-perf-loaded-image'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
+
+		await expect(auditHighlights).toHaveCount(1);
+		expect(await auditHighlights.first().getAttribute('data-audit-code')).toBe(
+			'perf-use-image-component',
+		);
+		expect(fetches).toEqual([]);
+	});
+
 	test('can handle mutations', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/audits-mutations'));
 
@@ -276,5 +301,52 @@ test.describe('Dev Toolbar - Audits', () => {
 		);
 
 		await expect(missingContentHighlights).toHaveCount(1);
+	});
+
+	test('warns about elements whose explicit role matches their implicit ARIA role', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/a11y-redundant-roles'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const highlights = auditCanvas.locator(
+			'astro-dev-toolbar-highlight[data-audit-code="a11y-no-redundant-roles"]',
+		);
+
+		// nav[role=navigation], main[role=main], button[role=button], h1[role=heading],
+		// input[type=checkbox][role=checkbox], input[type=submit][role=button],
+		// a[href][role=link], input[role=textbox],
+		// img[alt="photo"][role=image], aside[role=complementary],
+		// article > aside[aria-label][role=complementary], section[aria-label][role=region]
+		await expect(highlights).toHaveCount(12);
+	});
+
+	test('does not warn about ul/ol/li exceptions, conditional implicit roles, or non-redundant roles', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/a11y-redundant-roles-valid'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const highlights = auditCanvas.locator(
+			'astro-dev-toolbar-highlight[data-audit-code="a11y-no-redundant-roles"]',
+		);
+
+		// ul/ol[role=list], li[role=listitem]: exempt (CSS list-style:none workaround)
+		// nav[role=banner], button[role=link], input[type=text][role=combobox]: non-implicit roles
+		// a (no href)[role=link]: no implicit role without href
+		// img[alt=""][role=img]: decorative image has no implicit role
+		// article > aside (no name)[role=complementary]: nested aside without accessible name has no implicit role
+		// section (no name)[role=region]: section without accessible name has no implicit role
+		await expect(highlights).toHaveCount(0);
 	});
 });

@@ -1,4 +1,27 @@
+import {
+	ALGORITHMS,
+	ALLOWED_DIRECTIVES,
+	CSP_KINDS,
+	type CspAlgorithm,
+	type CspAlgorithmValue,
+	type CspDirective,
+	type CspHash,
+	type CspHashEntry,
+	type CspKind,
+	type CspResourceEntry,
+} from '@astrojs/runtime/_internal/core/csp/sources.js';
 import * as z from 'zod/v4';
+
+export {
+	ALGORITHMS,
+	CSP_KINDS,
+	type CspAlgorithm,
+	type CspDirective,
+	type CspHash,
+	type CspHashEntry,
+	type CspKind,
+	type CspResourceEntry,
+};
 
 type UnionToIntersection<U> = (U extends never ? never : (arg: U) => never) extends (
 	arg: infer I,
@@ -11,17 +34,6 @@ type UnionToTuple<T> =
 		? [...UnionToTuple<Exclude<T, W>>, W]
 		: [];
 
-export const ALGORITHMS = {
-	'SHA-256': 'sha256-',
-	'SHA-384': 'sha384-',
-	'SHA-512': 'sha512-',
-} as const;
-
-type Algorithms = typeof ALGORITHMS;
-
-export type CspAlgorithm = keyof Algorithms;
-type CspAlgorithmValue = Algorithms[keyof Algorithms];
-
 const ALGORITHM_VALUES = Object.values(ALGORITHMS) as UnionToTuple<CspAlgorithmValue>;
 
 export const cspAlgorithmSchema = z
@@ -29,7 +41,7 @@ export const cspAlgorithmSchema = z
 	.optional()
 	.default('SHA-256');
 
-export const cspHashSchema = z.custom<`${CspAlgorithmValue}${string}`>((value) => {
+export const cspHashSchema = z.custom<CspHash>((value) => {
 	if (typeof value !== 'string') {
 		return false;
 	}
@@ -38,33 +50,54 @@ export const cspHashSchema = z.custom<`${CspAlgorithmValue}${string}`>((value) =
 	});
 });
 
-export type CspHash = z.infer<typeof cspHashSchema>;
+export const cspKindSchema = z.enum(CSP_KINDS);
 
-const ALLOWED_DIRECTIVES = [
-	'base-uri',
-	'child-src',
-	'connect-src',
-	'default-src',
-	'fenced-frame-src',
-	'font-src',
-	'form-action',
-	'frame-ancestors',
-	'frame-src',
-	'img-src',
-	'manifest-src',
-	'media-src',
-	'object-src',
-	'referrer',
-	'report-to',
-	'report-uri',
-	'require-trusted-types-for',
-	'sandbox',
-	'trusted-types',
-	'upgrade-insecure-requests',
-	'worker-src',
+// Per MDN, `script-src-attr`/`style-src-attr` only accept these keyword sources.
+const ATTRIBUTE_ALLOWED_RESOURCES = [
+	"'none'",
+	"'unsafe-hashes'",
+	"'unsafe-inline'",
+	"'report-sample'",
 ] as const;
-type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
-export type CspDirective = `${AllowedDirectives}${string | undefined}`;
+
+export const cspResourceEntrySchema = z
+	.union([
+		z.string(),
+		z.object({
+			resource: z.string(),
+			kind: cspKindSchema,
+		}),
+	])
+	.superRefine((value, ctx) => {
+		// `value` is already a valid union member here, so a bare string is the `default` kind.
+		const resource = typeof value === 'string' ? value : value.resource;
+		const kind = typeof value === 'string' ? 'default' : value.kind;
+		// `'unsafe-hashes'` is invalid on the `-elem` directives.
+		if (kind === 'element' && resource === "'unsafe-hashes'") {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: `The source \`'unsafe-hashes'\` is not valid for \`element\` resources (it is rejected by \`script-src-elem\`/\`style-src-elem\`).`,
+				fatal: true,
+			});
+		} else if (
+			kind === 'attribute' &&
+			!(ATTRIBUTE_ALLOWED_RESOURCES as readonly string[]).includes(resource)
+		) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: `The source \`${resource}\` is not valid for \`attribute\` resources. \`script-src-attr\`/\`style-src-attr\` only accept: ${ATTRIBUTE_ALLOWED_RESOURCES.join(', ')}.`,
+				fatal: true,
+			});
+		}
+	});
+
+export const cspHashEntrySchema = z.union([
+	cspHashSchema,
+	z.object({
+		hash: cspHashSchema,
+		kind: cspKindSchema,
+	}),
+]);
 
 export const allowedDirectivesSchema = z
 	.custom<CspDirective>((v) => typeof v === 'string')
@@ -76,7 +109,7 @@ export const allowedDirectivesSchema = z
 			if (value.startsWith('script-src') || value.startsWith('style-src')) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: `Directives \`script-src\` and \`style-src\` are not allowed in \`security.csp.directives\`. Please use \`security.csp.scriptDirective\` and \`security.csp.styleDirective\` instead.`,
+					message: `Directives \`script-src\` and \`style-src\` (including their \`-elem\`/\`-attr\` variants) are not allowed in \`security.csp.directives\`. Please use \`security.csp.scriptDirective\` and \`security.csp.styleDirective\` instead, scoping resources/hashes to the more specific directives with the \`kind\` option (\`"element"\` or \`"attribute"\`).`,
 					fatal: true,
 				});
 			} else {

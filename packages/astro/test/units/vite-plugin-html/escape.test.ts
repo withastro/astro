@@ -1,12 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import MagicString from 'magic-string';
-import { rehype } from 'rehype';
+import { transform } from '../../../dist/vite-plugin-html/transform/index.js';
 import {
 	escapeTemplateLiteralCharacters,
 	needsEscape,
 } from '../../../dist/vite-plugin-html/transform/utils.js';
-import rehypeEscape from '../../../dist/vite-plugin-html/transform/escape.js';
 
 describe('vite-plugin-html: escape utilities', () => {
 	describe('needsEscape', () => {
@@ -77,68 +75,55 @@ describe('vite-plugin-html: escape utilities', () => {
 
 describe('vite-plugin-html: escape transformer', () => {
 	async function testEscapeTransform(html: string) {
-		const s = new MagicString(html);
-		const processor = rehype().data('settings', { fragment: true }).use(rehypeEscape, { s });
-
-		await processor.process(html);
-		return s.toString();
+		const { code } = await transform(html, 'test.html');
+		return code;
 	}
 
 	it('escapes text content', async () => {
 		const result = await testEscapeTransform('<div>${foo}</div>');
-		assert.equal(result, '<div>\\${foo}</div>');
+		assert.match(result, /<div>\\\$\{foo\}<\/div>/);
 	});
 
 	it('escapes comment content', async () => {
 		const result = await testEscapeTransform('<!-- ${comment} -->');
-		// Comments are parsed as text nodes by rehype, so only the content is returned
-		assert.equal(result, ' \\${comment} ');
+		assert.match(result, /<!-- \\\$\{comment\} -->/);
 	});
 
 	it('escapes attribute names with template literal characters', async () => {
 		const result = await testEscapeTransform('<span ${attr}></span>');
-		assert.equal(result, '<span \\${attr}></span>');
+		assert.match(result, /<span \\\$\{attr\}><\/span>/);
 	});
 
 	it('escapes attribute values with template literal characters', async () => {
 		const result = await testEscapeTransform(
 			'<custom-element x-data="`${test}`"></custom-element>',
 		);
-		assert.equal(result, '<custom-element x-data="\\`\\${test}\\`"></custom-element>');
+		assert.match(result, /<custom-element x-data="\\`\\\$\{test\}\\`"><\/custom-element>/);
 	});
 
 	it('escapes camelCase attributes', async () => {
-		// Note: The escape transformer converts camelCase to kebab-case but doesn't escape properly
 		const result = await testEscapeTransform('<div dataValue="${val}"></div>');
-		// Current behavior: camelCase is preserved but value is not escaped
-		assert.equal(result, '<div dataValue="${val}"></div>');
+		assert.match(result, /<div dataValue="\\\$\{val\}"><\/div>/);
+	});
+
+	it('escapes multiple escapes in single element', async () => {
+		const result = await testEscapeTransform('<div data-a="${a}" data-b="`${b}`">${text}</div>');
+		assert.match(result, /<div data-a="\\\$\{a\}" data-b="\\`\\\$\{b\}\\`">\\\$\{text\}<\/div>/);
 	});
 
 	it('escapes complex nested structures', async () => {
-		const input = '<script>console.log(`hello ${"world"}!`)</script>';
-		const expected = '<script>console.log(\\`hello \\${"world"}!\\`)</script>';
-		const result = await testEscapeTransform(input);
-		assert.equal(result, expected);
-	});
-
-	it.skip('handles multiple escapes in single element', async () => {
-		// Skipping: There's a bug in replaceAttribute with multiple attributes
-		const input = '<div data-a="${a}" data-b="`${b}`">${text}</div>';
-		const expected = '<div data-a="\\${a}" data-b="\\`\\${b}\\`">\\${text}</div>';
-		const result = await testEscapeTransform(input);
-		assert.equal(result, expected);
+		const result = await testEscapeTransform('<script>console.log(`hello ${"world"}!`)</script>');
+		assert.match(result, /<script>console\.log\(\\`hello \\\$\{"world"\}!\\`\)<\/script>/);
 	});
 
 	it('preserves content without template literal characters', async () => {
 		const input = '<div class="test" id="foo">Hello world!</div>';
 		const result = await testEscapeTransform(input);
-		assert.equal(result, input);
+		assert.ok(result.includes(input));
 	});
 
 	it('handles empty attributes correctly', async () => {
-		const input = '<div ${attr}></div>';
-		const expected = '<div \\${attr}></div>';
-		const result = await testEscapeTransform(input);
-		assert.equal(result, expected);
+		const result = await testEscapeTransform('<div ${attr}></div>');
+		assert.match(result, /<div \\\$\{attr\}><\/div>/);
 	});
 });

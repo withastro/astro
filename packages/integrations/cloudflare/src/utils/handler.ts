@@ -2,6 +2,7 @@ import { env as globalEnv } from 'cloudflare:workers';
 import {
 	compileImageConfig,
 	isPrerender,
+	loadPrerenderScope,
 	cacheProviderEnabled,
 } from 'virtual:astro-cloudflare:config';
 import type { RenderOptions } from 'astro/app';
@@ -14,8 +15,9 @@ import {
 	isPrerenderRequest,
 	handleStaticPathsRequest,
 	handlePrerenderRequest,
-	isStaticImagesRequest,
-	handleStaticImagesRequest,
+	isImageTransformRequest,
+	handleImageTransformRequest,
+	installPrerenderErrorPropagation,
 } from './prerender.js';
 import {
 	type Runtime,
@@ -26,6 +28,7 @@ import {
 	createLocals,
 	getClientAddress,
 } from './cf.js';
+import { applyCloudflareResponseHeaders } from './response.js';
 
 export type { Runtime };
 
@@ -40,6 +43,10 @@ type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
 
 const app = createApp();
 
+if (isPrerender) {
+	installPrerenderErrorPropagation(app);
+}
+
 export async function handle(
 	request: Request,
 	env: Env,
@@ -47,19 +54,30 @@ export async function handle(
 ): Promise<CfResponse> {
 	// Handle prerender endpoints (only active during build prerender phase)
 	if (isPrerender) {
-		if (compileImageConfig) {
-			const { installAddStaticImage } = await import('./static-image-collection.js');
-			installAddStaticImage(compileImageConfig);
+		const isStaticPaths = isStaticPathsRequest(request);
+		if (isStaticPaths || isPrerenderRequest(request)) {
+			await app.getLogger();
+			// Install the isolate's render scope so concurrent prerender requests
+			// each collect their metadata in their own per-render store. The
+			// loader thunk is generated into the virtual config module only for the
+			// prerender environment, keeping the module — and its `node:async_hooks`
+			// import — out of production worker output entirely; the install
+			// itself is first-wins, making the per-request call idempotent.
+			(await loadPrerenderScope?.())?.ensurePrerenderScope();
+			// Without build-time image optimization, prerendered pages keep the runtime image URLs.
+			const options = { staticImages: compileImageConfig !== null };
+			return (isStaticPaths
+				? handleStaticPathsRequest(app, options)
+				: handlePrerenderRequest(app, request, options)) as unknown as CfResponse;
 		}
-
-		if (isStaticPathsRequest(request)) {
-			return handleStaticPathsRequest(app) as unknown as CfResponse;
-		}
-		if (isPrerenderRequest(request)) {
-			return handlePrerenderRequest(app, request) as unknown as CfResponse;
-		}
-		if (isStaticImagesRequest(request)) {
-			return handleStaticImagesRequest() as unknown as CfResponse;
+		if (isImageTransformRequest(request)) {
+			const imagesBindingName = globalThis.__ASTRO_IMAGES_BINDING_NAME;
+			return handleImageTransformRequest(request, {
+				images:
+					compileImageConfig?.transformWithBinding && imagesBindingName
+						? (env as Record<string, any>)[imagesBindingName]
+						: undefined,
+			}) as unknown as CfResponse;
 		}
 	}
 
@@ -97,20 +115,9 @@ export async function handle(
 		clientAddress: getClientAddress(request),
 	});
 
-	if (app.setCookieHeaders) {
-		for (const setCookieHeader of app.setCookieHeaders(response)) {
-			response.headers.append('Set-Cookie', setCookieHeader);
-		}
-	}
+	// Collect cookies before any rebuild: `setCookieHeaders` looks the
+	// response up by identity, so it must see the original object.
+	const setCookieHeaders = app.setCookieHeaders ? [...app.setCookieHeaders(response)] : [];
 
-	// When the Cloudflare cache provider is configured, default uncached
-	// responses to `no-store` so opting in to route caching never
-	// accidentally caches a route that didn't set any cache intent.
-	// Cloudflare's Worker cache otherwise caches all GET responses for
-	// up to 2 hours by default.
-	if (cacheProviderEnabled && !response.headers.has('Cloudflare-CDN-Cache-Control')) {
-		response.headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
-	}
-
-	return response;
+	return applyCloudflareResponseHeaders(response, setCookieHeaders, cacheProviderEnabled);
 }

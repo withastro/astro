@@ -1,5 +1,99 @@
 # @astrojs/preact
 
+## 6.1.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/preact-renderer@0.1.2
+
+## 6.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/preact-renderer@0.1.1
+
+## 6.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`ff1cf65`](https://github.com/withastro/astro/commit/ff1cf65c7a9d7f7603d371e08bda8dbc4cf106bf)]:
+  - @astrojs/preact-renderer@0.1.0
+
+## 6.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+
+## 6.1.1
+
+### Patch Changes
+
+- [#18475](https://github.com/withastro/astro/pull/18475) [`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab) Thanks [@ematipico](https://github.com/ematipico)! - Bumps the minimum supported Node.js version to 22.23.4, which includes the fixes from the [October 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+  
+  This is a patch release because the [Node.js support and upgrade policy](https://docs.astro.build/en/upgrade-astro/#nodejs-support-and-upgrade-policies) allows the Core team to raise the minimum Maintenance LTS version in a patch release when a disclosed and fixed Node.js security flaw affects Astro.
+
+## 6.1.0
+
+### Minor Changes
+
+- [#18389](https://github.com/withastro/astro/pull/18389) [`c96d07e`](https://github.com/withastro/astro/commit/c96d07ee3244241ac1d76b53b1318a99de89f76f) Thanks [@renovate](https://github.com/apps/renovate)! - Adds support for Preact v11
+
+- [#18277](https://github.com/withastro/astro/pull/18277) [`2715958`](https://github.com/withastro/astro/commit/2715958666b0a706b069d0592da3a070b3796a9b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases the minimum Node.js version to 22.22.0
+  
+  The minimum supported Node.js version is now 22.22.0, the latest Node.js 22 release supported by StackBlitz. This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+### Patch Changes
+
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+
+## 6.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+
+## 6.0.5
+
+### Patch Changes
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+
+## 6.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+
+## 6.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+
+## 6.0.2
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
+## 6.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+
 ## 6.0.0
 
 ### Major Changes

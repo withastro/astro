@@ -35,6 +35,17 @@ describe('Slots: Solid', () => {
 		assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
 	});
 
+	it('Escapes slot names', async () => {
+		const html = await fixture.readFile('/slot-name/index.html');
+		const $ = cheerio.load(html);
+		assert.equal($('#injected').length, 0);
+		assert.equal($('#static-content').length, 1);
+		assert.equal($('#hydrated-content').length, 1);
+		for (const el of $('astro-slot[name], astro-static-slot[name]').toArray()) {
+			assert.equal($(el).attr('name'), 'tab"><b id="injected">x</b><i title="');
+		}
+	});
+
 	describe('For MDX Pages', () => {
 		it('Renders default slot', async () => {
 			const html = await fixture.readFile('/mdx/index.html');

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.3/schema.json",
   "files": {
     "includes": [
       "**",
@@ -40,7 +40,7 @@
       "test": "recommended"
     },
     "rules": {
-      "recommended": false,
+      "preset": "none",
       "style": {
         "useNodejsImportProtocol": "error",
         // Enforce separate type imports for type-only imports to avoid bundling unneeded code
@@ -149,6 +149,26 @@
       }
     },
     {
+      "includes": ["packages/astro/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["astro/_internal", "astro/_internal/**"],
+                    "message": "Internal Astro entrypoints are only available to workspace tests and cannot be imported by production source code."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/*.astro", "**/client.d.ts", "**/jsx-runtime.d.ts"],
       "linter": {
         "rules": {
@@ -160,7 +180,7 @@
       }
     },
     {
-      "includes": ["**/packages/integrations/**/*.ts"],
+      "includes": ["**/packages/integrations/**/*.ts", "**/packages/renderers/**/*.ts"],
       "linter": {
         "rules": {
           "suspicious": {

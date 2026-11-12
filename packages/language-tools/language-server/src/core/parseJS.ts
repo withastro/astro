@@ -1,14 +1,16 @@
-import type { TSXExtractedScript } from '@astrojs/compiler/types';
+import { ExtractedScriptType, type ExtractedScript } from '@astrojs/astro2tsx';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
-import type { Segment } from 'muggle-string';
-import { toString } from 'muggle-string';
-import { buildMappings } from '../buildMappings';
+import { buildMappings, getText, type CodeSegment } from '../buildMappings';
 
-export function extractScriptTags(scripts: TSXExtractedScript[]): VirtualCode[] {
+export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 	const embeddedJSCodes: VirtualCode[] = [];
 
 	const moduleScripts = scripts
-		.filter((script) => script.type === 'module' || script.type === 'processed-module')
+		.filter(
+			(script) =>
+				script.type === ExtractedScriptType.Module ||
+				script.type === ExtractedScriptType.ProcessedModule,
+		)
 		.map(moduleScriptToVirtualCode) satisfies VirtualCode[];
 
 	const inlineScripts = scripts
@@ -17,7 +19,9 @@ export function extractScriptTags(scripts: TSXExtractedScript[]): VirtualCode[] 
 				// TODO: Change this at some point so that unknown scripts are not included
 				// We can't guarantee that they are JavaScript, so we shouldn't treat them as such, even if it might work in some cases
 				// Perhaps we should make it so that the user has to specify the language of the script if it's not a known type (ex: lang="js"), not sure.
-				script.type === 'event-attribute' || script.type === 'inline' || script.type === 'unknown',
+				script.type === ExtractedScriptType.EventAttribute ||
+				script.type === ExtractedScriptType.Inline ||
+				script.type === ExtractedScriptType.Unknown,
 		)
 		.sort((a, b) => a.position.start - b.position.start);
 
@@ -28,17 +32,17 @@ export function extractScriptTags(scripts: TSXExtractedScript[]): VirtualCode[] 
 	}
 
 	const JSONScripts = scripts
-		.filter((script) => script.type === 'json')
+		.filter((script) => script.type === ExtractedScriptType.Json)
 		.map(jsonScriptToVirtualCode) satisfies VirtualCode[];
 	embeddedJSCodes.push(...JSONScripts);
 
 	return embeddedJSCodes;
 }
 
-function moduleScriptToVirtualCode(script: TSXExtractedScript, index: number): VirtualCode {
+function moduleScriptToVirtualCode(script: ExtractedScript, index: number): VirtualCode {
 	let extension = 'mts';
 	let languageId = 'typescript';
-	if (script.type === 'module') {
+	if (script.type === ExtractedScriptType.Module) {
 		extension = 'mjs';
 		languageId = 'javascript';
 	}
@@ -70,7 +74,7 @@ function moduleScriptToVirtualCode(script: TSXExtractedScript, index: number): V
 	};
 }
 
-function jsonScriptToVirtualCode(script: TSXExtractedScript, index: number): VirtualCode {
+function jsonScriptToVirtualCode(script: ExtractedScript, index: number): VirtualCode {
 	return {
 		id: `${index}.json`,
 		languageId: 'json',
@@ -102,22 +106,23 @@ function jsonScriptToVirtualCode(script: TSXExtractedScript, index: number): Vir
 /**
  * Merge all the inline and non-hoisted scripts into a single `.mjs` file
  */
-function mergeJSContexts(inlineScripts: TSXExtractedScript[]): VirtualCode | undefined {
+function mergeJSContexts(inlineScripts: ExtractedScript[]): VirtualCode | undefined {
 	if (inlineScripts.length === 0) {
 		return undefined;
 	}
 
-	const codes: Segment<CodeInformation>[] = [];
+	const codes: CodeSegment<CodeInformation>[] = [];
 
 	for (const javascriptContext of inlineScripts) {
-		codes.push([
-			// Add a semicolon to the end of the event attribute to attempt to prevent errors from spreading to the rest of the document
-			// This is not perfect, but it's better than nothing
-			// See: https://github.com/microsoft/vscode/blob/e8e04769ec817a3374c3eaa26a08d3ae491820d5/extensions/html-language-features/server/src/modes/embeddedSupport.ts#L192
-			javascriptContext.content + ';',
-			undefined,
-			javascriptContext.position.start,
-			{
+		// Add a semicolon to the end of the event attribute to attempt to prevent errors from spreading to the rest of the document
+		// This is not perfect, but it's better than nothing
+		// See: https://github.com/microsoft/vscode/blob/e8e04769ec817a3374c3eaa26a08d3ae491820d5/extensions/html-language-features/server/src/modes/embeddedSupport.ts#L192
+		const text = javascriptContext.content + ';';
+		codes.push({
+			text,
+			start: javascriptContext.position.start,
+			end: javascriptContext.position.start + text.length,
+			data: {
 				verification: true,
 				completion: true,
 				semantic: true,
@@ -125,11 +130,11 @@ function mergeJSContexts(inlineScripts: TSXExtractedScript[]): VirtualCode | und
 				structure: true,
 				format: false,
 			},
-		]);
+		});
 	}
 
 	const mappings = buildMappings(codes);
-	const text = toString(codes);
+	const text = getText(codes);
 
 	return {
 		id: 'inline.mjs',

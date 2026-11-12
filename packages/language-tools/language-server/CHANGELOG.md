@@ -1,5 +1,73 @@
 # @astrojs/language-server
 
+## 2.17.3
+
+### Patch Changes
+
+- [#18460](https://github.com/withastro/astro/pull/18460) [`044148d`](https://github.com/withastro/astro/commit/044148d5cfbc90e0277b3205a52ec73bc452bb7e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Speeds up `astro check` by skipping a 10 ms editor-cancellation wait that ran before checking each file
+
+## 2.17.2
+
+### Patch Changes
+
+- [#18110](https://github.com/withastro/astro/pull/18110) [`ffdf774`](https://github.com/withastro/astro/commit/ffdf774b6fe5d39b196aef268b1d1e1c11c52cc0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix organize imports for Astro files whose frontmatter ends with imports.
+
+## 2.17.1
+
+### Patch Changes
+
+- [#17578](https://github.com/withastro/astro/pull/17578) [`7cc0b00`](https://github.com/withastro/astro/commit/7cc0b0076e9630e3ced20e44950eee1a9ce6fb5a) Thanks [@renovate](https://github.com/apps/renovate)! - Fixes a case where rich content diagnostics and snippet edits would not work
+
+## 2.17.0
+
+### Minor Changes
+
+- [#17676](https://github.com/withastro/astro/pull/17676) [`49d4294`](https://github.com/withastro/astro/commit/49d429480c7399bcebcb3b24fd37893403cfbf1b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improves type checking and editor support for `.astro` files.
+  
+  The language server now uses our all-new Biome powered `astro2tsx` implementation. This new version has much better support for incomplete syntax, generic types and various edge cases.
+  
+  In the vast majority of cases, no changes should be required to your code, and any change should be the result of more accurate types or behavior.
+
+### Patch Changes
+
+- [#17542](https://github.com/withastro/astro/pull/17542) [`fae64dd`](https://github.com/withastro/astro/commit/fae64ddfc344e2fbe4d1610465c75bbe0604ba77) Thanks [@IAmYhvr](https://github.com/IAmYhvr)! - Fixes the AstroComponent suffix not being removed from Svelte and Vue imports in `.astro` files.
+
+## 2.16.16
+
+### Patch Changes
+
+- [#17715](https://github.com/withastro/astro/pull/17715) [`a51c533`](https://github.com/withastro/astro/commit/a51c533224687120f0b279f740bdd80b62bc3769) Thanks [@wakqasahmed](https://github.com/wakqasahmed)! - Fixes `astro check` silently skipping `.astro` files that are only reachable through a TypeScript project reference (a tsconfig referenced via `references` in another tsconfig). These files are now checked and reported like any other `.astro` file.
+
+## 2.16.15
+
+### Patch Changes
+
+- [#17820](https://github.com/withastro/astro/pull/17820) [`89e5349`](https://github.com/withastro/astro/commit/89e53492d2358596afbb327ef8bb80a44cd59807) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `source.organizeImports` leaking generated Astro component exports into `.astro` files
+
+## 2.16.14
+
+### Patch Changes
+
+- [#17618](https://github.com/withastro/astro/pull/17618) [`2630631`](https://github.com/withastro/astro/commit/263063116c8fa36474b255b7d4ecf43a0a55ffe2) Thanks [@lazerg](https://github.com/lazerg)! - Fixes the missing "Add all missing imports" and "Add import from" quick fixes for Astro components
+
+## 2.16.13
+
+### Patch Changes
+
+- [#17465](https://github.com/withastro/astro/pull/17465) [`6a1c1d8`](https://github.com/withastro/astro/commit/6a1c1d8571bda501d6ac64b726b4250f67c6bb0b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where errors in files included in tsconfig project references would never be caught
+
+## 2.16.12
+
+### Patch Changes
+
+- [#17345](https://github.com/withastro/astro/pull/17345) [`5196fb4`](https://github.com/withastro/astro/commit/5196fb45aec8b63ba43f86d558bd98b302abd0a9) Thanks [@kkhys](https://github.com/kkhys)! - Fixes an opaque `Cannot read properties of undefined (reading 'fileExists')` crash when `astro check` runs against the TypeScript 7 native compiler. The native compiler does not ship the programmatic API the checker relies on yet, so `astro check` now fails early with a clear message pointing to the tracking issue instead.
+
+## 2.16.11
+
+### Patch Changes
+
+- [#17059](https://github.com/withastro/astro/pull/17059) [`60cb289`](https://github.com/withastro/astro/commit/60cb289faa8f9e0056a4de7ecca6ec420abd147f) Thanks [@dupontcyborg](https://github.com/dupontcyborg)! - Update volar-service-* dependencies from 0.0.70 to 0.0.71 to pull in yaml-language-server 1.23.0 and yaml 2.8.3, resolving CVE-2026-33532 (GHSA-48c2-rrv3-qjmp), a denial-of-service vulnerability in yaml <2.8.3.
+
 ## 2.16.10
 
 ### Patch Changes

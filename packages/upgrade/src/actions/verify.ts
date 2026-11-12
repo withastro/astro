@@ -2,9 +2,7 @@ import dns from 'node:dns/promises';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { color } from '@astrojs/cli-kit';
-import semverCoerce from 'semver/functions/coerce.js';
-import semverDiff from 'semver/functions/diff.js';
-import semverParse from 'semver/functions/parse.js';
+import { coerce, difference, isGreaterThan, tryParse } from 'verkit';
 import { bannerAbort, error, getRegistry, info, newline } from '../messages.js';
 import type { Context, PackageInfo } from './context.js';
 
@@ -80,7 +78,7 @@ function isAllowedPackage(name: string, _version: string) {
 }
 
 function isValidVersion(_name: string, version: string) {
-	return semverCoerce(version, { loose: true }) !== null;
+	return coerce(version, { loose: true }) !== null;
 }
 
 function isSupportedPackage(name: string, version: string): boolean {
@@ -135,18 +133,33 @@ async function verifyVersions(
 	return true;
 }
 
-async function resolveTargetVersion(packageInfo: PackageInfo, registry: string): Promise<void> {
+export async function resolveTargetVersion(
+	packageInfo: PackageInfo,
+	registry: string,
+): Promise<void> {
 	const packageMetadata = await fetch(`${registry}/${packageInfo.name}`, {
 		headers: { accept: 'application/vnd.npm.install-v1+json' },
 	});
 	if (packageMetadata.status >= 400) {
 		throw new Error(`Unable to resolve "${packageInfo.name}"`);
 	}
-	const { 'dist-tags': distTags } = await packageMetadata.json();
+	const { 'dist-tags': distTags, versions = {} } = await packageMetadata.json();
 	let version = distTags[packageInfo.targetVersion];
-	if (version) {
-		packageInfo.tag = packageInfo.targetVersion;
-		packageInfo.targetVersion = version;
+	if (!version && packageInfo.name === 'astro' && versions[packageInfo.targetVersion]) {
+		// An exact version refers to an Astro release and is installed as-is, without a `^` prefix.
+		// Integrations are versioned independently, so a matching version string for them is unrelated.
+		version = packageInfo.targetVersion;
+	} else if (version) {
+		const currentCoerced = coerce(packageInfo.currentVersion);
+		const targetParsed = tryParse(version);
+		// If the dist-tag points to a version older than the installed one, fall back to latest.
+		if (currentCoerced && targetParsed && isGreaterThan(currentCoerced, targetParsed)) {
+			packageInfo.targetVersion = 'latest';
+			version = distTags.latest;
+		} else {
+			packageInfo.tag = packageInfo.targetVersion;
+			packageInfo.targetVersion = version;
+		}
 	} else {
 		packageInfo.targetVersion = 'latest';
 		version = distTags.latest;
@@ -156,10 +169,10 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 	}
 	const prefix = packageInfo.targetVersion === 'latest' ? '^' : '';
 	packageInfo.targetVersion = `${prefix}${version}`;
-	const fromVersion = semverCoerce(packageInfo.currentVersion)!;
-	const toVersion = semverParse(version)!;
-	const bump = semverDiff(fromVersion, toVersion);
-	if ((bump === 'major' && toVersion.prerelease.length === 0) || bump === 'premajor') {
+	const fromVersion = coerce(packageInfo.currentVersion)!;
+	const toVersion = tryParse(version)!;
+	const bump = difference(fromVersion, toVersion);
+	if ((bump === 'major' && (toVersion.prerelease?.length ?? 0) === 0) || bump === 'premajor') {
 		packageInfo.isMajor = true;
 		if (packageInfo.name === 'astro') {
 			const upgradeGuide = `https://docs.astro.build/en/guides/upgrade-to/v${toVersion.major}/`;

@@ -5,21 +5,24 @@ import type {
 	Smartypants as _Smartypants,
 	ShikiConfig,
 } from '@astrojs/internal-helpers/markdown';
-import {
-	markdownConfigDefaults,
-	syntaxHighlightDefaults,
-} from '@astrojs/internal-helpers/markdown';
+import { syntaxHighlightDefaults } from '@astrojs/internal-helpers/markdown';
 import { satteri } from '@astrojs/markdown-satteri';
 import type { MarkdownProcessor } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
+import { AstroPluginOptionsSchema } from '@astrojs/vite-plugin-astro';
 import * as z from 'zod/v4';
 import { FontFamilySchema } from '../../../assets/fonts/config.js';
 import { SvgOptimizerSchema } from '../../../assets/svg/config.js';
 import { EnvSchema } from '../../../env/schema.js';
-import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
+import type { ViteUserConfig } from '../../../types/public/config.js';
 import { CacheSchema, RouteRulesSchema } from '../../cache/config.js';
-import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
+import {
+	allowedDirectivesSchema,
+	cspAlgorithmSchema,
+	cspHashEntrySchema,
+	cspResourceEntrySchema,
+} from '../../csp/config.js';
 import { SessionSchema } from '../../session/config.js';
 
 // The below types are required boilerplate to work around a Zod issue since v3.21.2. Since that version,
@@ -58,68 +61,18 @@ export type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 /** @lintignore */
 export type Smartypants = ComplexifyWithOmit<_Smartypants>;
 
-export const ASTRO_CONFIG_DEFAULTS = {
-	root: '.',
-	srcDir: './src',
-	publicDir: './public',
-	outDir: './dist',
-	cacheDir: './node_modules/.astro',
-	base: '/',
-	trailingSlash: 'ignore',
-	build: {
-		format: 'directory',
-		client: './client/',
-		server: './server/',
-		assets: '_astro',
-		serverEntry: 'entry.mjs',
-		redirects: true,
-		inlineStylesheets: 'auto',
-		concurrency: 1,
-	},
-	image: {
-		endpoint: { entrypoint: undefined, route: '/_image' },
-		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
-		dangerouslyProcessSVG: false,
-		responsiveStyles: false,
-	},
-	devToolbar: {
-		enabled: true,
-	},
-	compressHTML: 'jsx',
-	server: {
-		host: false,
-		port: 4321,
-		open: false,
-		allowedHosts: [],
-	},
-	integrations: [],
-	markdown: markdownConfigDefaults,
-	vite: {},
-	legacy: {
-		collectionsBackwardsCompat: false,
-	},
-	redirects: {},
-	security: {
-		checkOrigin: true,
-		allowedDomains: [],
-		csp: false,
-		actionBodySizeLimit: 1024 * 1024,
-		serverIslandBodySizeLimit: 1024 * 1024,
-	},
-	env: {
-		schema: {},
-		validateSecrets: false,
-	},
-	prerenderConflictBehavior: 'warn',
-	fetchFile: 'fetch',
-	experimental: {
-		clientPrerender: false,
-		contentIntellisense: false,
-		chromeDevtoolsWorkspace: false,
-	},
-} satisfies AstroUserConfig & {
-	server: { open: boolean };
-};
+// Re-export from the standalone defaults module so consumers that only need
+// ASTRO_CONFIG_DEFAULTS (e.g. the Container API) can import from defaults.js
+// directly without pulling in the full Zod schema and its heavy dependencies.
+import { ASTRO_CONFIG_DEFAULTS } from './defaults.js';
+export { ASTRO_CONFIG_DEFAULTS };
+
+const imageServiceSchema = z.object({
+	entrypoint: z
+		.union([z.literal('astro/assets/services/sharp'), z.string()])
+		.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
+	config: z.record(z.string(), z.any()).default({}),
+});
 
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
@@ -156,11 +109,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.srcDir)
 		.transform((val) => new URL(val)),
-	publicDir: z
-		.string()
-		.optional()
-		.default(ASTRO_CONFIG_DEFAULTS.publicDir)
-		.transform((val) => new URL(val)),
+	publicDir: AstroPluginOptionsSchema.shape.publicDir.transform((val) => new URL(val)),
 	outDir: z
 		.string()
 		.optional()
@@ -171,16 +120,10 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.cacheDir)
 		.transform((val) => new URL(val)),
-	site: z.string().url().optional(),
-	compressHTML: z
-		.union([z.boolean(), z.literal('jsx')])
-		.optional()
-		.default(ASTRO_CONFIG_DEFAULTS.compressHTML),
+	site: AstroPluginOptionsSchema.shape.site,
+	compressHTML: AstroPluginOptionsSchema.shape.compressHTML,
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
-	trailingSlash: z
-		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
-		.optional()
-		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
+	trailingSlash: AstroPluginOptionsSchema.shape.trailingSlash,
 	output: z
 		.union([z.literal('static'), z.literal('server'), z.literal('hybrid')])
 		.optional()
@@ -300,12 +243,10 @@ export const AstroConfigSchema = z.object({
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.endpoint),
 			service: z
-				.object({
-					entrypoint: z
-						.union([z.literal('astro/assets/services/sharp'), z.string()])
-						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
-					config: z.record(z.string(), z.any()).default({}),
-				})
+				.union([
+					z.object({ build: imageServiceSchema, runtime: imageServiceSchema }),
+					imageServiceSchema,
+				])
 				.default(ASTRO_CONFIG_DEFAULTS.image.service),
 			dangerouslyProcessSVG: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.dangerouslyProcessSVG),
 			domains: z.array(z.string()).default([]),
@@ -487,7 +428,6 @@ export const AstroConfigSchema = z.object({
 							fallbackType: z.enum(['redirect', 'rewrite']).optional().default('redirect'),
 						}),
 					)
-					.optional()
 					.prefault({}),
 			})
 			.optional(),
@@ -521,14 +461,14 @@ export const AstroConfigSchema = z.object({
 						directives: z.array(allowedDirectivesSchema).optional(),
 						styleDirective: z
 							.object({
-								resources: z.array(z.string()).optional(),
-								hashes: z.array(cspHashSchema).optional(),
+								resources: z.array(cspResourceEntrySchema).optional(),
+								hashes: z.array(cspHashEntrySchema).optional(),
 							})
 							.optional(),
 						scriptDirective: z
 							.object({
-								resources: z.array(z.string()).optional(),
-								hashes: z.array(cspHashSchema).optional(),
+								resources: z.array(cspResourceEntrySchema).optional(),
+								hashes: z.array(cspHashEntrySchema).optional(),
 								strictDynamic: z.boolean().optional(),
 							})
 							.optional(),
@@ -555,7 +495,7 @@ export const AstroConfigSchema = z.object({
 	fetchFile: z.string().nullable().optional().default(ASTRO_CONFIG_DEFAULTS.fetchFile),
 	logger: z
 		.object({
-			entrypoint: z.string(),
+			entrypoint: z.union([z.string(), z.instanceof(URL)]),
 			config: z.record(z.string(), z.any()).optional(),
 		})
 		.optional(),
@@ -576,7 +516,32 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
+			incrementalBuild: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.incrementalBuild),
+			redirectPage: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.redirectPage),
+			parallelPrerender: z
+				.union([
+					z.boolean(),
+					z.object({
+						workers: z.number().int().min(1).optional(),
+					}),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.parallelPrerender),
 			svgOptimizer: SvgOptimizerSchema.optional(),
+			collectionStorage: z
+				.union([
+					z.literal('single-file'),
+					z.literal('chunked'),
+					z.strictObject({
+						type: z.literal('chunked'),
+						chunkSize: z.number().int().positive(),
+					}),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.collectionStorage),
 		})
 		.prefault({}),
 	legacy: z

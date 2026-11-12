@@ -1,24 +1,17 @@
-import type {
-	AstroConfig,
-	AstroPrerenderer,
-	AssetsGlobalStaticImagesList,
-	PathWithRoute,
-} from 'astro';
+import type { AstroConfig, AstroPrerenderer, StaticPathsResult } from 'astro';
 import { preview, createLogger, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { mkdir } from 'node:fs/promises';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
-import type {
-	StaticPathsResponse,
-	PrerenderRequest,
-	StaticImagesResponse,
-} from './prerender-types.js';
+import type { StaticPathsResponse, PrerenderRequest } from './prerender-types.js';
 import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
-	STATIC_IMAGES_ENDPOINT,
+	PRERENDER_SERVER_URL_KEY,
 } from './utils/prerender-constants.js';
+import { readFramedPrerenderResponse } from './utils/prerender-response.js';
+import { buildServerUrl } from './utils/server-url.js';
 
 interface CloudflarePrerendererOptions {
 	root: AstroConfig['root'];
@@ -27,7 +20,6 @@ interface CloudflarePrerendererOptions {
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
 	cfPluginConfig: PluginConfig;
-	hasCompileImageService: boolean;
 }
 
 /**
@@ -41,7 +33,6 @@ export function createCloudflarePrerenderer({
 	base,
 	trailingSlash,
 	cfPluginConfig,
-	hasCompileImageService,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
 	let serverUrl: string;
@@ -87,7 +78,14 @@ export function createCloudflarePrerenderer({
 
 			const address = previewServer.httpServer.address();
 			if (address && typeof address === 'object') {
-				serverUrl = `http://localhost:${address.port}`;
+				// Derive the URL from the address we ACTUALLY bound — never by re-stating
+				// "localhost". That hostname would be resolved a second time, independently
+				// of the resolution `listen()` just used, and nothing makes the two agree:
+				// on some Linux hosts `listen()` binds ::1 while `fetch()` dials 127.0.0.1,
+				// and every prerender request fails with ECONNREFUSED on a random port.
+				serverUrl = buildServerUrl(address);
+				// The `cloudflare-binding` build image service sends images to this server.
+				(globalThis as Record<symbol, unknown>)[PRERENDER_SERVER_URL_KEY] = serverUrl;
 			} else {
 				throw new Error(
 					'Failed to start the Cloudflare prerender server. The preview server did not return a valid address. ' +
@@ -96,7 +94,7 @@ export function createCloudflarePrerenderer({
 			}
 		},
 
-		async getStaticPaths(): Promise<PathWithRoute[]> {
+		async getStaticPaths(): Promise<StaticPathsResult> {
 			// Call the workerd endpoint to get static paths
 			const response = await fetch(`${serverUrl}${STATIC_PATHS_ENDPOINT}`, {
 				method: 'POST',
@@ -114,14 +112,15 @@ export function createCloudflarePrerenderer({
 			const data: StaticPathsResponse = await response.json();
 
 			// Deserialize the routes
-			return data.paths.map(({ pathname, route }) => ({
+			const paths = data.paths.map(({ pathname, route, cacheKey }) => ({
 				pathname,
 				route: deserializeRouteData(route),
+				cacheKey,
 			}));
+			return { paths, metadata: data.metadata };
 		},
 
 		async render(request, { routeData }) {
-			// Serialize routeData and send to workerd
 			const body: PrerenderRequest = {
 				url: request.url,
 				routeData: serializeRouteData(routeData, trailingSlash),
@@ -134,47 +133,20 @@ export function createCloudflarePrerenderer({
 				redirect: 'manual',
 			});
 
-			return response;
+			// Check for prerender errors surfaced by the workerd handler via header
+			// (the response body may be stripped by the Vite preview server).
+			// Only the header marks a failure: pages may intentionally return
+			// non-2xx responses while prerendering (e.g. a custom 404 page).
+			const prerenderError = response.headers.get('x-astro-prerender-error');
+			if (prerenderError) {
+				throw new Error(`Failed to prerender ${request.url}: ${prerenderError}`);
+			}
+
+			return readFramedPrerenderResponse(response);
 		},
 
-		collectStaticImages: hasCompileImageService
-			? async (): Promise<AssetsGlobalStaticImagesList> => {
-					const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-					});
-
-					if (!response.ok) {
-						const body = await response.text();
-						const details = body ? `\n${body}` : '';
-						throw new Error(
-							`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
-						);
-					}
-
-					const entries: StaticImagesResponse = await response.json();
-
-					// Switch from the workerd stub to Sharp for the Node-side generation pipeline
-					const { default: sharpService } = await import('astro/assets/services/sharp');
-					globalThis.astroAsset ??= {};
-					globalThis.astroAsset.imageService = sharpService;
-
-					const staticImages: AssetsGlobalStaticImagesList = new Map();
-					for (const entry of entries) {
-						const transforms = new Map();
-						for (const t of entry.transforms) {
-							transforms.set(t.hash, { finalPath: t.finalPath, transform: t.transform });
-						}
-						staticImages.set(entry.originalPath, {
-							originalSrcPath: entry.originalSrcPath,
-							transforms,
-						});
-					}
-					return staticImages;
-				}
-			: undefined,
-
 		async teardown() {
+			delete (globalThis as Record<symbol, unknown>)[PRERENDER_SERVER_URL_KEY];
 			if (previewServer) {
 				await previewServer.close();
 				// Release reference to allow garbage collection

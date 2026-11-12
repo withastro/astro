@@ -8,8 +8,6 @@ describe('astro:env', () => {
 		let fixture: Fixture;
 		let previewServer: PreviewServer;
 		before(async () => {
-			process.env.API_URL = 'https://google.de';
-			process.env.PORT = '4322';
 			fixture = await loadFixture({
 				root: './fixtures/astro-env/',
 			});

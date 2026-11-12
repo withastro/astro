@@ -1,7 +1,7 @@
 ---
 import { getImage, imageConfig, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
 import type { UnresolvedImageTransform } from '../dist/assets/types.js';
-import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { HTMLAttributes } from '../types.js';
 
 // The TypeScript diagnostic for JSX props uses the last member of the union to suggest props, so it would be better for
@@ -27,12 +27,12 @@ if (typeof props.height === 'string') {
 const layout = props.layout ?? imageConfig.layout ?? 'none';
 
 if (layout !== 'none') {
-	props.layout ??= imageConfig.layout;
+	props.layout ??= layout;
 	props.fit ??= imageConfig.objectFit ?? 'cover';
 	props.position ??= imageConfig.objectPosition ?? 'center';
 } else if (imageConfig.objectFit || imageConfig.objectPosition) {
-	props.fit ??= imageConfig.objectFit;
-	props.position ??= imageConfig.objectPosition;
+	if (imageConfig.objectFit) props.fit ??= imageConfig.objectFit;
+	if (imageConfig.objectPosition) props.position ??= imageConfig.objectPosition;
 }
 
 const image = await getImage(props as UnresolvedImageTransform);

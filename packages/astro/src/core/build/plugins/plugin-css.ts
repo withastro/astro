@@ -1,7 +1,7 @@
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin, Rolldown } from 'vite';
 import { isCSSRequest } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
-import { isPropagatedAssetBoundary } from '../../head-propagation/boundary.js';
+import { isPropagatedAssetBoundary } from '@astrojs/runtime/_internal/core/head-propagation/boundary.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../vite-plugin-pages/const.js';
 import {
 	getParentExtendedModuleInfos,
@@ -10,13 +10,16 @@ import {
 } from '../graph.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js';
-import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
+import type { PageBuildData, StaticBuildOptionsInput, StylesheetAsset } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 import { shouldInlineAsset } from './util.js';
 
 /***** ASTRO PLUGIN *****/
 
-export function pluginCSS(options: StaticBuildOptions, internals: BuildInternals): VitePlugin[] {
+export function pluginCSS(
+	options: StaticBuildOptionsInput,
+	internals: BuildInternals,
+): VitePlugin[] {
 	return rollupPluginAstroBuildCSS({
 		buildOptions: options,
 		internals,
@@ -27,7 +30,7 @@ export function pluginCSS(options: StaticBuildOptions, internals: BuildInternals
 
 interface PluginOptions {
 	internals: BuildInternals;
-	buildOptions: StaticBuildOptions;
+	buildOptions: StaticBuildOptionsInput;
 }
 
 function isBuildCssBoundary(id: string, ctx: { getModuleInfo: Rolldown.GetModuleInfo }): boolean {
@@ -53,6 +56,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const pagesToCss: Record<string, Record<string, { order: number; depth: number }>> = {};
 	// Map of module Ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`) to its imported CSS
 	const moduleIdToPropagatedCss: Record<string, Set<string>> = {};
+	// Map of page module specifiers to the CSS module IDs assigned to them by the SSR/prerender builds
+	const pageToSsrCssModules: Record<string, Set<string>> = {};
 
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
@@ -82,6 +87,31 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						}
 					}
 
+					// Deduplicate CSS assets between the prerender and SSR environments.
+					// Both environments bundle shared layouts separately, which emits one CSS
+					// asset per environment for the same CSS source modules (e.g. `index.X.css`
+					// and `_..Y.css`). The prerender build runs first and records its CSS asset
+					// filenames keyed by the chunk's CSS module set; the SSR build then renames
+					// its matching assets to the prerender filenames, so both end up as a single
+					// file once assets are moved to the client directory.
+					// Keyed by module identity rather than content hash because plugins that
+					// scan the environment's module graph (e.g. Tailwind) can produce slightly
+					// different content for the same CSS source in each environment.
+					const cssModuleIds = Object.keys(chunk.modules || {}).filter(isCSSRequest);
+					const importedCss = (chunk.viteMetadata as ViteMetadata | undefined)?.importedCss;
+					if (cssModuleIds.length > 0 && importedCss?.size === 1) {
+						const moduleKey = cssModuleIds.sort().join('\n');
+						const [assetFileName] = importedCss;
+						if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
+							internals.prerenderCssAssetByModuleKey.set(moduleKey, assetFileName);
+						} else {
+							const prerenderFileName = internals.prerenderCssAssetByModuleKey.get(moduleKey);
+							if (prerenderFileName && prerenderFileName !== assetFileName) {
+								renameBundleAsset(bundle, assetFileName, prerenderFileName);
+							}
+						}
+					}
+
 					// Track which component exports were rendered during SSR.
 					// This is used by the client build to determine if cssScopeTo CSS
 					// was tree-shaken (component not rendered in SSR) vs included.
@@ -108,18 +138,21 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			// Map from component module ID to the pages that include it (via facadeModuleId)
 			const componentToPages = new Map<string, Set<string>>();
 
-			// Track CSS assets deleted during client-build deduplication so they can
-			// be restored if the cssScopeTo recovery code below determines they contain
-			// styles for conditionally rendered components.
-			const deletedCssAssets = new Map<string, (typeof bundle)[string]>();
+			// CSS assets marked for removal during client-build deduplication. They stay
+			// in the bundle until the end of this hook, so the cssScopeTo recovery code
+			// below can keep the ones containing styles for conditionally rendered
+			// components. Rolldown ignores assignments to `bundle`, so a deleted asset
+			// cannot be added back. https://github.com/withastro/astro/issues/18337
+			const cssAssetsToDelete = new Map<string, (typeof bundle)[string]>();
 			// CSS asset IDs that the cssScopeTo recovery code added to pagesToCss.
-			// Only these deleted assets should be restored — the normal parent walk
-			// also adds deleted CSS IDs to pagesToCss, but those represent CSS that
+			// Only these assets should be kept — the normal parent walk
+			// also adds CSS IDs marked for deletion to pagesToCss, but those represent CSS that
 			// is already on the page from the SSR build.
 			const cssScopeToAddedCss = new Set<string>();
 
-			// Remove CSS files from client bundle that were already bundled with pages during SSR
+			// Mark CSS files in the client bundle that were already bundled with pages during SSR
 			if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+				const islandSharedChunks = getChunksSharedByIslands(bundle, internals);
 				for (const [, item] of Object.entries(bundle)) {
 					if (item.type !== 'chunk') continue;
 
@@ -151,12 +184,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							internals.cssModuleToChunkIdMap.has(moduleId),
 						);
 
-						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals)) {
+						if (
+							allCssInSSR &&
+							(shouldDeleteCSSChunk(allModules, internals) || islandSharedChunks.has(item.fileName))
+						) {
 							for (const cssId of meta.importedCss) {
 								if (bundle[cssId]) {
-									deletedCssAssets.set(cssId, bundle[cssId]);
+									cssAssetsToDelete.set(cssId, bundle[cssId]);
 								}
-								delete bundle[cssId];
 							}
 						}
 					}
@@ -175,6 +210,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				// over to their page. For this chunk, determine if it's a child of a
 				// client:only component and if so, add its CSS to the page it belongs to.
 				if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+					const chunkCssModules = Object.keys(chunk.modules).filter((m) => isCSSRequest(m));
 					for (const id of Object.keys(chunk.modules)) {
 						// Only walk from CSS modules to find client:only parents. When Rollup
 						// merges unrelated modules into the same chunk, walking from every module
@@ -182,9 +218,37 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						// modules that have no CSS dependency.
 						if (!isCSSRequest(id)) continue;
 						for (const pageData of getParentClientOnlys(id, this, internals)) {
+							// The page already has these styles when the component is also rendered
+							// on the server, e.g. a static instance alongside a client:only one.
+							const ssrCssModules = pageToSsrCssModules[pageData.moduleSpecifier];
+							if (ssrCssModules && chunkCssModules.every((m) => ssrCssModules.has(m))) continue;
 							for (const importedCssImport of meta.importedCss) {
 								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
 								cssToInfoRecord[importedCssImport] = { depth: -1, order: -1 };
+
+								// When a CSS asset was marked for deletion (because it was already
+								// bundled in SSR for another page), it may not survive to the
+								// inlineStylesheetsPlugin. Directly add the CSS to pageData.styles
+								// so client:only component child styles are not lost.
+								if (cssAssetsToDelete.has(importedCssImport)) {
+									const cssAsset = cssAssetsToDelete.get(importedCssImport)!;
+									if (
+										cssAsset.type === 'asset' &&
+										typeof cssAsset.source === 'string' &&
+										cssAsset.source.length > 0
+									) {
+										const sheet: StylesheetAsset = {
+											type: 'inline',
+											content: cssAsset.source,
+										};
+										const alreadyAdded = pageData.styles.some(
+											(s) => s.sheet.type === 'inline' && s.sheet.content === sheet.content,
+										);
+										if (!alreadyAdded) {
+											pageData.styles.push({ depth: -1, order: -1, sheet });
+										}
+									}
+								}
 							}
 						}
 					}
@@ -265,14 +329,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 									}
 								}
 
-								// Only flag deleted CSS for restore when the component's
-								// export was NOT rendered during SSR. If it was rendered in
-								// SSR, the page already has these styles and the deleted
+								// Only flag CSS marked for deletion to be kept when the
+								// component's export was NOT rendered during SSR. If it was
+								// rendered in SSR, the page already has these styles and the
 								// client CSS is truly redundant.
 								const ssrExports = internals.ssrRenderedExports?.get(scopedToModule);
 								if (!ssrExports || !ssrExports.has(scopedToExport)) {
 									for (const cssId of meta.importedCss) {
-										if (deletedCssAssets.has(cssId)) {
+										if (cssAssetsToDelete.has(cssId)) {
 											cssScopeToAddedCss.add(cssId);
 										}
 									}
@@ -301,6 +365,9 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							const pageData = getPageDataByViteID(internals, pageViteID);
 							if (pageData) {
 								appendCSSToPage(pageData, meta, pagesToCss, depth, order, this.environment?.name);
+								if (isRenderedByServerEnvironment(pageData, this.environment?.name)) {
+									(pageToSsrCssModules[pageData.moduleSpecifier] ??= new Set()).add(id);
+								}
 							}
 						} else if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 							// For scripts, walk parents until you find a page, and add the CSS to that page.
@@ -315,14 +382,22 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				}
 			}
 
-			// Restore deleted CSS assets that the cssScopeTo recovery code added to
-			// pages. Only assets explicitly flagged by cssScopeToAddedCss are restored
-			// — CSS added by the normal parent walk represents styles already present
-			// on the page from the SSR build and should stay deleted.
-			if (cssScopeToAddedCss.size > 0) {
-				for (const cssId of cssScopeToAddedCss) {
-					if (deletedCssAssets.has(cssId) && !bundle[cssId]) {
-						bundle[cssId] = deletedCssAssets.get(cssId)!;
+			// Keep the CSS assets that the cssScopeTo recovery code added to pages.
+			// Only assets explicitly flagged by cssScopeToAddedCss are kept — CSS
+			// added by the normal parent walk represents styles already present on
+			// the page from the SSR build and should be deleted.
+			for (const cssId of cssScopeToAddedCss) {
+				cssAssetsToDelete.delete(cssId);
+			}
+
+			// Vite builds the preload list of dynamic imports from `importedCss`, so a
+			// deleted asset left there is requested at runtime and 404s.
+			// https://github.com/withastro/astro/issues/18191
+			for (const cssId of cssAssetsToDelete.keys()) {
+				delete bundle[cssId];
+				for (const chunk of Object.values(bundle)) {
+					if (chunk.type === 'chunk') {
+						chunk.viteMetadata?.importedCss?.delete(cssId);
 					}
 				}
 			}
@@ -444,10 +519,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				}
 
 				const wasInlined = toBeInlined && sheetAddedToPage;
-				// stylesheets already referenced as an asset by a chunk will not be inlined by
-				// this plugin, but should not be considered orphaned
+				// Stylesheets referenced by a chunk (via importedAssets for ?url imports,
+				// or importedCss for normal CSS imports) are delivered by Vite's preload
+				// helper at runtime and must not be treated as orphaned.
 				const wasAddedToChunk = Object.values(bundle).some(
-					(chunk) => chunk.type === 'chunk' && chunk.viteMetadata?.importedAssets?.has(id),
+					(chunk) =>
+						chunk.type === 'chunk' &&
+						(chunk.viteMetadata?.importedAssets?.has(id) ||
+							chunk.viteMetadata?.importedCss?.has(id)),
 				);
 				const isOrphaned = !sheetAddedToPage && !wasAddedToChunk;
 
@@ -474,6 +553,37 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 /***** UTILITY FUNCTIONS *****/
 
 /**
+ * Renames an emitted asset in the bundle and updates every chunk's Vite metadata
+ * that references the old filename. Used to give an SSR CSS asset the filename of
+ * the equivalent prerender CSS asset so the two builds don't emit duplicate files.
+ */
+function renameBundleAsset(
+	bundle: Rolldown.OutputBundle,
+	fromFileName: string,
+	toFileName: string,
+) {
+	const asset = bundle[fromFileName];
+	// Never clobber an asset that already exists under the target name in this bundle.
+	if (!asset || asset.type !== 'asset' || bundle[toFileName]) return;
+
+	// Mutate `fileName` in place instead of re-keying the bundle object: the bundle
+	// is a Rolldown proxy that ignores direct key assignment, and the writer emits
+	// files based on `fileName`, not the bundle key.
+	asset.fileName = toFileName;
+
+	for (const chunk of Object.values(bundle)) {
+		if (chunk.type !== 'chunk') continue;
+		const meta = chunk.viteMetadata as ViteMetadata | undefined;
+		if (meta?.importedCss?.delete(fromFileName)) {
+			meta.importedCss.add(toFileName);
+		}
+		if (meta?.importedAssets?.delete(fromFileName)) {
+			meta.importedAssets.add(toFileName);
+		}
+	}
+}
+
+/**
  * Check if a CSS chunk should be deleted. Only delete if it contains client-only or hydrated
  * components that are NOT also used on other pages.
  */
@@ -487,7 +597,7 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 		}
 	}
 
-	for (const componentPath of internals.discoveredHydratedComponents.keys()) {
+	for (const componentPath of getHydratedComponentIds(internals)) {
 		if (allModules.some((m) => m.includes(componentPath))) {
 			componentPaths.add(componentPath);
 		}
@@ -513,6 +623,77 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 	return true;
 }
 
+/**
+ * Returns the specifiers and resolved module ids of all hydrated components. Aliased imports
+ * are only recorded under their raw specifier in `discoveredHydratedComponents`, while
+ * `pagesByHydratedComponent` also holds their resolved ids.
+ */
+function getHydratedComponentIds(internals: BuildInternals): Set<string> {
+	return new Set([
+		...internals.discoveredHydratedComponents.keys(),
+		...internals.pagesByHydratedComponent.keys(),
+	]);
+}
+
+/**
+ * Returns the file names of client chunks that are statically imported, directly or
+ * transitively, by chunks of hydrated components, and by no other entry chunk.
+ *
+ * Hydrated components are rendered on the server, so the CSS of their static imports is
+ * already on every page that loads them. Chunks reached only through dynamic imports are
+ * excluded because their CSS may not be on the page. Chunks also reached, statically or
+ * dynamically, from other entries (`client:only` components, scripts, renderers) are excluded
+ * because those pages may rely on the client copy of the CSS.
+ * https://github.com/withastro/astro/issues/18677
+ */
+function getChunksSharedByIslands(
+	bundle: Rolldown.OutputBundle,
+	internals: BuildInternals,
+): Set<string> {
+	const hydratedIds = getHydratedComponentIds(internals);
+	const clientOnlyIds = [...internals.discoveredClientOnlyComponents.keys()];
+	const containsAny = (chunk: Rolldown.OutputChunk, ids: Iterable<string>) => {
+		const modules = Object.keys(chunk.modules);
+		for (const componentId of ids) {
+			if (modules.some((m) => m.includes(componentId))) return true;
+		}
+		return false;
+	};
+
+	const collectImports = (fileName: string, visited: Set<string>, includeDynamic: boolean) => {
+		const chunk = bundle[fileName];
+		if (chunk?.type !== 'chunk') return;
+		const imports = includeDynamic ? [...chunk.imports, ...chunk.dynamicImports] : chunk.imports;
+		for (const imported of imports) {
+			if (visited.has(imported)) continue;
+			visited.add(imported);
+			collectImports(imported, visited, includeDynamic);
+		}
+	};
+
+	const islandChunks = new Set<string>();
+	const reachedFromIslands = new Set<string>();
+	const reachedFromOtherEntries = new Set<string>();
+	for (const chunk of Object.values(bundle)) {
+		if (chunk.type !== 'chunk' || !chunk.isEntry) continue;
+		if (containsAny(chunk, hydratedIds) && !containsAny(chunk, clientOnlyIds)) {
+			islandChunks.add(chunk.fileName);
+			collectImports(chunk.fileName, reachedFromIslands, false);
+		} else {
+			reachedFromOtherEntries.add(chunk.fileName);
+			collectImports(chunk.fileName, reachedFromOtherEntries, true);
+		}
+	}
+
+	const shared = new Set<string>();
+	for (const fileName of reachedFromIslands) {
+		if (!islandChunks.has(fileName) && !reachedFromOtherEntries.has(fileName)) {
+			shared.add(fileName);
+		}
+	}
+	return shared;
+}
+
 function* getParentClientOnlys(
 	id: string,
 	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
@@ -527,6 +708,19 @@ type ViteMetadata = {
 	importedAssets: Set<string>;
 	importedCss: Set<string>;
 };
+
+/**
+ * Whether the page is rendered by the given server environment: SSR renders on-demand
+ * pages and prerender renders prerendered pages. Always false for the client environment.
+ */
+function isRenderedByServerEnvironment(
+	pageData: PageBuildData,
+	environmentName: string | undefined,
+): boolean {
+	if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr) return !pageData.route.prerender;
+	if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) return pageData.route.prerender;
+	return false;
+}
 
 function appendCSSToPage(
 	pageData: PageBuildData,

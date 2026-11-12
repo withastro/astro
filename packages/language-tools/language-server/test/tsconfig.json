@@ -1,6 +1,6 @@
 {
   "extends": "../../../../configs/tsconfig.test.json",
   "include": ["."],
-  "exclude": ["node_modules/", "fixture/", "check/fixture/"],
+  "exclude": ["node_modules/", "fixture/", "check/fixture/", "check/fixture-references/"],
   "references": [{ "path": "../../../astro/tsconfig.test.json" }]
 }

@@ -34,6 +34,9 @@ export function enhancedProvideSemanticDiagnostics(
 
 // General enhancements that apply to all files
 function generalEnhancements(diagnostic: Diagnostic) {
+	// Our enhancements match on the text of the message, which TypeScript always emits as a plain string
+	if (typeof diagnostic.message !== 'string') return diagnostic;
+
 	if (
 		diagnostic.code === DiagnosticCodes.CANNOT_FIND_MODULE &&
 		diagnostic.message.includes('astro:content')
@@ -52,6 +55,9 @@ function generalEnhancements(diagnostic: Diagnostic) {
  * or a difference with JSX needing a different error message
  */
 function astroEnhancements(diagnostic: Diagnostic): Diagnostic {
+	// Our enhancements match on the text of the message, which TypeScript always emits as a plain string
+	if (typeof diagnostic.message !== 'string') return diagnostic;
+
 	// When the language integrations are not installed, the content of the imported snapshot is empty
 	// As such, it triggers the "is not a module error", which we can enhance with a more helpful message for the related framework
 	if (diagnostic.code === DiagnosticCodes.IS_NOT_A_MODULE) {

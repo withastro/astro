@@ -1,6 +1,10 @@
 import type * as zCore from 'zod/v4/core';
 import type * as z from 'zod/v4';
-import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+	AstroUserError,
+} from '@astrojs/runtime/_internal/core/errors/index.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
 
@@ -39,6 +43,7 @@ type ImageFunction = () => z.ZodObject<{
 			zCore.$ZodLiteral<'gif'>,
 			zCore.$ZodLiteral<'svg'>,
 			zCore.$ZodLiteral<'avif'>,
+			zCore.$ZodLiteral<'apng'>,
 		]
 	>;
 }>;

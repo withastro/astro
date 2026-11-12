@@ -9,6 +9,9 @@ import {
 	runHookConfigSetup,
 } from '../../../dist/integrations/hooks.js';
 import { defaultLogger } from '../test-utils.ts';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
+import { logHandlers } from '../../../dist/core/logger/handlers.js';
+import nodeLoggerFactory from '../../../dist/core/logger/impls/node.js';
 
 import type { AstroConfig } from '../../../dist/types/public/config.js';
 import type { AstroSettings } from '../../../dist/types/astro.js';
@@ -153,6 +156,58 @@ describe('Integration API', () => {
 		} as Parameters<typeof runHookConfigSetup>[0]);
 		assert.equal(updatedSettings.config.site, site);
 		assert.equal(updatedSettings.config.integrations.length, 2);
+	});
+
+	it('runHookConfigSetup updates the logger destination when an integration sets a custom logger', async () => {
+		const logger = new AstroLogger({
+			destination: nodeLoggerFactory(),
+			level: 'info',
+		});
+		const initialDestination = logger.options.destination;
+
+		await runHookConfigSetup({
+			logger,
+			settings: {
+				config: {
+					...defaultConfig,
+					integrations: [
+						{
+							name: 'custom',
+							hooks: {
+								'astro:config:setup': ({
+									updateConfig,
+								}: {
+									updateConfig: (cfg: object) => void;
+								}) => {
+									updateConfig({ logger: logHandlers.json() });
+								},
+							},
+						},
+					],
+				},
+				dotAstroDir,
+			} as unknown as AstroSettings,
+		} as Parameters<typeof runHookConfigSetup>[0]);
+
+		// The destination should have been replaced by the JSON logger destination.
+		assert.notEqual(logger.options.destination, initialDestination);
+
+		// And logging should now emit structured JSON via the console API.
+		const originalInfo = console.info;
+		let captured = '';
+		console.info = (...args: unknown[]) => {
+			captured += args.map(String).join(' ');
+		};
+		try {
+			logger.info('config', 'hello from integration');
+		} finally {
+			console.info = originalInfo;
+		}
+
+		const parsed = JSON.parse(captured);
+		assert.equal(parsed.message, 'hello from integration');
+		assert.equal(parsed.label, 'config');
+		assert.equal(parsed.level, 'info');
 	});
 });
 

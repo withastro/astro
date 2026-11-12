@@ -1,151 +1,191 @@
-import path from 'node:path';
-import { convertToTSX } from '@astrojs/compiler/sync';
-import type { ConvertToTSXOptions, TSXResult } from '@astrojs/compiler/types';
-import { decode } from '@jridgewell/sourcemap-codec';
+import { AstroFrontmatterStatus, type ConvertToTsxResult, convertToTsx } from '@astrojs/astro2tsx';
 import type { CodeMapping, VirtualCode } from '@volar/language-core';
-import { TextDocument } from 'vscode-languageserver-textdocument';
 
-function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
+const SPAN_MAP_KIND_ATOM = 1;
+
+function safeConvertToTSX(content: string, filename: string): ConvertToTsxResult {
 	try {
-		const tsx = convertToTSX(content, { filename: options.filename });
-		return tsx;
+		return convertToTsx(content, { filename });
 	} catch (e) {
 		console.error(
-			`There was an error transforming ${options.filename} to TSX. An empty file will be returned instead. Please create an issue: https://github.com/withastro/astro/issues\nError: ${e}.`,
+			`There was an error transforming ${filename} to TSX. An empty file will be returned instead. Please create an issue: https://github.com/withastro/astro/issues\nError: ${e}.`,
 		);
 
 		return {
 			code: '',
-			map: {
-				file: options.filename ?? '',
-				sources: [],
-				sourcesContent: [],
-				names: [],
-				mappings: '',
-				version: 0,
-			},
+			mappings: [],
+			frontmatter: { start: 0, end: 0 },
+			body: { start: 0, end: 0 },
+			frontmatterStatus: AstroFrontmatterStatus.DoesntExist,
+			frontmatterSource: { start: 0, end: 0 },
+			scripts: [],
+			styles: [],
 			diagnostics: [
 				{
-					code: 1000,
-					location: { file: options.filename!, line: 1, column: 1, length: content.length },
+					message:
+						"The Astro compiler encountered an unknown error while transforming this file to TSX. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/astro/issues",
 					severity: 1,
-					text: `The Astro compiler encountered an unknown error while parsing this file. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/astro/issues`,
+					position: { start: 0, end: content.length },
 				},
 			],
-			metaRanges: {
-				frontmatter: {
-					start: 0,
-					end: 0,
-				},
-				body: {
-					start: 0,
-					end: 0,
-				},
-			},
-		} satisfies TSXResult;
+			hasParseErrors: true,
+		} satisfies ConvertToTsxResult;
 	}
 }
 
-export function astro2tsx(input: string, fileName: string) {
-	const tsx = safeConvertToTSX(input, { filename: fileName });
+function usePublicComponentName(tsx: ConvertToTsxResult): ConvertToTsxResult {
+	const range = tsx.generatedComponentExport;
+	if (!range) return tsx;
+
+	const exportStatement = tsx.code.slice(range.start, range.end);
+	const exportMatch = /^export \{ (\S+) as (\S+) \};\n$/.exec(exportStatement);
+	if (!exportMatch) return tsx;
+
+	const [, generatedName, publicName] = exportMatch;
+	if (generatedName === publicName) return tsx;
+
+	const defaultExport = `export default function ${generatedName}`;
+	const defaultExportStart = tsx.code.lastIndexOf(defaultExport);
+	if (defaultExportStart === -1) return tsx;
+
+	const replacements = [
+		{
+			start: defaultExportStart + 'export default function '.length,
+			length: generatedName.length,
+			text: publicName,
+		},
+		{
+			start: range.start + exportStatement.indexOf(generatedName),
+			length: generatedName.length,
+			text: publicName,
+		},
+	].sort((a, b) => a.start - b.start);
+
+	let code = tsx.code;
+	for (const replacement of [...replacements].reverse()) {
+		code =
+			code.slice(0, replacement.start) +
+			replacement.text +
+			code.slice(replacement.start + replacement.length);
+	}
+
+	function mapOffset(offset: number) {
+		let shift = 0;
+		for (const replacement of replacements) {
+			const end = replacement.start + replacement.length;
+			if (offset < replacement.start) break;
+			if (offset < end) {
+				return (
+					replacement.start + shift + Math.min(offset - replacement.start, replacement.text.length)
+				);
+			}
+			shift += replacement.text.length - replacement.length;
+		}
+		return offset + shift;
+	}
 
 	return {
-		virtualFile: getVirtualFileTSX(input, tsx, fileName),
+		...tsx,
+		code,
+		mappings: tsx.mappings.map(([generatedOffset, generatedLength, ...rest]) => {
+			const start = mapOffset(generatedOffset);
+			const end = mapOffset(generatedOffset + generatedLength);
+			return [start, end - start, ...rest] as ConvertToTsxResult['mappings'][number];
+		}),
+		generatedComponentExport: {
+			start: mapOffset(range.start),
+			end: mapOffset(range.end),
+		},
+	};
+}
+
+export function astro2tsx(input: string, fileName: string) {
+	const tsx = usePublicComponentName(safeConvertToTSX(input, fileName));
+
+	return {
+		virtualFile: getVirtualFileTSX(tsx),
 		diagnostics: tsx.diagnostics,
 	};
 }
 
-function getVirtualFileTSX(input: string, tsx: TSXResult, fileName: string): VirtualCode {
-	tsx.code = patchTSX(tsx.code, fileName);
-	const v3Mappings = decode(tsx.map.mappings);
-	const sourcedDoc = TextDocument.create(fileName, 'astro', 0, input);
-	const genDoc = TextDocument.create(fileName + '.tsx', 'typescriptreact', 0, tsx.code);
+function getVirtualFileTSX(tsx: ConvertToTsxResult): VirtualCode {
+	const code = tsx.code;
+	const mapped = tsx.mappings
+		.filter(([, generatedLength, , sourceLength]) => generatedLength > 0 && sourceLength > 0)
+		.map(([generatedOffset, generatedLength, sourceOffset, sourceLength]) => ({
+			generatedOffset,
+			sourceOffset,
+			length: Math.min(generatedLength, sourceLength),
+		}));
 	const mappings: CodeMapping[] = [];
-
-	let current:
-		| {
-				genOffset: number;
-				sourceOffset: number;
-		  }
-		| undefined;
-
-	for (let genLine = 0; genLine < v3Mappings.length; genLine++) {
-		for (const segment of v3Mappings[genLine]) {
-			const genCharacter = segment[0];
-			const genOffset = genDoc.offsetAt({ line: genLine, character: genCharacter });
-			if (current) {
-				let length = genOffset - current.genOffset;
-				const sourceText = input.substring(current.sourceOffset, current.sourceOffset + length);
-				const genText = tsx.code.substring(current.genOffset, current.genOffset + length);
-				if (sourceText !== genText) {
-					length = 0;
-					for (let i = 0; i < genOffset - current.genOffset; i++) {
-						if (sourceText[i] === genText[i]) {
-							length = i + 1;
-						} else {
-							break;
-						}
-					}
-				}
-				if (length > 0) {
-					const lastMapping = mappings.length ? mappings[mappings.length - 1] : undefined;
-					if (
-						lastMapping &&
-						lastMapping.generatedOffsets[0] + lastMapping.lengths[0] === current.genOffset &&
-						lastMapping.sourceOffsets[0] + lastMapping.lengths[0] === current.sourceOffset
-					) {
-						lastMapping.lengths[0] += length;
-					} else {
-						mappings.push({
-							sourceOffsets: [current.sourceOffset],
-							generatedOffsets: [current.genOffset],
-							lengths: [length],
-							data: {
-								verification: true,
-								completion: true,
-								semantic: true,
-								navigation: true,
-								structure: true,
-								format: false,
-							},
-						});
-					}
-				}
-				current = undefined;
-			}
-			if (segment[2] !== undefined && segment[3] !== undefined) {
-				const sourceOffset = sourcedDoc.offsetAt({ line: segment[2], character: segment[3] });
-				current = {
-					genOffset,
-					sourceOffset,
-				};
-			}
+	if (mapped.length > 0) {
+		mappings.push({
+			sourceOffsets: mapped.map(({ sourceOffset }) => sourceOffset),
+			generatedOffsets: mapped.map(({ generatedOffset }) => generatedOffset),
+			lengths: mapped.map(({ length }) => length),
+			data: {
+				verification: true,
+				completion: true,
+				semantic: true,
+				navigation: true,
+				structure: true,
+				format: false,
+			},
+		});
+	}
+	for (const [
+		generatedOffset,
+		generatedLength,
+		sourceOffset,
+		sourceLength,
+		kind,
+		features,
+	] of tsx.mappings) {
+		if (
+			generatedLength === 0 ||
+			sourceLength !== 0 ||
+			kind !== SPAN_MAP_KIND_ATOM ||
+			features !== undefined
+		) {
+			continue;
 		}
+
+		const previous = [...mapped]
+			.reverse()
+			.find(
+				(mapping) =>
+					mapping.sourceOffset + mapping.length === sourceOffset &&
+					mapping.generatedOffset + mapping.length <= generatedOffset,
+			);
+		if (!previous) continue;
+
+		mappings.push({
+			sourceOffsets: [previous.sourceOffset],
+			generatedOffsets: [previous.generatedOffset],
+			lengths: [previous.length],
+			generatedLengths: [generatedOffset + generatedLength - previous.generatedOffset],
+			data: { verification: true, navigation: true },
+		});
+	}
+	if (tsx.frontmatterStatus === AstroFrontmatterStatus.DoesntExist) {
+		mappings.push({
+			sourceOffsets: [0],
+			generatedOffsets: [tsx.frontmatter.start - 1],
+			lengths: [0],
+			generatedLengths: [1],
+			data: { completion: true },
+		});
 	}
 
 	return {
 		id: 'tsx',
 		languageId: 'typescriptreact',
 		snapshot: {
-			getText: (start, end) => tsx.code.substring(start, end),
-			getLength: () => tsx.code.length,
+			getText: (start, end) => code.substring(start, end),
+			getLength: () => code.length,
 			getChangeRange: () => undefined,
 		},
-		mappings: mappings,
+		mappings,
 		embeddedCodes: [],
 	};
-}
-
-function patchTSX(code: string, fileName: string) {
-	const basename = path.basename(fileName, path.extname(fileName));
-	const isDynamic = basename.startsWith('[') && basename.endsWith(']');
-
-	return code.replace(/\b(\S*)__AstroComponent_/g, (fullMatch, m1: string) => {
-		// If we don't have a match here, it usually means the file has a weird name that couldn't be expressed with valid identifier characters
-		if (!m1) {
-			if (basename === '404') return 'FourOhFour';
-			return fullMatch;
-		}
-		return isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1);
-	});
 }

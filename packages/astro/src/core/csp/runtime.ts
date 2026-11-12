@@ -1,6 +1,13 @@
 import type { SSRManifestCSP } from '../app/types.js';
 import type { CspDirective } from './config.js';
 
+export {
+	type CspDirectiveSources,
+	normalizeCspHashEntry,
+	normalizeCspResourceEntry,
+	partitionByKind,
+} from '@astrojs/runtime/_internal/core/csp/sources.js';
+
 /**
  * `existingDirective` is something like `img-src 'self'`. Same as `newDirective`.
  *

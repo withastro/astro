@@ -168,11 +168,11 @@ describe('createViteBuildConfig', () => {
 				settings,
 				viteConfig: {
 					build: { minify: false },
-					environments: { client: { build: { minify: 'esbuild' } } },
+					environments: { client: { build: { minify: 'oxc' } } },
 				},
 			});
 			const clientEnv = config.environments?.client as Record<string, any>;
-			assert.equal(clientEnv.build.minify, 'esbuild');
+			assert.equal(clientEnv.build.minify, 'oxc');
 		});
 
 		it('defaults sourcemap to false when not set', async () => {
@@ -246,6 +246,95 @@ describe('createViteBuildConfig', () => {
 		});
 	});
 
+	describe('environment key ordering', () => {
+		it('places ssr environment last even when user defines environments.ssr', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						ssr: {
+							resolve: { external: ['some-pkg'] },
+						},
+					},
+				},
+			});
+
+			const envKeys = Object.keys(config.environments ?? {});
+			assert.equal(envKeys.at(-1), 'ssr', 'ssr must be the last environment key');
+		});
+
+		it('preserves user non-build properties on the ssr environment', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						ssr: {
+							resolve: { external: ['some-pkg'] },
+						},
+					},
+				},
+			});
+
+			const ssrEnv = config.environments?.ssr as Record<string, any>;
+			assert.deepEqual(ssrEnv.resolve, { external: ['some-pkg'] });
+		});
+
+		it('preserves user non-build properties on the prerender environment', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						prerender: {
+							resolve: { external: ['some-pkg'] },
+						},
+					},
+				},
+			});
+
+			const prerenderEnv = config.environments?.prerender as Record<string, any>;
+			assert.deepEqual(prerenderEnv.resolve, { external: ['some-pkg'] });
+		});
+
+		it('preserves user non-build properties on the client environment', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						client: {
+							resolve: { external: ['some-pkg'] },
+						},
+					},
+				},
+			});
+
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.deepEqual(clientEnv.resolve, { external: ['some-pkg'] });
+		});
+
+		it('does not include managed keys when user sets environments.ssr before other keys', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						ssr: { resolve: { external: ['a'] } },
+						prerender: { resolve: { external: ['b'] } },
+						client: { resolve: { external: ['c'] } },
+					},
+				},
+			});
+
+			const envKeys = Object.keys(config.environments ?? {});
+			// Managed keys appear exactly once each, at the end
+			const lastThree = envKeys.slice(-3);
+			assert.deepEqual(lastThree, ['prerender', 'client', 'ssr']);
+		});
+	});
+
 	describe('general config', () => {
 		it('sets base from settings config', async () => {
 			const settings = await createBasicSettings({ base: '/blog' });
@@ -273,6 +362,46 @@ describe('createViteBuildConfig', () => {
 			// minify explicitly false -> false
 			const config2 = buildConfig({ settings, viteConfig: { build: { minify: false } } });
 			assert.equal(config2.build?.cssMinify, false);
+		});
+	});
+
+	describe('treeshake', () => {
+		it('marks $$createComponent as pure', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({ settings });
+
+			assert.deepEqual(config.build?.rolldownOptions?.treeshake, {
+				manualPureFunctions: ['$$createComponent'],
+			});
+		});
+
+		it('merges with user treeshake options', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					build: {
+						rolldownOptions: {
+							treeshake: { annotations: false, manualPureFunctions: ['myPure'] },
+						},
+					},
+				},
+			});
+
+			assert.deepEqual(config.build?.rolldownOptions?.treeshake, {
+				annotations: false,
+				manualPureFunctions: ['myPure', '$$createComponent'],
+			});
+		});
+
+		it('preserves user treeshake: false', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: { build: { rolldownOptions: { treeshake: false } } },
+			});
+
+			assert.equal(config.build?.rolldownOptions?.treeshake, false);
 		});
 	});
 });

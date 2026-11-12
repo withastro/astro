@@ -9,6 +9,8 @@ import type { SessionDriverConfigSchema } from '../../dist/core/session/config.j
 import type { SessionDriverConfig } from '../../dist/core/session/types.js';
 import type { SvgOptimizer } from '../../dist/assets/svg/types.js';
 import type { SvgOptimizerSchema } from '../../dist/assets/svg/config.js';
+import type { ImageInputFormat } from '../../dist/assets/types.js';
+import type { SchemaContext } from '../../dist/content/config.js';
 
 describe('fonts', () => {
 	it('FontFamily type matches FontFamilySchema', () => {
@@ -42,5 +44,12 @@ describe('session', () => {
 describe('svgOptimizer', () => {
 	it('SvgOptimizer type matches SvgOptimizerSchema', () => {
 		expectTypeOf<z.input<typeof SvgOptimizerSchema>>().toEqualTypeOf<SvgOptimizer>();
+	});
+});
+
+describe('content image()', () => {
+	it('image() schema format matches ImageInputFormat', () => {
+		type ImageSchema = ReturnType<SchemaContext['image']>;
+		expectTypeOf<z.output<ImageSchema>['format']>().toEqualTypeOf<ImageInputFormat>();
 	});
 });

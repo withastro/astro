@@ -118,6 +118,14 @@ export default async function test() {
 				: args.values.match
 			: undefined,
 		concurrency: args.values.parallel,
+		// In non-parallel mode all tests already run in a single process (see the
+		// temp file above). Use `isolation: 'none'` so they run in *this* process
+		// instead of a spawned child. The child variant streams test events back as
+		// V8-serialized frames over stdout, which grandchild processes (e.g. workerd
+		// dev servers spawned by integration tests) can corrupt by writing raw bytes
+		// to the same pipe, producing intermittent "Unable to deserialize cloned
+		// data due to invalid or unsupported version" failures.
+		isolation: args.values.parallel ? 'process' : 'none',
 		only: args.values.only,
 		setup: setupModule?.default,
 		watch: args.values.watch,

@@ -1,3 +1,10 @@
+import type { CollectedPrerenderMetadata as BaseCollectedPrerenderMetadata } from '@astrojs/runtime/_internal/core/render-scope/collect.js';
+import type {
+	RenderCollectorScope as BaseRenderCollectorScope,
+	RenderCollectors as BaseRenderCollectors,
+} from '@astrojs/runtime/_internal/core/render-scope/scope.js';
+import type { SerializedStaticImage } from '../../../assets/types.js';
+
 export type { RoutesList } from '../../../types/astro.js';
 export { App } from '../app.js';
 export {
@@ -15,4 +22,21 @@ export {
 	serializeRouteData,
 	serializeRouteInfo,
 } from '../manifest.js';
-export { AppPipeline } from '../pipeline.js';
+export {
+	getInstalledRenderScope,
+	installRenderScope,
+} from '@astrojs/runtime/_internal/core/render-scope/scope.js';
+export type RenderCollectors = BaseRenderCollectors<SerializedStaticImage>;
+export type RenderCollectorScope = BaseRenderCollectorScope<SerializedStaticImage>;
+/** @deprecated `getImage()` records the images it resolves. */
+export { recordStaticImage } from '@astrojs/runtime/_internal/core/render-scope/record.js';
+export {
+	collectPrerenderMetadata,
+	type CollectPrerenderMetadataOptions,
+} from '@astrojs/runtime/_internal/core/render-scope/collect.js';
+export type CollectedPrerenderMetadata = BaseCollectedPrerenderMetadata<SerializedStaticImage>;
+export {
+	renderForPrerender,
+	type PrerenderableApp,
+	type PrerenderRenderOptions,
+} from '../prerender.js';

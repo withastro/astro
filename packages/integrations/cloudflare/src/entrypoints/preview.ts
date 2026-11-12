@@ -20,6 +20,7 @@ const createPreviewServer: CreatePreviewServer = async ({
 	headers,
 	port,
 	host,
+	open,
 	allowedHosts,
 	root,
 }) => {
@@ -45,7 +46,7 @@ const createPreviewServer: CreatePreviewServer = async ({
 				host,
 				port,
 				headers,
-				open: false,
+				open: open ?? false,
 				allowedHosts,
 			},
 			plugins: [

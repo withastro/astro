@@ -115,7 +115,10 @@ export const create = (collectionConfig: CollectionConfig): LanguageServicePlugi
 							diagnostic.severity = DiagnosticSeverity.Error;
 
 							// Map missing properties to the entire frontmatter
-							if (diagnostic.message.startsWith('Missing property')) {
+							if (
+								typeof diagnostic.message === 'string' &&
+								diagnostic.message.startsWith('Missing property')
+							) {
 								diagnostic.range = Range.create(
 									{ line: 0, character: 0 },
 									document.positionAt(document.getText().length),

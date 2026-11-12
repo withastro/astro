@@ -1,18 +1,24 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createKey } from '../../../dist/core/encryption.js';
+import { createKey } from '@astrojs/runtime/_internal/core/encryption.js';
 import {
 	ServerIslandComponent,
 	containsServerDirective,
 	renderServerIslandRuntime,
-} from '../../../dist/runtime/server/render/server-islands.js';
+} from '@astrojs/runtime/_internal/server/render/server-islands.js';
 import type { SSRResult } from '../../../dist/types/public/internal.js';
 import type {
 	RenderDestination,
 	RenderDestinationChunk,
-} from '../../../dist/runtime/server/render/common.js';
-import type { ComponentSlotValue } from '../../../dist/runtime/server/render/slot.js';
-import { renderTemplate } from '../../../dist/runtime/server/index.js';
+} from '@astrojs/runtime/_internal/server/render/common.js';
+import type { ComponentSlotValue } from '@astrojs/runtime/_internal/server/render/slot.js';
+import {
+	createComponent,
+	createHeadAndContent,
+	renderComponent,
+	renderTemplate,
+} from '../../../dist/runtime/server/index.js';
+import { renderComponentToString } from '@astrojs/runtime/_internal/server/render/component.js';
 
 // #region Helpers
 
@@ -65,17 +71,21 @@ async function createStubResult(overrides: Partial<SSRResult> = {}): Promise<SSR
 			extraStyleHashes: [],
 			extraScriptHashes: [],
 			propagators: new Set(),
+			routeHasPropagation: false,
+			pendingSlotEvaluations: [],
 			templateDepth: 0,
 		},
-		cspDestination: 'header',
 		shouldInjectCspMetaTags: false,
+		cspDestination: 'header',
 		cspAlgorithm: 'SHA-256',
+		directives: [],
 		scriptHashes: [],
 		scriptResources: [],
 		styleHashes: [],
 		styleResources: [],
-		directives: [],
 		isStrictDynamic: false,
+		scriptDirective: { resources: [], hashes: [], strictDynamic: false },
+		styleDirective: { resources: [], hashes: [] },
 		internalFetchHeaders: {},
 		...overrides,
 	};
@@ -127,6 +137,21 @@ describe('containsServerDirective', () => {
 	});
 });
 
+/**
+ * Evaluates the server island runtime followed by `islandContent` (the body of
+ * the island's module script) with stubbed `fetch` and `document` globals.
+ * Resolves or rejects like the browser's module evaluation would.
+ */
+function runIslandScript(islandContent: string, fetch: () => Promise<Response>) {
+	const runtime = renderServerIslandRuntime()
+		.replace(/^<script>/, '')
+		.replace(/<\/script>$/, '');
+	const hostScript = { previousSibling: null, before() {}, remove() {} };
+	const document = { querySelector: () => hostScript };
+	const AsyncFunction = (async () => {}).constructor as FunctionConstructor;
+	return new AsyncFunction('fetch', 'document', `${runtime}\n${islandContent}`)(fetch, document);
+}
+
 // #endregion
 
 // #region renderServerIslandRuntime
@@ -151,6 +176,12 @@ describe('renderServerIslandRuntime', () => {
 			!inner.includes('</script'),
 			'inner script content should not contain unescaped </script',
 		);
+	});
+
+	it('keeps the fallback when reading the island response body fails', async () => {
+		const response = new Response('<p>island</p>', { headers: { 'content-type': 'text/html' } });
+		response.text = () => Promise.reject(new TypeError('network error'));
+		await runIslandScript(`await replaceServerIsland('id', await fetch());`, async () => response);
 	});
 });
 
@@ -201,7 +232,7 @@ describe('ServerIslandComponent', () => {
 			const content = await component.getIslandContent();
 			// A small payload should use a plain fetch() GET call (no method: 'POST')
 			assert.ok(!content.includes("method: 'POST'"), 'small payloads should use GET, not POST');
-			assert.ok(content.includes("fetch('"), 'should use fetch()');
+			assert.ok(content.includes('fetch("'), 'should use fetch()');
 		});
 
 		it('uses a POST request for large payloads (over 2048 chars)', async () => {
@@ -214,6 +245,23 @@ describe('ServerIslandComponent', () => {
 			assert.ok(content.includes("method: 'POST'"), 'large payloads should fall back to POST');
 		});
 
+		for (const [label, props] of [
+			['GET', islandProps()],
+			['POST', islandProps({ data: 'x'.repeat(2048) })],
+		] as const) {
+			it(`does not throw when the ${label} island fetch rejects`, async () => {
+				const result = await createStubResult();
+				const component = new ServerIslandComponent(result, props, {}, 'Island');
+				const content = await component.getIslandContent();
+				let fetchCalls = 0;
+				await runIslandScript(content, () => {
+					fetchCalls++;
+					return Promise.reject(new TypeError('Failed to fetch'));
+				});
+				assert.equal(fetchCalls, 1);
+			});
+		}
+
 		it('builds the island URL from base + componentId', async () => {
 			const result = await createStubResult({ base: '/app' });
 			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
@@ -222,6 +270,18 @@ describe('ServerIslandComponent', () => {
 				content.includes('/app/_server-islands/Island'),
 				`island URL should include base + componentId, got: ${content}`,
 			);
+		});
+
+		it('escapes the island URL for script and attribute contexts', async () => {
+			const result = await createStubResult({ base: '/"</script><script>test</script>' });
+			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
+			const content = await component.getIslandContent();
+			const preload = String(result._metadata.extraHead[0]);
+
+			assert.ok(!content.includes('</script>'));
+			assert.ok(content.includes('\\u003c/script>'));
+			assert.ok(preload.includes('&quot;'));
+			assert.ok(!preload.includes('href="/"'));
 		});
 
 		it('appends a trailing slash when trailingSlash is "always"', async () => {
@@ -289,6 +349,18 @@ describe('ServerIslandComponent', () => {
 				() => component.getIslandContent(),
 				/Could not find server component name/,
 			);
+		});
+	});
+	// #endregion
+
+	// #region init()
+	describe('init()', () => {
+		it('records CSP script hashes once when called repeatedly', async () => {
+			const result = await createStubResult();
+			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
+			await component.init();
+			await component.init();
+			assert.equal(result._metadata.extraScriptHashes.length, 2);
 		});
 	});
 	// #endregion
@@ -374,6 +446,79 @@ describe('ServerIslandComponent', () => {
 		});
 	});
 	// #endregion
+});
+
+// #endregion
+
+// #region renderComponentToString
+
+describe('renderComponentToString() with a server island', () => {
+	// The factory body is never invoked: server islands short-circuit to a
+	// `ServerIslandComponent` before the component itself is rendered.
+	const Island = createComponent(() => renderTemplate`<p>island</p>`);
+
+	/** A propagating component whose head content must reach `extraHead`. */
+	const StyledContent = createComponent({
+		factory: () =>
+			createHeadAndContent(
+				'<style>.nested-content{}</style>' as any,
+				renderTemplate`<p>styled content</p>`,
+			),
+		propagation: 'self',
+	});
+
+	function withTimeout<T>(promise: Promise<T>, ms = 2000): Promise<T> {
+		return Promise.race([
+			promise,
+			new Promise<never>((_, reject) =>
+				setTimeout(() => reject(new Error(`timed out after ${ms}ms (deadlock)`)), ms),
+			),
+		]);
+	}
+
+	it('does not deadlock when rendered inside a pending slot evaluation', async () => {
+		// Models an MDX island inside an Astro component slot on a propagation
+		// route (#18156): the enclosing slot pre-render is queued in
+		// `pendingSlotEvaluations` and is itself awaiting the island render.
+		const result = await createStubResult();
+		result._metadata.routeHasPropagation = true;
+		const enclosingSlot = Promise.resolve().then(() =>
+			renderComponentToString(result, 'Island', Island, islandProps()),
+		);
+		result._metadata.pendingSlotEvaluations.push(enclosingSlot);
+
+		const html = await withTimeout(enclosingSlot);
+		assert.ok(html.includes('data-island-id'), `expected island script, got: ${html}`);
+	});
+
+	it('collects head content from propagating components inside the island slots', async () => {
+		const result = await createStubResult();
+		result._metadata.routeHasPropagation = true;
+		const slots = {
+			default: () => renderTemplate`${renderComponent(result, 'StyledContent', StyledContent, {})}`,
+		};
+		const enclosingSlot = Promise.resolve().then(() =>
+			renderComponentToString(result, 'Island', Island, islandProps(), slots),
+		);
+		result._metadata.pendingSlotEvaluations.push(enclosingSlot);
+
+		await withTimeout(enclosingSlot);
+		assert.ok(
+			result._metadata.extraHead.includes('<style>.nested-content{}</style>'),
+			`expected nested head content in extraHead, got: ${JSON.stringify(result._metadata.extraHead)}`,
+		);
+	});
+
+	it('initializes each island once, producing one set of CSP script hashes per island', async () => {
+		const result = await createStubResult();
+		await renderComponentToString(result, 'Island', Island, islandProps());
+		assert.equal(result._metadata.extraScriptHashes.length, 2);
+
+		// A later island render re-runs head collection over every registered
+		// propagator, including the first island.
+		await renderComponentToString(result, 'Island', Island, islandProps());
+		assert.equal(result._metadata.extraScriptHashes.length, 4);
+	});
 });
 
 // #endregion

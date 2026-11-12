@@ -15,7 +15,7 @@ import type {
 	MiddlewareMode,
 	RouteToHeaders,
 } from 'astro';
-import { build } from 'esbuild';
+import { rolldown } from 'rolldown';
 import { glob, globSync } from 'tinyglobby';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import { sessionDrivers } from 'astro/config';
@@ -34,6 +34,13 @@ export interface NetlifyLocals {
 type RemotePattern = AstroConfig['image']['remotePatterns'][number];
 
 /**
+ * Escape regex metacharacters in a literal string so it matches verbatim.
+ */
+function escapeRegex(literal: string): string {
+	return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Convert a remote pattern object to a regex string
  */
 export function remotePatternToRegex(
@@ -42,7 +49,7 @@ export function remotePatternToRegex(
 ): string | undefined {
 	let { protocol, hostname, port, pathname } = pattern;
 
-	let regexStr = '';
+	let regexStr = '^';
 
 	if (protocol) {
 		regexStr += `${protocol}://`;
@@ -61,8 +68,8 @@ export function remotePatternToRegex(
 			regexStr += '([a-z0-9-]+\\.)';
 			hostname = hostname.substring(2); // Remove '*.' from the beginning
 		}
-		// Escape dots in the hostname
-		regexStr += hostname.replace(/\./g, '\\.');
+		// Escape metacharacters in the literal hostname so they match verbatim.
+		regexStr += escapeRegex(hostname);
 	} else {
 		regexStr += '[a-z0-9.-]+';
 	}
@@ -76,14 +83,17 @@ export function remotePatternToRegex(
 
 	if (pathname) {
 		if (pathname.endsWith('/**')) {
-			// Match any path.
-			regexStr += `(\\${pathname.replace('/**', '')}.*)`;
+			// Match any path below the prefix directory, keeping the `/` separator so
+			// sibling paths that share the prefix (e.g. `/public-assets` for `/public/**`)
+			// don't match. Escape the literal prefix so metacharacters (e.g. `.`) match
+			// verbatim instead of acting as wildcards.
+			regexStr += `(${escapeRegex(pathname.slice(0, -3))}\/[^?#]+)`;
 		} else if (pathname.endsWith('/*')) {
 			// Match one level of path
-			regexStr += `(\\${pathname.replace('/*', '')}\/[^/?#]+)\/?`;
+			regexStr += `(${escapeRegex(pathname.replace('/*', ''))}\/[^/?#]+)\/?`;
 		} else {
 			// Exact match
-			regexStr += `(\\${pathname})`;
+			regexStr += `(${escapeRegex(pathname)})`;
 		}
 	} else {
 		// Default to matching any path
@@ -117,7 +127,7 @@ function remoteImagesFromAstroConfig(
 	const remoteImages: string[] = [];
 	// Domains get a simple regex match
 	remoteImages.push(
-		...config.image.domains.map((domain) => `https?:\/\/${domain.replaceAll('.', '\\.')}\/.*`),
+		...config.image.domains.map((domain) => `^https?:\/\/${escapeRegex(domain)}\/.*$`),
 	);
 	// Remote patterns need to be converted to regexes
 	remoteImages.push(
@@ -180,12 +190,17 @@ async function writeSkewProtectionConfig(config: AstroConfig) {
 		return; // Skip if not deploying to Netlify
 	}
 
+	const patterns = ['/_actions/.*', '/_server-islands/.*', '.*\\.(html)$'];
+	if (!config.build.assetsPrefix) {
+		patterns.push(`/${config.build.assets}/.*`);
+	}
+
 	const deployConfigDir = new URL('.netlify/v1/', config.root);
 	await mkdir(deployConfigDir, { recursive: true });
 	await writeFile(
 		new URL('./skew-protection.json', deployConfigDir),
 		JSON.stringify({
-			patterns: ['/_actions/.*', '/_server-islands/.*', '.*\\.(html)$'],
+			patterns,
 			sources: [
 				{ type: 'header', name: 'X-Netlify-Deploy-ID' },
 				{ type: 'query', name: 'dpl' },
@@ -281,10 +296,13 @@ export interface NetlifyIntegrationConfig {
 	 *
 	 * - `images`: Enables the Netlify Image CDN in local development. Default: true
 	 * - `environmentVariables`: If your site is linked to a Netlify site, this will automatically load the environment variables from the Netlify site or team. Default: false
+	 * - `edgeFunctions`: Enables emulation of Netlify Edge Functions defined in your project's `netlify/edge-functions` directory. Some npm packages that access the filesystem may not work in the edge function sandbox. If you encounter errors, disable this and use `netlify dev` instead. Default: true
 	 *
-	 * @default {{ environmentVariables: false, images: true }}
+	 * @default {{ environmentVariables: false, images: true, edgeFunctions: true }}
 	 */
-	devFeatures?: { environmentVariables: boolean; images: boolean } | boolean;
+	devFeatures?:
+		| { environmentVariables: boolean; images: boolean; edgeFunctions: boolean }
+		| boolean;
 }
 
 export default function netlifyIntegration(
@@ -500,34 +518,39 @@ export default function netlifyIntegration(
 		);
 
 		// taking over bundling, because Netlify bundling trips over NPM modules
-		await build({
-			entryPoints: [fileURLToPath(new URL(`./${serverEntry}`, middlewareOutputDir()))],
-			// allow `node:` prefixed imports, which are valid in netlify's deno edge runtime
+		const bundle = await rolldown({
+			input: fileURLToPath(new URL(`./${serverEntry}`, middlewareOutputDir())),
+			platform: 'neutral',
+			resolve: {
+				mainFields: ['module', 'main'],
+			},
+			transform: {
+				target: 'es2022',
+			},
+			external: ['sharp'],
 			plugins: [
 				{
 					name: 'allowNodePrefixedImports',
-					setup(pluginBuild) {
-						pluginBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
-							path: args.path,
-							external: true,
-						}));
+					resolveId(source) {
+						// allow `node:` prefixed imports, which are valid in netlify's deno edge runtime
+						if (source.startsWith('node:')) {
+							return { id: source, external: true };
+						}
 					},
 				},
 			],
-			target: 'es2022',
-			platform: 'neutral',
-			mainFields: ['module', 'main'],
-			outfile: fileURLToPath(new URL('./middleware.mjs', middlewareOutputDir())),
-			allowOverwrite: true,
-			format: 'esm',
-			bundle: true,
-			minify: false,
-			external: ['sharp'],
-			banner: {
-				// Import Deno polyfill for `process.env` at the top of the file
-				js: 'import process from "node:process";',
-			},
 		});
+
+		try {
+			await bundle.write({
+				file: fileURLToPath(new URL('./middleware.mjs', middlewareOutputDir())),
+				format: 'esm',
+				minify: false,
+				banner: 'import process from "node:process";',
+			});
+		} finally {
+			await bundle.close();
+		}
 	}
 
 	function getLocalDevNetlifyContext(req: IncomingMessage): Context {
@@ -613,7 +636,7 @@ export default function netlifyIntegration(
 
 				let session = config.session;
 
-				if (!session?.driver) {
+				if (session !== false && !session?.driver) {
 					logger.info('Enabling sessions with Netlify Blobs');
 
 					session = {
@@ -631,10 +654,12 @@ export default function netlifyIntegration(
 						? {
 								images: integrationConfig.devFeatures,
 								environmentVariables: integrationConfig.devFeatures,
+								edgeFunctions: integrationConfig.devFeatures,
 							}
 						: {
 								images: integrationConfig?.devFeatures?.images ?? true,
 								environmentVariables: integrationConfig?.devFeatures?.environmentVariables ?? false,
+								edgeFunctions: integrationConfig?.devFeatures?.edgeFunctions ?? true,
 							};
 
 				const vitePluginOptions: NetlifyPluginOptions = {
@@ -648,6 +673,9 @@ export default function netlifyIntegration(
 						// If features is an object, use the `environmentVariables` property
 						// Otherwise, use the boolean value of `features`, defaulting to false
 						enabled: features.environmentVariables,
+					},
+					edgeFunctions: {
+						enabled: features.edgeFunctions,
 					},
 				};
 

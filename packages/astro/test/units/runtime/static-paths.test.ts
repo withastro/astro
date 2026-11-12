@@ -1,7 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { setEnvironment } from '../../../dist/core/environment/index.js';
+import { productionEnvironment } from '../../../dist/core/environment/production.js';
 import { StaticPaths } from '../../../dist/runtime/prerender/static-paths.js';
 import type { StaticPathsApp } from '../../../dist/runtime/prerender/static-paths.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/_internal/core/render-scope/node-scope.js';
+import { recordReferencedImage } from '@astrojs/runtime/_internal/core/render-scope/record.js';
+import { uninstallRenderScope } from '@astrojs/runtime/_internal/core/render-scope/scope.js';
 
 interface MockRouteData {
 	route: string;
@@ -19,38 +24,39 @@ interface MockRouteData {
 }
 
 /**
- * Creates a minimal mock app for testing StaticPaths.
+ * Creates a minimal mock app for testing StaticPaths. `StaticPaths` only
+ * needs `{ manifest }` — the component loader is environment behavior, so a
+ * test environment with a mock `getComponentByRoute` is registered for the
+ * manifest, and the route cache comes from the manifest-keyed functional core.
  */
 function createMockApp({
 	routes,
-	routeCache = new Map(),
 	i18n = undefined,
 }: {
 	routes: Array<{ routeData: MockRouteData }>;
-	routeCache?: Map<unknown, unknown>;
 	i18n?: undefined;
 }): StaticPathsApp {
-	return {
-		manifest: {
-			routes,
-			i18n,
-			serverLike: false,
-			base: '/',
-			trailingSlash: 'ignore',
+	const manifest = {
+		routes,
+		i18n,
+		serverLike: false,
+		base: '/',
+		trailingSlash: 'ignore',
+	} as unknown as StaticPathsApp['manifest'];
+	setEnvironment(manifest, {
+		...productionEnvironment,
+		name: 'test',
+		async getComponentByRoute(_manifest: unknown, route: MockRouteData) {
+			// Return a mock component with getStaticPaths if route is dynamic
+			if (!route.pathname) {
+				return {
+					getStaticPaths: route.mockGetStaticPaths || (() => []),
+				};
+			}
+			return {};
 		},
-		pipeline: {
-			routeCache,
-			async getComponentByRoute(route: MockRouteData) {
-				// Return a mock component with getStaticPaths if route is dynamic
-				if (!route.pathname) {
-					return {
-						getStaticPaths: route.mockGetStaticPaths || (() => []),
-					};
-				}
-				return {};
-			},
-		},
-	} as unknown as StaticPathsApp;
+	} as any);
+	return { manifest };
 }
 
 /**
@@ -253,6 +259,40 @@ describe('StaticPaths', () => {
 			const paths = await staticPaths.getAll();
 
 			assert.equal(paths.length, staticCount + dynamicCount);
+		});
+	});
+
+	describe('getAllWithMetadata()', () => {
+		it('returns the images recorded while computing the paths', async () => {
+			uninstallRenderScope();
+			ensureAsyncRenderScope();
+			try {
+				// Outside of `getAllWithMetadata()`, nothing collects the record.
+				recordReferencedImage('/stale.png');
+				const mockGetStaticPaths = () => {
+					recordReferencedImage('/hero.png');
+					return [{ params: { slug: 'post-1' } }];
+				};
+				const routes = [
+					createMockRoute({ pathname: undefined, route: '/blog/[slug]', mockGetStaticPaths }),
+				];
+				const staticPaths = new StaticPaths(createMockApp({ routes }));
+
+				const first = await staticPaths.getAllWithMetadata();
+				assert.deepEqual(
+					first.paths.map((p) => p.pathname),
+					['/blog/post-1'],
+				);
+				assert.deepEqual(first.metadata, {
+					staticImages: [],
+					referencedImages: ['/hero.png'],
+				});
+
+				const second = await new StaticPaths(createMockApp({ routes: [] })).getAllWithMetadata();
+				assert.deepEqual(second.metadata, { staticImages: [], referencedImages: [] });
+			} finally {
+				uninstallRenderScope();
+			}
 		});
 	});
 });

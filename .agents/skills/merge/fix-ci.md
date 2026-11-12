@@ -1,6 +1,6 @@
 # Fix CI Failures
 
-Fix build errors, type errors, and test failures identified from CI logs on the merge PR. The merge-resolve workflow has already resolved conflicts and regenerated the lockfile, but the code may not build or pass tests yet.
+Fix build errors, type errors, and test failures identified from CI logs on a prepared merge PR. Conflicts have already been resolved and the lockfile regenerated, but the code may not build or pass tests yet.
 
 **SCOPE: Do not spawn tasks/sub-agents.**
 
@@ -9,7 +9,7 @@ Fix build errors, type errors, and test failures identified from CI logs on the 
 - **`prNumber`** — The PR number for the merge PR.
 - **`ciLogs`** — The CI failure logs, pre-fetched by the orchestrator. Contains the failed job names and their log output.
 - The working directory is the repo root, checked out on the merge branch.
-- Merge conflicts have already been resolved and committed by the merge-resolve workflow.
+- Merge conflicts have already been resolved and committed on the merge branch.
 - Dependencies are installed (`pnpm install` has been run).
 
 ## Critical Rules
@@ -24,7 +24,7 @@ Fix build errors, type errors, and test failures identified from CI logs on the 
 
 ## Overview
 
-This skill follows a "fix and push" approach. After pushing, CI will re-run automatically. If there are still failures, this workflow will be triggered again (up to 3 total attempts). So you don't need to fix everything in one pass — focus on the failures visible in the current CI logs.
+This skill follows a "fix and push" approach. After pushing, CI will re-run automatically. Focus on the failures visible in the current CI logs; rerun this step with updated logs if CI finds more failures.
 
 ## Steps
 

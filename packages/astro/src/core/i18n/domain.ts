@@ -1,12 +1,17 @@
 import {
 	appendForwardSlash,
-	collapseDuplicateLeadingSlashes,
 	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
+	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
 import { normalizeTheLocale } from '../../i18n/path.js';
 import type { SSRManifest } from '../app/types.js';
+import {
+	getFirstForwardedValue,
+	validateForwardedHeaders,
+	validateHost,
+} from '../app/validate-headers.js';
 import type { AstroLogger } from '../logger/core.js';
 
 /**
@@ -24,7 +29,9 @@ export function computePathnameFromDomain(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
+	allowedDomains: SSRManifest['allowedDomains'],
 	logger: AstroLogger,
+	pathnameFromRequest?: string,
 ): string | undefined {
 	let pathname: string | undefined = undefined;
 
@@ -34,28 +41,31 @@ export function computePathnameFromDomain(
 			i18n.strategy === 'domains-prefix-other-locales' ||
 			i18n.strategy === 'domains-prefix-always-no-redirect')
 	) {
-		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
-		let host = request.headers.get('X-Forwarded-Host');
-		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
-		let protocol = request.headers.get('X-Forwarded-Proto');
-		if (protocol) {
-			// this header doesn't have a colon at the end, so we add to be in line with URL#protocol, which does have it
-			protocol = protocol + ':';
-		} else {
-			// we fall back to the protocol of the request
-			protocol = url.protocol;
-		}
-		if (!host) {
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
-			host = request.headers.get('Host');
-		}
+		const requestHost = request.headers.get('Host') ?? undefined;
+		const validated = validateForwardedHeaders(
+			getFirstForwardedValue(request.headers.get('X-Forwarded-Proto') ?? undefined),
+			getFirstForwardedValue(request.headers.get('X-Forwarded-Host') ?? undefined),
+			getFirstForwardedValue(request.headers.get('X-Forwarded-Port') ?? undefined),
+			allowedDomains,
+			{ protocol: url.protocol.slice(0, -1), host: requestHost ?? url.host },
+		);
+		const protocol = validated.protocol ? `${validated.protocol}:` : url.protocol;
+		const validatedRequestHost = allowedDomains?.length
+			? validateHost(requestHost, protocol.slice(0, -1), allowedDomains)
+			: requestHost;
+		// Forwarded and original hosts are validated against security.allowedDomains when configured.
+		const host = validated.host ?? validatedRequestHost;
 		// If we don't have a host and a protocol, it's impossible to proceed
 		if (host && protocol) {
-			// The header might have a port in their name, so we remove it
-			host = host.split(':')[0];
 			try {
 				let locale;
+				// Parse the host with the URL parser rather than splitting the string. The header
+				// might have a port in it, which the domain lookup ignores.
 				const hostAsUrl = new URL(`${protocol}//${host}`);
+				if (hostAsUrl.username || hostAsUrl.password) {
+					return undefined;
+				}
+				hostAsUrl.port = '';
 				for (const [domainKey, localeValue] of Object.entries(i18n.domainLookupTable)) {
 					// This operation should be safe because we force the protocol via zod inside the configuration
 					// If not, then it means that the manifest was tampered
@@ -71,9 +81,8 @@ export function computePathnameFromDomain(
 				}
 
 				if (locale) {
-					pathname = prependForwardSlash(
-						joinPaths(normalizeTheLocale(locale), removeBase(url.pathname, base)),
-					);
+					const requestPathname = pathnameFromRequest ?? stripRequestBase(url.pathname, base);
+					pathname = prependForwardSlash(joinPaths(normalizeTheLocale(locale), requestPathname));
 					if (trailingSlash === 'always') {
 						pathname = appendForwardSlash(pathname);
 					} else if (trailingSlash === 'never') {
@@ -91,19 +100,6 @@ export function computePathnameFromDomain(
 				logger.error('router', `Error: ${e}`);
 			}
 		}
-	}
-	return pathname;
-}
-
-/**
- * Mirror of `BaseApp.removeBase`, including the
- * `collapseDuplicateLeadingSlashes` fix that prevents middleware
- * authorization bypass when the URL starts with `//`.
- */
-function removeBase(pathname: string, base: string): string {
-	pathname = collapseDuplicateLeadingSlashes(pathname);
-	if (pathname.startsWith(base)) {
-		return pathname.slice(removeTrailingForwardSlash(base).length + 1);
 	}
 	return pathname;
 }

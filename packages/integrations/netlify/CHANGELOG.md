@@ -1,5 +1,176 @@
 # @astrojs/netlify
 
+## 8.2.13
+
+### Patch Changes
+
+- [#18680](https://github.com/withastro/astro/pull/18680) [`4f8e19a`](https://github.com/withastro/astro/commit/4f8e19aa28b9d67519a5fad84303c725654cbb4f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Prevents server function traces from including the entire project when a dependency uses paths the tracer cannot resolve.
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.12
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.11
+
+### Patch Changes
+
+- [#18554](https://github.com/withastro/astro/pull/18554) [`3ef9fea`](https://github.com/withastro/astro/commit/3ef9fea973c3a21c65a320407fbb2cf4e947b495) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes NFT tracing so dynamic path segments no longer glob the whole workspace, which could include unrelated files in function bundles for monorepo projects
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.10
+
+### Patch Changes
+
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.9
+
+### Patch Changes
+
+- [#18263](https://github.com/withastro/astro/pull/18263) [`882dd98`](https://github.com/withastro/astro/commit/882dd98cd9f11c4e7bd0b812d37f865dfca75d3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors internal bundling and code transforms to use Vite's Oxc-based `transformWithOxc` and Rolldown instead of esbuild. These packages no longer depend on esbuild directly.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.8
+
+### Patch Changes
+
+- [#18180](https://github.com/withastro/astro/pull/18180) [`6fb83da`](https://github.com/withastro/astro/commit/6fb83dafb81c6751dcddaf7471d5aa8c6bcb6bb9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Netlify Image CDN patterns generated from `image.remotePatterns` pathnames ending in `/**` so they only match paths below that directory, consistent with Astro's own pattern matching. Previously, a pattern like `/public/**` also matched sibling paths sharing the prefix, such as `/public-assets/`.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.7
+
+### Patch Changes
+
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.6
+
+### Patch Changes
+
+- [#17978](https://github.com/withastro/astro/pull/17978) [`7a698ca`](https://github.com/withastro/astro/commit/7a698ca6e70d778343786cbf8fedd5f49d169ea4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes skew protection to include the build assets directory (`/_astro/` by default) in `skew-protection.json` patterns, preventing lazy-hydrated islands from loading duplicate framework instances after a redeploy
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.5
+
+### Patch Changes
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.4
+
+### Patch Changes
+
+- [#17752](https://github.com/withastro/astro/pull/17752) [`e362d4c`](https://github.com/withastro/astro/commit/e362d4cf540b27730482455c8fc02efe57d16702) Thanks [@matthewp](https://github.com/matthewp)! - Fixes generated Netlify Image CDN allowlists to reject remote URLs that contain an allowed image origin only within their path or query string
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.2
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`0891ac9`](https://github.com/withastro/astro/commit/0891ac9de5a6996e5ebd227e3443f7f4a4ea935a)]:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.0
+
+### Minor Changes
+
+- [#16871](https://github.com/withastro/astro/pull/16871) [`90c98ae`](https://github.com/withastro/astro/commit/90c98ae21ef0444a4088b7081676b0f97915001f) Thanks [@adamchal](https://github.com/adamchal)! - When `session: false` is set in `astro.config`, the adapter no longer auto-wires the Netlify Blobs session driver. Combined with the matching `astro` change, this lets the session runtime tree-shake out of the function bundle.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.2
+
+### Patch Changes
+
+- [#17368](https://github.com/withastro/astro/pull/17368) [`ee74c28`](https://github.com/withastro/astro/commit/ee74c289bfe32fb6a7f59ed97c5c22db16394b72) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the generated Netlify Image CDN `remote_images` patterns so that regex metacharacters (such as `.`) in `image.remotePatterns` (`hostname`, `pathname`) and `image.domains` are matched literally instead of behaving like wildcards. This makes the generated patterns consistent with how Astro matches these values elsewhere.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.0
+
+### Minor Changes
+
+- [#17245](https://github.com/withastro/astro/pull/17245) [`f56d9e7`](https://github.com/withastro/astro/commit/f56d9e7eb46ca59e70f636cb8cd281bdf41971c4) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Adds `edgeFunctions` to the `devFeatures` adapter option, allowing users to disable Netlify Edge Function emulation during `astro dev`
+
+  Some npm packages that access the filesystem at initialization (e.g. `node-html-parser`) fail inside the edge function sandbox with "Reading or writing files with Edge Functions is not supported yet." You can now disable edge function emulation to avoid this error:
+
+  ```js
+  import netlify from '@astrojs/netlify';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: netlify({
+      devFeatures: {
+        edgeFunctions: false,
+      },
+    }),
+  });
+  ```
+
+  Edge functions will still work in production builds and via `netlify dev`.
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 8.0.0
 
 ### Major Changes

@@ -70,7 +70,7 @@ describe('prerenderEnvironment: node', () => {
 			'Expected fallback content in prerendered HTML',
 		);
 
-		const islandUrlMatch = /fetch\('(\/_server-islands\/[^']+)'/.exec(html);
+		const islandUrlMatch = /fetch\(["'](\/_server-islands\/[^"']+)["']/.exec(html);
 		assert.ok(islandUrlMatch, 'Expected prerendered HTML to include a server island fetch URL');
 
 		const islandRes = await fixture.fetch(islandUrlMatch[1]);

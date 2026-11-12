@@ -7,9 +7,12 @@ import type {
 	Params,
 } from '../../types/public/common.js';
 import type { AstroConfig, RuntimeMode } from '../../types/public/config.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import type { AstroLogger } from '../logger/core.js';
 
+import { getEnvironment } from '../environment/index.js';
+import { getLogger } from '../logger/manifest-logger.js';
+import { createManifestMemo } from '../manifest/memo.js';
 import { stringifyParams } from '../routing/params.js';
 import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
 import { generatePaginateFunction } from './paginate.js';
@@ -55,6 +58,35 @@ export async function callGetStaticPaths({
 		return entry;
 	}
 
+	const keyedStaticPaths = await computeStaticPaths(mod, route, base, trailingSlash);
+	routeCache.set(route, { mod, staticPaths: keyedStaticPaths });
+	return keyedStaticPaths;
+}
+
+/** Replaces a partial entry with the full result, sharing one `getStaticPaths()` call between concurrent misses. */
+export function completeStaticPaths({
+	route,
+	routeCache,
+	base,
+	trailingSlash,
+}: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> | undefined {
+	const cached = routeCache.get(route);
+	if (!cached?.partial) return undefined;
+	cached.complete ??= computeStaticPaths(cached.mod, route, base, trailingSlash).then(
+		(staticPaths) => {
+			routeCache.set(route, { mod: cached.mod, staticPaths });
+			return staticPaths;
+		},
+	);
+	return cached.complete;
+}
+
+async function computeStaticPaths(
+	mod: ComponentInstance,
+	route: RouteData,
+	base: AstroConfig['base'],
+	trailingSlash: AstroConfig['trailingSlash'],
+): Promise<GetStaticPathsResultKeyed> {
 	let staticPaths: GetStaticPathsResult = [];
 	// Add a check here to make TypeScript happy.
 	// This is already checked in validateDynamicRouteModule().
@@ -80,19 +112,26 @@ export async function callGetStaticPaths({
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
 
-	routeCache.set(route, { ...cached, mod, staticPaths: keyedStaticPaths });
 	return keyedStaticPaths;
 }
 
 interface RouteCacheEntry {
 	mod: ComponentInstance;
 	staticPaths: GetStaticPathsResultKeyed;
+	/** Holds only some of the route's items, so a miss doesn't mean the path doesn't exist. */
+	partial?: boolean;
+	complete?: Promise<GetStaticPathsResultKeyed>;
 }
 
 /**
  * Manage the route cache, responsible for caching data related to each route,
- * including the result of calling getStaticPath() so that it can be reused across
- * responses during dev and only ever called once during build.
+ * including the result of calling getStaticPaths(). This gives route matching,
+ * params/props resolution, and prerender generation a shared static-path table.
+ *
+ * In dev, this cache intentionally survives requests. It is invalidated by route
+ * module identity changes after HMR or by explicit cache clears from content data
+ * changes, not by each request. Dev route matching can call getStaticPaths()
+ * before rendering, and render-time props resolution may ask for it again.
  */
 export class RouteCache {
 	private logger: AstroLogger;
@@ -114,7 +153,8 @@ export class RouteCache {
 		// NOTE: This shouldn't be called on an already-cached component.
 		// Warn here so that an unexpected double-call of getStaticPaths()
 		// isn't invisible and developer can track down the issue.
-		if (this.runtimeMode === 'production' && this.cache[key]?.staticPaths) {
+		const existing = this.cache[key];
+		if (this.runtimeMode === 'production' && existing?.staticPaths && !existing.partial) {
 			this.logger.warn(null, `Internal Warning: route cache overwritten. (${key})`);
 		}
 		this.cache[key] = entry;
@@ -127,6 +167,18 @@ export class RouteCache {
 	key(route: RouteData) {
 		return `${route.route}_${route.component}`;
 	}
+}
+
+const routeCaches = createManifestMemo(
+	(manifest) => new RouteCache(getLogger(manifest), getEnvironment(manifest).runtimeMode),
+);
+
+/**
+ * The `RouteCache` for a manifest. Cleared via
+ * `getRouteCache(manifest).clearAll()` on dev `astro:content-changed`.
+ */
+export function getRouteCache(manifest: SSRManifest): RouteCache {
+	return routeCaches.get(manifest);
 }
 
 export function findPathItemByKey(

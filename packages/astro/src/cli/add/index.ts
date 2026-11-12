@@ -8,8 +8,7 @@ import { type ASTNode, builders, generateCode, loadFile, type ProxifiedModule } 
 import { getDefaultExportOptions } from 'magicast/helpers';
 import { detect, resolveCommand } from 'package-manager-detector';
 import colors from 'piccolore';
-import maxSatisfying from 'semver/ranges/max-satisfying.js';
-import type yargsParser from 'yargs-parser';
+import { findMaxSatisfying } from 'verkit';
 import {
 	loadTSConfig,
 	resolveConfig,
@@ -31,6 +30,8 @@ import { eventCliSession, telemetry } from '../../events/index.js';
 import { exec } from '../exec.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
+import { getCloudflareCompatibilityDate } from './cloudflare.js';
+import { getPnpmBuildApproval, getPnpmVersion, type PnpmBuildApproval, runPnpmIn } from './pnpm.js';
 
 const { bold, cyan, dim, green, magenta, red, yellow } = colors;
 
@@ -138,7 +139,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames, flags, logger);
 	const hasCloudflareIntegration = integrations.some(
-		(integration) => integration.id === 'cloudflare',
+		(integration) => integration.packageName === OFFICIAL_ADAPTER_TO_IMPORT_MAP.cloudflare,
 	);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
 	const rootPath = resolveRoot(cwd);
@@ -200,7 +201,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
-						let compatibilityDate = new Date().toISOString().slice(0, 10);
+						const compatibilityDate = await getCloudflareCompatibilityDate(root);
 
 						await fs.writeFile(
 							wranglerConfigURL,
@@ -271,7 +272,11 @@ export async function add(names: string[], { flags }: AddOptions) {
 				});
 			}
 			// The Vercel adapter outputs to .vercel/output which should be gitignored
-			if (integrations.find((integration) => integration.id === 'vercel')) {
+			if (
+				integrations.find(
+					(integration) => integration.packageName === OFFICIAL_ADAPTER_TO_IMPORT_MAP.vercel,
+				)
+			) {
 				const gitignorePath = new URL('./.gitignore', root);
 				const gitignoreEntry = '.vercel';
 
@@ -343,7 +348,11 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 		for (const integration of integrations) {
 			if (isAdapter(integration)) {
-				const officialExportName = OFFICIAL_ADAPTER_TO_IMPORT_MAP[integration.id];
+				const officialExportName =
+					OFFICIAL_ADAPTER_TO_IMPORT_MAP[integration.id] ??
+					Object.values(OFFICIAL_ADAPTER_TO_IMPORT_MAP).find(
+						(packageName) => packageName === integration.packageName,
+					);
 				if (officialExportName) {
 					setAdapter(mod, integration, officialExportName);
 				} else {
@@ -580,8 +589,8 @@ function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo, exportN
 		});
 	}
 
-	switch (adapter.id) {
-		case 'node':
+	switch (exportName) {
+		case '@astrojs/node':
 			config.adapter = builders.functionCall(adapterId, { mode: 'standalone' });
 			break;
 		default:
@@ -740,7 +749,7 @@ async function resolveRangeToInstallSpecifier(name: string, range: string): Prom
 	if (versions instanceof Error) return name;
 	// Filter out any prerelease versions, but fallback if there are no stable versions
 	const stableVersions = versions.filter((v) => !v.includes('-'));
-	const maxStable = maxSatisfying(stableVersions, range) ?? maxSatisfying(versions, range);
+	const maxStable = findMaxSatisfying(stableVersions, range) ?? findMaxSatisfying(versions, range);
 	if (!maxStable) return name;
 	return `${name}@^${maxStable}`;
 }
@@ -772,7 +781,7 @@ async function tryToInstallIntegrations({
 		cwd,
 		// Include the `install-metadata` strategy to have the package manager that's
 		// used for installation take precedence
-		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
+		strategies: ['install-metadata', 'lockfile', 'packageManager-field', 'devEngines-field'],
 	});
 	logger.debug('add', `package manager: "${packageManager?.name}"`);
 	if (!packageManager) return 'none';
@@ -788,7 +797,19 @@ async function tryToInstallIntegrations({
 		.filter(Boolean)
 		.flat() as string[];
 
-	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', inheritedFlags);
+	const buildApproval: PnpmBuildApproval =
+		packageManager.name === 'pnpm'
+			? await getPnpmBuildApproval(
+					integrations.map((integration) => integration.packageName),
+					() => getPnpmVersion(cwd),
+					runPnpmIn(cwd),
+				)
+			: { flags: [] };
+
+	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', [
+		...inheritedFlags,
+		...buildApproval.flags,
+	]);
 	if (!installCommand) return 'none';
 
 	const installSpecifiers = await convertIntegrationsToInstallSpecifiers(integrations).then(
@@ -815,6 +836,14 @@ async function tryToInstallIntegrations({
 		const spinner = clack.spinner({ withGuide: false });
 		spinner.start('Installing dependencies...');
 		try {
+			if (buildApproval.approve) {
+				try {
+					await buildApproval.approve();
+				} catch (err) {
+					// Best effort: if this fails, `pnpm add` reports the unapproved build scripts itself.
+					logger.debug('add', 'Error approving pnpm build scripts', err);
+				}
+			}
 			await exec(installCommand.command, [...installCommand.args, ...installSpecifiers], {
 				nodeOptions: {
 					cwd,
@@ -828,7 +857,10 @@ async function tryToInstallIntegrations({
 			spinner.error('Error installing dependencies.');
 			logger.debug('add', 'Error installing dependencies', err);
 			// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
-			console.error('\n', err.stdout || err.message, '\n');
+			logger.error(
+				'add',
+				`\n${[err.stdout, err.stderr].filter(Boolean).join('\n') || err.message}\n`,
+			);
 			return 'failure';
 		}
 	} else {
@@ -838,7 +870,7 @@ async function tryToInstallIntegrations({
 
 async function validateIntegrations(
 	integrations: string[],
-	flags: yargsParser.Arguments,
+	flags: Flags,
 	logger: AstroLogger,
 ): Promise<IntegrationInfo[]> {
 	// First, validate all package names to prevent command injection

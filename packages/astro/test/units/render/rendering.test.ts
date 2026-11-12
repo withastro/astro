@@ -8,7 +8,7 @@ import {
 	renderComponent,
 	renderTemplate,
 } from '../../../dist/runtime/server/index.js';
-import type { RenderDestination } from '../../../dist/runtime/server/render/common.js';
+import type { RenderDestination } from '@astrojs/runtime/_internal/server/render/common.js';
 
 const DEFAULT_RESULT = {
 	clientDirectives: new Map(),
@@ -246,6 +246,18 @@ describe('rendering', () => {
 			'root/generator',
 			'root/last',
 		]);
+	});
+
+	it('awaits thenables that also have a render method', async () => {
+		const thenable = Object.assign(Promise.resolve('expected'), {
+			render(destination: RenderDestination) {
+				destination.write('unexpected');
+			},
+		});
+
+		const result = await renderToString(renderTemplate`${[thenable]}`);
+
+		assert.equal(result, 'expected');
 	});
 });
 

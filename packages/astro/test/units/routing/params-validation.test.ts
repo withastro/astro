@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it, before } from 'node:test';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
-import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
+import type { AstroLoggerDestination } from '../../../dist/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
 import { makeRoute } from './test-helpers.ts';
@@ -14,7 +14,7 @@ describe('getStaticPaths param validation', () => {
 	let routeCache: RouteCache;
 	let logger: AstroLogger;
 
-	const destination: AstroLoggerDestination<AstroLoggerMessage> = {
+	const destination: AstroLoggerDestination = {
 		write: () => true,
 	};
 

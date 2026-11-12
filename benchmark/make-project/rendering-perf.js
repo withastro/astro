@@ -91,6 +91,58 @@ const className = \`styled-\${id}\`;
 };
 
 // ---------------------------------------------------------------------------
+// Content collection (used by the head-propagation pages)
+// ---------------------------------------------------------------------------
+
+// A single tiny MDX entry. MDX opts into content propagation
+// (`handlePropagation: true`), so the route is marked as a propagation route
+// and every rendered `<Content />` instance registers a head propagator. Plain
+// data-store markdown does NOT take this path, which is why the entry must be
+// MDX. Kept minimal so the pages below measure the propagator collection
+// machinery, not MDX rendering.
+const contentConfig = `\
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+
+const notes = defineCollection({
+	loader: glob({ pattern: '*', base: './data/notes' }),
+});
+
+export const collections = { notes };
+`;
+
+const noteEntry = `\
+---
+title: Note
+---
+
+A tiny entry rendered thousands of times per page.
+`;
+
+// Head-propagation scaling: every <Content /> instance registers a head
+// propagator, so these pages put N entries in the propagator set that
+// `collectPropagatedHeadParts` iterates before the head is flushed. Generated
+// at two sizes so the scaling *shape* is visible, not just a point cost:
+// linear collection keeps the 2000-page near 2x the 1000-page, while a
+// quadratic rescan (the regression this guards against) pushes it toward 4x.
+const headPropagationPage = (n) => `\
+---
+import { getEntry, render } from 'astro:content';
+
+const entry = await getEntry('notes', 'note');
+const { Content } = await render(entry);
+const items = Array.from({ length: ${n} });
+---
+<html>
+  <head><title>Head Propagation ${n}</title></head>
+  <body>
+    <h1>${n} propagating Content instances</h1>
+    {items.map(() => <Content />)}
+  </body>
+</html>
+`;
+
+// ---------------------------------------------------------------------------
 // Pages
 // ---------------------------------------------------------------------------
 
@@ -244,6 +296,10 @@ const title = "Static Heavy Page";
   </body>
 </html>
 `,
+
+	// Head-propagation propagator collection at N and 2N (see headPropagationPage).
+	'pages/head-propagation-1000.astro': headPropagationPage(1000),
+	'pages/head-propagation-2000.astro': headPropagationPage(2000),
 };
 
 // ---------------------------------------------------------------------------
@@ -261,8 +317,9 @@ export async function run(projectDir) {
 	await fs.rm(projectDir, { recursive: true, force: true });
 	await fs.mkdir(new URL('./src/pages', projectDir), { recursive: true });
 	await fs.mkdir(new URL('./src/components', projectDir), { recursive: true });
+	await fs.mkdir(new URL('./data/notes', projectDir), { recursive: true });
 
-	const allFiles = { ...components, ...pages };
+	const allFiles = { ...components, ...pages, 'content.config.ts': contentConfig };
 
 	await Promise.all(
 		Object.entries(allFiles).map(([name, content]) => {
@@ -270,15 +327,19 @@ export async function run(projectDir) {
 		}),
 	);
 
+	await fs.writeFile(new URL('./data/notes/note.mdx', projectDir), noteEntry, 'utf-8');
+
 	await fs.writeFile(
 		new URL('./astro.config.js', projectDir),
 		`\
+import mdx from '@astrojs/mdx';
 import { defineConfig } from 'astro/config';
 import adapter from '@benchmark/adapter';
 
 export default defineConfig({
 	output: 'server',
 	adapter: adapter(),
+	integrations: [mdx()],
 });`,
 		'utf-8',
 	);

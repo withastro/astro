@@ -1,8 +1,39 @@
 import * as assert from 'node:assert/strict';
+import net from 'node:net';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { type Fixture, loadFixture, waitServerListen, type AdapterServer } from './test-utils.ts';
+
+/**
+ * Sends a raw HTTP/1.1 request so the exact request-target (including
+ * characters like `\` that URL parsers would otherwise normalize) reaches
+ * the server unchanged, mirroring `curl --path-as-is`.
+ */
+function rawRequest(
+	host: string,
+	port: number,
+	requestTarget: string,
+): Promise<{ statusLine: string; head: string }> {
+	return new Promise((resolve, reject) => {
+		const socket = net.connect(port, host, () => {
+			socket.write(
+				`GET ${requestTarget} HTTP/1.1\r\nHost: ${host}:${port}\r\nConnection: close\r\n\r\n`,
+			);
+		});
+		let data = '';
+		socket.setEncoding('utf8');
+		socket.on('data', (chunk) => {
+			data += chunk;
+		});
+		socket.on('error', reject);
+		socket.on('end', () => {
+			const head = data.split('\r\n\r\n')[0] ?? '';
+			const statusLine = head.split('\r\n')[0] ?? '';
+			resolve({ statusLine, head });
+		});
+	});
+}
 
 describe('Trailing slash', () => {
 	let fixture: Fixture;
@@ -55,6 +86,17 @@ describe('Trailing slash', () => {
 				});
 				assert.equal(res.status, 301);
 				assert.equal(res.headers.get('location'), '/some-base/one/?foo=bar');
+			});
+
+			it('Preserves query string containing a second ? in redirect', async () => {
+				const res = await rawRequest(
+					server.host ?? 'localhost',
+					server.port,
+					'/some-base/one?redirect=/x?y=1&z=2',
+				);
+				assert.match(res.statusLine, /301/);
+				const location = /^location:(.*)$/im.exec(res.head)?.[1]?.trim();
+				assert.equal(location, '/some-base/one/?redirect=/x?y=1&z=2');
 			});
 
 			it('Can render prerendered route with query params', async () => {
@@ -133,6 +175,17 @@ describe('Trailing slash', () => {
 				assert.equal(res.headers.get('location'), '/one/?foo=bar');
 			});
 
+			it('Preserves query string containing a second ? in redirect', async () => {
+				const res = await rawRequest(
+					server.host ?? 'localhost',
+					server.port,
+					'/one?redirect=/x?y=1&z=2',
+				);
+				assert.match(res.statusLine, /301/);
+				const location = /^location:(.*)$/im.exec(res.head)?.[1]?.trim();
+				assert.equal(location, '/one/?redirect=/x?y=1&z=2');
+			});
+
 			it('Can render prerendered route with query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/one/?foo=bar`);
 				const html = await res.text();
@@ -197,6 +250,21 @@ describe('Trailing slash', () => {
 				);
 				assert.equal(res.status, 404);
 			});
+
+			it('Does not append a trailing slash to a backslash-prefixed path', async () => {
+				// A path like `/\example.com/press` is treated by browsers as
+				// `//example.com/press`. It has to be sent as a raw request line
+				// (like `curl --path-as-is`) because URL parsers fold the
+				// backslash to a forward slash. It must not produce a 301 that
+				// echoes the backslash path back in the `Location` header.
+				const raw = await rawRequest(
+					server.host ?? 'localhost',
+					server.port,
+					'/\\example.com/press',
+				);
+				assert.match(raw.statusLine, /404/);
+				assert.equal(/^location:/im.test(raw.head), false);
+			});
 		});
 	});
 	describe('Never', async () => {
@@ -248,6 +316,17 @@ describe('Trailing slash', () => {
 
 				assert.equal(res.status, 301);
 				assert.equal(res.headers.get('location'), '/some-base/one?foo=bar');
+			});
+
+			it('Preserves query string containing a second ? in redirect', async () => {
+				const res = await rawRequest(
+					server.host ?? 'localhost',
+					server.port,
+					'/some-base/one/?redirect=/x?y=1&z=2',
+				);
+				assert.match(res.statusLine, /301/);
+				const location = /^location:(.*)$/im.exec(res.head)?.[1]?.trim();
+				assert.equal(location, '/some-base/one?redirect=/x?y=1&z=2');
 			});
 
 			it('Can render prerendered route with query params', async () => {
@@ -306,6 +385,17 @@ describe('Trailing slash', () => {
 
 				assert.equal(res.status, 301);
 				assert.equal(res.headers.get('location'), '/one?foo=bar');
+			});
+
+			it('Preserves query string containing a second ? in redirect', async () => {
+				const res = await rawRequest(
+					server.host ?? 'localhost',
+					server.port,
+					'/one/?redirect=/x?y=1&z=2',
+				);
+				assert.match(res.statusLine, /301/);
+				const location = /^location:(.*)$/im.exec(res.head)?.[1]?.trim();
+				assert.equal(location, '/one?redirect=/x?y=1&z=2');
 			});
 
 			it('Can render prerendered route and query params', async () => {

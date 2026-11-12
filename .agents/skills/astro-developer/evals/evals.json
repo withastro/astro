@@ -1,0 +1,54 @@
+{
+  "skill_name": "astro-developer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Provide an implementation architecture for a planned Astro core feature called route annotations. This is feature design, not a failing bug, so do not triage it or run commands.\n\nRequirements:\n- A Vite plugin scans route source and produces JSON-safe annotation data.\n- In development, annotations update after HMR.\n- During each render, the annotation for the currently matched route is exposed to renderer code.\n- The feature must work in RunnablePipeline, NonRunnablePipeline, BuildPipeline/prerendering, AppPipeline production SSR, and ContainerPipeline.\n- Annotation tables are application-scoped, but the matched route varies per request.\n- Cloudflare Workers and Deno are supported.\n\nA proposed design imports `core/build/scan-routes.ts` from `runtime/server/render-context.ts` and stores the latest matched annotation in `Pipeline.currentAnnotation` before rendering. Explain the appropriate ownership, build-to-runtime transport, pipeline wiring, runtime constraints, and smallest useful test strategy.",
+      "expected_output": "Repository-specific architecture guidance that rejects the runtime-to-build import and request-specific mutable Pipeline state. It places scanning in build/dev infrastructure, transports portable data through virtual modules and production manifest/generated output, keeps request-specific selection in RenderContext, accounts for all five named pipelines, and proposes focused unit plus integration coverage.",
+      "files": [],
+      "assertions": [
+        "The response rejects importing `core/build/scan-routes.ts` from runtime rendering code.",
+        "The response places route scanning in build/dev infrastructure such as a Vite plugin and keeps generated runtime code free of Node.js APIs.",
+        "The response recommends an explicit transport such as a `virtual:astro:*` module for development/build and serialized manifest or generated production data for AppPipeline.",
+        "The response states that application-scoped annotation data may be owned outside individual requests, while the matched route or selected annotation belongs to RenderContext or equivalent per-request state.",
+        "The response explains that NonRunnablePipeline cannot rely on runtime module imports such as `runner.import()`.",
+        "RunnablePipeline, NonRunnablePipeline, BuildPipeline, AppPipeline, and ContainerPipeline are each explicitly addressed.",
+        "The test strategy prefers unit tests for scanning or serialization logic and reserves integration tests for virtual-module and pipeline behavior.",
+        "The response does not begin bug reproduction, invoke triage, edit files, or run commands."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Advise on this uncommitted design sketch for a new SSR request-cache key helper. This is not a patch review or bug report; I need runtime and API guidance only. Do not edit files or run tests.\n\nContract:\n- It executes during SSR on Node.js, Cloudflare Workers, and Deno.\n- The same secret, pathname, and query string must always produce the same key.\n- Different query strings must produce different keys.\n- No build-time filesystem or process data is needed.\n\nProposed location and source:\n\n```ts\n// packages/astro/src/runtime/server/request-cache-key.ts\nimport { Buffer } from 'node:buffer';\nimport { createHash, randomBytes } from 'node:crypto';\n\nexport function requestCacheKey(secret: string, url: URL): string {\n  const nonce = randomBytes(8);\n  return createHash('sha256')\n    .update(Buffer.from(secret))\n    .update(url.pathname)\n    .update(nonce)\n    .digest('base64url');\n}\n```\n\nRecommend the smallest portable design, including any signature change and focused tests.",
+      "expected_output": "Runtime-focused development guidance explaining that Node.js modules and Buffer are forbidden in runtime code, random data violates determinism, and omitting `url.search` violates the key contract. It recommends a portable Web Crypto and TextEncoder-based asynchronous implementation, or an existing cross-runtime helper, plus focused deterministic unit tests.",
+      "files": [],
+      "assertions": [
+        "The response states that `node:buffer` and `node:crypto` cannot be used from `packages/astro/src/runtime/server/` because the code must support non-Node runtimes.",
+        "The response identifies `randomBytes(8)` as incompatible with the deterministic-key requirement.",
+        "The response identifies omission of `url.search` as causing collisions between distinct query strings.",
+        "The proposed design uses portable Web APIs such as `crypto.subtle`, `TextEncoder`, and typed arrays, or a verified cross-runtime Astro helper, without Buffer.",
+        "The response notes that Web Crypto makes the helper asynchronous and updates the return type or call contract accordingly.",
+        "The test plan covers repeated-input equality, different-query inequality, and at least one boundary or encoding case without requiring a full browser test.",
+        "The response keeps this per-request computation in portable runtime code rather than moving it unnecessarily into build-time infrastructure.",
+        "The response does not triage a bug, edit files, or run commands."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Design the smallest appropriate test plan for a planned Astro redirect-rules feature. Nothing is failing yet, so do not use bug triage and do not run any commands.\n\nThe feature has two parts:\n- A pure `parseRedirectRules(text)` function in `packages/astro/src/core/redirects/parse.ts`.\n- A Vite plugin exposing parsed rules through `virtual:astro:redirect-rules`, consumed in development and build output.\n\nParser contract:\n- Ignore blank lines and lines beginning with `#`.\n- Parse `<from> <to> [status]`.\n- Default an omitted status to 302.\n- Allow only 301, 302, 307, and 308.\n- Reject malformed lines and duplicate `from` paths.\n\nThere is no browser-only interaction. Two independent integration setups may share the same fixture root, one for dev and one for build. Specify test file placement, unit versus integration coverage, fixture requirements, cleanup, and focused commands a contributor could run later.",
+      "expected_output": "A repository-specific testing plan that places parser tests under `packages/astro/test/units/`, uses node:test and strict assert against built output, and uses integration coverage only for actual virtual-module behavior. It requires separate outDir values for the two fixture setups, workspace dependencies, server cleanup, no browser E2E test, and focused package-local commands without executing them.",
+      "files": [],
+      "assertions": [
+        "The parser test is placed under `packages/astro/test/units/redirects/` in a `.test.ts` file rather than as a top-level integration test.",
+        "The unit test uses `node:test` and `node:assert/strict` and imports the parser from `packages/astro/dist/` rather than `src/`.",
+        "The unit cases cover ignored comments and blanks, the default 302 status, every allowed status, malformed lines, and duplicate source paths.",
+        "The response reserves fixture-based integration coverage for resolving or consuming `virtual:astro:redirect-rules` in development and build.",
+        "The independent dev and build fixture setups use different explicit `outDir` values even if they share a fixture root.",
+        "The fixture package uses `astro: workspace:*`, and any external dependency already in the catalog is described with `catalog:`.",
+        "The development server is stopped in cleanup and asynchronous build or server operations are awaited.",
+        "The response explicitly says browser E2E coverage is unnecessary because the feature has no browser-only behavior.",
+        "The suggested commands use `pnpm -C packages/astro exec astro-scripts test` with focused unit or integration paths, and none of those commands are executed."
+      ]
+    }
+  ]
+}

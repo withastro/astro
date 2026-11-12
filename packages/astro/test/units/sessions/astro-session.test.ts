@@ -11,6 +11,7 @@ import type {
 	AstroCookieDeleteOptions,
 } from '../../../dist/core/cookies/cookies.js';
 import type { SessionDriverFactory } from '../../../dist/core/session/types.js';
+import { SpyLogger } from '../test-utils.ts';
 
 // #region Helpers
 
@@ -21,10 +22,11 @@ interface MockCookies {
 	get(key: string): { value: string } | undefined;
 }
 
+const defaultSessionId = '00000000-0000-4000-8000-000000000000';
 const defaultMockCookies: MockCookies = {
 	set: () => {},
 	delete: () => {},
-	get: () => ({ value: 'sessionid' }),
+	get: () => ({ value: defaultSessionId }),
 };
 
 const stringify = (data: unknown) => JSON.parse(devalueStringify(data));
@@ -40,6 +42,7 @@ function createSession(
 	cookies: MockCookies = defaultMockCookies,
 	mockStorage: Storage | null = null,
 	runtimeMode: RuntimeMode = 'production',
+	logger: SpyLogger = new SpyLogger(),
 ) {
 	// driverFactory from unstorage/drivers/memory accepts no config; wrap it to satisfy SessionDriverFactory
 	const typedDriverFactory: SessionDriverFactory = () => driverFactory();
@@ -49,6 +52,7 @@ function createSession(
 		runtimeMode,
 		driverFactory: typedDriverFactory,
 		mockStorage,
+		logger,
 	});
 }
 
@@ -263,6 +267,7 @@ describe('AstroSession - Error Handling', () => {
 		const mockStorage = {
 			get: async () => 'invalid-json',
 			setItem: async () => {},
+			removeItem: async () => {},
 		} as unknown as Storage;
 
 		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
@@ -396,7 +401,7 @@ describe('AstroSession - Sparse Data Operations', () => {
 
 	it('should persist delete as the first mutation (no prior get/set)', async () => {
 		const store = new Map<string, string>();
-		const sessionId = 'sessionid';
+		const sessionId = defaultSessionId;
 		store.set(sessionId, devalueStringify(new Map([['token', { data: 'secret' }]])));
 
 		const mockStorage = {
@@ -484,6 +489,25 @@ describe('AstroSession - Cleanup Operations', () => {
 		await session[PERSIST_SYMBOL]();
 		assert.equal(removedKeys.size, 1, `Session should be removed`);
 	});
+
+	it('should not destroy a non-UUID session cookie', async () => {
+		const removedKeys = new Set<string>();
+		const mockStorage = {
+			removeItem: async (key: string) => {
+				removedKeys.add(key);
+			},
+		} as unknown as Storage;
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			get: () => ({ value: 'unrelated-storage-key' }),
+		};
+		const session = createSession(defaultConfig, mockCookies, mockStorage);
+
+		session.destroy();
+		await session[PERSIST_SYMBOL]();
+
+		assert.equal(removedKeys.size, 0);
+	});
 });
 
 // #endregion
@@ -544,6 +568,25 @@ describe('AstroSession - Cookie Security', () => {
 		assert.equal(cookieOptions?.secure, false);
 		assert.equal(cookieOptions?.sameSite, 'lax');
 	});
+
+	it('should reject a non-UUID session cookie value and generate a new ID', async () => {
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			get: () => ({ value: 'not-a-uuid-at-all' }),
+		};
+
+		const session = createSession(defaultConfig, mockCookies);
+		session.set('key', 'value');
+
+		const id = session.sessionID;
+		assert.ok(id, 'session ID should exist');
+		assert.notEqual(id, 'not-a-uuid-at-all', 'non-UUID cookie value should be rejected');
+		assert.match(
+			id!,
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+			'session ID should be a valid UUID',
+		);
+	});
 });
 
 // #endregion
@@ -568,6 +611,7 @@ describe('AstroSession - Storage Errors', () => {
 		const mockStorage = {
 			get: async () => stringify({ notAMap: true }),
 			setItem: async () => {},
+			removeItem: async () => {},
 		} as unknown as Storage;
 
 		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
@@ -604,6 +648,7 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 			runtimeMode: 'production',
 			driverFactory: countingDriverFactory,
 			mockStorage: null,
+			logger: new SpyLogger(),
 		});
 
 		const value = await session.get('nonexistent');
@@ -625,7 +670,7 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 			set: () => {},
 			delete: () => {},
 			get: (name: string) => {
-				if (name === 'test-session') return { value: 'existing-session-id' };
+				if (name === 'test-session') return { value: defaultSessionId };
 				return undefined;
 			},
 		};
@@ -653,3 +698,77 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 });
 
 // #endregion No-Cookie Short Circuit
+
+// #region Error Recovery
+describe('AstroSession - regenerate() error path', () => {
+	it('should route errors to logger and reset #partial flag', async () => {
+		let storageGetCount = 0;
+		// A valid cookie makes ensureData() load from storage and hit the corrupt data path.
+		const cookies: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: (name: string) => (name === 'test-session' ? { value: defaultSessionId } : undefined),
+		};
+		const spyLogger = new SpyLogger();
+		const mockStorage = {
+			async get(key: string) {
+				storageGetCount++;
+				if (key === defaultSessionId) {
+					// Return a string that unflatten() will parse into an Array, not a Map.
+					// This causes unflatten(raw) instanceof Map to be false, throwing an AstroError.
+					return '[1,2,3]';
+				}
+				return null;
+			},
+			async setItem() {},
+			async removeItem() {},
+			async getKeys() {
+				return [];
+			},
+			async clear() {},
+			async dispose() {},
+			async hasItem() {
+				return false;
+			},
+			async setItemRaw() {},
+			async getItemRaw() {
+				return null;
+			},
+		};
+
+		const session = createSession(
+			defaultConfig,
+			cookies,
+			mockStorage as any,
+			'production',
+			spyLogger,
+		);
+
+		// This will trigger ensureData() under the hood.
+		// It fetches the existing session, which returns invalid data and throws an error.
+		// regenerate() catches this, should log an error, and reset #partial.
+		await session.regenerate();
+
+		// 1. Verify logging behavior
+		assert.equal(
+			spyLogger.logs.some((e) => e.level === 'error'),
+			true,
+			'Should route errors through logger.error',
+		);
+
+		// Reset storage count before checking get()
+		storageGetCount = 0;
+
+		// 2. Verify #partial state
+		// If #partial is true, this will call storage.get() for the new session ID.
+		// If #partial is correctly reset to false, this will use the in-memory Map.
+		await session.get('foo');
+
+		assert.equal(
+			storageGetCount,
+			0,
+			'Should not round-trip to storage; #partial should be false after regeneration',
+		);
+	});
+});
+// #endregion

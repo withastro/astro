@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/internal-helpers",
   "description": "Internal helpers used by core Astro packages.",
-  "version": "0.10.0",
+  "version": "0.13.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -20,44 +20,18 @@
     "./request": "./dist/request.js",
     "./object": "./dist/object.js",
     "./markdown": "./dist/markdown.js",
+    "./mdx": "./dist/mdx.js",
     "./frontmatter": "./dist/frontmatter.js",
-    "./shiki": "./dist/shiki.js"
+    "./shiki": "./dist/shiki.js",
+    "./timings": "./dist/timings.js",
+    "./yaml": "./dist/yaml.js",
+    "./yaml-error": "./dist/yaml-error.js",
+    "./renderer": "./dist/renderer.js"
   },
   "imports": {
     "#shiki-engine": {
       "workerd": "./dist/shiki-engine-workerd.js",
       "default": "./dist/shiki-engine-default.js"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "path": [
-        "./dist/path.d.ts"
-      ],
-      "remote": [
-        "./dist/remote.d.ts"
-      ],
-      "markdown": [
-        "./dist/markdown.d.ts"
-      ],
-      "frontmatter": [
-        "./dist/frontmatter.d.ts"
-      ],
-      "shiki": [
-        "./dist/shiki.d.ts"
-      ],
-      "fs": [
-        "./dist/fs.d.ts"
-      ],
-      "cli": [
-        "./dist/cli.d.ts"
-      ],
-      "create-filter": [
-        "./dist/create-filter.d.ts"
-      ],
-      "object": [
-        "./dist/object.d.ts"
-      ]
     }
   },
   "files": [
@@ -71,18 +45,17 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@types/hast": "^3.0.4",
+    "@types/hast": "^3.0.5",
     "@types/mdast": "^4.0.4",
-    "js-yaml": "^4.1.1",
-    "picomatch": "^4.0.4",
+    "picomatch": "^4.0.7",
     "retext-smartypants": "^6.2.0",
-    "shiki": "^4.0.2",
-    "smol-toml": "^1.6.0",
-    "unified": "^11.0.5"
+    "shiki": "^4.6.0",
+    "smol-toml": "^1.9.1",
+    "unified": "^11.0.5",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.9",
-    "@types/picomatch": "^4.0.2",
+    "@types/picomatch": "^4.0.3",
     "astro-scripts": "workspace:*"
   },
   "keywords": [

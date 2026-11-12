@@ -231,22 +231,19 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 								(urlDataItem) => !groupedUrlCollection.includes(urlDataItem.url),
 							);
 							// Process each chunk here
-							await writeSitemapChunk(
-								{
-									filenameBase,
-									hostname: finalSiteUrl.href,
-									sitemapHostname: finalSiteUrl.href,
-									sourceData: chunksItem,
-									destinationDir: destDir,
-									publicBasePath: config.base,
-									customSitemaps,
-									limit: entryLimit,
-									xslURL,
-									lastmod,
-									namespaces: opts.namespaces,
-								},
-								config,
-							);
+							await writeSitemapChunk({
+								filenameBase,
+								hostname: finalSiteUrl.href,
+								sitemapHostname: finalSiteUrl.href,
+								sourceData: chunksItem,
+								destinationDir: destDir,
+								publicBasePath: config.base,
+								customSitemaps,
+								limit: entryLimit,
+								xslURL,
+								lastmod,
+								namespaces: opts.namespaces,
+							});
 							logger.info(`\`${outFile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 							return;
 						} catch (err) {
@@ -254,21 +251,18 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							return;
 						}
 					}
-					await writeSitemap(
-						{
-							filenameBase: filenameBase,
-							hostname: finalSiteUrl.href,
-							destinationDir: destDir,
-							publicBasePath: config.base,
-							sourceData: urlData,
-							limit: entryLimit,
-							customSitemaps,
-							xslURL: xslURL,
-							lastmod,
-							namespaces: opts.namespaces,
-						},
-						config,
-					);
+					await writeSitemap({
+						filenameBase: filenameBase,
+						hostname: finalSiteUrl.href,
+						destinationDir: destDir,
+						publicBasePath: config.base,
+						sourceData: urlData,
+						limit: entryLimit,
+						customSitemaps,
+						xslURL: xslURL,
+						lastmod,
+						namespaces: opts.namespaces,
+					});
 					logger.info(`\`${outFile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {
 					if (err instanceof ZodError) {

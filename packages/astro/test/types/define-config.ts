@@ -58,9 +58,34 @@ describe('defineConfig()', () => {
 						never
 					>
 				>();
-				expectTypeOf(config.i18n!.defaultLocale).toEqualTypeOf<'en' | 'fr' | 'fr-FR'>();
+				expectTypeOf(config.i18n!.defaultLocale).toEqualTypeOf<'en' | 'french'>();
 			},
 		);
+
+		assertType(
+			defineConfig({
+				i18n: {
+					locales: [
+						{ path: 'en-us', codes: ['en-US'] },
+						{ path: 'french', codes: ['fr', 'fr-FR'] },
+					],
+					defaultLocale: 'en-us',
+					fallback: { french: 'en-us' },
+					domains: { french: 'https://fr.example.com' },
+				},
+			}),
+			(config) => {
+				expectTypeOf(config.i18n!.defaultLocale).toEqualTypeOf<'en-us' | 'french'>();
+			},
+		);
+
+		defineConfig({
+			i18n: {
+				locales: [{ path: 'en-us', codes: ['en-US'] }],
+				// @ts-expect-error `defaultLocale` must be a locale `path`, not one of its `codes`
+				defaultLocale: 'en-US',
+			},
+		});
 	});
 
 	it('Validates CSP hashes', () => {
@@ -72,6 +97,25 @@ describe('defineConfig()', () => {
 					},
 					styleDirective: {
 						hashes: ['sha256-xx', 'sha384-xx', 'sha512-xx'],
+					},
+				},
+			},
+		});
+	});
+
+	it('Validates CSP resources and hashes with the `kind` option', () => {
+		defineConfig({
+			security: {
+				csp: {
+					scriptDirective: {
+						// bare strings (back-compat) and kind-scoped objects can be mixed
+						resources: ["'self'", { resource: 'https://cdn.example.com', kind: 'element' }],
+						hashes: ['sha256-xx', { hash: 'sha384-xx', kind: 'element' }],
+						strictDynamic: true,
+					},
+					styleDirective: {
+						resources: [{ resource: "'unsafe-inline'", kind: 'attribute' }],
+						hashes: [{ hash: 'sha512-xx', kind: 'default' }],
 					},
 				},
 			},

@@ -1,5 +1,61 @@
 # @astrojs/solid-js
 
+## 7.1.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/solid-js-renderer@0.1.1
+
+## 7.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/solid-js-renderer@0.1.0
+
+## 7.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`ff1cf65`](https://github.com/withastro/astro/commit/ff1cf65c7a9d7f7603d371e08bda8dbc4cf106bf)]:
+  - @astrojs/solid-js-renderer@0.1.0
+
+## 7.1.2
+
+### Patch Changes
+
+- [`290b196`](https://github.com/withastro/astro/commit/290b196ddb48de11783ff128e2b7272c61490a20) Thanks [@matthewp](https://github.com/matthewp)! - Escapes slot names when rendering the slot wrapper elements for Solid components
+
+## 7.1.1
+
+### Patch Changes
+
+- [#18475](https://github.com/withastro/astro/pull/18475) [`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab) Thanks [@ematipico](https://github.com/ematipico)! - Bumps the minimum supported Node.js version to 22.23.4, which includes the fixes from the [October 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+  
+  This is a patch release because the [Node.js support and upgrade policy](https://docs.astro.build/en/upgrade-astro/#nodejs-support-and-upgrade-policies) allows the Core team to raise the minimum Maintenance LTS version in a patch release when a disclosed and fixed Node.js security flaw affects Astro.
+
+## 7.1.0
+
+### Minor Changes
+
+- [#18277](https://github.com/withastro/astro/pull/18277) [`2715958`](https://github.com/withastro/astro/commit/2715958666b0a706b069d0592da3a070b3796a9b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases the minimum Node.js version to 22.22.0
+  
+  The minimum supported Node.js version is now 22.22.0, the latest Node.js 22 release supported by StackBlitz. This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+## 7.0.2
+
+### Patch Changes
+
+- [#17584](https://github.com/withastro/astro/pull/17584) [`5462b81`](https://github.com/withastro/astro/commit/5462b81b8c13552a78131494ccf649b2d92b2968) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a build crash when a Solid island imports a package that ships pre-compiled browser artifacts via the `exports.solid` condition (e.g. `@kobalte/core`). Solid ecosystem packages are now bundled in non-client environments so that Vite resolves the correct export condition during prerendering.
+
+## 7.0.1
+
+### Patch Changes
+
+- [#17270](https://github.com/withastro/astro/pull/17270) [`0142964`](https://github.com/withastro/astro/commit/014296439e084384432e13f2e5b192b0f595045d) Thanks [@FrancoKaddour](https://github.com/FrancoKaddour)! - Fix `@astrojs/solid-js` incorrectly claiming Svelte 5 components compiled with the newer `$$renderer` prop (instead of the legacy `$$payload`). Projects mixing Solid and Svelte could see Svelte components silently rendered as empty strings by the Solid renderer.
+
 ## 7.0.0
 
 ### Major Changes

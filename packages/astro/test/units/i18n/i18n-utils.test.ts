@@ -67,6 +67,20 @@ describe('computePreferredLocale', () => {
 		assert.equal(computePreferredLocale(req, locales), 'fr');
 	});
 
+	it('prefers an implicit q=1 entry over a lower explicit-q entry regardless of header order', () => {
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'en;q=0.7, de' },
+		});
+		assert.equal(computePreferredLocale(req, ['en', 'fr', 'de']), 'de');
+	});
+
+	it('excludes a q=0 entry from winning', () => {
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'de;q=0, en;q=0.5' },
+		});
+		assert.equal(computePreferredLocale(req, ['en', 'fr', 'de']), 'en');
+	});
+
 	it('returns undefined when no match', () => {
 		const req = new Request('http://example.com/', {
 			headers: { 'Accept-Language': 'de,ja' },
@@ -122,6 +136,56 @@ describe('computePreferredLocaleList', () => {
 			headers: { 'Accept-Language': 'de' },
 		});
 		assert.deepEqual(computePreferredLocaleList(req, locales), []);
+	});
+
+	it('matches string locales case-insensitively', () => {
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'EN' },
+		});
+		assert.deepEqual(computePreferredLocaleList(req, locales), ['en']);
+	});
+
+	it('matches object-form codes case-insensitively', () => {
+		const localesObject: Locales = [{ path: 'english', codes: ['en-us'] }, 'fr'];
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'en-US' },
+		});
+		assert.deepEqual(computePreferredLocaleList(req, localesObject), ['en-us']);
+	});
+
+	it('matches object-form codes written with an underscore separator', () => {
+		const localesUnderscore: Locales = [{ path: 'english', codes: ['en_US'] }, 'fr'];
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'en-US' },
+		});
+		assert.deepEqual(computePreferredLocaleList(req, localesUnderscore), ['en_US']);
+	});
+
+	it('returns the configured casing of an object-form code', () => {
+		const localesExact: Locales = [{ path: 'english', codes: ['en-US'] }, 'fr'];
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'en-US' },
+		});
+		assert.deepEqual(computePreferredLocaleList(req, localesExact), ['en-US']);
+	});
+
+	it('sorts object-form matches by quality value', () => {
+		const localesMulti: Locales = [
+			{ path: 'english', codes: ['en-us'] },
+			{ path: 'french', codes: ['fr-fr'] },
+		];
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'fr-FR;q=0.9,en-US;q=1.0' },
+		});
+		assert.deepEqual(computePreferredLocaleList(req, localesMulti), ['en-us', 'fr-fr']);
+	});
+
+	it('returns every configured code for a wildcard header', () => {
+		const localesObject: Locales = [{ path: 'english', codes: ['en-us'] }, 'fr'];
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': '*' },
+		});
+		assert.deepEqual(computePreferredLocaleList(req, localesObject), ['en-us', 'fr']);
 	});
 });
 

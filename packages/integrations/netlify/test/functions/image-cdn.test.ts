@@ -3,7 +3,9 @@ import { after, before, describe, it } from 'node:test';
 import { remotePatternToRegex } from '@astrojs/netlify';
 import imageService from '../../dist/image-service.js';
 import { loadFixture, SpyLogger } from '../test-utils.ts';
-import type { ImageTransform } from 'astro';
+import type { AstroRuntimeLogger, ImageTransform } from 'astro';
+
+const noopLogger: AstroRuntimeLogger = { info() {}, warn() {}, error() {} };
 
 async function getURL(options: ImageTransform) {
 	return await imageService.getURL(
@@ -12,6 +14,7 @@ async function getURL(options: ImageTransform) {
 		// implementation of `imageService.getURL`, but we need to pass it
 		// to satisfy the type signature.
 		{},
+		noopLogger,
 	);
 }
 
@@ -116,23 +119,125 @@ describe('Image CDN', { timeout: 120000 }, () => {
 			);
 		});
 
-		it('warns when remotepatterns generates an invalid regex', async () => {
+		it('rejects allowed patterns embedded in another URL', async () => {
+			assert.equal(
+				regexes[0]!.test(
+					'http://169.254.169.254/latest/meta-data/?url=https://example.net/image.jpg',
+				),
+				false,
+			);
+			assert.equal(
+				regexes[2]!.test('http://127.0.0.1:6379/?url=https://www.example.org/images/a.jpg'),
+				false,
+			);
+		});
+
+		it('treats metacharacters in a literal pathname as literals', async () => {
 			const spyLogger = new SpyLogger();
 			const logger = spyLogger.forkIntegrationLogger('test-spy');
-			const regex = remotePatternToRegex(
+			const regexStr = remotePatternToRegex(
 				{
-					hostname: '*.examp[le.org',
-					pathname: '/images/*',
+					protocol: 'https',
+					hostname: 'cdn.example.com',
+					pathname: '/img/v1.0/file',
 				},
 				logger,
 			);
-			assert.strictEqual(regex, undefined);
-			assert.strictEqual(spyLogger.logs.length, 1);
-			const entry = spyLogger.logs[0];
-			assert.equal(entry.level, 'warn');
+			const regex = new RegExp(regexStr!);
 			assert.equal(
-				entry.message,
-				'Could not generate a valid regex from the remotePattern "{"hostname":"*.examp[le.org","pathname":"/images/*"}". Please check the syntax.',
+				regex.test('https://cdn.example.com/img/v1.0/file'),
+				true,
+				'literal pathname should match',
+			);
+			assert.equal(
+				regex.test('https://cdn.example.com/img/v1X0/file'),
+				false,
+				'dot in pathname should not act as a wildcard',
+			);
+			assert.equal(
+				regex.test('https://cdn.example.com/img/v1/0/file'),
+				false,
+				'dot in pathname should not match a path separator',
+			);
+		});
+
+		it('treats metacharacters in a wildcard pathname prefix as literals', async () => {
+			const spyLogger = new SpyLogger();
+			const logger = spyLogger.forkIntegrationLogger('test-spy');
+			const oneLevel = new RegExp(
+				remotePatternToRegex(
+					{ protocol: 'https', hostname: 'cdn.example.com', pathname: '/v1.0/*' },
+					logger,
+				)!,
+			);
+			assert.equal(oneLevel.test('https://cdn.example.com/v1.0/file'), true);
+			assert.equal(
+				oneLevel.test('https://cdn.example.com/v1X0/file'),
+				false,
+				'dot in wildcard prefix should not act as a wildcard',
+			);
+
+			const anyPath = new RegExp(
+				remotePatternToRegex(
+					{ protocol: 'https', hostname: 'cdn.example.com', pathname: '/v1.0/**' },
+					logger,
+				)!,
+			);
+			assert.equal(anyPath.test('https://cdn.example.com/v1.0/a/b'), true);
+			assert.equal(
+				anyPath.test('https://cdn.example.com/v1X0/a/b'),
+				false,
+				'dot in wildcard prefix should not act as a wildcard',
+			);
+		});
+
+		it('only matches paths below the directory for /** pathnames', async () => {
+			const spyLogger = new SpyLogger();
+			const logger = spyLogger.forkIntegrationLogger('test-spy');
+			const regex = new RegExp(
+				remotePatternToRegex(
+					{ protocol: 'https', hostname: 'cdn.example.com', pathname: '/public/**' },
+					logger,
+				)!,
+			);
+			assert.equal(regex.test('https://cdn.example.com/public/a.jpg'), true);
+			assert.equal(regex.test('https://cdn.example.com/public/a/b.jpg'), true);
+			assert.equal(regex.test('https://cdn.example.com/public/a.jpg?w=100'), true);
+			assert.equal(
+				regex.test('https://cdn.example.com/public-assets/a.jpg'),
+				false,
+				'sibling path sharing the prefix should not match',
+			);
+			assert.equal(
+				regex.test('https://cdn.example.com/publicfile.jpg'),
+				false,
+				'file sharing the prefix should not match',
+			);
+			assert.equal(
+				regex.test('https://cdn.example.com/public/'),
+				false,
+				'the directory itself should not match',
+			);
+		});
+
+		it('treats metacharacters in the hostname as literals', async () => {
+			const spyLogger = new SpyLogger();
+			const logger = spyLogger.forkIntegrationLogger('test-spy');
+			const regex = new RegExp(
+				remotePatternToRegex(
+					{ protocol: 'https', hostname: 'a+b.example.com', pathname: '/img.png' },
+					logger,
+				)!,
+			);
+			assert.equal(
+				regex.test('https://a+b.example.com/img.png'),
+				true,
+				'literal hostname should match',
+			);
+			assert.equal(
+				regex.test('https://aaab.example.com/img.png'),
+				false,
+				'a metacharacter in the hostname should not act as a quantifier',
 			);
 		});
 	});

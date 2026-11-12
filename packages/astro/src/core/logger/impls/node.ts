@@ -2,7 +2,6 @@ import {
 	AstroLogger,
 	type AstroLoggerDestination,
 	type AstroLoggerLevel,
-	type AstroLoggerMessage,
 	getEventPrefix,
 	levels,
 } from '../core.js';
@@ -18,12 +17,10 @@ export type NodeHandlerConfig = {
 	level?: AstroLoggerLevel;
 };
 
-function nodeLogDestination(
-	config: NodeHandlerConfig = {},
-): AstroLoggerDestination<AstroLoggerMessage> {
+function nodeLogDestination(config: NodeHandlerConfig = {}): AstroLoggerDestination {
 	const { level = 'info' } = config;
 	return {
-		write(event: AstroLoggerMessage) {
+		write(event) {
 			let dest: ConsoleStream = process.stderr;
 			if (levels[event.level] < levels['error']) {
 				dest = process.stdout;
@@ -43,7 +40,7 @@ function nodeLogDestination(
 	};
 }
 
-export default function (options?: NodeHandlerConfig): AstroLoggerDestination<AstroLoggerMessage> {
+export default function (options?: NodeHandlerConfig): AstroLoggerDestination {
 	return nodeLogDestination(options);
 }
 

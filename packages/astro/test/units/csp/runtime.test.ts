@@ -2,7 +2,43 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { CspDirective } from '../../../dist/core/csp/config.js';
-import { deduplicateDirectiveValues, pushDirective } from '../../../dist/core/csp/runtime.js';
+import {
+	deduplicateDirectiveValues,
+	partitionByKind,
+	pushDirective,
+} from '../../../dist/core/csp/runtime.js';
+
+describe('partitionByKind', () => {
+	it('groups resources and hashes by their kind (bare entries are "default")', () => {
+		const groups = partitionByKind({
+			resources: [
+				"'self'",
+				{ resource: 'https://cdn', kind: 'element' },
+				{ resource: "'unsafe-inline'", kind: 'attribute' },
+				{ resource: 'https://cdn2', kind: 'default' },
+			],
+			hashes: [
+				'sha256-AAA',
+				{ hash: 'sha256-BBB', kind: 'element' },
+				{ hash: 'sha256-CCC', kind: 'attribute' },
+			],
+		});
+
+		assert.deepStrictEqual(groups.default.resources, ["'self'", 'https://cdn2']);
+		assert.deepStrictEqual(groups.element.resources, ['https://cdn']);
+		assert.deepStrictEqual(groups.attribute.resources, ["'unsafe-inline'"]);
+		assert.deepStrictEqual(groups.default.hashes, ['sha256-AAA']);
+		assert.deepStrictEqual(groups.element.hashes, ['sha256-BBB']);
+		assert.deepStrictEqual(groups.attribute.hashes, ['sha256-CCC']);
+	});
+
+	it('returns empty groups for empty input', () => {
+		const groups = partitionByKind({ resources: [], hashes: [] });
+		for (const kind of ['default', 'element', 'attribute'] as const) {
+			assert.deepStrictEqual(groups[kind], { resources: [], hashes: [] });
+		}
+	});
+});
 
 describe('deduplicateDirectiveValues', () => {
 	it('merges directives', () => {

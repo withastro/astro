@@ -1,5 +1,126 @@
 # @astrojs/node
 
+## 11.1.12
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+
+## 11.1.11
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+
+## 11.1.10
+
+### Patch Changes
+
+- [#18563](https://github.com/withastro/astro/pull/18563) [`8a92f7c`](https://github.com/withastro/astro/commit/8a92f7c7cc2df893a23ba0d75e40d2825741761d) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes on-demand routes receiving an empty request body on Node.js 26 when `staticHeaders` is enabled
+
+## 11.1.9
+
+### Patch Changes
+
+- [#18382](https://github.com/withastro/astro/pull/18382) [`c75e897`](https://github.com/withastro/astro/commit/c75e89711a4935a0befea6f768842f6d6a9de2bb) Thanks [@Llois41](https://github.com/Llois41)! - Fixes the standalone server not logging `Server listening on …` when `HOST` is an IP address, which happens on Node.js 26.12 and later
+
+## 11.1.8
+
+### Patch Changes
+
+- [#18335](https://github.com/withastro/astro/pull/18335) [`7526077`](https://github.com/withastro/astro/commit/7526077d4f2bb805ceeb41d3ff4e691b8abd0ad9) Thanks [@lx3133584](https://github.com/lx3133584)! - Fix silent exit with code 0 on EADDRINUSE in standalone mode
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+
+## 11.1.7
+
+### Patch Changes
+
+- [`1d9e910`](https://github.com/withastro/astro/commit/1d9e910a0308ef9699694a2871b3d71b6f5c3383) Thanks [@matthewp](https://github.com/matthewp)! - Validates the `Host` header against `security.allowedDomains` when using the Node adapter
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+
+## 11.1.6
+
+### Patch Changes
+
+- [#17971](https://github.com/withastro/astro/pull/17971) [`0037c1a`](https://github.com/withastro/astro/commit/0037c1a958a33dbf9d07d72e69b97dce910f9452) Thanks [@matthewp](https://github.com/matthewp)! - Fixes aborted request bodies causing duplicate unhandled rejection logs in standalone mode when using `src/fetch.ts`
+
+- [#17964](https://github.com/withastro/astro/pull/17964) [`01395b8`](https://github.com/withastro/astro/commit/01395b88e37ba39550f5f48e2d8374d0fa2cac8a) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes trailing-slash redirects truncating query strings that contain a second `?` character
+
+## 11.1.5
+
+### Patch Changes
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+
+## 11.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+
+## 11.1.3
+
+### Patch Changes
+
+- [#17636](https://github.com/withastro/astro/pull/17636) [`51723b1`](https://github.com/withastro/astro/commit/51723b100a37d6dd6df793957d35d9216e872cef) Thanks [@matthewp](https://github.com/matthewp)! - Updates the adapter to wait for the configured log destination through Astro's new `app.getLogger()` API. This release requires Astro 7.2.1 or later.
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+
+## 11.1.2
+
+### Patch Changes
+
+- [#17400](https://github.com/withastro/astro/pull/17400) [`c1cf110`](https://github.com/withastro/astro/commit/c1cf11037797da70196f9a9ff20744ce6c2524d3) Thanks [@tianrking](https://github.com/tianrking)! - Return a 404 instead of a 500 for unknown parameters that match a prerendered dynamic endpoint.
+
+## 11.1.1
+
+### Patch Changes
+
+- [#17658](https://github.com/withastro/astro/pull/17658) [`8b211a5`](https://github.com/withastro/astro/commit/8b211a56c86f0e41782e6d7fa4b4d13dec895e80) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes an EventEmitter memory leak when serving static pages over keep-alive connections with `staticHeaders` enabled and CSP (`security.csp`) active
+
+## 11.1.0
+
+### Minor Changes
+
+- [#16871](https://github.com/withastro/astro/pull/16871) [`90c98ae`](https://github.com/withastro/astro/commit/90c98ae21ef0444a4088b7081676b0f97915001f) Thanks [@adamchal](https://github.com/adamchal)! - When `session: false` is set in `astro.config`, the adapter no longer auto-wires the filesystem session driver. Combined with the matching `astro` change, this lets the session runtime tree-shake out of the server bundle.
+
+### Patch Changes
+
+- [#17564](https://github.com/withastro/astro/pull/17564) [`004fb0a`](https://github.com/withastro/astro/commit/004fb0a01ebf8ca05035de705e8f84a3bc965b5d) Thanks [@dmgawel](https://github.com/dmgawel)! - Fixes middleware mode routing when a prerendered dynamic route sorts before an on-demand fallback
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
+## 11.0.2
+
+### Patch Changes
+
+- [#17252](https://github.com/withastro/astro/pull/17252) [`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes trailing-slash handling for request paths that begin with a backslash
+
+  With `trailingSlash: 'always'`, the standalone Node server could append a trailing slash to a request path that begins with a backslash (for example `/\example.com/foo`) and echo that path back in the `Location` header of a `301` response. Because browsers resolve a leading `\` the same way as `/`, the resulting `Location` could point off-site.
+
+  Such paths are now recognized as internal paths, matching the existing handling for paths that begin with `//`, so they are no longer rewritten with a trailing slash.
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+
+## 11.0.1
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
 ## 11.0.0
 
 ### Patch Changes

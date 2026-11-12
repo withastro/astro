@@ -6,7 +6,7 @@ import colors from 'piccolore';
 import { createServer, type FSWatcher, type HotPayload, type ViteDevServer } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
-import { getDataStoreFile } from '../../content/content-layer.js';
+import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
 import { globalContentLayer } from '../../content/instance.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
@@ -29,7 +29,7 @@ import {
 	createSafeError,
 	type ErrorWithMetadata,
 	isAstroError,
-} from '../errors/index.js';
+} from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { ensureProcessNodeEnv } from '../util.js';
@@ -96,11 +96,21 @@ export async function clearContentLayerCache({
 	fs?: typeof fsMod;
 	isDev: boolean;
 }) {
-	const dataStore = getDataStoreFile(settings, isDev);
-	if (fs.existsSync(dataStore)) {
-		logger.debug('content', 'clearing data store');
-		await fs.promises.rm(dataStore, { force: true });
-		logger.warn('content', 'data store cleared (force)');
+	if (getDataStoreChunkSize(settings) !== undefined) {
+		const dataStore = getDataStoreDir(settings, isDev);
+		if (fs.existsSync(dataStore)) {
+			logger.debug('content', 'clearing data store');
+			await fs.promises.rm(dataStore, { force: true, recursive: true });
+			await fs.promises.mkdir(dataStore, { recursive: true });
+			logger.warn('content', 'data store cleared (force)');
+		}
+	} else {
+		const dataStore = getDataStoreFile(settings, isDev);
+		if (fs.existsSync(dataStore)) {
+			logger.debug('content', 'clearing data store');
+			await fs.promises.rm(dataStore, { force: true });
+			logger.warn('content', 'data store cleared (force)');
+		}
 	}
 }
 
@@ -139,8 +149,14 @@ export async function syncInternal({
 
 			let store: MutableDataStore | undefined;
 			try {
-				const dataStoreFile = getDataStoreFile(settings, isDev);
-				store = await MutableDataStore.fromFile(dataStoreFile);
+				const chunkSize = getDataStoreChunkSize(settings);
+				if (chunkSize !== undefined) {
+					const dataStoreDir = getDataStoreDir(settings, isDev);
+					store = await MutableDataStore.fromDir(dataStoreDir, chunkSize, logger);
+				} else {
+					const dataStoreFile = getDataStoreFile(settings, isDev);
+					store = await MutableDataStore.fromFile(dataStoreFile);
+				}
 			} catch (err: any) {
 				logger.error('content', err.message);
 			}
@@ -238,6 +254,10 @@ async function createTempViteServer(
 		await createVite(
 			{
 				server: { middlewareMode: true, hmr: false, watch: null, ws: false },
+				// Astro and integrations add `optimizeDeps.include` entries, which keep the dependency optimizer
+				// running here. A separate cache keeps its output from replacing the optimized dependencies
+				// of a dev server running in the same project: https://github.com/withastro/astro/issues/18449
+				cacheDir: fileURLToPath(new URL('./vite-sync/', settings.config.cacheDir)),
 				optimizeDeps: { noDiscovery: true },
 				ssr: { external: [] },
 				logLevel: 'silent',

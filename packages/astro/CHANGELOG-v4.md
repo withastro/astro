@@ -1032,12 +1032,7 @@
   });
   ---
 
-  {
-    result.data &&
-      {
-        /* render the results */
-      }
-  }
+  {result.data && {/* render the results */}}
   ```
 
   ## Migration

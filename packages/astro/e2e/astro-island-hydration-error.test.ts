@@ -14,8 +14,23 @@ const test = testFactory(import.meta.url, {
 test.describe('astro-island hydration error handling', () => {
 	let devServer: DevServer;
 
-	test.beforeAll(async ({ astro }) => {
+	test.beforeAll(async ({ astro, browser }) => {
 		devServer = await astro.startDevServer();
+		// Vite buffers HMR messages sent before any client connects (e.g. the full-reload
+		// emitted while invalidating the content data store at startup) and flushes them to
+		// the first client. Drain them with a throwaway page so a stray full-reload cannot
+		// mask a broken island retry by recovering the page for us.
+		const warmup = await browser.newPage();
+		const connected = warmup
+			.waitForEvent('console', {
+				predicate: (message) => message.text().includes('[vite] connected'),
+				timeout: 10_000,
+			})
+			.catch(() => {});
+		await warmup.goto(astro.resolveUrl('/'));
+		await connected;
+		await warmup.waitForTimeout(500);
+		await warmup.close();
 	});
 
 	test.afterAll(async () => {
@@ -26,6 +41,13 @@ test.describe('astro-island hydration error handling', () => {
 		const pageUrl = astro.resolveUrl('/');
 		const html = await (await page.request.get(pageUrl)).text();
 		const componentUrl = getIslandComponentUrl(html);
+
+		// Recovery must come from the island's own import retry, not from a page reload
+		// (such as the full-reload a dev server may send to a newly connected client).
+		let navigations = 0;
+		page.on('framenavigated', (frame) => {
+			if (frame === page.mainFrame()) navigations++;
+		});
 
 		let attempts = 0;
 		await page.route(`**${componentUrl.split('?')[0]}*`, async (route) => {
@@ -45,6 +67,7 @@ test.describe('astro-island hydration error handling', () => {
 		await incrementButton.click();
 		await expect(count).toHaveText('1');
 		expect(attempts).toBe(2);
+		expect(navigations, 'expected hydration to recover without a page reload').toBe(1);
 	});
 
 	test('dispatches astro:hydration-error and avoids unhandled rejections on persistent failure', async ({

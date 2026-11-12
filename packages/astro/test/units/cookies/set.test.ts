@@ -1,32 +1,44 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
+import { mockLogger } from './test-helpers.ts';
 
 describe('astro/src/core/cookies', () => {
 	describe('Astro.cookies.set', () => {
 		it('Sets a cookie value that can be serialized', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			cookies.set('foo', 'bar');
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
 			assert.equal(headers[0], 'foo=bar');
 		});
 
-		it('Sets a cookie value that can be serialized w/ defaultencodeURIComponent behavior', () => {
+		it('Sets a cookie value without encoding when it only contains cookie-safe characters', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			const url = 'http://localhost/path';
 			cookies.set('url', url);
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
-			// by default cookie value is URI encoded
-			assert.equal(headers[0], `url=${encodeURIComponent(url)}`);
+			// cookie-safe values are emitted as-is by default
+			assert.equal(headers[0], `url=${url}`);
+		});
+
+		it('Sets a cookie value that is URI encoded when it contains unsafe characters', () => {
+			let req = new Request('http://example.com/');
+			let cookies = new AstroCookies(req, mockLogger);
+			const value = 'hello world';
+			cookies.set('greeting', value);
+			let headers = Array.from(cookies.headers());
+			assert.equal(headers.length, 1);
+			// values with unsafe characters are URI encoded by default
+			assert.equal(headers[0], `greeting=${encodeURIComponent(value)}`);
 		});
 
 		it('Sets a cookie value that can be serialized w/ custom encode behavior', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			const url = 'http://localhost/path';
 			// set encode option to the identity function
 			cookies.set('url', url, { encode: (o) => o });
@@ -38,7 +50,7 @@ describe('astro/src/core/cookies', () => {
 
 		it('Can set cookie options', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			cookies.set('foo', 'bar', {
 				httpOnly: true,
 				path: '/subpath/',
@@ -50,7 +62,7 @@ describe('astro/src/core/cookies', () => {
 
 		it('Can pass a JavaScript object that will be serialized', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			cookies.set('options', { one: 'two', three: 4 });
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
@@ -59,7 +71,7 @@ describe('astro/src/core/cookies', () => {
 
 		it('Can pass a number', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			cookies.set('one', 2 as any);
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
@@ -68,7 +80,7 @@ describe('astro/src/core/cookies', () => {
 
 		it('Can pass a boolean', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			cookies.set('admin', true as any);
 			assert.equal(cookies.get('admin')!.boolean(), true);
 			let headers = Array.from(cookies.headers());
@@ -78,7 +90,7 @@ describe('astro/src/core/cookies', () => {
 
 		it('Can get the value after setting', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			cookies.set('foo', 'bar');
 			let r = cookies.get('foo')!;
 			assert.equal(r.value, 'bar');
@@ -86,7 +98,7 @@ describe('astro/src/core/cookies', () => {
 
 		it('Can get the JavaScript object after setting', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			cookies.set('options', { one: 'two', three: 4 });
 			let cook = cookies.get('options')!;
 			let value = cook.json();
@@ -102,7 +114,7 @@ describe('astro/src/core/cookies', () => {
 					cookie: 'foo=bar',
 				},
 			});
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			assert.equal(cookies.get('foo')!.value, 'bar');
 
 			// Set a new value

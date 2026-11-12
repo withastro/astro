@@ -3,7 +3,7 @@ import type { ResolvedRenderOptions } from './base.js';
 /**
  * Symbol used to attach `ResolvedRenderOptions` to a `Request` object so
  * that they can flow through the `FetchHandler` signature (which only takes
- * a request) into the `AstroHandler`. This is an internal implementation
+ * a request) into the request handler chain. This is an internal implementation
  * detail between `BaseApp` and the default handler pipeline.
  */
 const renderOptionsSymbol = Symbol.for('astro.renderOptions');

@@ -1,23 +1,23 @@
 import fsMod from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
+import { time } from '@astrojs/internal-helpers/timings';
 import colors from 'piccolore';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
-import { isActionsFilePresent } from '../actions/utils.js';
+import { isActionsFilePresent } from '../actions/actions-file.js';
 import { CONTENT_LAYER_TYPE } from '../content/consts.js';
 import { globalContentLayer } from '../content/instance.js';
 import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
-import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
+import { buildClientDirectiveEntrypoint } from '@astrojs/vite-plugin-astro/_internal/core/client-directive/index.js';
 import { mergeConfig } from '../core/config/merge.js';
 import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, AstroLogger } from '../core/logger/core.js';
 import { getRouteGenerator } from '../core/routing/generator.js';
-import { getClientOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {
@@ -36,6 +36,7 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
+import { loadLoggerDestination } from '../core/logger/load.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -85,13 +86,19 @@ async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
 	const hook = integration?.hooks?.[hookName];
 	const integrationLogger = getLogger(integration, logger);
 	if (hook) {
-		await withTakingALongTimeMsg({
-			name: integration.name,
-			hookName,
-			hookFn: () => hook(Object.assign(params(), { logger: integrationLogger }) as any),
-			logger,
-			integrationLogger,
-		});
+		await time(
+			'integration',
+			integration.name,
+			() =>
+				withTakingALongTimeMsg({
+					name: integration.name,
+					hookName,
+					hookFn: () => hook(Object.assign(params(), { logger: integrationLogger }) as any),
+					logger,
+					integrationLogger,
+				}),
+			{ hook: hookName },
+		);
 	}
 	return { integrationLogger };
 }
@@ -212,6 +219,8 @@ export async function runHookConfigSetup({
 		 * ```
 		 */
 
+		let isLoggerUpdated = false;
+
 		const { integrationLogger } = await runHookInternal({
 			integration,
 			hookName: 'astro:config:setup',
@@ -244,6 +253,10 @@ export async function runHookConfigSetup({
 						updatedSettings.scripts.push({ stage, content });
 					},
 					updateConfig: (newConfig) => {
+						// Logger destination is updated later because it's async
+						if (newConfig.logger?.entrypoint) {
+							isLoggerUpdated = true;
+						}
 						updatedConfig = mergeConfig(updatedConfig, newConfig);
 						return { ...updatedConfig };
 					},
@@ -337,13 +350,18 @@ export async function runHookConfigSetup({
 			},
 		});
 
-		// Add custom client directives to settings, waiting for compiled code by esbuild
+		// Add custom client directives to settings, waiting for compiled code by rolldown
 		for (const [name, compiled] of addedClientDirectives) {
 			updatedSettings.clientDirectives.set(name, await compiled);
 		}
 
 		try {
 			updatedConfig = await validateConfigRefined(updatedConfig);
+			if (isLoggerUpdated) {
+				logger.setDestination(
+					await loadLoggerDestination(updatedConfig.logger!, updatedConfig.root),
+				);
+			}
 		} catch (error) {
 			integrationLogger.error('An error occurred while updating the config');
 			throw error;
@@ -580,17 +598,13 @@ export async function runHookBuildGenerated({
 	settings,
 	logger,
 	routeToHeaders,
+	dir,
 }: {
 	settings: AstroSettings;
 	logger: AstroLogger;
 	routeToHeaders: RouteToHeaders;
+	dir: URL;
 }) {
-	const preserveStructure = settings.adapter?.adapterFeatures?.preserveBuildClientDir;
-	const dir =
-		settings.buildOutput === 'server' || preserveStructure
-			? settings.config.build.client
-			: settings.config.outDir;
-
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
 			integration,
@@ -603,13 +617,13 @@ export async function runHookBuildGenerated({
 
 type RunHookBuildDone = {
 	settings: AstroSettings;
+	dir: URL;
 	pages: string[];
 	routes: RouteData[];
 	logger: AstroLogger;
 };
 
-export async function runHookBuildDone({ settings, pages, routes, logger }: RunHookBuildDone) {
-	const dir = getClientOutputDirectory(settings);
+export async function runHookBuildDone({ settings, dir, pages, routes, logger }: RunHookBuildDone) {
 	await fsMod.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of settings.config.integrations) {

@@ -1,13 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import astroIslandPrebuilt from '../../runtime/server/astro-island.prebuilt.js';
-import astroIslandPrebuiltDev from '../../runtime/server/astro-island.prebuilt-dev.js';
-import { ISLAND_STYLES } from '../../runtime/server/astro-island-styles.js';
+import astroIslandPrebuilt from '@astrojs/runtime/_internal/server/astro-island.prebuilt.js';
+import astroIslandPrebuiltDev from '@astrojs/runtime/_internal/server/astro-island.prebuilt-dev.js';
+import { ISLAND_STYLES } from '@astrojs/runtime/_internal/server/astro-island-styles.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
 import type { BuildInternals } from '../build/internal.js';
-import { generateCspDigest } from '../encryption.js';
-import type { CspDirective } from './config.js';
+import { createAssetLink } from '../render/ssr-element.js';
+import { generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
+import type { CspDirective, CspHash, CspHashEntry, CspResourceEntry } from './config.js';
 
 type EnabledCsp = Exclude<AstroConfig['security']['csp'], false>;
 
@@ -22,33 +23,32 @@ export function getAlgorithm(csp: EnabledCsp): CspAlgorithm {
 	return csp.algorithm;
 }
 
-export function getScriptHashes(csp: EnabledCsp): string[] {
-	if (csp === true) {
-		return [];
-	} else {
-		return csp.scriptDirective?.hashes ?? [];
-	}
-}
-
-export function getScriptResources(csp: EnabledCsp): string[] {
+export function getScriptResources(csp: EnabledCsp): CspResourceEntry[] {
 	if (csp === true) {
 		return [];
 	}
 	return csp.scriptDirective?.resources ?? [];
 }
 
-export function getStyleHashes(csp: EnabledCsp): string[] {
+export function getScriptHashes(csp: EnabledCsp): CspHashEntry[] {
 	if (csp === true) {
 		return [];
 	}
-	return csp.styleDirective?.hashes ?? [];
+	return csp.scriptDirective?.hashes ?? [];
 }
 
-export function getStyleResources(csp: EnabledCsp): string[] {
+export function getStyleResources(csp: EnabledCsp): CspResourceEntry[] {
 	if (csp === true) {
 		return [];
 	}
 	return csp.styleDirective?.resources ?? [];
+}
+
+export function getStyleHashes(csp: EnabledCsp): CspHashEntry[] {
+	if (csp === true) {
+		return [];
+	}
+	return csp.styleDirective?.hashes ?? [];
 }
 
 // Unlike other helpers like getStyleResources, getDirectives has more logic
@@ -93,27 +93,23 @@ export function getStrictDynamic(csp: EnabledCsp): boolean {
 	return csp.scriptDirective?.strictDynamic ?? false;
 }
 
-export async function trackStyleHashes(
-	internals: BuildInternals,
-	settings: AstroSettings,
-	algorithm: CspAlgorithm,
-): Promise<string[]> {
-	const clientStyleHashes: string[] = [];
+interface TrackCspHashesOptions {
+	internals: BuildInternals;
+	settings: AstroSettings;
+	algorithm: CspAlgorithm;
+}
+
+export async function trackStyleHashes({
+	internals,
+	settings,
+	algorithm,
+}: TrackCspHashesOptions): Promise<CspHash[]> {
+	const clientStyleHashes: CspHash[] = [];
 	for (const [_, page] of internals.pagesByViteID.entries()) {
 		for (const style of page.styles) {
 			if (style.sheet.type === 'inline') {
 				clientStyleHashes.push(await generateCspDigest(style.sheet.content, algorithm));
 			}
-		}
-	}
-
-	for (const clientAsset in internals.clientChunksAndAssets) {
-		const contents = readFileSync(
-			fileURLToPath(new URL(clientAsset, settings.config.build.client)),
-			'utf-8',
-		);
-		if (clientAsset.endsWith('.css') || clientAsset.endsWith('.css')) {
-			clientStyleHashes.push(await generateCspDigest(contents, algorithm));
 		}
 	}
 
@@ -124,12 +120,12 @@ export async function trackStyleHashes(
 	return clientStyleHashes;
 }
 
-export async function trackScriptHashes(
-	internals: BuildInternals,
-	settings: AstroSettings,
-	algorithm: CspAlgorithm,
-): Promise<string[]> {
-	const clientScriptHashes: string[] = [];
+export async function trackScriptHashes({
+	internals,
+	settings,
+	algorithm,
+}: TrackCspHashesOptions): Promise<CspHash[]> {
+	const clientScriptHashes: CspHash[] = [];
 
 	for (const script of internals.inlinedScripts.values()) {
 		clientScriptHashes.push(await generateCspDigest(script, algorithm));
@@ -137,16 +133,6 @@ export async function trackScriptHashes(
 
 	for (const directiveContent of Array.from(settings.clientDirectives.values())) {
 		clientScriptHashes.push(await generateCspDigest(directiveContent, algorithm));
-	}
-
-	for (const clientAsset in internals.clientChunksAndAssets) {
-		const contents = readFileSync(
-			fileURLToPath(new URL(clientAsset, settings.config.build.client)),
-			'utf-8',
-		);
-		if (clientAsset.endsWith('.js') || clientAsset.endsWith('.mjs')) {
-			clientScriptHashes.push(await generateCspDigest(contents, algorithm));
-		}
 	}
 
 	for (const script of settings.scripts) {
@@ -162,4 +148,66 @@ export async function trackScriptHashes(
 	}
 
 	return clientScriptHashes;
+}
+
+interface TrackScriptIntegrityOptions {
+	settings: AstroSettings;
+	algorithm: CspAlgorithm;
+	clientRoot: URL;
+	/** Paths of the files in the client output directory, relative to `clientRoot`. */
+	clientFiles: Iterable<string>;
+	/** Query string the adapter appends to rendered asset URLs (`assetQueryParams`). */
+	assetQueryString?: string;
+}
+
+interface ScriptIntegrity {
+	/** JSON content of a `<script type="importmap">` whose `integrity` map covers every client script. */
+	importMapContent: string;
+	/** Hashes of every client script and of the import map itself, for `script-src`. */
+	hashes: CspHash[];
+}
+
+/**
+ * Hashes every JavaScript file Astro emitted under `build.assets` in the client output.
+ *
+ * Under `'strict-dynamic'`, browsers ignore `'self'`, so module scripts (`<script src>`, the chunks
+ * they import, and the `import()` calls of islands) load only when their hash is in `script-src` and
+ * the browser has integrity metadata for the request. An import map `integrity` entry provides that
+ * metadata for every module request, including the root `<script src>`.
+ *
+ * Returns `undefined` when the client output has no scripts.
+ */
+export async function trackScriptIntegrity({
+	settings,
+	algorithm,
+	clientRoot,
+	clientFiles,
+	assetQueryString,
+}: TrackScriptIntegrityOptions): Promise<ScriptIntegrity | undefined> {
+	const assetsDir = `${settings.config.build.assets}/`;
+	const scripts = Array.from(clientFiles)
+		.filter((file) => file.startsWith(assetsDir) && (file.endsWith('.js') || file.endsWith('.mjs')))
+		.sort();
+	if (scripts.length === 0) {
+		return undefined;
+	}
+
+	const integrity: Record<string, string> = {};
+	const hashes: CspHash[] = [];
+	for (const file of scripts) {
+		const contents = readFileSync(fileURLToPath(new URL(file, clientRoot)), 'utf-8');
+		const hash = await generateCspDigest(contents, algorithm);
+		const url = createAssetLink(file, settings.config.base, settings.config.build.assetsPrefix);
+		integrity[url] = hash;
+		// Import map keys match exact URLs. Rendered tags carry the adapter's query string, while
+		// chunks imported by other chunks are requested without it.
+		if (assetQueryString) {
+			integrity[`${url}?${assetQueryString}`] = hash;
+		}
+		hashes.push(hash);
+	}
+
+	const importMapContent = JSON.stringify({ integrity });
+	hashes.push(await generateCspDigest(importMapContent, algorithm));
+	return { importMapContent, hashes };
 }

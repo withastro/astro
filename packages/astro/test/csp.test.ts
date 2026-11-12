@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { generateCspDigest } from '../dist/core/encryption.js';
+import { generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
 import testAdapter from './test-adapter.ts';
 import { type Fixture, loadFixture } from './test-utils.ts';
 
@@ -183,6 +183,100 @@ describe('CSP', () => {
 		);
 	});
 
+	it('should support granular directives via the `kind` option', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			outDir: './dist/csp-kind',
+			security: {
+				csp: {
+					scriptDirective: {
+						resources: [{ resource: 'https://cdn.example.com', kind: 'element' }],
+					},
+					styleDirective: {
+						resources: [{ resource: "'unsafe-inline'", kind: 'attribute' }],
+					},
+				},
+			},
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/inline/index.html');
+		const $ = cheerio.load(html);
+
+		const content = $('meta[http-equiv="Content-Security-Policy"]').attr('content')!.toString();
+		const parsed = new Map(
+			content
+				.split(';')
+				.map((part) => part.trim())
+				.filter(Boolean)
+				.map((part) => {
+					const [directive, ...resources] = part.split(/\s+/);
+					return [directive, resources] as const;
+				}),
+		);
+
+		// Baseline directives are always present.
+		assert.ok(parsed.has('script-src'), 'script-src baseline present');
+		assert.ok(parsed.has('style-src'), 'style-src baseline present');
+
+		// `script-src-elem` carries the user element resource AND Astro's generated hashes (folded).
+		const scriptElem = parsed.get('script-src-elem');
+		assert.ok(scriptElem, 'script-src-elem present');
+		assert.ok(scriptElem.includes('https://cdn.example.com'), 'element resource applied');
+		assert.ok(
+			scriptElem.some((r) => r.includes('sha256-')),
+			'Astro element hashes folded into script-src-elem',
+		);
+
+		// `style-src-attr` carries the user attribute source and no folded hashes.
+		assert.deepEqual(parsed.get('style-src-attr'), ["'unsafe-inline'"]);
+	});
+
+	it('should emit an import map with integrity for every script when strictDynamic is enabled', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			outDir: './dist/csp-strict-dynamic',
+			security: { csp: { scriptDirective: { strictDynamic: true } } },
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/react/index.html');
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		const importMap = $('script[type="importmap"]');
+		assert.equal(importMap.length, 1);
+		assert.ok(importMap.prev().is(meta), 'import map is rendered right after the CSP meta tag');
+		const scriptSrc = meta.attr('content')!.split(';')[0];
+		assert.ok(scriptSrc.includes(`'${await generateCspDigest(importMap.text(), 'SHA-256')}'`));
+
+		const { integrity } = JSON.parse(importMap.text());
+		const island = $('astro-island');
+		const scripts = (await fixture.readdir('/_astro')).filter((file) => file.endsWith('.js'));
+		assert.ok(scripts.length > 0);
+		for (const file of scripts) {
+			const digest = await generateCspDigest(await fixture.readFile(`/_astro/${file}`), 'SHA-256');
+			assert.equal(integrity[`/_astro/${file}`], digest);
+			assert.ok(scriptSrc.includes(`'${digest}'`), `${file} hash is in script-src`);
+		}
+		assert.ok(integrity[island.attr('component-url')!]);
+		assert.ok(integrity[island.attr('renderer-url')!]);
+
+		const $head = cheerio.load(await fixture.readFile('/head-script/index.html'));
+		const headScripts = $head('head script');
+		assert.equal(headScripts.first().attr('type'), 'importmap');
+		assert.equal(headScripts.filter('[type="importmap"]').length, 1);
+		assert.equal(headScripts.filter('[type="module"]').length, 1);
+	});
+
+	it('should not emit an import map when strictDynamic is disabled', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			outDir: './dist/csp-csp/',
+		});
+		await fixture.build();
+		const $ = cheerio.load(await fixture.readFile('/react/index.html'));
+		assert.equal($('script[type="importmap"]').length, 0);
+	});
+
 	it('should return CSP header inside a hook', async () => {
 		let routeToHeaders: Map<string, { headers: Headers }> | undefined;
 		fixture = await loadFixture({
@@ -210,6 +304,22 @@ describe('CSP', () => {
 
 		for (const { headers } of routeToHeaders!.values()) {
 			assert.ok(headers.has('content-security-policy'), 'should have a CSP header');
+		}
+	});
+
+	it('should include hashes inserted by components rendered after the head', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp-component-hashes/',
+		});
+		await fixture.build();
+
+		for (const page of ['/with-head/index.html', '/mdx/index.html']) {
+			const html = await fixture.readFile(page);
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			assert.ok(meta.attr('content')!.includes("'sha256-bodyComponentHash'"), page);
+			assert.equal(html.includes('astro-csp-meta'), false, page);
 		}
 	});
 });

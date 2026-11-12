@@ -3,7 +3,6 @@
   "description": "Use Alpine within Astro",
   "version": "1.0.0",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -38,10 +37,10 @@
     "alpinejs": "^3.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.58.2",
+    "@playwright/test": "1.65.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "vite": "^8.0.13"
+    "vite": "^8.3.6"
   },
   "publishConfig": {
     "provenance": true

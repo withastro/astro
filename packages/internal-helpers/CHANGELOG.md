@@ -1,5 +1,67 @@
 # @astrojs/internal-helpers
 
+## 0.13.2
+
+### Patch Changes
+
+- [#18695](https://github.com/withastro/astro/pull/18695) [`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005) Thanks [@matthewp](https://github.com/matthewp)! - Adds the `@astrojs/internal-helpers/renderer` export used by `@astrojs/react`, `@astrojs/preact`, `@astrojs/solid-js`, `@astrojs/svelte` and `@astrojs/vue`, which fail to load without it
+
+## 0.13.1
+
+### Patch Changes
+
+- [`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the image endpoint treating directories whose names differ only by letter case as being inside the build output directory on case-sensitive filesystems
+
+## 0.13.0
+
+### Minor Changes
+
+- [#17894](https://github.com/withastro/astro/pull/17894) [`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds the measurements that `astro build --timings` reports for Markdown processing and syntax highlighting.
+
+## 0.12.0
+
+### Minor Changes
+
+- [#18099](https://github.com/withastro/astro/pull/18099) [`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb) Thanks [@renovate](https://github.com/apps/renovate)! - Adds YAML parsing with timestamp and merge key support, and formats YAML errors consistently across Astro, Markdown, MDX, and Markdoc.
+
+### Patch Changes
+
+- [#18210](https://github.com/withastro/astro/pull/18210) [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d) Thanks [@edmundhung](https://github.com/edmundhung)! - Allows Astro CLI commands to install tagged package versions
+
+## 0.11.0
+
+### Minor Changes
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds an `@astrojs/internal-helpers/mdx` entrypoint with the shared helpers the Markdown processor packages use to render `.mdx` files.
+
+## 0.10.4
+
+### Patch Changes
+
+- [#17701](https://github.com/withastro/astro/pull/17701) [`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527) Thanks [@matthewp](https://github.com/matthewp)! - Fixes base path stripping to respect path-segment boundaries. With a configured `base` such as `/docs`, a request like `/docs-archive/page` is no longer treated as being under the base, so routing and `context.url.pathname` now agree on the same pathname.
+
+## 0.10.3
+
+### Patch Changes
+
+- [#17696](https://github.com/withastro/astro/pull/17696) [`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes incremental build cache invalidation caused by Shiki mutating the `langAlias` config object when loading languages
+
+## 0.10.2
+
+### Patch Changes
+
+- [#17474](https://github.com/withastro/astro/pull/17474) [`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18) Thanks [@nicksnyder](https://github.com/nicksnyder)! - Updates dependency `js-yaml` to v4.3.0
+
+## 0.10.1
+
+### Patch Changes
+
+- [#17252](https://github.com/withastro/astro/pull/17252) [`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes trailing-slash handling for request paths that begin with a backslash
+
+  With `trailingSlash: 'always'`, the standalone Node server could append a trailing slash to a request path that begins with a backslash (for example `/\example.com/foo`) and echo that path back in the `Location` header of a `301` response. Because browsers resolve a leading `\` the same way as `/`, the resulting `Location` could point off-site.
+
+  Such paths are now recognized as internal paths, matching the existing handling for paths that begin with `//`, so they are no longer rewritten with a trailing slash.
+
 ## 0.10.0
 
 ### Minor Changes

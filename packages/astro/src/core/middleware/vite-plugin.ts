@@ -1,18 +1,13 @@
-import { fileURLToPath } from 'node:url';
-import {
-	normalizePath as viteNormalizePath,
-	type ViteDevServer,
-	type Plugin as VitePlugin,
-} from 'vite';
-import { getServerOutputDirectory } from '../../prerender/utils.js';
+import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import { addRolldownInput } from '../build/add-rolldown-input.js';
+import { pathToDirectoryURL } from '../build/common.js';
 import type { BuildInternals } from '../build/internal.js';
-import type { StaticBuildOptions } from '../build/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES, MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
-import { MissingMiddlewareForInternationalization } from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
+import { MissingMiddlewareForInternationalization } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { normalizePath } from '../viteUtils.js';
+import { isAstroServerEnvironment } from '../../environments.js';
 
 // This module name is used in Cloudflare's optimizedDeps configuration,
 // if th name changes that needs to be updated as well.
@@ -33,8 +28,6 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 		settings.middlewares.pre.length > 0 || settings.middlewares.post.length > 0;
 	let userMiddlewareIsPresent = false;
 
-	const normalizedSrcDir = viteNormalizePath(fileURLToPath(settings.config.srcDir));
-
 	return {
 		name: '@astro/plugin-middleware',
 		applyToEnvironment(environment) {
@@ -44,29 +37,26 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},
-		configureServer(server: ViteDevServer) {
-			server.watcher.on('change', (path) => {
-				const normalizedPath = viteNormalizePath(path);
-				// Check if the changed file is a middleware file under srcDir
-				if (!normalizedPath.startsWith(normalizedSrcDir)) return;
-				const relativePath = normalizedPath.slice(normalizedSrcDir.length);
-				if (!isMiddlewarePath(relativePath)) return;
+		hotUpdate: {
+			handler(ctx) {
+				if (!isAstroServerEnvironment(this.environment)) return;
 
-				for (const name of [
-					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
-					ASTRO_VITE_ENVIRONMENT_NAMES.astro,
-				] as const) {
-					const environment = server.environments[name];
-					if (!environment) continue;
+				// A change that matched no modules in the graph can't affect the
+				// middleware or anything it imports, so there's nothing to invalidate.
+				// Writes outside the graph (e.g. `@astrojs/cloudflare`'s `.wrangler/state`)
+				// fire a hotUpdate per write and would otherwise reload the middleware
+				// on every request.
+				// https://github.com/withastro/astro/issues/17933
+				if (ctx.modules.length === 0) return;
 
-					const virtualMod = environment.moduleGraph.getModuleById(MIDDLEWARE_RESOLVED_MODULE_ID);
-					if (virtualMod) {
-						environment.moduleGraph.invalidateModule(virtualMod);
-					}
+				const middlewareVirtualMod = this.environment.moduleGraph.getModuleById(
+					MIDDLEWARE_RESOLVED_MODULE_ID,
+				);
+				if (!middlewareVirtualMod) return;
 
-					environment.hot.send('astro:middleware-updated', {});
-				}
-			});
+				this.environment.moduleGraph.invalidateModule(middlewareVirtualMod);
+				this.environment.hot.send('astro:middleware-updated', {});
+			},
 		},
 		resolveId: {
 			filter: {
@@ -109,7 +99,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 					const code = `
 				${
 					userMiddlewareIsPresent
-						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
+						? `import { onRequest as userOnRequest } from ${JSON.stringify(resolvedMiddlewareId)};`
 						: ''
 				}
 import { sequence } from 'astro:middleware';
@@ -141,7 +131,7 @@ function createMiddlewareImports(
 	let index = 0;
 	for (const entrypoint of entrypoints) {
 		const name = `_${prefix}_${index}`;
-		importsRaw += `import { onRequest as ${name} } from '${normalizePath(entrypoint)}';\n`;
+		importsRaw += `import { onRequest as ${name} } from ${JSON.stringify(normalizePath(entrypoint))};\n`;
 		sequenceRaw += `${index > 0 ? ',' : ''}${name}`;
 		index++;
 	}
@@ -152,10 +142,7 @@ function createMiddlewareImports(
 	};
 }
 
-export function vitePluginMiddlewareBuild(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-): VitePlugin {
+export function vitePluginMiddlewareBuild(internals: BuildInternals): VitePlugin {
 	let canSplitMiddleware = true;
 	return {
 		name: '@astro/plugin-middleware-build',
@@ -179,7 +166,7 @@ export function vitePluginMiddlewareBuild(
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'asset' && chunk.facadeModuleId === MIDDLEWARE_RESOLVED_MODULE_ID) {
-					const outputDirectory = getServerOutputDirectory(opts.settings);
+					const outputDirectory = pathToDirectoryURL(this.environment.config.build.outDir);
 					internals.middlewareEntryPoint = new URL(chunkName, outputDirectory);
 				}
 			}

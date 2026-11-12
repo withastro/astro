@@ -14,7 +14,10 @@ describe('React Components', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			// React 19 cannot run in build (production) and dev mode in the same
+			// process. This suite also starts a dev server, so build in dev mode.
+			// See: https://github.com/facebook/react/issues/32030
+			await fixture.build({}, { devOutput: true });
 		});
 
 		it('Can load React', async () => {

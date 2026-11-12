@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import type { Plugin } from 'vite';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { isAstroClientEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
@@ -201,7 +201,7 @@ function getTemplates({
 
 	server = server.replace('// @@ON_SET_GET_ENV@@', onSetGetEnv);
 	if (loadedEnv) {
-		server = server.replace('// @@GET_ENV@@', `return (${JSON.stringify(loadedEnv)})[key];`);
+		server = server.replace('// @@GET_ENV@@', () => `return (${JSON.stringify(loadedEnv)})[key];`);
 	} else {
 		server = server.replace('// @@GET_ENV@@', 'return _getEnv(key);');
 	}

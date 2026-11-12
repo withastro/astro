@@ -12,11 +12,11 @@ import { getRoutePrerenderOption } from '../core/routing/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types.js';
+import { createDefaultAstroMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/metadata.js';
+import type { PluginMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
-import { RESOLVED_MODULE_DEV_CSS_ALL } from '../vite-plugin-css/const.js';
+import { RESOLVED_MODULE_DEV_CSS_ALL } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-css/const.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 type Payload = {
@@ -80,6 +80,32 @@ export default async function astroPluginRoutes({
 	);
 
 	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
+
+	function findRouteByFilename(filename: string) {
+		return initialRoutesList.routes.find(
+			(route) =>
+				normalizePath(fileURLToPath(new URL(`./${route.component}`, settings.config.root))) ===
+				filename,
+		);
+	}
+
+	// Only built in `build` environments, where the route list is fixed for the whole run
+	let routeByFilename: Map<string, RoutesList['routes'][number]> | null = null;
+	function getRouteByFilename(): Map<string, RoutesList['routes'][number]> {
+		if (routeByFilename === null) {
+			routeByFilename = new Map();
+			for (const route of initialRoutesList.routes) {
+				const filename = normalizePath(
+					fileURLToPath(new URL(`./${route.component}`, settings.config.root)),
+				);
+				// Several routes can share a component, and the first one owns the filename
+				if (!routeByFilename.has(filename)) {
+					routeByFilename.set(filename, route);
+				}
+			}
+		}
+		return routeByFilename;
+	}
 
 	async function rebuildRoutes(path: string | null = null, server: ViteDevServer) {
 		if (path != null && normalizePath(path).startsWith(normalizedSrcDir)) {
@@ -186,7 +212,7 @@ export default async function astroPluginRoutes({
 				});
 
 				const code = `
-				import { deserializeRouteInfo } from 'astro/app';
+				import { deserializeRouteInfo } from 'astro/app/manifest';
 				const serializedData = ${JSON.stringify(filteredRoutes)};
 				const routes = serializedData.map(deserializeRouteInfo);
 				export { routes };
@@ -211,10 +237,10 @@ export default async function astroPluginRoutes({
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			const route = initialRoutesList.routes.find((r) => {
-				const filePath = new URL(`./${r.component}`, settings.config.root);
-				return normalizePath(fileURLToPath(filePath)) === filename;
-			});
+			const route =
+				this.environment.mode === 'build'
+					? getRouteByFilename().get(filename)
+					: findRouteByFilename(filename);
 
 			if (!route) {
 				return;
@@ -266,10 +292,7 @@ export default async function astroPluginRoutes({
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 
-			const route = initialRoutesList.routes.find((r) => {
-				const filePath = new URL(`./${r.component}`, settings.config.root);
-				return normalizePath(fileURLToPath(filePath)) === filename;
-			});
+			const route = findRouteByFilename(filename);
 
 			if (!route) {
 				return;

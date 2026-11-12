@@ -1,10 +1,15 @@
-export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAssets';
+import { PROPAGATED_ASSET_FLAG } from '@astrojs/runtime/_internal/core/head-propagation/boundary.js';
+
+export { PROPAGATED_ASSET_FLAG };
 export const PROPAGATED_ASSET_QUERY_PARAM = `?${PROPAGATED_ASSET_FLAG}`;
 export const CONTENT_RENDER_FLAG = 'astroRenderContent';
 export const CONTENT_FLAG = 'astroContentCollectionEntry';
 export const DATA_FLAG = 'astroDataCollectionEntry';
 export const CONTENT_IMAGE_FLAG = 'astroContentImageFlag';
 export const CONTENT_MODULE_FLAG = 'astroContentModuleFlag';
+// Marks a Markdown module imported to render a content collection entry, so that page-only
+// frontmatter such as `layout` is ignored. See https://github.com/withastro/astro/issues/18169
+export const MARKDOWN_CONTENT_ENTRY_FLAG = 'astroMarkdownContentEntry';
 
 export const VIRTUAL_MODULE_ID = 'astro:content';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
@@ -32,10 +37,13 @@ export const CONTENT_FLAGS = [
 	PROPAGATED_ASSET_FLAG,
 	CONTENT_IMAGE_FLAG,
 	CONTENT_MODULE_FLAG,
+	MARKDOWN_CONTENT_ENTRY_FLAG,
 ] as const;
 
 export const CONTENT_TYPES_FILE = 'content.d.ts';
 export const DATA_STORE_FILE = 'data-store.json';
+export const DATA_STORE_DIR = 'data-store/';
+export const DATA_STORE_MANIFEST_FILE = 'manifest.json';
 export const ASSET_IMPORTS_FILE = 'content-assets.mjs';
 export const MODULES_IMPORTS_FILE = 'content-modules.mjs';
 export const COLLECTIONS_MANIFEST_FILE = 'collections/collections.json';
@@ -43,3 +51,8 @@ export const COLLECTIONS_DIR = 'collections/';
 
 export const CONTENT_LAYER_TYPE = 'content_layer';
 export const LIVE_CONTENT_TYPE = 'live';
+
+export const DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX = `${DATA_STORE_VIRTUAL_ID}-chunk:`;
+export const RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX = `\0${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}`;
+export const RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX = '.mjs';
+export const DATA_STORE_CHUNK_FILE_NAME_PATTERN = /^[a-f0-9]{16}\.txt$/;

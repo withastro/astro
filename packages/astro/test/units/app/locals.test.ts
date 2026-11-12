@@ -204,4 +204,36 @@ describe('SSR Astro.locals from server', () => {
 		const html = await response.text();
 		assert.match(html, /id="foo">par/);
 	});
+
+	it('404.astro/500.astro can access mutated locals even if middleware is skipped', async () => {
+		const localApp = makeApp({
+			routes: [{ routeData: errorRouteData }, { routeData: internalErrorRouteData }],
+			pageMap,
+			logLevel: 'error',
+			middleware: () =>
+				Promise.resolve({
+					onRequest: async (context: any, next: any) => {
+						if (context.routePattern.includes('/500')) {
+							// Throwing here forces renderError to retry with skipMiddleware: true
+							throw new Error('middleware error on 500');
+						}
+						context.locals.foo = 'mutated-property';
+						return next();
+					},
+				}),
+		});
+
+		const request = new Request('http://example.com/go-to-error-page');
+		let response;
+		try {
+			response = await localApp.render(request);
+		} catch (err: any) {
+			console.error('RENDER ERROR:', err.stack);
+			throw err;
+		}
+		assert.equal(response.status, 500);
+
+		const html = await response.text();
+		assert.match(html, /id="foo">mutated-property/);
+	});
 });
