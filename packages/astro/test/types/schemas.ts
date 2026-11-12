@@ -12,7 +12,7 @@ import type { SvgOptimizerSchema } from '../../dist/assets/svg/config.js';
 import type { ImageInputFormat, ImageMetadata } from '../../dist/assets/types.js';
 import type { SchemaContext } from '../../dist/content/config.js';
 import type { ContentImageField } from '../../dist/content/image.js';
-import { getImage } from '../../dist/assets/index.js';
+import type { getImage } from '../../dist/assets/index.js';
 
 describe('fonts', () => {
 	it('FontFamily type matches FontFamilySchema', () => {
