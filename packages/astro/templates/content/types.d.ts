@@ -128,10 +128,10 @@ declare module 'astro:content' {
 	};
 
 	type ExtractLoaderTypes<T> = T extends import('astro/loaders').LiveLoader<
-		infer TData,
-		infer TEntryFilter,
-		infer TCollectionFilter,
-		infer TError
+		infer TData extends Record<string, any>,
+		infer TEntryFilter extends Record<string, any>,
+		infer TCollectionFilter extends Record<string, any>,
+		infer TError extends Error
 	>
 		? { data: TData; entryFilter: TEntryFilter; collectionFilter: TCollectionFilter; error: TError }
 		: { data: never; entryFilter: never; collectionFilter: never; error: never };
@@ -140,12 +140,14 @@ declare module 'astro:content' {
 	type ExtractErrorType<T> = ExtractLoaderTypes<T>['error'];
 	type ExtractDataType<T> = ExtractLoaderTypes<T>['data'];
 
-	type LiveLoaderDataType<C extends keyof LiveContentConfig['collections']> =
+	type LiveLoaderDataType<C extends keyof LiveContentConfig['collections']> = Extract<
 		LiveContentConfig['collections'][C]['schema'] extends undefined
 			? ExtractDataType<LiveContentConfig['collections'][C]['loader']>
 			: import('astro/zod').infer<
 					Exclude<LiveContentConfig['collections'][C]['schema'], undefined>
-				>;
+				>,
+		Record<string, any>
+	>;
 	type LiveLoaderEntryFilterType<C extends keyof LiveContentConfig['collections']> =
 		ExtractEntryFilterType<LiveContentConfig['collections'][C]['loader']>;
 	type LiveLoaderCollectionFilterType<C extends keyof LiveContentConfig['collections']> =
