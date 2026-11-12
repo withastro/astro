@@ -1,8 +1,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join, normalize } from 'node:path';
-import { readTsconfig, type TsconfigResult } from 'get-tsconfig';
+import { readTsconfig, type TsconfigJson, type TsconfigResult } from 'get-tsconfig';
 import { parse as parseJsonc, type ParseError } from 'jsonc-parser';
-import type { CompilerOptions, TypeAcquisition } from 'typescript';
 
 export const defaultTSConfig: TSConfig = { extends: 'astro/tsconfigs/base' };
 
@@ -176,26 +175,12 @@ function deepMergeObjects<T extends Record<string, any>>(a: T, b: T): T {
 // https://github.com/unjs/pkg-types/blob/78328837d369d0145a8ddb35d7fe1fadda4bfadf/src/types/tsconfig.ts
 // See https://github.com/unjs/pkg-types/blob/78328837d369d0145a8ddb35d7fe1fadda4bfadf/LICENSE for license information
 
-type StripEnums<T extends Record<string, any>> = {
-	[K in keyof T]: T[K] extends boolean
-		? T[K]
-		: T[K] extends string
-			? T[K]
-			: T[K] extends object
-				? T[K]
-				: T[K] extends Array<any>
-					? T[K]
-					: T[K] extends undefined
-						? undefined
-						: any;
-};
-
 export interface TSConfig {
-	compilerOptions?: StripEnums<CompilerOptions>;
+	compilerOptions?: NonNullable<TsconfigJson['compilerOptions']>;
 	compileOnSave?: boolean;
 	extends?: string | string[];
 	files?: string[];
 	include?: string[];
 	exclude?: string[];
-	typeAcquisition?: TypeAcquisition;
+	typeAcquisition?: NonNullable<TsconfigJson['typeAcquisition']>;
 }
