@@ -61,6 +61,7 @@ export default {
 				'templates/**/*!',
 				srcEntry,
 				dtsEntry,
+				'types/content-fallback.d.ts!',
 				testEntry,
 				'test/types/**/*',
 				'e2e/**/*.test.{js,ts}',
