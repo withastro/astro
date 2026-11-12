@@ -106,24 +106,21 @@ export type { ImageFunction };
 
 export interface SchemaContext {
 	/**
-	 * Absolute path of the entry being parsed, when the loader provides one. Pass the
-	 * whole context to `image()` from `astro/content/image` to resolve a source relative
-	 * to it.
-	 */
-	filePath?: string;
-	/**
 	 * @deprecated Use `image()` from `astro/content/image` instead, which is an ordinary
 	 * function rather than a schema factory, so it works with any validator and its result
 	 * can be validated further:
 	 *
 	 * ```js
-	 * schema: (context) => z.object({
-	 *   cover: z.string().transform((src) => image(context, { src })),
+	 * schema: z.object({
+	 *   cover: z.string().transform((src) => image(src)),
 	 * })
 	 * ```
 	 */
 	image: ImageFunction;
 }
+
+/** @deprecated Use a static Standard Schema validator instead. */
+type SchemaFactory<S extends BaseSchema> = (context: SchemaContext) => S;
 
 type LoaderConstraint<TData extends { id: string }> =
 	| Loader
@@ -135,18 +132,18 @@ type LoaderConstraint<TData extends { id: string }> =
 
 type ContentLayerConfig<S extends BaseSchema, TLoader extends LoaderConstraint<{ id: string }>> = {
 	type?: 'content_layer';
-	schema?: S | ((context: SchemaContext) => S);
+	schema?: S | SchemaFactory<S>;
 	loader: TLoader;
 };
 
 type DataCollectionConfig<S extends BaseSchema> = {
 	type: 'data';
-	schema?: S | ((context: SchemaContext) => S);
+	schema?: S | SchemaFactory<S>;
 };
 
 type ContentCollectionConfig<S extends BaseSchema> = {
 	type?: 'content';
-	schema?: S | ((context: SchemaContext) => S);
+	schema?: S | SchemaFactory<S>;
 	loader?: never;
 };
 
@@ -272,7 +269,7 @@ type Defined<T> = Exclude<T, undefined>;
 type HasSchema<S> = [Defined<S>] extends [never] ? false : true;
 
 /** A schema is either passed directly or returned by a factory that receives the context. */
-type ResolveSchema<S> = S extends (context: SchemaContext) => infer R ? R : S;
+type ResolveSchema<S> = S extends SchemaFactory<infer R> ? R : S;
 
 /**
  * The schema declared on the collection itself, if it has one. Declaring it is what counts,

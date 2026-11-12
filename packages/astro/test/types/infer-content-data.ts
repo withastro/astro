@@ -14,7 +14,7 @@ const withSchema = defineCollection({
 
 const withSchemaFactory = defineCollection({
 	loader: async () => [{ id: '1' }],
-	schema: (context: SchemaContext) => z.object({ filePath: z.literal(context.filePath) }),
+	schema: (_context: SchemaContext) => z.object({ fromFactory: z.literal(true) }),
 });
 
 const withLoaderSchema = defineCollection({
@@ -61,7 +61,7 @@ describe('InferData()', () => {
 
 	it('infers a collection from a schema factory', () => {
 		expectTypeOf<InferData<ContentConfig>['withSchemaFactory']>().toEqualTypeOf<{
-			filePath: string | undefined;
+			fromFactory: true;
 		}>();
 	});
 

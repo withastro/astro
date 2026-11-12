@@ -5,7 +5,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { IMAGE_IMPORT_PREFIX } from '../../../dist/content/consts.js';
-import { image } from '../../../dist/content/image.js';
+import { image, runWithContentImageContext } from '../../../dist/content/image.js';
 import { attachContentImageResolver } from '../../../dist/content/image-context.js';
 
 const coverFixture = fileURLToPath(new URL('../assets/600x400.jpg', import.meta.url));
@@ -28,21 +28,33 @@ describe('image() source resolution', () => {
 	});
 
 	it('resolves a sibling file and reads its dimensions', async () => {
-		const result = await image({ filePath: entryFilePath }, { src: 'cover.jpg' });
+		const result = await runWithContentImageContext({ filePath: entryFilePath }, () =>
+			image('cover.jpg'),
+		);
 		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}./cover.jpg`);
 		assert.equal(result.width, 600);
 		assert.equal(result.height, 400);
 	});
 
+	it('reads the active entry context when called without an explicit context', async () => {
+		const result = await runWithContentImageContext({ filePath: entryFilePath }, () =>
+			image('cover.jpg'),
+		);
+		assert.equal(result.width, 600);
+		assert.equal(result.height, 400);
+	});
+
 	it('keeps an explicit relative source unchanged', async () => {
-		const result = await image({ filePath: entryFilePath }, { src: './cover.jpg' });
+		const result = await runWithContentImageContext({ filePath: entryFilePath }, () =>
+			image('./cover.jpg'),
+		);
 		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}./cover.jpg`);
 		assert.equal(result.width, 600);
 	});
 
 	it('reports a missing relative source', async () => {
 		await assert.rejects(
-			() => image({ filePath: entryFilePath }, { src: './missing.jpg' }),
+			() => runWithContentImageContext({ filePath: entryFilePath }, () => image('./missing.jpg')),
 			/Could not find requested image/,
 		);
 	});
@@ -51,7 +63,9 @@ describe('image() source resolution', () => {
 		const context = attachContentImageResolver({ filePath: entryFilePath }, async () => {
 			throw new Error('the resolver must not run for a remote source');
 		});
-		const result = await image(context, { src: 'https://example.com/cover.jpg' });
+		const result = await runWithContentImageContext(context, () =>
+			image('https://example.com/cover.jpg'),
+		);
 		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}https://example.com/cover.jpg`);
 		assert.equal(result.width, undefined);
 	});
@@ -60,12 +74,14 @@ describe('image() source resolution', () => {
 		const context = attachContentImageResolver({ filePath: entryFilePath }, async (source) =>
 			source === '/cover.jpg' ? coverPath : undefined,
 		);
-		const result = await image(context, { src: '/cover.jpg' });
+		const result = await runWithContentImageContext(context, () => image('/cover.jpg'));
 		assert.equal(result.width, 600);
 	});
 
 	it('defers an unresolved source to read time when no resolver is installed', async () => {
-		const result = await image({ filePath: entryFilePath }, { src: 'not-a-file' });
+		const result = await runWithContentImageContext({ filePath: entryFilePath }, () =>
+			image('not-a-file'),
+		);
 		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}not-a-file`);
 		assert.equal(result.width, undefined);
 	});
@@ -77,7 +93,7 @@ describe('image() source resolution', () => {
 		const context = attachFromDuplicate({ filePath: entryFilePath }, async (source) =>
 			source === '@images/cover.jpg' ? coverPath : undefined,
 		);
-		const result = await image(context, { src: '@images/cover.jpg' });
+		const result = await runWithContentImageContext(context, () => image('@images/cover.jpg'));
 
 		assert.equal(result.width, 600);
 	});
@@ -85,21 +101,18 @@ describe('image() source resolution', () => {
 	it('reports an alias the resolver cannot resolve', async () => {
 		const context = attachContentImageResolver({ filePath: entryFilePath }, async () => undefined);
 		await assert.rejects(
-			() => image(context, { src: '@missing/x.jpg' }),
+			() => runWithContentImageContext(context, () => image('@missing/x.jpg')),
 			/Could not find requested image/,
 		);
 	});
 
 	it('defers to read time when the context has no file path', async () => {
-		const result = await image({}, { src: './cover.jpg' });
+		const result = await runWithContentImageContext({}, () => image('./cover.jpg'));
 		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}./cover.jpg`);
 		assert.equal(result.width, undefined);
 	});
 
 	it('rejects a call without the schema context', async () => {
-		await assert.rejects(
-			() => image(undefined as never, { src: './cover.jpg' }),
-			/must be called with the schema context/,
-		);
+		await assert.rejects(() => image('./cover.jpg'), /needs an active content entry context/);
 	});
 });

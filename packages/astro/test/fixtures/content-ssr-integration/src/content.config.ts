@@ -9,17 +9,16 @@ const blog = defineCollection({
 	// one built with `preventNodeBuiltinDependencyPlugin`, so routing a field through that
 	// Node-only module is what makes the build assert it never reaches the `astro:content`
 	// runtime bundle, which has to keep running on Cloudflare and Deno.
-	schema: (context) =>
-		z.object({
-			title: z.string(),
-			description: z.string(),
-			pubDate: z.coerce.date(),
-			updatedDate: z.coerce.date().optional(),
-			heroImage: z
-				.string()
-				.transform((src) => image(context, { src }))
-				.optional(),
-		}),
+	schema: z.object({
+		title: z.string(),
+		description: z.string(),
+		pubDate: z.coerce.date(),
+		updatedDate: z.coerce.date().optional(),
+		heroImage: z
+			.string()
+			.transform((src) => image(src))
+			.optional(),
+	}),
 });
 
 export const collections = { blog };

@@ -4,7 +4,9 @@ import type { ImageMetadata, OmitBrand } from '../assets/types.js';
 import { imageMetadata } from '../assets/utils/metadata.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { IMAGE_FIELD_MARKER, IMAGE_IMPORT_PREFIX } from './consts.js';
-import { getContentImageResolver } from './image-context.js';
+import { getContentImageContext, getContentImageResolver } from './image-context.js';
+
+export { getContentImageContext, runWithContentImageContext } from './image-context.js';
 
 /**
  * Config-time image helper, published as `astro/content/image`.
@@ -32,9 +34,6 @@ export type ContentImageField = {
 	[IMAGE_FIELD_MARKER]: true;
 } & OmitBrand<ImageMetadata>;
 
-/** The part of the schema context `image()` needs. */
-export type ImageContext = { filePath?: string };
-
 function throwImageNotFound(src: string): never {
 	throw new AstroError({
 		...AstroErrorData.ImageNotFound,
@@ -43,7 +42,10 @@ function throwImageNotFound(src: string): never {
 }
 
 function createImageMarker(src: string): ContentImageField {
-	const marker = { [IMAGE_FIELD_MARKER]: true, src: `${IMAGE_IMPORT_PREFIX}${src}` } as ContentImageField;
+	const marker = {
+		[IMAGE_FIELD_MARKER]: true,
+		src: `${IMAGE_IMPORT_PREFIX}${src}`,
+	} as ContentImageField;
 	Object.defineProperty(marker, 'fsPath', { value: '' });
 	return marker;
 }
@@ -70,22 +72,19 @@ async function probe(fsPath: string) {
 /**
  * Resolves an image source against the entry currently being parsed.
  *
- * Call it from inside a schema transform, so it composes with any validator and its result
- * can be validated further:
+ * Call it from inside a schema transform while Astro validates a content entry, so it
+ * composes with any validator and its result can be validated further:
  *
  * ```js
- * schema: (context) => z.object({
+ * schema: z.object({
  *   cover: z.string()
- *     .transform((src) => image(context, { src }))
+ *     .transform((src) => image(src))
  *     .refine((cover) => cover.width >= 1000, 'cover must be at least 1000px wide'),
  * })
  * ```
  */
-export async function image(
-	context: ImageContext,
-	options: { src: string },
-): Promise<ContentImageField> {
-	const rawSrc = options?.src;
+export async function image(rawSrc: string): Promise<ContentImageField> {
+	const context = getContentImageContext();
 	if (typeof rawSrc !== 'string') {
 		throwImageNotFound(String(rawSrc));
 	}
@@ -94,9 +93,8 @@ export async function image(
 		throw new AstroError({
 			...AstroErrorData.ImageNotFound,
 			title: 'Invalid `image()` usage.',
-			message:
-				'`image()` must be called with the schema context: `schema: (context) => z.object({ cover: z.string().transform((src) => image(context, { src })) })`.',
-			hint: 'Check that the first argument is the context passed to your `schema` function.',
+			message: '`image()` needs an active content entry context to resolve its source.',
+			hint: 'Call `image(src)` while Astro validates a content entry, or wrap your call with `runWithContentImageContext()`.',
 		});
 	}
 

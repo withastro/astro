@@ -1,8 +1,23 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import fsMod from 'node:fs';
 import path from 'node:path';
 import type { ViteDevServer } from 'vite';
 
 export type ImageSourceResolver = (source: string, importer: string) => Promise<string | undefined>;
+
+export type ContentImageContext = { filePath?: string };
+
+const imageContextStorageKey = Symbol.for('astro.content.image-context');
+const imageContextStorage = ((globalThis as any)[imageContextStorageKey] ??=
+	new AsyncLocalStorage()) as AsyncLocalStorage<ContentImageContext>;
+
+export function runWithContentImageContext<T>(context: ContentImageContext, callback: () => T): T {
+	return imageContextStorage.run(context, callback);
+}
+
+export function getContentImageContext(): ContentImageContext | undefined {
+	return imageContextStorage.getStore();
+}
 
 const contentImageResolverKey = '__astro_content_image_resolver__';
 

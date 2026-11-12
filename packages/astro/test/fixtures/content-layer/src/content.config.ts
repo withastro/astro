@@ -97,8 +97,7 @@ const spacecraft = defineCollection({
 // downstream of it to prove composition survives read-time resolution.
 const spacecraftComposed = defineCollection({
 	loader: glob({ pattern: '*.md', base: absoluteRoot }),
-	schema: (context) =>
-		z.object({
+	schema: z.object({
 			title: z.string(),
 			description: z.string(),
 			publishedDate: z.coerce.date(),
@@ -106,13 +105,13 @@ const spacecraftComposed = defineCollection({
 			heroImage: z
 				.string()
 				.optional()
-				.transform(async (src) => (src ? await image(context, { src }) : undefined))
+				.transform(async (src) => (src ? await image(src) : undefined))
 				.transform((img) =>
 					img && img.width && img.height
 						? { ...img, aspect: Math.round((img.width / img.height) * 1000) / 1000 }
 						: img,
 				),
-		}),
+	}),
 });
 
 // Same as spacecraft, but with retainBody: false

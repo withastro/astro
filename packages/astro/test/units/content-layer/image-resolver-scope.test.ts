@@ -42,10 +42,9 @@ function createLayer(load: (context: any) => Promise<void>, viteServer: any) {
 		store: new MutableDataStore(),
 		contentConfigObserver: createTestConfigObserver({
 			posts: defineCollection({
-				schema: (context) =>
-					z.object({
-						cover: z.string().transform((src) => image(context, { src })),
-					}),
+				schema: z.object({
+					cover: z.string().transform((src) => image(src)),
+				}),
 				loader: { name: 'test', load },
 			}),
 		}),

@@ -35,7 +35,11 @@ import {
 	LIVE_CONTENT_TYPE,
 } from './consts.js';
 import { image as resolveImageField } from './image.js';
-import { attachContentImageResolver, getContentImageResolver } from './image-context.js';
+import {
+	attachContentImageResolver,
+	getContentImageResolver,
+	runWithContentImageContext,
+} from './image-context.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
@@ -177,23 +181,30 @@ export async function getEntryData<
 	let data = entry.unvalidatedData as TOutputData;
 
 	let schema = collectionConfig.schema;
+	const imageResolver = getContentImageResolver(entry._internal);
+	let imageContext = attachContentImageResolver(
+		{ filePath: entry._internal.filePath },
+		imageResolver,
+	);
 
 	if (typeof schema === 'function') {
 		const { filePath } = entry._internal;
-		const imageResolver = getContentImageResolver(entry._internal);
 		if (pluginContext) {
 			const schemaContext = attachContentImageResolver(
 				{ filePath, image: createImage(pluginContext, shouldEmitFile, filePath) },
 				imageResolver,
 			);
+			imageContext = schemaContext;
 			schema = schema(schemaContext);
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
-			const imageContext = attachContentImageResolver({ filePath }, imageResolver);
+			const contentLayerImageContext = attachContentImageResolver({ filePath }, imageResolver);
 			const schemaContext = {
 				filePath,
-				image: () => z.string().transform((val) => resolveImageField(imageContext, { src: val })),
+				image: () =>
+					z.string().transform((val) => resolveImageField(contentLayerImageContext, { src: val })),
 			};
 			attachContentImageResolver(schemaContext, imageResolver);
+			imageContext = schemaContext;
 			schema = schema(schemaContext);
 		}
 	}
@@ -210,7 +221,9 @@ export async function getEntryData<
 			// `validate()` may return a promise, which is what allows async transforms. The
 			// error map keeps the wording Astro's schema errors use for Zod schemas.
 			patchZodStandardSchema(schema, errorMap);
-			result = await schema['~standard'].validate(data);
+			result = await runWithContentImageContext(imageContext, () =>
+				schema['~standard'].validate(data),
+			);
 		} catch (error) {
 			// `image()` cannot see the entry it is resolving for, so add the entry to its
 			// error here, where the collection and id are known.

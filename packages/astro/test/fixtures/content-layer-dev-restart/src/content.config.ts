@@ -5,13 +5,12 @@ import { z } from 'astro/zod';
 
 const blog = defineCollection({
 	loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
-	schema: (context) =>
-		z.object({
-			title: z.string(),
-			// Root-absolute so resolving it needs Vite, and therefore the dev server's
-			// plugin container during sync.
-			cover: z.string().transform((src) => image(context, { src })),
-		}),
+	schema: z.object({
+		title: z.string(),
+		// Root-absolute so resolving it needs Vite, and therefore the dev server's
+		// plugin container during sync.
+		cover: z.string().transform((src) => image(src)),
+	}),
 });
 
 // Lets tests simulate a loader failure during the sync that follows a restart.

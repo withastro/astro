@@ -23,6 +23,6 @@ const blog = defineCollection({
 export const collections = { blog };
 ```
 
-Existing Zod schemas keep working unchanged, including the `schema: (context) => ...` function form.
+Existing Zod schemas keep working, including the `schema: (context) => ...` function form. Astro deprecates schema factories in favor of static schemas.
 
 Data collections still get the `.schema.json` file that gives them autocompletion and validation in your editor, as long as the validator can also describe itself as [JSON Schema](https://standardschema.dev/json-schema). When it cannot, the file is skipped and Astro logs a warning naming the collection.
