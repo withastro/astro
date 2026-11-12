@@ -1,0 +1,57 @@
+{
+  "name": "@astrojs/preact-renderer",
+  "description": "The Preact renderer of Astro components, for `astro()` from `@astrojs/vite-plugin-astro`",
+  "version": "0.1.2",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/renderers/preact"
+  },
+  "keywords": [
+    "astro",
+    "withastro",
+    "renderer",
+    "preact"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "exports": {
+    ".": "./dist/index.js",
+    "./container-renderer": "./dist/container-renderer.js",
+    "./client.js": "./dist/client.js",
+    "./client-dev.js": "./dist/client-dev.js",
+    "./server.js": "./dist/server.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/runtime": "workspace:*",
+    "@preact/signals": "^2.11.4",
+    "preact-render-to-string": "^6.8.2"
+  },
+  "peerDependencies": {
+    "preact": "^10.6.5 || ^11.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/vite-plugin-astro": "workspace:*",
+    "@preact/preset-vite": "^2.10.6",
+    "astro-scripts": "workspace:*",
+    "preact": "^11.1.1",
+    "vite": "^8.3.5"
+  },
+  "publishConfig": {
+    "provenance": true
+  }
+}

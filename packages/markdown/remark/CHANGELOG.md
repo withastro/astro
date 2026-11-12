@@ -1,5 +1,18 @@
 # @astrojs/markdown-remark
 
+## 7.3.8
+
+### Patch Changes
+
+- [#18698](https://github.com/withastro/astro/pull/18698) [`d13beeb`](https://github.com/withastro/astro/commit/d13beeb66c753f03cbdbf4509cf2c527c816f1a4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes MDX `optimize` emptying `<style>` and `<script>` elements nested in static HTML from plugins, and turning SVG attributes like `marker-end` into `markerEnd` when `ignoreElementNames` is set
+
+## 7.3.7
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+
 ## 7.3.6
 
 ### Patch Changes

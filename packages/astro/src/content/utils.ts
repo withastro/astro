@@ -11,13 +11,15 @@ import * as z from 'zod/v4';
 import {
 	AstroError,
 	AstroErrorData,
-	errorMap,
+	MarkdownError,
+} from '@astrojs/runtime/_internal/core/errors/index.js';
+import { errorMap } from '@astrojs/vite-plugin-astro/_internal/core/errors/index.js';
+import { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
+import {
 	formatIssuePath,
 	formatSchemaIssues,
 	isStandardSchema,
-	MarkdownError,
-} from '../core/errors/index.js';
-import { isYAMLParseError } from '../core/errors/utils.js';
+} from '../core/errors/standard-schema.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';

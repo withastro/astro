@@ -5,8 +5,8 @@ import * as z from 'zod/v4';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
-import { recordContentEntryRender } from '../core/render-scope/record.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { recordContentEntryRender } from '@astrojs/runtime/_internal/core/render-scope/record.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { isRemotePath, prependForwardSlash } from '../core/path.js';
 import { patchZodStandardSchema } from '../preview-release/zod.js';
 import {

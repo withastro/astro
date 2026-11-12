@@ -80,6 +80,7 @@ export function createRequestFromNodeRequest(
 		getFirstForwardedValue(req.headers['x-forwarded-host']),
 		getFirstForwardedValue(req.headers['x-forwarded-port']),
 		allowedDomains,
+		{ protocol, host: untrustedHostname },
 	);
 	const validatedHostname = validateHost(
 		untrustedHostname,
@@ -151,6 +152,10 @@ export function createRequest(
 		getFirstForwardedValue(req.headers['x-forwarded-host']),
 		getFirstForwardedValue(req.headers['x-forwarded-port']),
 		allowedDomains,
+		{
+			protocol: providedProtocol,
+			host: typeof untrustedHostname === 'string' ? untrustedHostname : undefined,
+		},
 	);
 
 	const protocol = validated.protocol ?? providedProtocol;
@@ -304,6 +309,8 @@ export async function writeResponse(source: Response, destination: ServerRespons
 			// an error in the ReadableStream's cancel callback, but
 			// also because of an error anywhere in the stream.
 			reader.cancel().catch((err) => {
+				// The page renderer has already logged its own errors through the configured logger.
+				if (err?.[Symbol.for('astro.streamErrorLogged')]) return;
 				console.error(
 					'There was an uncaught error in the middle of the stream while rendering %s.',
 					destination.req.url,

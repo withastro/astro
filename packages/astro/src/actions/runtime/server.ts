@@ -11,8 +11,8 @@ import {
 	ActionNotFoundError,
 	ActionsInvalidInputSchemaError,
 	ActionsReturnedInvalidDataError,
-} from '../../core/errors/errors-data.js';
-import { AstroError } from '../../core/errors/errors.js';
+} from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { isStandardSchema } from '../../core/errors/standard-schema.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { patchZodStandardSchema } from '../../preview-release/zod.js';

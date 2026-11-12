@@ -2,7 +2,7 @@ import fsMod from 'node:fs';
 import path from 'node:path';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
 import { imageMetadata } from '../assets/utils/metadata.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { IMAGE_FIELD_MARKER, IMAGE_IMPORT_PREFIX } from './consts.js';
 import { getContentImageResolver } from './image-context.js';
 

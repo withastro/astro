@@ -89,6 +89,8 @@ export default {
 				'rehype-slug',
 				'rehype-toc',
 				'remark-code-titles',
+				// Imported by fixture source in test/units/vite-plugin-environment/astro-scan.test.ts
+				'clsx',
 				'@types/http-cache-semantics',
 				// Resolved from the user's project by `astro add cloudflare`.
 				'@astrojs/cloudflare',
@@ -103,6 +105,10 @@ export default {
 			ignoreUnresolved: ['#prism-loadLanguages'],
 		},
 		'packages/integrations/*': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			project,
+		},
+		'packages/renderers/*': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
 		},

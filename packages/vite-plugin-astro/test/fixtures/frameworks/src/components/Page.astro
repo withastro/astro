@@ -1,0 +1,25 @@
+---
+import PreactCounter from './preact/Counter.jsx';
+import ReactCounter from './react/Counter.jsx';
+import SolidCounter from './solid/Counter.jsx';
+import SvelteCounter from './svelte/Counter.svelte';
+import VueCounter from './vue/Counter.vue';
+---
+<html lang="en">
+	<head>
+		<title>Frameworks</title>
+	</head>
+	<body>
+		<ReactCounter client:load id="react" />
+		<PreactCounter client:load id="preact" />
+		<SolidCounter client:load id="solid" />
+		<SvelteCounter client:load id="svelte" />
+		<VueCounter client:load id="vue" />
+	</body>
+</html>
+<script>
+	// TypeScript, which the JSX refresh filters of the framework plugins must not hand to OXC as
+	// JavaScript.
+	const message: string = 'frameworks script';
+	console.log(message);
+</script>

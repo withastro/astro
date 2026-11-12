@@ -12,8 +12,8 @@ import {
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import * as z from 'zod/v4';
 import type { JSONSchemaCapableSchema } from './config.js';
-import { AstroError } from '../core/errors/errors.js';
-import { AstroErrorData } from '../core/errors/index.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
+import { AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
