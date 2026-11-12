@@ -1,3 +1,4 @@
+import type { StylesheetAsset } from '@astrojs/vite-plugin-astro';
 import type { ActionClient } from '../../actions/runtime/types.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
@@ -25,9 +26,7 @@ import type { BaseApp } from './base.js';
 
 type ComponentPath = string;
 
-export type StylesheetAsset =
-	| { type: 'inline'; content: string; viteDevId?: string }
-	| { type: 'external'; src: string };
+export type { StylesheetAsset };
 
 type ScriptAsset =
 	| { children: string; stage: string }
@@ -206,6 +205,8 @@ export type SSRManifestCSP = {
 	};
 	/** Static speculation rules JSON to inject in the head when CSP + clientPrerender are both enabled. */
 	speculationRulesContent?: string;
+	/** Import map JSON whose `integrity` map covers every client script, injected in the head when `strictDynamic` is enabled. */
+	importMapContent?: string;
 };
 
 export interface SSRManifestSession extends BaseSessionConfig {

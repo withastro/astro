@@ -704,7 +704,8 @@ export interface AstroUserConfig<
 		 *
 		 * This prevents host header injection attacks where malicious actors can manipulate the `Astro.url` value by sending crafted `X-Forwarded-Host` headers.
 		 *
-		 * Each pattern can specify `protocol`, `hostname`, and `port`. All three are validated if provided.
+		 * Each pattern can specify `protocol`, `hostname`, and `port`. All three are validated together if provided. A pattern without a `protocol` allows `http` and `https`.
+		 * A pattern without a `port` allows any port in the host, but `X-Forwarded-Port` is only trusted when it matches a pattern's `port`.
 		 * The patterns support wildcards for flexible hostname matching:
 		 *
 		 * - `*.example.com` - matches exactly one subdomain level (e.g., `sub.example.com` but not `deep.sub.example.com`)
@@ -1291,6 +1292,8 @@ export interface AstroUserConfig<
 						 * ```
 						 *
 						 * This applies to `script-src`. When you also scope `script` resources or hashes to `script-src-elem` (using `kind: "element"`), `strict-dynamic` is inherited by `script-src-elem` so that dynamically injected `<script>` elements continue to work.
+						 *
+						 * Because browsers ignore `'self'` under `'strict-dynamic'`, Astro adds the hash of every script it bundles to `script-src` and renders a `<script type="importmap">` in the `<head>` that lists each script's [`integrity`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap#integrity_metadata_map). This lets bundled scripts, the modules they import, and hydrated islands load. It requires browsers that support import map integrity metadata (Chrome 127, Firefox 138, Safari 18).
 						 */
 						strictDynamic?: boolean;
 					};

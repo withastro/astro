@@ -1,5 +1,17 @@
 # astro-vscode
 
+## 2.17.4
+
+### Patch Changes
+
+- [#18692](https://github.com/withastro/astro/pull/18692) [`ad77e9e`](https://github.com/withastro/astro/commit/ad77e9e085c3caf67089feb3d9ee0f4794e56fdb) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Republishes the extension to the VS Code Marketplace and Open VSX, which were missed in the previous release
+
+## 2.17.3
+
+### Patch Changes
+
+- [#18649](https://github.com/withastro/astro/pull/18649) [`39ede5f`](https://github.com/withastro/astro/commit/39ede5f061297fdda7af945aa8e576f625ab5152) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Publishes the Astro VS Code extension with the fix for `source.organizeImports` only organizing imports in one region of `.astro` files that have both frontmatter and `<script>` tags
+
 ## 2.17.2
 
 ### Patch Changes

@@ -1,5 +1,33 @@
 # @astrojs/react
 
+## 7.1.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/react-renderer@0.1.2
+
+## 7.1.7
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/react-renderer@0.1.1
+
+## 7.1.6
+
+### Patch Changes
+
+- Updated dependencies [[`ff1cf65`](https://github.com/withastro/astro/commit/ff1cf65c7a9d7f7603d371e08bda8dbc4cf106bf)]:
+  - @astrojs/react-renderer@0.1.0
+
+## 7.1.5
+
+### Patch Changes
+
+- [#18664](https://github.com/withastro/astro/pull/18664) [`1713dc0`](https://github.com/withastro/astro/commit/1713dc0f88435cd2f8b78624b73cd8bb5154045f) Thanks [@ocavue](https://github.com/ocavue)! - Expands the peer dependency version range for `oxc-transform-react` from `^0.145.0` to `>=0.145.0 <0.157.0`.
+
 ## 7.1.4
 
 ### Patch Changes

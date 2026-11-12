@@ -1,0 +1,63 @@
+{
+  "name": "@astrojs/react-renderer",
+  "description": "The React renderer of Astro components, for `astro()` from `@astrojs/vite-plugin-astro`",
+  "version": "0.1.2",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/renderers/react"
+  },
+  "keywords": [
+    "astro",
+    "withastro",
+    "renderer",
+    "react"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "exports": {
+    ".": "./dist/index.js",
+    "./container-renderer": "./dist/container-renderer.js",
+    "./client.js": "./dist/client.js",
+    "./client-v17.js": "./dist/client-v17.js",
+    "./server.js": "./dist/server.js",
+    "./server-v17.js": "./dist/server-v17.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/runtime": "workspace:*",
+    "@vitejs/plugin-react": "^6.1.2",
+    "ultrahtml": "^1.7.0"
+  },
+  "peerDependencies": {
+    "@types/react": "^17.0.50 || ^18.0.21 || ^19.0.0",
+    "@types/react-dom": "^17.0.17 || ^18.0.6 || ^19.0.0",
+    "react": "^17.0.2 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^17.0.2 || ^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/vite-plugin-astro": "workspace:*",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "astro-scripts": "workspace:*",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "vite": "^8.3.5"
+  },
+  "publishConfig": {
+    "provenance": true
+  }
+}

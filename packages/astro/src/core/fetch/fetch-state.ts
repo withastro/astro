@@ -21,8 +21,8 @@ import {
 } from '../constants.js';
 import type { CspKind } from '../csp/config.js';
 import { normalizeCspResourceEntry, pushDirective } from '../csp/runtime.js';
-import { generateCspDigest } from '../encryption.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import {
 	computeCurrentLocale as computeCurrentLocaleUtil,
 	computeCurrentLocaleFromParams,
@@ -506,6 +506,7 @@ export class FetchState implements AstroFetchState {
 			params: this.params!,
 			partial,
 			pathname: this.pathname,
+			logger: env.logsStreamErrors ? astroToRuntimeLogger(this.logger) : undefined,
 			renderers,
 			resolve,
 			response,
@@ -559,6 +560,7 @@ export class FetchState implements AstroFetchState {
 				hashes: manifest.csp?.styleDirective ? [...manifest.csp.styleDirective.hashes] : [],
 			},
 			speculationRulesContent: manifest.csp?.speculationRulesContent,
+			importMapContent: manifest.csp?.importMapContent,
 			internalFetchHeaders: manifest.internalFetchHeaders,
 		};
 
@@ -1125,6 +1127,7 @@ export class FetchState implements AstroFetchState {
 			getFirstForwardedValue(headers.get('x-forwarded-host') ?? undefined),
 			getFirstForwardedValue(headers.get('x-forwarded-port') ?? undefined),
 			allowedDomains,
+			{ protocol: this.url.protocol.slice(0, -1), host: this.url.host },
 		);
 
 		// Nothing validated — nothing to apply.
@@ -1134,16 +1137,12 @@ export class FetchState implements AstroFetchState {
 			this.url.protocol = validated.protocol + ':';
 		}
 		if (validated.host) {
-			// The validated host may include a port (e.g. "example.com:8080").
-			const colonIdx = validated.host.indexOf(':');
-			if (colonIdx !== -1) {
-				this.url.hostname = validated.host.slice(0, colonIdx);
-				this.url.port = validated.host.slice(colonIdx + 1);
-			} else {
-				this.url.hostname = validated.host;
-				// Clear port so default port for the protocol is used.
-				this.url.port = '';
-			}
+			// The validated host may include a port (e.g. "example.com:8080"). Parse it with the URL
+			// parser rather than splitting the string, so the hostname and port applied here are the
+			// ones that were validated. Without a port, the default port for the protocol is used.
+			const forwardedUrl = new URL(`${this.url.protocol}//${validated.host}`);
+			this.url.hostname = forwardedUrl.hostname;
+			this.url.port = forwardedUrl.port;
 		}
 		if (validated.port) {
 			this.url.port = validated.port;

@@ -3,6 +3,21 @@ import type { AuditRuleWithSelector } from './index.js';
 // A regular expression to match external URLs
 const EXTERNAL_URL_REGEX = /^(?:[a-z+]+:)?\/\//i;
 
+/**
+ * Reads the image's size from the request that loaded it, falling back to fetching it again.
+ * Fetching it again freezes an animated SVG's CSS animations in WebKit, so it's a last resort.
+ */
+async function getImageSize(image: HTMLImageElement): Promise<number> {
+	if (image.complete && image.currentSrc) {
+		const entries = performance.getEntriesByName(image.currentSrc, 'resource');
+		const size = (entries.at(-1) as PerformanceResourceTiming | undefined)?.decodedBodySize;
+		if (size) return size;
+	}
+
+	const imageData = await fetch(image.currentSrc || image.src).then((response) => response.blob());
+	return imageData.size;
+}
+
 export const perf: AuditRuleWithSelector[] = [
 	{
 		code: 'perf-use-image-component',
@@ -23,8 +38,7 @@ export const perf: AuditRuleWithSelector[] = [
 			// Ignore images that are smaller than 20KB, most of the time the image component won't really help with these, or they're used for specific use-cases (pixel tracking, etc.)
 			// Ignore this test for remote images for now, fetching them can be very slow and possibly dangerous
 			if (!EXTERNAL_URL_REGEX.test(src)) {
-				const imageData = await fetch(src).then((response) => response.blob());
-				if (imageData.size < 20480) return false;
+				if ((await getImageSize(element as HTMLImageElement)) < 20480) return false;
 			}
 
 			return true;
@@ -94,8 +108,7 @@ export const perf: AuditRuleWithSelector[] = [
 
 			// Ignore GIFs that are smaller than 100KB, those are typically small enough to not be a problem
 			if (!EXTERNAL_URL_REGEX.test(src)) {
-				const imageData = await fetch(src).then((response) => response.blob());
-				if (imageData.size < 102400) return false;
+				if ((await getImageSize(element as HTMLImageElement)) < 102400) return false;
 			}
 
 			return true;

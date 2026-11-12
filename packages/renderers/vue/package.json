@@ -1,0 +1,53 @@
+{
+  "name": "@astrojs/vue-renderer",
+  "description": "The Vue renderer of Astro components, for `astro()` from `@astrojs/vite-plugin-astro`",
+  "version": "0.1.1",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/renderers/vue"
+  },
+  "keywords": [
+    "astro",
+    "withastro",
+    "renderer",
+    "vue"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "exports": {
+    ".": "./dist/index.js",
+    "./container-renderer": "./dist/container-renderer.js",
+    "./client.js": "./dist/client.js",
+    "./server.js": "./dist/server.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@astrojs/runtime": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.24"
+  },
+  "devDependencies": {
+    "@astrojs/vite-plugin-astro": "workspace:*",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "astro-scripts": "workspace:*",
+    "vite": "^8.3.5",
+    "vue": "^3.5.44"
+  },
+  "publishConfig": {
+    "provenance": true
+  }
+}

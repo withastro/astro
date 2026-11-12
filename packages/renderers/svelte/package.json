@@ -1,0 +1,54 @@
+{
+  "name": "@astrojs/svelte-renderer",
+  "description": "The Svelte renderer of Astro components, for `astro()` from `@astrojs/vite-plugin-astro`",
+  "version": "0.1.1",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/renderers/svelte"
+  },
+  "keywords": [
+    "astro",
+    "withastro",
+    "renderer",
+    "svelte"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "exports": {
+    ".": "./dist/index.js",
+    "./container-renderer": "./dist/container-renderer.js",
+    "./client.js": "./dist/client.svelte.js",
+    "./server.js": "./dist/server.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@astrojs/runtime": "workspace:*",
+    "vitefu": "^1.1.3"
+  },
+  "peerDependencies": {
+    "svelte": "^5.43.6"
+  },
+  "devDependencies": {
+    "@astrojs/vite-plugin-astro": "workspace:*",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "astro-scripts": "workspace:*",
+    "svelte": "^5.57.3",
+    "vite": "^8.3.5"
+  },
+  "publishConfig": {
+    "provenance": true
+  }
+}
