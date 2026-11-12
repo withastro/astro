@@ -18,7 +18,7 @@ describe('collect images', async () => {
 			visit(tree, 'element', (node) => {
 				if (node.tagName === 'img') {
 					node.properties.className = ['image-class'];
-					node.properties.htmlFor = 'some-id';
+					node.properties.htmlFor = ['some-id'];
 				}
 			});
 		};

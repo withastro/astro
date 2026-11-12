@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+	return [
+		{ params: { slug: 'post-1' }, props: { title: 'Post 1' }, cacheKey: 'v1' },
+		{ params: { slug: 'post-2' }, props: { title: 'Post 2' }, cacheKey: 'v1' },
+		{ params: { slug: 'post-3' }, props: { title: 'Post 3' }, cacheKey: 'v1' },
+	];
+}
+
+const { title } = Astro.props;
+---
+<Layout title={title}>
+	<h1>{title}</h1>
+	<p>Slug: {Astro.params.slug}</p>
+</Layout>

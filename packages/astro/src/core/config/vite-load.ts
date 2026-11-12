@@ -38,7 +38,7 @@ export async function loadConfigWithVite({
 	let server: ViteDevServer | undefined;
 	try {
 		const plugins = loadFallbackPlugin({ fs, root: pathToFileURL(root) });
-		server = await createMinimalViteDevServer(plugins);
+		server = await createMinimalViteDevServer(plugins, root);
 		if (isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
 			const environment = server.environments[
 				ASTRO_VITE_ENVIRONMENT_NAMES.ssr

@@ -55,12 +55,23 @@ describe('behavior from middleware, middleware with express', () => {
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
+			outDir: './dist/middleware-express',
 			adapter: nodejs({ mode: 'middleware' }),
 		});
 		await fixture.build();
 		const { handler } = await fixture.loadAdapterEntryModule();
 		const app = express();
+		app.use(
+			express.static(
+				fileURLToPath(
+					new URL('./fixtures/node-middleware/dist/middleware-express/client', import.meta.url),
+				),
+			),
+		);
 		app.use(handler);
+		app.use((_request, response) => {
+			response.status(404).send('CUSTOM_404');
+		});
 		server = app.listen(8889);
 	});
 
@@ -125,6 +136,15 @@ describe('behavior from middleware, middleware with express', () => {
 
 		body = $('body');
 		assert.equal(body.text().includes('bar'), true);
+	});
+
+	it('should fall through a prerendered dynamic route to an SSR fallback', async () => {
+		const res = await fetch('http://localhost:8889/articles/unknown', {
+			redirect: 'manual',
+		});
+
+		assert.equal(res.status, 302);
+		assert.equal(res.headers.get('location'), '/articles/known-article');
 	});
 });
 

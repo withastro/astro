@@ -142,6 +142,8 @@ export default function configAliasVitePlugin({
 
 					const replaceAliases = (match: string, importId: string) => {
 						if (!importId) return match;
+						// Skip data URIs — they are inline content, not file paths.
+						if (importId.startsWith('data:')) return match;
 
 						const resolved = resolveWithAlias(importId, configAlias);
 						if (resolved) {

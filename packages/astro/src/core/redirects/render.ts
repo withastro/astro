@@ -1,9 +1,10 @@
 import type { Params } from '../../types/public/common.js';
 import type { RedirectConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
-import { PipelineFeatures } from '../base-pipeline.js';
+import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { getRouteGenerator } from '../routing/generator.js';
+import { rejectInvalidEncoding } from '../routing/invalid-encoding.js';
 
 function isExternalURL(url: string): boolean {
 	return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//');
@@ -58,7 +59,10 @@ export function resolveRedirectTarget(
 			let target = redirect;
 			for (const param of Object.keys(params)) {
 				const paramValue = params[param]!;
-				target = target.replace(`[${param}]`, paramValue).replace(`[...${param}]`, paramValue);
+				// Pass a replacer so `$`-prefixed sequences in the param value are inserted literally (#18010)
+				target = target
+					.replace(`[${param}]`, () => paramValue)
+					.replace(`[...${param}]`, () => paramValue);
 			}
 			return target;
 		}
@@ -69,18 +73,13 @@ export function resolveRedirectTarget(
 }
 
 export async function renderRedirect(state: FetchState) {
-	state.pipeline.usedFeatures |= PipelineFeatures.redirects;
+	markFeatureUsed(state.manifest, FetchFeatures.redirects);
 	const routeData = state.routeData!;
 	const { redirect, redirectRoute } = routeData;
 	const status = computeRedirectStatus(state.request.method, redirect, redirectRoute);
 	const headers = {
 		location: encodeURI(
-			resolveRedirectTarget(
-				state.params!,
-				redirect,
-				redirectRoute,
-				state.pipeline.manifest.trailingSlash,
-			),
+			resolveRedirectTarget(state.params!, redirect, redirectRoute, state.manifest.trailingSlash),
 		),
 	};
 	if (redirect && redirectIsExternal(redirect)) {
@@ -91,4 +90,20 @@ export async function renderRedirect(state: FetchState) {
 		}
 	}
 	return new Response(null, { status, headers });
+}
+
+/**
+ * Renders the redirect `Response` when the matched route is a redirect, or
+ * returns `undefined` so the caller continues processing. Returns an empty
+ * `400` when the request path is over-encoded.
+ */
+export function handleRedirects(state: FetchState): Promise<Response> | undefined {
+	const invalidEncodingResponse = rejectInvalidEncoding(state);
+	if (invalidEncodingResponse) {
+		return Promise.resolve(invalidEncodingResponse);
+	}
+	if (state.routeData?.type === 'redirect') {
+		return renderRedirect(state);
+	}
+	return undefined;
 }

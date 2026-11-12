@@ -53,7 +53,7 @@ export default function testAdapter({
 									handler() {
 										return {
 											code: `
-											import { App, AppPipeline } from 'astro/app';
+											import { App } from 'astro/app';
 											import fs from 'fs';
 
 											${
@@ -73,13 +73,6 @@ export default function testAdapter({
 												constructor(manifest, streaming) {
 													super(manifest, streaming);
 													this.#manifest = manifest;
-												}
-
-												createPipeline(streaming) {
-													return AppPipeline.create({
-														manifest: this.manifest,
-														streaming
-													})
 												}
 
 												async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch } = {}) {
@@ -187,7 +180,7 @@ export function selfTestAdapter({
 									handler() {
 										return {
 											code: `
-											import { App, AppPipeline } from 'astro/app';
+											import { App } from 'astro/app';
 											import {manifest} from "virtual:astro:manifest"
 											import fs from 'fs';
 
@@ -208,13 +201,6 @@ export function selfTestAdapter({
 												constructor(manifest, streaming) {
 													super(manifest, streaming);
 													this.#manifest = manifest;
-												}
-
-												createPipeline(streaming) {
-													return AppPipeline.create({
-														manifest: this.manifest,
-														streaming
-													})
 												}
 
 												async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch } = {}) {

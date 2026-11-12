@@ -3,6 +3,14 @@ import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig, AstroInlineConfig } from '../../types/public/index.js';
 import { arraify, isObject, isURL } from '../util-runtime.js';
 
+function isImageServiceTargets(service: unknown): boolean {
+	return isObject(service) && ('build' in service || 'runtime' in service);
+}
+
+function hasDefinedValues(value: Record<string, unknown>): boolean {
+	return Object.values(value).some((v) => v !== undefined);
+}
+
 function mergeConfigRecursively(
 	defaults: Record<string, any>,
 	overrides: Record<string, any>,
@@ -26,6 +34,17 @@ function mergeConfigRecursively(
 		if (key === 'vite' && rootPath === '') {
 			merged[key] = mergeViteConfig(existing, value);
 			continue;
+		}
+		// Merging a single service with `{ build, runtime }` would mix the shapes.
+		if (key === 'service' && rootPath === 'image') {
+			// An override like `{ entrypoint: undefined }` sets nothing, so it shouldn't replace the existing service.
+			if (isObject(value) && !hasDefinedValues(value)) {
+				continue;
+			}
+			if (isImageServiceTargets(existing) !== isImageServiceTargets(value)) {
+				merged[key] = value;
+				continue;
+			}
 		}
 		if (key === 'server' && rootPath === '') {
 			// server config can be a function or an object, if one of the two values is a function,

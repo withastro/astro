@@ -6,10 +6,11 @@ import {
 	createComponent,
 	maybeRenderHead,
 	render,
+	renderComponent,
 	renderHead,
 } from '../../../dist/runtime/server/index.js';
 import type { SSRManifestCSP } from '../../../dist/types/public/internal.js';
-import type { Pipeline } from '../../../dist/core/render/index.js';
+import type { TestPipeline } from '../test-utils.ts';
 import type { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createBasicPipeline, renderThroughMiddleware, SpyLogger } from '../test-utils.ts';
 
@@ -36,10 +37,10 @@ type CspTestConfig = {
 	styleElemHashes?: string[];
 	styleAttrResources?: string[];
 	styleAttrHashes?: string[];
+	streaming?: boolean;
 };
 
-function createCspPipeline(config: CspTestConfig = {}, logger?: AstroLogger): Pipeline {
-	const pipeline = createBasicPipeline(logger ? { logger } : undefined);
+function createCspPipeline(config: CspTestConfig = {}, logger?: AstroLogger): TestPipeline {
 	const resources = (defaults?: string[], element?: string[], attribute?: string[]) => [
 		...(defaults ?? []),
 		...(element ?? []).map((resource) => ({ resource, kind: 'element' as const })),
@@ -50,10 +51,13 @@ function createCspPipeline(config: CspTestConfig = {}, logger?: AstroLogger): Pi
 		...(element ?? []).map((hash) => ({ hash, kind: 'element' as const })),
 		...(attribute ?? []).map((hash) => ({ hash, kind: 'attribute' as const })),
 	];
-	// manifest is readonly, so we use Object.defineProperty to override it for testing
-	Object.defineProperty(pipeline, 'manifest', {
-		value: {
-			...pipeline.manifest,
+	// The CSP config is passed as manifest overrides at construction (rather
+	// than replacing `pipeline.manifest` afterwards) so the manifest object
+	// the pipeline delegates to is the one carrying the CSP settings.
+	return createBasicPipeline({
+		...(logger ? { logger } : {}),
+		...(config.streaming !== undefined ? { streaming: config.streaming } : {}),
+		manifest: {
 			shouldInjectCspMetaTags: true,
 			csp: {
 				cspDestination: config.cspDestination,
@@ -77,11 +81,8 @@ function createCspPipeline(config: CspTestConfig = {}, logger?: AstroLogger): Pi
 					hashes: hashes(config.styleHashes, config.styleElemHashes, config.styleAttrHashes),
 				},
 			},
-		},
-		writable: false,
-		configurable: true,
+		} as any,
 	});
-	return pipeline;
 }
 
 /** Parse a CSP string into a map of directive name -> source tokens. */
@@ -98,7 +99,7 @@ function parseCsp(content: string): Map<string, string[]> {
 
 async function renderPage(
 	PageComponent: ReturnType<typeof createComponent>,
-	pipeline: Pipeline,
+	pipeline: TestPipeline,
 	prerender = true,
 ): Promise<{ html: string; response: Response }> {
 	const PageModule = { default: PageComponent };
@@ -118,7 +119,7 @@ async function renderPage(
 		origin: 'project' as const,
 	};
 
-	const state = new FetchState(pipeline, request);
+	const state = new FetchState(pipeline.manifest, request);
 	state.routeData = routeData as any;
 	state.pathname = '/index';
 	state.clientAddress = '127.0.0.1';
@@ -160,6 +161,40 @@ describe('CSP Rendering', () => {
 			assert.ok(content.includes('sha256-abc123'), 'Should include first style hash');
 			assert.ok(content.includes('sha256-def456'), 'Should include second style hash');
 			assert.ok(content.includes('style-src'), 'Should have style-src directive');
+		});
+
+		it('does not hash empty children on external stylesheets and scripts', async () => {
+			const pipeline = createCspPipeline();
+			const { setEnvironment } = await import('../../../dist/core/environment/index.js');
+			const { productionEnvironment } = await import(
+				'../../../dist/core/environment/production.js'
+			);
+			setEnvironment(pipeline.manifest, {
+				...productionEnvironment,
+				name: 'test',
+				runtimeMode: 'development',
+				defaultStreaming: () => true,
+				resolve: (_manifest: unknown, specifier: string) => Promise.resolve(specifier),
+				headElements: () => ({
+					scripts: new Set([{ props: { type: 'module', src: '/hoisted.js' }, children: '' }]),
+					styles: new Set([{ props: { rel: 'stylesheet', href: '/index.css' }, children: '' }]),
+					links: new Set(),
+				}),
+				componentMetadata: () => {},
+				getRenderers: () => [],
+				tryRewrite: () => {
+					throw new Error('tryRewrite is not implemented in the test environment');
+				},
+				getComponentByRoute: () => {
+					throw new Error('getComponentByRoute is not implemented in the test environment');
+				},
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const $ = cheerio.load(html);
+			const content = $('meta[http-equiv="Content-Security-Policy"]').attr('content') ?? '';
+			// SHA-256 of the empty string. External link/script entries must not contribute it.
+			assert.equal(content.includes('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), false);
 		});
 
 		// Note: Inline style hashing requires the full build pipeline
@@ -352,6 +387,30 @@ describe('CSP Rendering', () => {
 				content.includes("img-src 'self' https://images.cdn.example.com"),
 				'Should merge img-src directives',
 			);
+		});
+
+		it('includes hashes inserted by components rendered after the head in non-streaming renders', async () => {
+			const pipeline = createCspPipeline({ streaming: false });
+
+			const BodyComponent = createComponent((result: any) => {
+				const Astro = result.createAstro({}, {});
+				Astro.csp.insertScriptHash('sha256-bodyComponentHash');
+				return render`<script>console.log('body');</script>`;
+			});
+
+			const Page = createComponent((result: any) => {
+				return render`<html>
+				<head>${renderHead()}</head>
+				<body>${maybeRenderHead()}${renderComponent(result, 'BodyComponent', BodyComponent, {})}</body>
+			</html>`;
+			});
+
+			const { html } = await renderPage(Page, pipeline);
+			const $ = cheerio.load(html);
+			const content = $('meta[http-equiv="Content-Security-Policy"]').attr('content')!;
+
+			assert.ok(content.includes('sha256-bodyComponentHash'));
+			assert.equal(html.includes('astro-csp-meta'), false);
 		});
 
 		it('should allow injecting custom style resources and hashes via Astro.csp', async () => {

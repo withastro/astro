@@ -1,8 +1,9 @@
 import assert from 'node:assert';
 import * as path from 'node:path';
 import { before, describe, it } from 'node:test';
-import type { FullDocumentDiagnosticReport } from '@volar/language-server';
-import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-server';
+// Imported from the node entry so the types line up with the `@volar/test-utils` handle
+import type { FullDocumentDiagnosticReport } from '@volar/language-server/node.js';
+import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-server/node.js';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
 import { fixtureDir } from '../test-utils.ts';
 
@@ -10,6 +11,22 @@ describe('TypeScript - Diagnostics', async () => {
 	let languageServer: LanguageServer;
 
 	before(async () => (languageServer = await getLanguageServer()));
+
+	it('still type-checks a file whose markup has a syntax error', async () => {
+		// A tag left unclosed mid-typing must not blank out every TS error.
+		const document = await languageServer.openFakeDocument(
+			'---\nNotAThing\n---\n<div><Foo',
+			'astro',
+		);
+		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
+			document.uri,
+		)) as FullDocumentDiagnosticReport;
+
+		assert.ok(
+			diagnostics.items.some((item) => item.source === 'ts' && item.code === 2304),
+			`expected the frontmatter error to survive:\n${JSON.stringify(diagnostics.items, null, 1)}`,
+		);
+	});
 
 	it('Can get diagnostics in the frontmatter', async () => {
 		const document = await languageServer.openFakeDocument('---\nNotAThing\n---', 'astro');

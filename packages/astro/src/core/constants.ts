@@ -26,6 +26,16 @@ export const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308, 300, 304] as cons
 export const REROUTABLE_STATUS_CODES = [404, 500];
 
 /**
+ * Pages Astro serves for an HTTP status rather than for their own URL.
+ *
+ * They are always written as `<name>.html`, never as `<name>/index.html`,
+ * whatever `build.format` says, because a host reaches them by status code and
+ * needs them at a predictable file path. Being status pages rather than site
+ * content, they are also skipped by i18n routing.
+ */
+export const STATUS_CODE_PAGES = new Set(['/404', '/500', '/3xx']);
+
+/**
  * The symbol which is used as a field on the request object to store the client address.
  * The clientAddress provided by the adapter (or the dev server) is stored on this field.
  */
@@ -43,11 +53,6 @@ export const clientLocalsSymbol = Symbol.for('astro.locals');
 export const originPathnameSymbol = Symbol.for('astro.originPathname');
 
 /**
- * Use this symbol to set and retrieve the pipeline.
- */
-export const pipelineSymbol = Symbol.for('astro.pipeline');
-
-/**
  * Use this symbol to stash the active `FetchState` on an `APIContext`
  * (or `ActionAPIContext`). Consumed by internal shims that need access
  * to per-request state without appearing in the public context shape
@@ -57,17 +62,15 @@ export const pipelineSymbol = Symbol.for('astro.pipeline');
 export const fetchStateSymbol = Symbol.for('astro.fetchState');
 
 /**
- * Use this symbol to stash the `BaseApp` on an incoming `Request` at the
- * top of the pipeline. Fetch handlers loaded from `virtual:astro:fetchable`
- * (including `DefaultFetchHandler`) read it to find the app associated
- * with the current request without needing App passed to their constructor.
- */
-export const appSymbol = Symbol.for('astro.app');
-
-/**
  * Use this symbol to opt into handling prerender routes in Astro core dev middleware.
  */
 export const devPrerenderMiddlewareSymbol = Symbol.for('astro.devPrerenderMiddleware');
+
+/**
+ * A promise for background dev server app setup that must settle before Vite's
+ * runnable environments are closed.
+ */
+export const devServerAppReadySymbol = Symbol.for('astro.devServerAppReady');
 
 /**
  * The symbol used as a field on the request object to store a cleanup callback associated with aborting the request when the underlying socket closes.

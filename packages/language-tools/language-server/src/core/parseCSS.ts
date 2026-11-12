@@ -1,8 +1,6 @@
-import type { TSXExtractedStyle } from '@astrojs/compiler/types';
+import { ExtractedStyleType, type ExtractedStyle } from '@astrojs/astro2tsx';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
-import type { Segment } from 'muggle-string';
-import { toString } from 'muggle-string';
-import { buildMappings } from '../buildMappings.js';
+import { buildMappings, getText, type CodeSegment } from '../buildMappings.js';
 
 const SUPPORTED_LANGUAGES = ['css', 'scss', 'less'] as const;
 type SupportedLanguages = (typeof SUPPORTED_LANGUAGES)[number];
@@ -11,12 +9,12 @@ function isSupportedLanguage(lang: string): lang is SupportedLanguages {
 	return SUPPORTED_LANGUAGES.includes(lang as SupportedLanguages);
 }
 
-export function extractStylesheets(styles: TSXExtractedStyle[]): VirtualCode[] {
+export function extractStylesheets(styles: ExtractedStyle[]): VirtualCode[] {
 	return mergeCSSContextsByLanguage(styles);
 }
 
-function mergeCSSContextsByLanguage(inlineStyles: TSXExtractedStyle[]): VirtualCode[] {
-	const codes: Record<SupportedLanguages, Segment<CodeInformation>[]> = {
+function mergeCSSContextsByLanguage(inlineStyles: ExtractedStyle[]): VirtualCode[] {
+	const codes: Record<SupportedLanguages, CodeSegment<CodeInformation>[]> = {
 		css: [],
 		scss: [],
 		less: [],
@@ -25,13 +23,13 @@ function mergeCSSContextsByLanguage(inlineStyles: TSXExtractedStyle[]): VirtualC
 	for (const cssContext of inlineStyles) {
 		const currentCode = isSupportedLanguage(cssContext.lang) ? codes[cssContext.lang] : codes.css;
 
-		const isStyleAttribute = cssContext.type === 'style-attribute';
+		const isStyleAttribute = cssContext.type === ExtractedStyleType.StyleAttribute;
 		if (isStyleAttribute) currentCode.push('__ { ');
-		currentCode.push([
-			cssContext.content,
-			undefined,
-			cssContext.position.start,
-			{
+		currentCode.push({
+			text: cssContext.content,
+			start: cssContext.position.start,
+			end: cssContext.position.start + cssContext.content.length,
+			data: {
 				verification: false,
 				completion: true,
 				semantic: true,
@@ -39,7 +37,7 @@ function mergeCSSContextsByLanguage(inlineStyles: TSXExtractedStyle[]): VirtualC
 				structure: true,
 				format: false,
 			},
-		]);
+		});
 		if (isStyleAttribute) currentCode.push(' }\n');
 	}
 
@@ -53,9 +51,12 @@ function mergeCSSContextsByLanguage(inlineStyles: TSXExtractedStyle[]): VirtualC
 	return virtualCodes;
 }
 
-function createVirtualCodeForLanguage(code: Segment<CodeInformation>[], lang: string): VirtualCode {
+function createVirtualCodeForLanguage(
+	code: CodeSegment<CodeInformation>[],
+	lang: string,
+): VirtualCode {
 	const mappings = buildMappings(code);
-	const text = toString(code);
+	const text = getText(code);
 
 	return {
 		id: `style.${lang}`,

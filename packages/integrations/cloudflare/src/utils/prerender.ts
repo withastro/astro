@@ -15,19 +15,17 @@
  */
 
 import type { BaseApp, RenderErrorOptions } from 'astro/app';
+import { renderForPrerender } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
-import type {
-	StaticPathsResponse,
-	PrerenderRequest,
-	SerializedStaticImageEntry,
-	StaticImagesResponse,
-} from '../prerender-types.js';
+import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
 import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
-	STATIC_IMAGES_ENDPOINT,
+	IMAGE_TRANSFORM_ENDPOINT,
 } from './prerender-constants.js';
+import { transformStream as transformStreamWithImagesBinding } from './image-binding-transform.js';
+import { createFramedPrerenderResponse } from './prerender-response.js';
 
 /**
  * Replicates core's `BuildErrorHandler` semantics on the worker app during
@@ -69,17 +67,27 @@ export function isPrerenderRequest(request: Request): boolean {
 	return pathname === PRERENDER_ENDPOINT && request.method === 'POST';
 }
 
+interface PrerenderOptions {
+	/** Whether prerendered pages get build-time image URLs, for the build to generate. */
+	staticImages: boolean;
+}
+
 /**
  * Handles the static paths request, returning all paths that need prerendering.
  */
-export async function handleStaticPathsRequest(app: BaseApp): Promise<Response> {
+export async function handleStaticPathsRequest(
+	app: BaseApp,
+	{ staticImages }: PrerenderOptions,
+): Promise<Response> {
 	const staticPaths = new StaticPaths(app);
-	const paths = await staticPaths.getAll();
+	const { paths, metadata } = await staticPaths.getAllWithMetadata({ staticImages });
 	const response: StaticPathsResponse = {
-		paths: paths.map(({ pathname, route }) => ({
+		paths: paths.map(({ pathname, route, cacheKey }) => ({
 			pathname,
 			route: serializeRouteData(route, app.manifest.trailingSlash),
+			cacheKey,
 		})),
+		metadata,
 	};
 	return new Response(JSON.stringify(response), {
 		headers: { 'Content-Type': 'application/json' },
@@ -95,7 +103,11 @@ export async function handleStaticPathsRequest(app: BaseApp): Promise<Response> 
  * status 200 before the stream completes, and a mid-stream error silently
  * truncates the HTML output.
  */
-export async function handlePrerenderRequest(app: BaseApp, request: Request): Promise<Response> {
+export async function handlePrerenderRequest(
+	app: BaseApp,
+	request: Request,
+	{ staticImages }: PrerenderOptions,
+): Promise<Response> {
 	const headers = new Headers();
 	for (const [key, value] of request.headers.entries()) {
 		headers.append(key, value);
@@ -109,53 +121,60 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 	// Buffer the full body to catch streaming errors before the HTTP layer
 	// commits a 200 status.
 	try {
-		const response = await app.render(prerenderRequest, { routeData });
-		const bufferedBody = await response.arrayBuffer();
-		return new Response(bufferedBody, {
-			status: response.status,
-			statusText: response.statusText,
-			headers: response.headers,
+		// `renderForPrerender` collects the content entries
+		// and image transforms resolved during this render — scoped to this
+		// request's async context, so concurrent prerender requests attribute
+		// correctly. A length-prefixed JSON header carries the metadata before the
+		// raw response bytes without requiring cross-request state.
+		const { response, metadata } = await renderForPrerender(app, prerenderRequest, {
+			routeData,
+			staticImages,
 		});
+		return createFramedPrerenderResponse(response, metadata);
 	} catch (err: unknown) {
 		const message = err instanceof Error ? err.message : String(err);
+		// Sanitize newlines and other control characters from the error message
+		// before putting it in a header, as HTTP headers cannot contain them.
+		const headerSafe = message.replace(/[\r\n]+/g, ' ');
 		return new Response(message, {
 			status: 500,
 			headers: {
 				'Content-Type': 'text/plain',
-				'x-astro-prerender-error': message,
+				'x-astro-prerender-error': headerSafe,
 			},
 		});
 	}
 }
 
-export function isStaticImagesRequest(request: Request): boolean {
+export function isImageTransformRequest(request: Request): boolean {
 	const { pathname } = new URL(request.url);
-	return pathname === STATIC_IMAGES_ENDPOINT && request.method === 'POST';
+	return pathname === IMAGE_TRANSFORM_ENDPOINT && request.method === 'POST';
 }
 
-/** Serializes the global staticImages map collected in workerd back to the Node-side build. */
-export function handleStaticImagesRequest(): Response {
-	const staticImages = globalThis.astroAsset?.staticImages;
-	if (!staticImages || staticImages.size === 0) {
-		return new Response('[]', {
-			headers: { 'Content-Type': 'application/json' },
+interface ImageTransformOptions {
+	/** The Cloudflare IMAGES binding for image transformation. */
+	images?: ImagesBinding;
+}
+
+/**
+ * Transforms a single image with the Cloudflare IMAGES binding and streams the raw
+ * bytes back to the Node-side build.
+ *
+ * The original is the request body and the transform is in `/_image`-style query params.
+ * One image per request keeps memory bounded to a single variant.
+ */
+export async function handleImageTransformRequest(
+	request: Request,
+	{ images }: ImageTransformOptions,
+): Promise<Response> {
+	if (!images) {
+		return new Response('The Cloudflare IMAGES binding is not available in the prerender worker.', {
+			status: 503,
 		});
 	}
 
-	const entries: StaticImagesResponse = [];
-	for (const [originalPath, { originalSrcPath, transforms }] of staticImages) {
-		const serializedTransforms: SerializedStaticImageEntry['transforms'] = [];
-		for (const [hash, { finalPath, transform }] of transforms) {
-			serializedTransforms.push({
-				hash,
-				finalPath,
-				transform: transform as Record<string, any>,
-			});
-		}
-		entries.push({ originalPath, originalSrcPath, transforms: serializedTransforms });
+	if (!request.body) {
+		return new Response('The image transform request has no body.', { status: 400 });
 	}
-
-	return new Response(JSON.stringify(entries), {
-		headers: { 'Content-Type': 'application/json' },
-	});
+	return transformStreamWithImagesBinding(request.body, new URL(request.url).searchParams, images);
 }

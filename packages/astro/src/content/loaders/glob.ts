@@ -6,6 +6,8 @@ import colors from 'piccolore';
 import picomatch from 'picomatch';
 import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
+import * as AstroErrorData from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
@@ -45,11 +47,20 @@ interface GlobOptions {
 	deferRender?: boolean;
 }
 
+/**
+ * Resolves a glob entry path, relative to `base`, to a file URL.
+ */
+function resolveEntryUrl(entry: string, base: URL): URL {
+	// The `./` prefix keeps a leading `name:` from being parsed as a URL scheme (#17762).
+	// `encodeURI` leaves `#` and `?` as-is, which would start a hash or query (#18199).
+	return new URL('./' + encodeURI(entry).replace(/[#?]/g, encodeURIComponent), base);
+}
+
 function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
 	if (data.slug) {
-		return data.slug as string;
+		return String(data.slug);
 	}
-	const entryURL = new URL(encodeURI(entry), base);
+	const entryURL = resolveEntryUrl(entry, base);
 	if (isLegacy) {
 		// Legacy behavior: use ID based on path, not slug
 		const { id } = getContentEntryIdAndSlug({
@@ -94,8 +105,11 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 	}
 
 	const isLegacy = !!globOptions[secretLegacyFlag];
-	const generateId =
+	const userGenerateId =
 		globOptions?.generateId ?? ((opts: GenerateIdOptions) => generateIdDefault(opts, isLegacy));
+	// Coerce to string so numeric ids from YAML don't cause Set strict-equality mismatches
+	// against string store keys in the untouched-entries cleanup. See #17624.
+	const generateId = (opts: GenerateIdOptions) => String(userGenerateId(opts));
 
 	const fileToIdMap = new Map<string, string>();
 
@@ -127,7 +141,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					logger.warn(`No entry type found for ${entry}`);
 					return;
 				}
-				const fileUrl = new URL(encodeURI(entry), base);
+				const fileUrl = resolveEntryUrl(entry, base);
 				const contents = await fs.readFile(fileUrl, 'utf-8').catch((err) => {
 					logger.error(`Error reading ${entry}: ${err.message}`);
 					return;
@@ -183,9 +197,20 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					// the unlink event just hasn't been processed yet
 					const oldFilePath = new URL(existingEntry.filePath, config.root);
 					if (existsSync(oldFilePath)) {
-						logger.warn(
-							`Duplicate id "${id}" found in ${filePath}. Later items with the same id will overwrite earlier ones.`,
+						const message = AstroErrorData.DuplicateContentEntrySlugError.message(
+							collection,
+							id,
+							existingEntry.filePath,
+							relativePath,
 						);
+						if (config.prerenderConflictBehavior === 'error') {
+							throw new AstroError({
+								...AstroErrorData.DuplicateContentEntrySlugError,
+								message,
+							});
+						} else if (config.prerenderConflictBehavior !== 'ignore') {
+							logger.warn(message);
+						}
 					}
 				}
 
@@ -209,6 +234,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 						});
 					} catch (error: any) {
 						logger.error(`Error rendering ${entry}: ${error.message}`);
+						throw error;
 					}
 
 					store.set({
@@ -276,7 +302,6 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 				logger.warn(
 					`No files found matching "${globOptions.pattern}" in directory "${relativePath}"`,
 				);
-				return;
 			}
 
 			function configForFile(file: string) {
@@ -298,7 +323,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 			);
 
 			function isConfigFile(file: string) {
-				const fileUrl = new URL(file, baseDir);
+				const fileUrl = resolveEntryUrl(file, baseDir);
 				return configFiles.has(fileUrl.href);
 			}
 
@@ -343,8 +368,25 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 
 			watcher.add(filePath);
 
+			// Split negation patterns out and pass them as picomatch's `ignore` option
+			// so watcher filtering matches tinyglobby's semantics (set subtraction),
+			// not picomatch's default (any-match union). See #17484.
+			// A leading `!(` is an extglob ("anything except"), not a negation (#18289).
+			const patterns = Array.isArray(globOptions.pattern)
+				? globOptions.pattern
+				: [globOptions.pattern];
+			const isNegation = (p: string) => p.startsWith('!') && !p.startsWith('!(');
+			const positivePatterns = patterns.filter((p) => !isNegation(p));
+			// tinyglobby also skips directories matching a negation, so `!_docs` excludes
+			// everything under `_docs/`. Adding a `/**` variant mirrors that (#18590).
+			const negationPatterns = patterns
+				.filter(isNegation)
+				.flatMap((p) => [p.slice(1), `${p.slice(1)}/**`]);
 			const matchesGlob = (entry: string) =>
-				!entry.startsWith('../') && picomatch.isMatch(entry, globOptions.pattern);
+				!entry.startsWith('../') &&
+				picomatch.isMatch(entry, positivePatterns, {
+					ignore: negationPatterns.length > 0 ? negationPatterns : undefined,
+				});
 
 			const basePath = fileURLToPath(baseDir);
 

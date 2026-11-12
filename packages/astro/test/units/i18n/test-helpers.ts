@@ -95,7 +95,7 @@ export function createManualRoutingContext({
 			});
 		},
 	} as any;
-	Reflect.set(context, fetchStateSymbol, new FetchState(createBasicPipeline(), request));
+	Reflect.set(context, fetchStateSymbol, new FetchState(createBasicPipeline().manifest, request));
 	return context;
 }
 

@@ -4,7 +4,6 @@ import type {
 	SSRManifestCSP,
 	RouteInfo,
 } from '../../../dist/core/app/types.js';
-import type { LoggerHandlerConfig } from '../../../dist/core/logger/config.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 
 export function createManifest({
@@ -13,7 +12,7 @@ export function createManifest({
 	base = '/',
 	trailingSlash = 'ignore',
 	middleware = undefined,
-	loggerConfig = undefined,
+	logger = undefined,
 	actions = undefined,
 	actionBodySizeLimit = 1024 * 1024,
 	i18n = undefined,
@@ -26,7 +25,7 @@ export function createManifest({
 	base?: string;
 	trailingSlash?: 'always' | 'never' | 'ignore';
 	middleware?: SSRManifest['middleware'];
-	loggerConfig?: LoggerHandlerConfig;
+	logger?: SSRManifest['logger'];
 	actions?: SSRManifest['actions'];
 	actionBodySizeLimit?: number;
 	i18n?: SSRManifestI18n;
@@ -60,7 +59,7 @@ export function createManifest({
 		key: Promise.resolve({} as CryptoKey),
 		i18n,
 		middleware,
-		loggerConfig,
+		logger,
 		actions,
 		sessionDriver: undefined,
 		checkOrigin: false,

@@ -31,6 +31,16 @@ const postBPage = createComponent(async (result: any, props: any, slots: any) =>
 	return render`<h1>Post B</h1><h2>${email}</h2>`;
 });
 
+function createRequestWithHostProvidedBody(method: 'GET' | 'HEAD', url: string) {
+	const request = new Request(url, {
+		method: 'POST',
+		body: 'x',
+		headers: { 'content-length': '1', 'content-type': 'text/plain' },
+	});
+	Object.defineProperty(request, 'method', { value: method });
+	return request;
+}
+
 describe('Rewrites via App - basic', () => {
 	const app = createTestApp([
 		createPage(rewriteTo('/'), { route: '/reroute' }),
@@ -122,6 +132,86 @@ describe('Rewrites via App - POST body forwarding', () => {
 		const $ = cheerio.load(await res.text());
 		assert.equal($('h1').text(), 'Post B');
 		assert.match($('h2').text(), /example@example.com/);
+	});
+});
+
+describe('Rewrites via App - GET and HEAD body handling', () => {
+	const rewrittenRequests: Request[] = [];
+	const targetPage = createComponent((result: any, props: any, slots: any) => {
+		const Astro = result.createAstro(props, slots);
+		rewrittenRequests.push(Astro.request);
+		return render`<h1>Target</h1>`;
+	});
+	const app = createTestApp([
+		createPage(rewriteTo('/target'), { route: '/source' }),
+		createPage(targetPage, { route: '/target' }),
+	]);
+
+	for (const method of ['GET', 'HEAD'] as const) {
+		it(`omits a host-provided ${method} body from the rewritten request`, async () => {
+			rewrittenRequests.length = 0;
+			const res = await app.render(
+				createRequestWithHostProvidedBody(method, 'http://example.com/source'),
+			);
+
+			assert.equal(res.status, 200);
+			const rewrittenRequest = rewrittenRequests.at(-1);
+			assert.ok(rewrittenRequest);
+			assert.equal(rewrittenRequest.method, method);
+			assert.equal(rewrittenRequest.body, null);
+		});
+	}
+});
+
+describe('Rewrites via App - GET and HEAD body handling in middleware sequences', () => {
+	const sequencedRequests: Request[] = [];
+	const first = async (_context: APIContext, next: MiddlewareNext) => next('/post/post-b');
+	const second = async (context: APIContext, next: MiddlewareNext) => {
+		sequencedRequests.push(context.request);
+		return next();
+	};
+	const app = createTestApp(
+		[
+			createPage(
+				createComponent(() => render``),
+				{ route: '/source' },
+			),
+			createPage(postBPage, { route: '/post/post-b' }),
+		],
+		{ middleware: () => ({ onRequest: sequence(first, second) }) },
+	);
+
+	for (const method of ['GET', 'HEAD'] as const) {
+		it(`omits a host-provided ${method} body before running the next middleware`, async () => {
+			sequencedRequests.length = 0;
+			const res = await app.render(
+				createRequestWithHostProvidedBody(method, 'http://example.com/source'),
+			);
+
+			assert.equal(res.status, 200);
+			const sequencedRequest = sequencedRequests.at(-1);
+			assert.ok(sequencedRequest);
+			assert.equal(sequencedRequest.method, method);
+			assert.equal(sequencedRequest.body, null);
+		});
+	}
+
+	it('preserves a POST body through the sequenced and final rewritten requests', async () => {
+		sequencedRequests.length = 0;
+		const res = await app.render(
+			new Request('http://example.com/source', {
+				method: 'POST',
+				body: JSON.stringify({ email: 'example@example.com' }),
+				headers: { 'content-type': 'application/json' },
+			}),
+		);
+
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.match($('h2').text(), /example@example.com/);
+		const sequencedRequest = sequencedRequests.at(-1);
+		assert.ok(sequencedRequest);
+		assert.deepEqual(await sequencedRequest.json(), { email: 'example@example.com' });
 	});
 });
 
@@ -625,6 +715,98 @@ describe('Rewrites via App - body-used rewrite returns 500', () => {
 			}),
 		);
 		assert.equal(res.status, 500);
+	});
+});
+
+describe('Rewrites via App - middleware rewrite to a route returning an empty 404 (#17281)', () => {
+	const custom404 = createComponent(() => render`<h1>Custom 404</h1>`);
+	const empty404Page = createComponent(() => new Response(null, { status: 404 }));
+
+	const middleware = async (context: APIContext, next: MiddlewareNext) => {
+		if (context.url.pathname === '/rewrite') {
+			return context.rewrite('/unexisting-page');
+		}
+		return next();
+	};
+
+	const app = createTestApp(
+		[
+			createPage(custom404, { route: '/404', component: '404.astro' }),
+			createPage(empty404Page, {
+				route: '/[...slug]',
+				segments: [[spreadPart('...slug')]],
+				pathname: undefined,
+			}),
+		],
+		{ middleware: () => ({ onRequest: middleware }) },
+	);
+
+	it('renders the custom 404 page when middleware rewrites to a route that returns an empty 404', async () => {
+		const res = await app.render(new Request('http://example.com/rewrite'));
+		assert.equal(res.status, 404);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('h1').text(), 'Custom 404');
+	});
+
+	it('renders the custom 404 page when the 404-returning route is hit directly', async () => {
+		const res = await app.render(new Request('http://example.com/unexisting-page'));
+		assert.equal(res.status, 404);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('h1').text(), 'Custom 404');
+	});
+});
+
+describe('Rewrites via App - middleware rewrite to an empty 404 without a custom 404 page (#17281)', () => {
+	const empty404Page = createComponent(() => new Response(null, { status: 404 }));
+
+	const middleware = async (context: APIContext, next: MiddlewareNext) => {
+		if (context.url.pathname === '/rewrite') {
+			return context.rewrite('/unexisting-page');
+		}
+		return next();
+	};
+
+	const app = createTestApp(
+		[
+			createPage(empty404Page, {
+				route: '/[...slug]',
+				segments: [[spreadPart('...slug')]],
+				pathname: undefined,
+			}),
+		],
+		{ middleware: () => ({ onRequest: middleware }) },
+	);
+
+	it('returns the default 404 when middleware rewrites to a route that returns an empty 404', async () => {
+		const res = await app.render(new Request('http://example.com/rewrite'));
+		assert.equal(res.status, 404);
+	});
+});
+
+describe('Rewrites via App - middleware rewrites to a real page after next() returns 404', () => {
+	const empty404Page = createComponent(() => new Response(null, { status: 404 }));
+
+	const middleware = async (context: APIContext, next: MiddlewareNext) => {
+		const response = await next();
+		if (response.status === 404 && context.url.pathname === '/soft-404') {
+			return context.rewrite('/');
+		}
+		return response;
+	};
+
+	const app = createTestApp(
+		[
+			createPage(indexPage, { route: '/', isIndex: true }),
+			createPage(empty404Page, { route: '/soft-404' }),
+		],
+		{ middleware: () => ({ onRequest: middleware }) },
+	);
+
+	it('renders the rewrite target when middleware rewrites on a 404 response', async () => {
+		const res = await app.render(new Request('http://example.com/soft-404'));
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('h1').text(), 'Index');
 	});
 });
 

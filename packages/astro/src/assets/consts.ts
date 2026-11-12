@@ -1,6 +1,7 @@
 export const VIRTUAL_MODULE_ID = 'astro:assets';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 export const VIRTUAL_SERVICE_ID = 'virtual:image-service';
+export const IMAGE_SERVICE_ENVIRONMENT_NAME = 'astroImageService';
 // Internal virtual module that exports only getImage (no component references).
 // Used by the content runtime to avoid a TDZ when Picture/Image are in the same chunk.
 export const VIRTUAL_GET_IMAGE_ID = 'virtual:astro:get-image';
@@ -12,6 +13,7 @@ export const VALID_INPUT_FORMATS = [
 	'jpeg',
 	'jpg',
 	'png',
+	'apng',
 	'tiff',
 	'webp',
 	'gif',

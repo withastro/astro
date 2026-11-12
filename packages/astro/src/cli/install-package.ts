@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import * as clack from '@clack/prompts';
@@ -16,18 +17,30 @@ type GetPackageOptions = {
 	cwd?: string;
 };
 
+export async function getPackageVersion(
+	packageName: string,
+	cwd = process.cwd(),
+): Promise<string | undefined> {
+	try {
+		const packageJsonPath = require.resolve(`${packageName}/package.json`, { paths: [cwd] });
+		const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf-8'));
+		return typeof packageJson.version === 'string' ? packageJson.version : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
 export async function getPackage<T>(
 	packageName: string,
 	logger: AstroLogger,
 	options: GetPackageOptions,
 	otherDeps: string[] = [],
 ): Promise<T | undefined> {
+	let resolved: string;
 	try {
 		// Try to resolve with `createRequire` first to prevent ESM caching of the package
 		// if it errors and fails here
-		const resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
-		const packageImport = await import(pathToFileURL(resolved).href);
-		return packageImport as T;
+		resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
 	} catch {
 		if (options.optional) return undefined;
 		let message = `To continue, Astro requires the following dependency to be installed: ${bold(
@@ -47,13 +60,18 @@ export async function getPackage<T>(
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
 
 		if (result) {
-			const resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
-			const packageImport = await import(pathToFileURL(resolved).href);
+			const installed = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
+			const packageImport = await import(pathToFileURL(installed).href);
 			return packageImport;
 		} else {
 			return undefined;
 		}
 	}
+	// Import errors propagate so that a package that is installed but fails to load
+	// (e.g. a broken transitive dependency) isn't reported as missing.
+	// See https://github.com/withastro/astro/issues/18653
+	const packageImport = await import(pathToFileURL(resolved).href);
+	return packageImport as T;
 }
 
 async function installPackage(
@@ -66,7 +84,7 @@ async function installPackage(
 		cwd,
 		// Include the `install-metadata` strategy to have the package manager that's
 		// used for installation take precedence
-		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
+		strategies: ['install-metadata', 'lockfile', 'packageManager-field', 'devEngines-field'],
 	});
 	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', []);
 	if (!installCommand) return false;

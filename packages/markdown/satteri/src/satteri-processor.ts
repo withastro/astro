@@ -1,11 +1,21 @@
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
+import { time, timedVisitorPlugins } from '@astrojs/internal-helpers/timings';
 import {
 	defaultExcludeLanguages,
 	markdownConfigDefaults,
 	syntaxHighlightDefaults,
 } from '@astrojs/internal-helpers/markdown';
 import Slugger from 'github-slugger';
-import type { Features, HastNode, HastPluginDefinition, MdastPluginDefinition } from 'satteri';
+import type {
+	Features,
+	HastNode,
+	HastPluginDefinition,
+	HastPluginEntry,
+	HastPluginList,
+	MdastPluginDefinition,
+	MdastPluginEntry,
+	MdastPluginList,
+} from 'satteri';
 import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 import type {
 	AstroMarkdownOptions,
@@ -106,30 +116,32 @@ export function collectHastText(
 	return text;
 }
 
-export function createHeadingIdsPlugin(): HastPluginDefinition {
-	const slugger = new Slugger();
-	// Collect headings in a separate array so we can make this idempotent
-	const headings: MarkdownHeading[] = [];
-	return {
-		name: 'heading-ids',
-		element: {
-			filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-			visit(node, ctx) {
-				const astro = ctx.data.astro;
-				const rawText = ctx.textContent(node);
-				const text = rawText.includes('frontmatter')
-					? collectHastText(node, astro?.frontmatter ?? {})
-					: rawText;
-				const existingId = node.properties?.id;
-				const slug = typeof existingId === 'string' ? existingId : slugger.slug(text);
-				const depth = Number.parseInt(node.tagName[1], 10);
-				headings.push({ depth, slug, text });
-				if (astro) astro.headings = headings;
-				if (typeof existingId !== 'string') {
-					ctx.setProperty(node, 'id', slug);
-				}
+export function createHeadingIdsPlugin(): HastPluginEntry {
+	return () => {
+		const slugger = new Slugger();
+		// Collect headings in a separate array so we can make this idempotent
+		const headings: MarkdownHeading[] = [];
+		return {
+			name: 'heading-ids',
+			element: {
+				filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+				visit(node, ctx) {
+					const astro = ctx.data.astro;
+					const rawText = ctx.textContent(node);
+					const text = rawText.includes('frontmatter')
+						? collectHastText(node, astro?.frontmatter ?? {})
+						: rawText;
+					const existingId = node.properties?.id;
+					const slug = typeof existingId === 'string' ? existingId : slugger.slug(text);
+					const depth = Number.parseInt(node.tagName[1], 10);
+					headings.push({ depth, slug, text });
+					if (astro) astro.headings = headings;
+					if (typeof existingId !== 'string') {
+						ctx.setProperty(node, 'id', slug);
+					}
+				},
 			},
-		},
+		};
 	};
 }
 
@@ -188,7 +200,13 @@ export function createHighlightPlugin(
 				) as HastNode | undefined;
 				if (!codeChild || codeChild.type !== 'element') return;
 
-				const lang = (codeChild.data as any)?.lang ?? 'plaintext';
+				const languageClass = Array.isArray(codeChild.properties?.className)
+					? codeChild.properties.className.find(
+							(className) => typeof className === 'string' && className.startsWith('language-'),
+						)
+					: undefined;
+				const lang =
+					(codeChild.data as any)?.lang ?? languageClass?.slice('language-'.length) ?? 'plaintext';
 				const meta = (codeChild.data as any)?.meta ?? undefined;
 
 				if (
@@ -199,15 +217,15 @@ export function createHighlightPlugin(
 				}
 
 				const code = ctx.textContent(codeChild).replace(/\n$/, '');
-				return highlight(code, lang, meta);
+				return time('highlight', lang, () => highlight(code, lang, meta));
 			},
 		},
 	};
 }
 
 export interface SatteriMarkdownProcessorOptions extends AstroMarkdownOptions {
-	mdastPlugins?: MdastPluginDefinition[];
-	hastPlugins?: HastPluginDefinition[];
+	mdastPlugins?: MdastPluginList;
+	hastPlugins?: HastPluginList;
 	features?: Features;
 }
 
@@ -249,11 +267,13 @@ export async function createHighlightFn(
 
 	if (syntaxHighlightType === 'prism') {
 		const { runHighlighterWithAstro } = await import('@astrojs/prism/dist/highlighter');
-		const { fromHtml } = await import('hast-util-from-html');
+		const { htmlToHast } = await loadSatteri();
 		return async (code, lang) => {
 			const { html, classLanguage } = await runHighlighterWithAstro(lang, code);
-			const pre = `<pre class="${classLanguage}" data-language="${lang}"><code class="${classLanguage}">${html}</code></pre>`;
-			return fromHtml(pre, { fragment: true }).children[0] as HastNode;
+			const className = escapeAttribute(classLanguage);
+			const pre = `<pre class="${className}" data-language="${escapeAttribute(lang)}"><code class="${className}">${html}</code></pre>`;
+			const tree = htmlToHast(pre, { fragment: true });
+			return ('children' in tree ? tree.children[0] : undefined) as HastNode;
 		};
 	}
 
@@ -290,12 +310,12 @@ export async function createSatteriMarkdownProcessor(
 			};
 
 			// Collect last so image-URL rewrites by user plugins are captured.
-			const allMdastPlugins: MdastPluginDefinition[] = [
+			const allMdastPlugins: MdastPluginEntry[] = [
 				...userMdastPlugins,
 				createCollectImagesPlugin(opts?.image),
 			];
 
-			const hastPlugins: HastPluginDefinition[] = [];
+			const hastPlugins: HastPluginEntry[] = [];
 			if (highlightFn) {
 				hastPlugins.push(createHighlightPlugin(highlightFn, syntaxHighlightExcludeLangs));
 			}
@@ -303,17 +323,22 @@ export async function createSatteriMarkdownProcessor(
 			hastPlugins.push(createImageMarkerPlugin());
 			hastPlugins.push(createHeadingIdsPlugin());
 
-			const { html, data } = await s.markdownToHtml(content, {
-				mdastPlugins: allMdastPlugins,
-				hastPlugins,
-				features: {
-					gfm: gfm !== false,
-					smartPunctuation: smartypants !== false,
-					...userFeatures,
-				},
-				fileURL: renderOpts?.fileURL,
-				data: { astro },
-			});
+			const { html, data } = await time(
+				'markdown-file',
+				String(renderOpts?.fileURL ?? 'unknown'),
+				() =>
+					s.markdownToHtml(content, {
+						mdastPlugins: timedVisitorPlugins('markdown-plugin', allMdastPlugins),
+						hastPlugins: timedVisitorPlugins('markdown-plugin', hastPlugins),
+						features: {
+							gfm: gfm !== false,
+							smartPunctuation: smartypants !== false,
+							...userFeatures,
+						},
+						fileURL: renderOpts?.fileURL,
+						data: { astro },
+					}),
+			);
 
 			// Read the returned bag, not the seeded reference, so a plugin that replaces
 			// `ctx.data.astro` wholesale is honored.
@@ -329,4 +354,8 @@ export async function createSatteriMarkdownProcessor(
 			};
 		},
 	};
+}
+
+function escapeAttribute(value: string) {
+	return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }
