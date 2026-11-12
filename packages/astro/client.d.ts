@@ -138,15 +138,30 @@ declare module 'astro:middleware' {
 declare module 'astro:config/server' {
 	// biome-ignore format: bug
 	type ServerConfigSerialized = import('./dist/types/public/manifest.js').ServerDeserializedManifest;
-	const manifest: ServerConfigSerialized;
-	export = manifest;
+	export const base: ServerConfigSerialized['base'];
+	export const build: ServerConfigSerialized['build'];
+	export const cacheDir: ServerConfigSerialized['cacheDir'];
+	export const outDir: ServerConfigSerialized['outDir'];
+	export const publicDir: ServerConfigSerialized['publicDir'];
+	export const srcDir: ServerConfigSerialized['srcDir'];
+	export const root: ServerConfigSerialized['root'];
+	export const trailingSlash: ServerConfigSerialized['trailingSlash'];
+	export const site: ServerConfigSerialized['site'];
+	export const compressHTML: ServerConfigSerialized['compressHTML'];
+	export const i18n: ServerConfigSerialized['i18n'];
+	export const image: ServerConfigSerialized['image'];
 }
 
 declare module 'astro:config/client' {
 	// biome-ignore format: bug
 	type ClientConfigSerialized = import('./dist/types/public/manifest.js').ClientDeserializedManifest;
-	const manifest: ClientConfigSerialized;
-	export = manifest;
+	export const base: ClientConfigSerialized['base'];
+	export const i18n: ClientConfigSerialized['i18n'];
+	export const trailingSlash: ClientConfigSerialized['trailingSlash'];
+	export const site: ClientConfigSerialized['site'];
+	export const compressHTML: ClientConfigSerialized['compressHTML'];
+	export const build: ClientConfigSerialized['build'];
+	export const image: ClientConfigSerialized['image'];
 }
 
 declare module 'astro:components' {
