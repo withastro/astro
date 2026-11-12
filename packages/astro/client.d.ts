@@ -168,7 +168,7 @@ declare module 'astro:schema' {
 	 * `import { z } from 'astro:schema'` is deprecated and will be removed
 	 * in Astro 8. Use `import { z } from 'astro/zod'` instead.
 	 */
-	export const z = zod.z;
+	export const z: typeof zod.z;
 }
 
 type MD = import('./dist/types/public/content.js').MarkdownInstance<Record<string, any>>;
