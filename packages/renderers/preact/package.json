@@ -36,8 +36,8 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/runtime": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
+    "@astrojs/runtime": "workspace:^",
     "@preact/signals": "^2.11.4",
     "preact-render-to-string": "^6.8.2"
   },

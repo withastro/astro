@@ -35,7 +35,7 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@astrojs/runtime": "workspace:*"
+    "@astrojs/runtime": "workspace:^"
   },
   "peerDependencies": {
     "vue": "^3.5.24"

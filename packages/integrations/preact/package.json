@@ -35,8 +35,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/preact-renderer": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
+    "@astrojs/preact-renderer": "workspace:^",
     "@preact/preset-vite": "^2.10.6"
   },
   "devDependencies": {

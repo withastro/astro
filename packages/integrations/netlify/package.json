@@ -40,8 +40,8 @@
     "test:hosted": "astro-scripts test \"test/hosted/*.test.ts\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/underscore-redirects": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
+    "@astrojs/underscore-redirects": "workspace:^",
     "@netlify/blobs": "^11.1.7",
     "@netlify/functions": "^6.1.0",
     "@netlify/vite-plugin": "^3.0.1",

@@ -32,7 +32,7 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
     "send": "^1.2.1",
     "server-destroy": "^1.0.1"
   },

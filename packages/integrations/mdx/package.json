@@ -34,8 +34,8 @@
     "test": "astro-scripts test --timeout 70000 \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/markdown-satteri": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
+    "@astrojs/markdown-satteri": "workspace:^",
     "es-module-lexer": "^3.0.4"
   },
   "peerDependencies": {

@@ -39,8 +39,8 @@
     "test": "astro-scripts test \"test/**/*.test.ts\" --parallel"
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/react-renderer": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
+    "@astrojs/react-renderer": "workspace:^",
     "@vitejs/plugin-react": "^6.2.1"
   },
   "devDependencies": {
