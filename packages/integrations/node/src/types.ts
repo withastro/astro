@@ -14,6 +14,11 @@ export interface UserOptions {
 	experimentalDisableStreaming?: boolean;
 
 	/**
+	 * TODO ...
+	 */
+	experimentalExitMissingVarEnv?: boolean;
+
+	/**
 	 * If enabled, the adapter will save [static headers in the framework API file](https://docs.netlify.com/frameworks-api/#headers).
 	 *
 	 * Here the list of the headers that are added:

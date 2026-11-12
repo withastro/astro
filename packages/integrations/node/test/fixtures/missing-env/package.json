@@ -1,0 +1,9 @@
+{
+  "name": "@test/missing-env",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/node": "workspace:*",
+    "astro": "workspace:*"
+  }
+}
