@@ -45,6 +45,18 @@ for (const { name } of docs) {
 }
 ```
 
+To give TypeScript the collections you found, use the `CollectionMetadataWith` type in a type guard. It keeps the collections that have the descriptors you pass, and optionally one type of collection:
+
+```ts
+import type { CollectionMetadata, CollectionMetadataWith } from 'astro:content';
+
+type DocsCollection = CollectionMetadataWith<{ myDocs: 'docs' }, 'build-time'>;
+
+function isDocsCollection(collection: CollectionMetadata): collection is DocsCollection {
+  return collection.type === 'build-time' && collection.descriptors.myDocs === 'docs';
+}
+```
+
 For more information on enabling and using this feature in your project, see the [experimental collection metadata docs](https://docs.astro.build/en/reference/experimental-flags/collection-metadata/).
 
 To share feedback on this feature, comment on the [enhanced content collections RFC](https://github.com/withastro/roadmap/pull/1459).
