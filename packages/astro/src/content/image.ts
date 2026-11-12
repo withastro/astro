@@ -43,7 +43,9 @@ function throwImageNotFound(src: string): never {
 }
 
 function createImageMarker(src: string): ContentImageField {
-	return { [IMAGE_FIELD_MARKER]: true, src: `${IMAGE_IMPORT_PREFIX}${src}`, fsPath: '' } as ContentImageField;
+	const marker = { [IMAGE_FIELD_MARKER]: true, src: `${IMAGE_IMPORT_PREFIX}${src}` } as ContentImageField;
+	Object.defineProperty(marker, 'fsPath', { value: '' });
+	return marker;
 }
 
 /**
