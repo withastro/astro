@@ -84,6 +84,14 @@ declare module 'astro:content' {
 	}[LiveCollectionName];
 	/** Facts about a collection, never its entries. Pass `name` to `getCollection()` or `getLiveCollection()`, depending on `type`. */
 	export type CollectionMetadata = BuildTimeCollectionMetadata | LiveCollectionMetadata;
+	/**
+	 * The metadata of the collections that have the descriptors `D`, and optionally the type `T`.
+	 * Use it in a type guard, to narrow the result of `getCollectionsMetadata()` with `filter()`.
+	 */
+	export type CollectionMetadataWith<
+		D extends import('astro').CollectionDescriptors,
+		T extends CollectionMetadata['type'] = CollectionMetadata['type'],
+	> = import('astro').ExtractCollectionMetadata<CollectionMetadata, D, T>;
 
 	/** Returns the metadata of every collection of the project, build-time then live, without loading entries. Requires `experimental.collectionMetadata`. */
 	export function getCollectionsMetadata(): Promise<CollectionMetadata[]>;

@@ -14,6 +14,16 @@ export interface JSONArray extends Array<JSONValue> {}
  */
 export type CollectionDescriptors = Record<string, JSONValue>;
 
+/**
+ * Narrows a union of collection metadata to the collections that have the descriptors `D`,
+ * and optionally the collection type `T`.
+ */
+export type ExtractCollectionMetadata<
+	M extends { type: 'build-time' | 'live'; descriptors: Record<string, unknown> },
+	D extends CollectionDescriptors,
+	T extends M['type'] = M['type'],
+> = Extract<M, { type: T; descriptors: D }>;
+
 /** Facts about a collection, never its entries. */
 export interface CollectionMetadata {
 	name: string;

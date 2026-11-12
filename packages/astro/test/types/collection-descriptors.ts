@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
 import { defineCollection, defineLiveCollection } from 'astro/content/config';
 import type { LiveLoader, Loader } from 'astro/loaders';
+import type { ExtractCollectionMetadata } from 'astro';
 
 const load = async () => {};
 
@@ -60,5 +61,24 @@ describe('collection descriptors', () => {
 	it('rejects descriptors that are not JSON values', () => {
 		// @ts-expect-error functions are not JSON values
 		defineCollection({ loader: { name: 'docs', load }, descriptors: { check: () => true } });
+	});
+
+	it('narrows collection metadata by descriptors and type', () => {
+		type Metadata =
+			| {
+					name: 'guides';
+					type: 'build-time';
+					descriptors: { readonly myDocs: 'docs'; readonly version: 1 };
+			  }
+			| { name: 'blog'; type: 'build-time'; descriptors: { readonly version: 2 } }
+			| { name: 'releases'; type: 'live'; descriptors: { readonly myDocs: 'docs' } };
+
+		expectTypeOf<ExtractCollectionMetadata<Metadata, { myDocs: 'docs' }>['name']>().toEqualTypeOf<
+			'guides' | 'releases'
+		>();
+		expectTypeOf<
+			ExtractCollectionMetadata<Metadata, { myDocs: 'docs' }, 'build-time'>['name']
+		>().toEqualTypeOf<'guides'>();
+		expectTypeOf<ExtractCollectionMetadata<Metadata, { myDocs: 'api' }>>().toBeNever();
 	});
 });
