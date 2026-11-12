@@ -3,14 +3,14 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { getImage, setConfiguredImageService } from '../../../dist/assets/internal.js';
 import { baseService } from '../../../dist/assets/services/service.js';
 import { isImageMetadata } from '../../../dist/assets/types.js';
-import type { ImageMetadata } from '../../../dist/assets/types.js';
+import type { ImageMetadata, SerializedStaticImage } from '../../../dist/assets/types.js';
 import { createImageAsset, getUntrackedImage } from '../../../dist/assets/utils/image-asset.js';
 import { resolveStaticImage } from '../../../dist/assets/utils/static-image.js';
-import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/_internal/core/render-scope/node-scope.js';
 import {
 	type RenderCollectors,
 	uninstallRenderScope,
-} from '../../../dist/core/render-scope/scope.js';
+} from '@astrojs/runtime/_internal/core/render-scope/scope.js';
 import { mockRuntimeLogger } from '../mocks.ts';
 
 const fsPath = '/project/src/assets/photo.png';
@@ -21,7 +21,7 @@ const metadata = {
 	format: 'png' as const,
 };
 
-function newStore(): RenderCollectors {
+function newStore(): RenderCollectors<SerializedStaticImage> {
 	return { contentEntries: new Set(), staticImages: [], referencedImages: new Set() };
 }
 
@@ -86,6 +86,18 @@ describe('resolveStaticImage', () => {
 			{ ...options, assetQueryParams: new URLSearchParams({ dpl: '123' }) },
 		);
 		assert.match(url, /\.webp\?dpl=123$/);
+	});
+
+	it('records SVG component sources as cloneable metadata', () => {
+		const svgMetadata = { src: '/_astro/icon.abc123.svg', width: 32, height: 32, format: 'svg' };
+		const svgComponent = Object.assign(() => {}, svgMetadata);
+		const { image } = resolveStaticImage(
+			{ src: svgComponent as unknown as ImageMetadata, width: 32, height: 32 },
+			['src', 'width', 'height'],
+			'/project/src/assets/icon.svg',
+			options,
+		);
+		assert.deepEqual(structuredClone(image).transform.src, svgMetadata);
 	});
 });
 

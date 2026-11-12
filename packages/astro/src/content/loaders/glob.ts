@@ -6,8 +6,8 @@ import colors from 'piccolore';
 import picomatch from 'picomatch';
 import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
-import * as AstroErrorData from '../../core/errors/errors-data.js';
-import { AstroError } from '../../core/errors/index.js';
+import * as AstroErrorData from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
@@ -377,7 +377,11 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 				: [globOptions.pattern];
 			const isNegation = (p: string) => p.startsWith('!') && !p.startsWith('!(');
 			const positivePatterns = patterns.filter((p) => !isNegation(p));
-			const negationPatterns = patterns.filter(isNegation).map((p) => p.slice(1));
+			// tinyglobby also skips directories matching a negation, so `!_docs` excludes
+			// everything under `_docs/`. Adding a `/**` variant mirrors that (#18590).
+			const negationPatterns = patterns
+				.filter(isNegation)
+				.flatMap((p) => [p.slice(1), `${p.slice(1)}/**`]);
 			const matchesGlob = (entry: string) =>
 				!entry.startsWith('../') &&
 				picomatch.isMatch(entry, positivePatterns, {

@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.17.3
+
+### Patch Changes
+
+- [#18460](https://github.com/withastro/astro/pull/18460) [`044148d`](https://github.com/withastro/astro/commit/044148d5cfbc90e0277b3205a52ec73bc452bb7e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Speeds up `astro check` by skipping a 10 ms editor-cancellation wait that ran before checking each file
+
 ## 2.17.2
 
 ### Patch Changes

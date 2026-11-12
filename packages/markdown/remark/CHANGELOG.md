@@ -1,5 +1,40 @@
 # @astrojs/markdown-remark
 
+## 7.3.8
+
+### Patch Changes
+
+- [#18698](https://github.com/withastro/astro/pull/18698) [`d13beeb`](https://github.com/withastro/astro/commit/d13beeb66c753f03cbdbf4509cf2c527c816f1a4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes MDX `optimize` emptying `<style>` and `<script>` elements nested in static HTML from plugins, and turning SVG attributes like `marker-end` into `markerEnd` when `ignoreElementNames` is set
+
+## 7.3.7
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+
+## 7.3.6
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+
+## 7.3.5
+
+### Patch Changes
+
+- [`edfbf4a`](https://github.com/withastro/astro/commit/edfbf4ab34ff007ae8f7188af76a023a15c9443d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Prism code blocks for languages Prism doesn't support, such as `vue` or `svelte`. Their code is now displayed as plain text instead of being rendered as HTML. Also correctly escapes the code block language in the generated `class` and `data-language` attributes.
+- Updated dependencies [[`edfbf4a`](https://github.com/withastro/astro/commit/edfbf4ab34ff007ae8f7188af76a023a15c9443d)]:
+  - @astrojs/prism@4.1.2
+
+## 7.3.4
+
+### Patch Changes
+
+- Updated dependencies [[`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab)]:
+  - @astrojs/prism@4.1.1
+
 ## 7.3.3
 
 ### Patch Changes

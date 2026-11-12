@@ -1,0 +1,15 @@
+---
+// Islands imported through a tsconfig `paths` alias that share a CSS-importing module
+import { IslandA } from '~/islands/IslandA';
+import { IslandB } from '~/islands/IslandB';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<IslandA client:load />
+		<IslandB client:load />
+	</body>
+</html>

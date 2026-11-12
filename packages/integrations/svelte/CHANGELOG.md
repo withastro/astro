@@ -1,5 +1,41 @@
 # @astrojs/svelte
 
+## 9.1.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/svelte-renderer@0.1.1
+
+## 9.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/svelte-renderer@0.1.0
+
+## 9.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`ff1cf65`](https://github.com/withastro/astro/commit/ff1cf65c7a9d7f7603d371e08bda8dbc4cf106bf)]:
+  - @astrojs/svelte-renderer@0.1.0
+
+## 9.1.2
+
+### Patch Changes
+
+- [`5e47636`](https://github.com/withastro/astro/commit/5e476365378e41aa2745d003b2383d02008d7b44) Thanks [@matthewp](https://github.com/matthewp)! - Escapes slot names when rendering the slot wrapper elements for Svelte components
+
+## 9.1.1
+
+### Patch Changes
+
+- [#18475](https://github.com/withastro/astro/pull/18475) [`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab) Thanks [@ematipico](https://github.com/ematipico)! - Bumps the minimum supported Node.js version to 22.23.4, which includes the fixes from the [October 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+  
+  This is a patch release because the [Node.js support and upgrade policy](https://docs.astro.build/en/upgrade-astro/#nodejs-support-and-upgrade-policies) allows the Core team to raise the minimum Maintenance LTS version in a patch release when a disclosed and fixed Node.js security flaw affects Astro.
+
 ## 9.1.0
 
 ### Minor Changes

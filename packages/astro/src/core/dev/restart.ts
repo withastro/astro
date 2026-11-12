@@ -12,8 +12,8 @@ import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createSettings, resolveConfig } from '../config/index.js';
 import { clearCrawlCache, createVite } from '../create-vite.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
-import { isAstroConfigZodError } from '../errors/errors.js';
-import { createSafeError } from '../errors/index.js';
+import { isAstroConfigZodError } from '@astrojs/vite-plugin-astro/_internal/core/errors/errors.js';
+import { createSafeError } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { loadOrCreateNodeLogger } from '../logger/load.js';
 import {
 	formatErrorMessage,
@@ -113,7 +113,11 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 		// onto the existing server so Vite's restartServer() uses the new plugins.
 		container.viteServer.config = await vite.resolveConfig(newViteConfig, 'serve');
 
+		const previousEnvironments = container.viteServer.environments;
 		await container.viteServer.restart();
+		if (container.viteServer.environments !== previousEnvironments) {
+			releasePreviousEnvironments(previousEnvironments);
+		}
 
 		container.settings = settings;
 		return settings;
@@ -133,6 +137,20 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 		return error;
 	} finally {
 		container.restartInFlight = false;
+	}
+}
+
+function releasePreviousEnvironments(environments: Record<string, vite.Environment>) {
+	for (const environment of Object.values(environments)) {
+		if (environment.mode !== 'dev') continue;
+		const { moduleGraph } = environment as vite.DevEnvironment;
+		moduleGraph.urlToModuleMap.clear();
+		moduleGraph.idToModuleMap.clear();
+		moduleGraph.etagToModuleMap.clear();
+		moduleGraph.fileToModulesMap.clear();
+		(
+			moduleGraph as unknown as { _unresolvedUrlToModuleMap?: Map<unknown, unknown> }
+		)._unresolvedUrlToModuleMap?.clear();
 	}
 }
 

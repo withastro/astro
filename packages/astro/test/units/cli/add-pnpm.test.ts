@@ -10,7 +10,7 @@ describe('astro add with pnpm', () => {
 	it('approves workerd builds via --allow-build with pnpm v11.23+', async () => {
 		for (const version of ['11.23.0', '11.28.5', '12.10.1']) {
 			const approval = await getPnpmBuildApproval(
-				['react', 'cloudflare'],
+				['react', '@astrojs/cloudflare'],
 				async () => version,
 				noPnpm,
 			);
@@ -21,7 +21,11 @@ describe('astro add with pnpm', () => {
 
 	it('does not approve builds for pnpm versions before v11 or unknown versions', async () => {
 		for (const version of ['10.34.6', '9.15.9', undefined]) {
-			const approval = await getPnpmBuildApproval(['cloudflare'], async () => version, noPnpm);
+			const approval = await getPnpmBuildApproval(
+				['@astrojs/cloudflare'],
+				async () => version,
+				noPnpm,
+			);
 			assert.deepEqual(approval, { flags: [] }, String(version));
 		}
 	});
@@ -36,7 +40,7 @@ describe('astro add with pnpm', () => {
 		it('merges workerd into the existing allowBuilds config instead of passing --allow-build', async () => {
 			const calls: string[][] = [];
 			const approval = await getPnpmBuildApproval(
-				['cloudflare'],
+				['@astrojs/cloudflare'],
 				async () => '11.5.1',
 				async (args) => {
 					calls.push(args);
@@ -65,7 +69,7 @@ describe('astro add with pnpm', () => {
 		it('falls back to the current directory outside a pnpm workspace', async () => {
 			const calls: string[][] = [];
 			const approval = await getPnpmBuildApproval(
-				['cloudflare'],
+				['@astrojs/cloudflare'],
 				async () => '11.0.0',
 				async (args) => {
 					calls.push(args);

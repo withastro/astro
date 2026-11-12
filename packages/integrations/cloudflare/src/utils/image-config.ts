@@ -135,7 +135,13 @@ export function setImageConfig(
 			}
 			return {
 				...config,
-				service: { build: COMPILE_BUILD_IMAGE_SERVICE, runtime: WORKERD_IMAGE_SERVICE },
+				service: {
+					build: {
+						...COMPILE_BUILD_IMAGE_SERVICE,
+						config: getRuntimeImageService(config.service).config,
+					},
+					runtime: WORKERD_IMAGE_SERVICE,
+				},
 				endpoint,
 			};
 		}

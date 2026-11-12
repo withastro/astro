@@ -147,4 +147,18 @@ describe('wrapFrontmatter', () => {
 			);
 		}
 	});
+
+	it('does not hoist object keys named import (#18551)', () => {
+		const input = [
+			'const tokens = import.meta.glob("./tokens.css", {',
+			'  query: "?raw",',
+			'  import: "default",',
+			'  eager: true,',
+			'});',
+			'',
+			'const label = "done";',
+		].join('\n');
+		const result = wrapFrontmatter(input);
+		assert.equal(result, `async function __astro__() {\n${input}\n}`);
+	});
 });

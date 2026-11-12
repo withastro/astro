@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { AstroConfig, AstroIntegrationLogger } from 'astro';
-import { passthroughImageService } from 'astro/config';
+import { passthroughImageService, sharpImageService } from 'astro/config';
 import { normalizeImageServiceConfig, setImageConfig } from '../dist/utils/image-config.js';
 
 describe('normalizeImageServiceConfig', () => {
@@ -44,6 +44,22 @@ describe('setImageConfig compile mode', () => {
 			assert.equal(result.endpoint?.entrypoint, '@astrojs/cloudflare/image-passthrough-endpoint');
 		});
 	}
+
+	it('keeps sharpImageService() options for the build service', () => {
+		const result = setImageConfig(
+			'compile',
+			{
+				service: sharpImageService({ avif: { effort: 2 } }),
+				endpoint: { route: '/_image' },
+			} as AstroConfig['image'],
+			'build',
+			{ warn() {} } as unknown as AstroIntegrationLogger,
+		);
+		assert.deepEqual(result.service, {
+			build: { entrypoint: 'astro/assets/services/sharp', config: { avif: { effort: 2 } } },
+			runtime: { entrypoint: '@astrojs/cloudflare/image-service-workerd' },
+		});
+	});
 });
 
 describe('setImageConfig custom mode', () => {

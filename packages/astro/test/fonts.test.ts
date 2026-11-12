@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { readdir } from 'node:fs/promises';
+import { readdir, utimes, stat } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import { fontProviders } from 'astro/config';
 import * as cheerio from 'cheerio';
@@ -224,6 +224,37 @@ describe('astro fonts', () => {
 					assert.fail();
 				}
 				assert.equal(length === '0', false);
+			});
+		});
+
+		describe('Cached font files', () => {
+			const cachedAt = new Date('2020-01-01T00:00:00Z');
+
+			before(async () => {
+				fixture = await loadFixture({
+					// Local fonts make the cold-cache and warm-cache builds deterministic
+					// and independent of external font providers.
+					root: './fixtures/csp-fonts/',
+					outDir: './dist/fonts-cached-files/',
+					cacheDir: './node_modules/.astro-test/fonts-cached-files/',
+				});
+				await fixture.clean();
+				await fixture.build();
+				const cacheDir = new URL('./fonts/', fixture.config.cacheDir);
+				for (const file of await readdir(cacheDir)) {
+					await utimes(new URL(file, cacheDir), cachedAt, cachedAt);
+				}
+				await fixture.build();
+			});
+
+			it('keeps the modification time of cached font files', async () => {
+				const outputDir = new URL('./_astro/fonts/', fixture.config.outDir);
+				const files = await readdir(outputDir);
+				assert.equal(files.length > 0, true);
+				for (const file of files) {
+					const { mtime } = await stat(new URL(file, outputDir));
+					assert.equal(mtime.getTime(), cachedAt.getTime());
+				}
 			});
 		});
 

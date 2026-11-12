@@ -5,7 +5,7 @@ import {
 	removeBase,
 } from '@astrojs/internal-helpers/path';
 import type { AssetsPrefix } from '../../core/app/types.js';
-import type { ImageTransform, SerializedStaticImage } from '../types.js';
+import type { ImageMetadata, ImageTransform, SerializedStaticImage } from '../types.js';
 import { getAssetsPrefix } from './getAssetsPrefix.js';
 import { hashTransform, propsToFilename } from './hash.js';
 import { isESMImportedImage } from './imageKind.js';
@@ -62,7 +62,12 @@ export function resolveStaticImage(
 			hash,
 			finalPath: finalFilePath,
 			originalSrcPath: originalFSPath,
-			transform: options,
+			// SVG imports are component functions carrying image metadata. Copy the metadata to a plain
+			// object so the transform can be structured-cloned out of parallel prerender workers.
+			transform:
+				typeof options.src === 'function'
+					? { ...options, src: { ...(options.src as ImageMetadata) } }
+					: options,
 		},
 	};
 }

@@ -74,3 +74,44 @@ describe('astro:server-islands invalidation', () => {
 		);
 	});
 });
+
+describe('astro:server-islands renderChunk', () => {
+	function createBuildPlugin() {
+		const plugin = vitePluginServerIslands({
+			settings: {} as any,
+			serverIslandsState: new ServerIslandsState(),
+		} as any) as any;
+		plugin.config({}, { command: 'build' });
+		return plugin;
+	}
+
+	const context = { environment: { name: 'prerender' }, getFileName: () => '' };
+
+	it('replaces the placeholders in the server island manifest chunk', () => {
+		const plugin = createBuildPlugin();
+		const code =
+			"var serverIslandMap = '$$server-islands-map$$';\nvar serverIslandNameMap = '$$server-islands-name-map$$';";
+
+		const result = plugin.renderChunk.call(context, code, {
+			isEntry: false,
+			moduleIds: [RESOLVED_MANIFEST_ID],
+		});
+
+		assert.ok(result);
+		assert.ok(!result.code.includes('$$server-islands-map$$'));
+		assert.ok(!result.code.includes('$$server-islands-name-map$$'));
+	});
+
+	// Regression test for https://github.com/withastro/astro/issues/18364
+	it('does not rewrite chunks that do not contain the server island manifest', () => {
+		const plugin = createBuildPlugin();
+		const code = `var serverIslandPlaceholderMap = "'$$server-islands-map$$'";`;
+
+		const result = plugin.renderChunk.call(context, code, {
+			isEntry: false,
+			moduleIds: ['/node_modules/astro/dist/core/server-islands/vite-plugin-server-islands.js'],
+		});
+
+		assert.equal(result, undefined);
+	});
+});

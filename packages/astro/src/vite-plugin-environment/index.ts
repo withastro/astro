@@ -88,7 +88,7 @@ export function vitePluginEnvironment({
 						// Vite does not classify .mts files as scannable unless the extension is explicit.
 						extensions: ['.mts'],
 						include: [],
-						exclude: ['node-fetch'],
+						exclude: [],
 					};
 				}
 			}

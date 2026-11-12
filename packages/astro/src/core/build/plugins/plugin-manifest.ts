@@ -6,7 +6,8 @@ import { resolveMiddlewareMode } from '../../../integrations/adapter-utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
 import type { ExtractedChunk } from '../static-build.js';
-import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import { BEFORE_HYDRATION_SCRIPT_ID } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-scripts/index.js';
+import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { toFallbackType } from '../../app/common.js';
 import { serializeRouteData, toRoutingStrategy } from '../../app/entrypoints/index.js';
 import type {
@@ -25,11 +26,12 @@ import {
 	getStyleResources,
 	shouldTrackCspHashes,
 	trackScriptHashes,
+	trackScriptIntegrity,
 	trackStyleHashes,
 } from '../../csp/common.js';
 import { partitionByKind } from '../../csp/runtime.js';
 import { generateSpeculationRulesContent } from '../../../prefetch/speculation-rules.js';
-import { encodeKey, generateCspDigest } from '../../encryption.js';
+import { encodeKey, generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { getOutFile, getOutFolder } from '../common.js';
@@ -146,7 +148,13 @@ async function createManifest(
 
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
-	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
+	const manifest = await buildManifest(
+		buildOpts,
+		internals,
+		Array.from(staticFiles),
+		encodedKey,
+		clientStatics,
+	);
 	return manifest;
 }
 
@@ -200,6 +208,7 @@ async function buildManifest(
 	internals: BuildInternals,
 	staticFiles: string[],
 	encodedKey: string,
+	clientFiles: Set<string>,
 ): Promise<SerializedSSRManifest> {
 	const { settings } = opts;
 
@@ -348,7 +357,6 @@ async function buildManifest(
 				internals,
 				settings,
 				algorithm,
-				clientRoot: opts.outputDirectories.client,
 			})),
 		];
 		const styleHashes = [
@@ -358,9 +366,23 @@ async function buildManifest(
 				internals,
 				settings,
 				algorithm,
-				clientRoot: opts.outputDirectories.client,
 			})),
 		];
+
+		let importMapContent: string | undefined;
+		if (getStrictDynamic(cspConfig)) {
+			const scriptIntegrity = await trackScriptIntegrity({
+				settings,
+				algorithm,
+				clientRoot: opts.outputDirectories.client,
+				clientFiles,
+				assetQueryString,
+			});
+			if (scriptIntegrity) {
+				importMapContent = scriptIntegrity.importMapContent;
+				scriptHashes.push(...scriptIntegrity.hashes);
+			}
+		}
 
 		// When both CSP and clientPrerender are enabled, generate a static speculation rules
 		// script whose hash can be included in the CSP policy. Dynamic per-URL injection would
@@ -401,6 +423,7 @@ async function buildManifest(
 			scriptDirective,
 			styleDirective,
 			speculationRulesContent,
+			importMapContent,
 		};
 	}
 

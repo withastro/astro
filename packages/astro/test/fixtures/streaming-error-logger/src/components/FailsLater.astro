@@ -1,0 +1,5 @@
+---
+await new Promise((resolve) => setTimeout(resolve, 50));
+throw new Error('Failed after the page started streaming');
+---
+<p>never rendered</p>

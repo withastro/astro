@@ -1,12 +1,12 @@
 import type { BuildEnvironment, ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
 import type { AstroPluginOptions } from '../../types/astro.js';
-import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
+import type { AstroPluginMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { ServerIslandsState } from './shared-state.js';
 
 export const SERVER_ISLAND_MANIFEST = 'virtual:astro:server-island-manifest';
-const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
+export const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 
 const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
 const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
@@ -171,6 +171,10 @@ export function vitePluginServerIslands({
 
 		renderChunk(code, chunk) {
 			if (!code.includes(SERVER_ISLAND_MAP_MARKER)) return;
+			// This plugin's own source also contains the marker and can be bundled into user
+			// output (e.g. via `getViteConfig` in `astro/config`), so only rewrite the manifest.
+			// See https://github.com/withastro/astro/issues/18364
+			if (!chunk.moduleIds.includes(RESOLVED_SERVER_ISLAND_MANIFEST)) return;
 
 			if (command === 'build') {
 				const envName = this.environment?.name;

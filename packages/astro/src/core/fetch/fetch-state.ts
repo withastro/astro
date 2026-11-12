@@ -21,8 +21,8 @@ import {
 } from '../constants.js';
 import type { CspKind } from '../csp/config.js';
 import { normalizeCspResourceEntry, pushDirective } from '../csp/runtime.js';
-import { generateCspDigest } from '../encryption.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import {
 	computeCurrentLocale as computeCurrentLocaleUtil,
 	computeCurrentLocaleFromParams,
@@ -33,7 +33,7 @@ import {
 import { getParams, getProps } from '../render/index.js';
 import { executeRewrite } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
-import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/pathname.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { setPathname } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
@@ -156,6 +156,20 @@ export function getFetchStateFromAPIContext(context: APIContext): FetchState {
 }
 
 /**
+ * External `<link href>` / `<script src>` entries are stored with empty
+ * `children`. Hashing that empty string puts the SHA of `''` in CSP and
+ * disables `'unsafe-inline'` for that directive.
+ */
+function isInlineCspHeadContent(element: {
+	children: string;
+	props?: Record<string, unknown>;
+}): boolean {
+	if (!element.children) return false;
+	const props = element.props ?? {};
+	return props.href == null && props.src == null;
+}
+
+/**
  * Holds per-request state as it flows through the handler pipeline.
  *
  * **This class is user-facing** via `astro/fetch` and `astro/hono`.
@@ -252,8 +266,9 @@ export class FetchState implements AstroFetchState {
 	skipMiddleware = false;
 	/**
 	 * Set to `true` when the request path was encoded too many times to fully
-	 * decode (see {@link validateAndDecodePathname}). These requests are
-	 * rejected with a `400` before middleware or routing run.
+	 * decode, or is not valid percent-encoded UTF-8 (see
+	 * {@link validateAndDecodePathname}). These requests are rejected with a
+	 * `400` before middleware or routing run.
 	 */
 	invalidEncoding = false;
 	/** A flag that tells the render content if the rewriting was triggered. */
@@ -446,9 +461,11 @@ export class FetchState implements AstroFetchState {
 		const cspAlgorithm = manifest.csp?.algorithm ?? 'SHA-256';
 		if (shouldInjectCspMetaTags) {
 			for (const style of styles) {
+				if (!isInlineCspHeadContent(style)) continue;
 				extraStyleHashes.push(await generateCspDigest(style.children, cspAlgorithm));
 			}
 			for (const script of scripts) {
+				if (!isInlineCspHeadContent(script)) continue;
 				extraScriptHashes.push(await generateCspDigest(script.children, cspAlgorithm));
 			}
 		}
@@ -489,6 +506,7 @@ export class FetchState implements AstroFetchState {
 			params: this.params!,
 			partial,
 			pathname: this.pathname,
+			logger: env.logsStreamErrors ? astroToRuntimeLogger(this.logger) : undefined,
 			renderers,
 			resolve,
 			response,
@@ -542,6 +560,7 @@ export class FetchState implements AstroFetchState {
 				hashes: manifest.csp?.styleDirective ? [...manifest.csp.styleDirective.hashes] : [],
 			},
 			speculationRulesContent: manifest.csp?.speculationRulesContent,
+			importMapContent: manifest.csp?.importMapContent,
 			internalFetchHeaders: manifest.internalFetchHeaders,
 		};
 
@@ -1080,15 +1099,12 @@ export class FetchState implements AstroFetchState {
 	#normalizePathname(pathname: string): string {
 		try {
 			pathname = validateAndDecodePathname(pathname);
-		} catch (e: any) {
-			// The path was encoded too many times to fully decode. Mark it so
-			// the handler can reject the request with a 400 before middleware
-			// or routing run, instead of working with a half-decoded path.
-			if (e instanceof MultiLevelEncodingError) {
-				this.invalidEncoding = true;
-			} else {
-				this.logger.error(null, e.toString());
-			}
+		} catch {
+			// The path was encoded too many times to fully decode, or is not
+			// valid percent-encoded UTF-8. Mark it so the handler can reject the
+			// request with a 400 before middleware or routing run, instead of
+			// working with a half-decoded or undecoded path.
+			this.invalidEncoding = true;
 		}
 		return collapseDuplicateSlashes(pathname);
 	}
@@ -1111,6 +1127,7 @@ export class FetchState implements AstroFetchState {
 			getFirstForwardedValue(headers.get('x-forwarded-host') ?? undefined),
 			getFirstForwardedValue(headers.get('x-forwarded-port') ?? undefined),
 			allowedDomains,
+			{ protocol: this.url.protocol.slice(0, -1), host: this.url.host },
 		);
 
 		// Nothing validated — nothing to apply.
@@ -1120,16 +1137,12 @@ export class FetchState implements AstroFetchState {
 			this.url.protocol = validated.protocol + ':';
 		}
 		if (validated.host) {
-			// The validated host may include a port (e.g. "example.com:8080").
-			const colonIdx = validated.host.indexOf(':');
-			if (colonIdx !== -1) {
-				this.url.hostname = validated.host.slice(0, colonIdx);
-				this.url.port = validated.host.slice(colonIdx + 1);
-			} else {
-				this.url.hostname = validated.host;
-				// Clear port so default port for the protocol is used.
-				this.url.port = '';
-			}
+			// The validated host may include a port (e.g. "example.com:8080"). Parse it with the URL
+			// parser rather than splitting the string, so the hostname and port applied here are the
+			// ones that were validated. Without a port, the default port for the protocol is used.
+			const forwardedUrl = new URL(`${this.url.protocol}//${validated.host}`);
+			this.url.hostname = forwardedUrl.hostname;
+			this.url.port = forwardedUrl.port;
 		}
 		if (validated.port) {
 			this.url.port = validated.port;

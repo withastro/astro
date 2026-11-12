@@ -37,7 +37,7 @@ export async function check(flags: Flags): Promise<boolean | void> {
 			'check',
 			'The `@astrojs/check` and `typescript` packages are required for this command to work. Please manually install them into your project and try again.',
 		);
-		return;
+		return true;
 	}
 
 	if (!flags.noSync && !flags.help) {

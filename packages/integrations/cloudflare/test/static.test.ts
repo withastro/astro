@@ -30,4 +30,14 @@ describe('Static output', () => {
 			assert.ok(!js.includes('globalThis.process'), `${file} should not contain the process shim`);
 		}
 	});
+
+	it('replaces process.env references in client scripts', async () => {
+		const html = await fixture.readFile('/client/index.html');
+		assert.ok(html.includes('DEBUG'), 'Expected the client script to be in the output');
+		assert.ok(!html.includes('process.env'));
+		for (const file of await fixture.glob('client/_astro/*.js')) {
+			const js = await fixture.readFile('/' + file);
+			assert.ok(!js.includes('process.env'), `${file} should not reference process.env`);
+		}
+	});
 });

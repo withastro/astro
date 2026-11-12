@@ -53,11 +53,7 @@ export type CspScriptDirective = {
 };
 
 type NormalizeLocales<T extends Locales> = {
-	[K in keyof T]: T[K] extends string
-		? T[K]
-		: T[K] extends { codes: Array<string> }
-			? T[K]['codes'][number]
-			: never;
+	[K in keyof T]: T[K] extends string ? T[K] : T[K] extends { path: string } ? T[K]['path'] : never;
 }[number];
 
 export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
@@ -708,7 +704,8 @@ export interface AstroUserConfig<
 		 *
 		 * This prevents host header injection attacks where malicious actors can manipulate the `Astro.url` value by sending crafted `X-Forwarded-Host` headers.
 		 *
-		 * Each pattern can specify `protocol`, `hostname`, and `port`. All three are validated if provided.
+		 * Each pattern can specify `protocol`, `hostname`, and `port`. All three are validated together if provided. A pattern without a `protocol` allows `http` and `https`.
+		 * A pattern without a `port` allows any port in the host, but `X-Forwarded-Port` is only trusted when it matches a pattern's `port`.
 		 * The patterns support wildcards for flexible hostname matching:
 		 *
 		 * - `*.example.com` - matches exactly one subdomain level (e.g., `sub.example.com` but not `deep.sub.example.com`)
@@ -1295,6 +1292,8 @@ export interface AstroUserConfig<
 						 * ```
 						 *
 						 * This applies to `script-src`. When you also scope `script` resources or hashes to `script-src-elem` (using `kind: "element"`), `strict-dynamic` is inherited by `script-src-elem` so that dynamically injected `<script>` elements continue to work.
+						 *
+						 * Because browsers ignore `'self'` under `'strict-dynamic'`, Astro adds the hash of every script it bundles to `script-src` and renders a `<script type="importmap">` in the `<head>` that lists each script's [`integrity`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap#integrity_metadata_map). This lets bundled scripts, the modules they import, and hydrated islands load. It requires browsers that support import map integrity metadata (Chrome 127, Firefox 138, Safari 18).
 						 */
 						strictDynamic?: boolean;
 					};
@@ -3378,30 +3377,45 @@ export interface AstroUserConfig<
 	routeRules?: RouteRules;
 
 	/**
-	 *
+	 * @docs
 	 * @kind heading
-	 * @name Legacy Flags
+	 * @name legacy
 	 * @description
 	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
+	 *
 	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
-	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
+	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases until you are able to fully update your project code.
 	 */
 	legacy?: {
 		/**
-		 * Enable backwards compatibility for v4 content collections.
+		 * @docs
+		 * @name legacy.collectionsBackwardsCompat
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.0.0
+		 * @description
+		 * Provides temporary backwards compatibility for projects unable to migrate to the Content Layer API introduced in v5.0.
 		 *
-		 * When enabled, restores the following v4 behaviors:
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from "astro/config";
+		 *
+		 * export default defineConfig({
+		 *   legacy: {
+		 *     collectionsBackwardsCompat: true,
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * When enabled, this preserves the following legacy v4 content collections features:
+		 *
 		 * - Allows legacy config file location: `src/content/config.ts`
 		 * - Allows collections without explicit loaders (automatically wraps with glob loader)
 		 * - Supports `type: 'content'` and `type: 'data'` without loaders
 		 * - Preserves legacy entry API: `entry.slug` and `entry.render()`
 		 * - Uses path-based entry IDs instead of slug-based IDs
 		 *
-		 * This is a temporary migration helper for projects upgrading to v6.
-		 * Migrate collections to the Content Layer API, then disable this flag.
-		 *
-		 * @type {boolean}
-		 * @default false
+		 * This is a temporary migration helper. Migrate collections to the Content Layer API, then disable this flag.
 		 */
 		collectionsBackwardsCompat?: boolean;
 	};

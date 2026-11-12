@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import configHeadVitePlugin from '../../../dist/vite-plugin-head/index.js';
+import configHeadVitePlugin from '@astrojs/vite-plugin-astro/_internal/vite-plugin-head/index.js';
 
 const METADATA_ID = '\0virtual:astro:component-metadata';
 const PAGE_ID = '/src/pages/index.astro';
@@ -18,7 +18,7 @@ function createMockModule(id: string, hasTransformResult = false) {
  * `invalidateModule` call the plugin makes against the metadata module.
  */
 function setupPlugin(moduleIds: string[], { withTransformResults = false } = {}) {
-	const plugin = configHeadVitePlugin() as any;
+	const plugin = configHeadVitePlugin({ environments: ['ssr', 'prerender'] }) as any;
 	const invalidated: string[] = [];
 	const modules = new Map(moduleIds.map((id) => [id, createMockModule(id, withTransformResults)]));
 	const deletedEtags: string[] = [];
@@ -109,5 +109,31 @@ describe('astro:head-metadata', () => {
 			[],
 			'invalidateModule must not be called — it cascades to importers',
 		);
+	});
+
+	// Regression test for https://github.com/withastro/astro/issues/18509
+	//
+	// A wrapper resolves a `propagation: self` child before the child is
+	// loaded, so the wrapper only learns about it when the child is transformed.
+	it('marks importers in-tree when a self-propagating module is transformed', () => {
+		const WRAPPER_ID = '/src/components/Menu.astro';
+		const CHILD_ID = '/src/components/Dot.astro';
+		const { plugin, modules } = setupPlugin([METADATA_ID, PAGE_ID, WRAPPER_ID, CHILD_ID]);
+		modules.get(CHILD_ID)!.importers.add(modules.get(WRAPPER_ID));
+		modules.get(WRAPPER_ID)!.importers.add(modules.get(PAGE_ID));
+		const meta = new Map<string, any>([
+			[PAGE_ID, { containsHead: true, propagation: 'none' }],
+			[WRAPPER_ID, { containsHead: false, propagation: 'none' }],
+			[CHILD_ID, { containsHead: false, propagation: 'self' }],
+		]);
+		const context = {
+			getModuleInfo: (id: string) => (meta.has(id) ? { id, meta: { astro: meta.get(id) } } : null),
+		};
+
+		plugin.transform.call(context, '// compiled child', CHILD_ID);
+
+		assert.equal(meta.get(WRAPPER_ID).propagation, 'in-tree');
+		assert.equal(meta.get(PAGE_ID).propagation, 'in-tree');
+		assert.equal(meta.get(CHILD_ID).propagation, 'self');
 	});
 });

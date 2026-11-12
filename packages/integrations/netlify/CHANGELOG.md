@@ -1,5 +1,30 @@
 # @astrojs/netlify
 
+## 8.2.13
+
+### Patch Changes
+
+- [#18680](https://github.com/withastro/astro/pull/18680) [`4f8e19a`](https://github.com/withastro/astro/commit/4f8e19aa28b9d67519a5fad84303c725654cbb4f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Prevents server function traces from including the entire project when a dependency uses paths the tracer cannot resolve.
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.12
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.11
+
+### Patch Changes
+
+- [#18554](https://github.com/withastro/astro/pull/18554) [`3ef9fea`](https://github.com/withastro/astro/commit/3ef9fea973c3a21c65a320407fbb2cf4e947b495) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes NFT tracing so dynamic path segments no longer glob the whole workspace, which could include unrelated files in function bundles for monorepo projects
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 8.2.10
 
 ### Patch Changes

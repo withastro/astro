@@ -3,8 +3,8 @@ import { describe, it } from 'node:test';
 import {
 	extractDirectives,
 	generateHydrateScript,
-} from '../../../dist/runtime/server/hydration.js';
-import { renderElement } from '../../../dist/runtime/server/render/util.js';
+} from '@astrojs/runtime/_internal/server/hydration.js';
+import { renderElement } from '@astrojs/runtime/_internal/server/render/util.js';
 
 // Minimal clientDirectives map matching what Astro registers by default
 const clientDirectives = new Map([

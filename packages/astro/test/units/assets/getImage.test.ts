@@ -3,8 +3,8 @@ import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
 import { baseService } from '../../../dist/assets/services/service.js';
 import type { GetImageResult, UnresolvedImageTransform } from '../../../dist/assets/types.js';
 import { getImage, setConfiguredImageService } from '../../../dist/assets/internal.js';
-import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
-import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/_internal/core/render-scope/node-scope.js';
+import { uninstallRenderScope } from '@astrojs/runtime/_internal/core/render-scope/scope.js';
 import { installImageService, mockRuntimeLogger } from '../mocks.ts';
 
 describe('getImage', () => {
@@ -398,6 +398,22 @@ describe('getImage', () => {
 			});
 			const params = new URL(result.src, 'http://localhost').searchParams;
 			assert.equal(params.get('f'), 'png');
+		});
+	});
+
+	describe('densities', () => {
+		it('emits one srcset candidate per equivalent density', async () => {
+			const result = await renderImage({
+				src: 'https://example.com/photo.jpg',
+				width: 400,
+				height: 280,
+				densities: [1, '1x', 2, '2x'],
+				alt: 'Densities',
+			});
+			assert.deepEqual(
+				result.srcSet.values.map((value) => value.descriptor),
+				['1x', '2x'],
+			);
 		});
 	});
 

@@ -23,6 +23,8 @@ interface ElementMetadata {
 
 const exportConstComponentsRe = /export\s+const\s+components\s*=/;
 
+const svgOptions = { space: 'svg' } as const;
+
 /**
  * For MDX only, collapse static subtrees of the hast into `set:html`. Subtrees
  * do not include any MDX elements.
@@ -57,6 +59,9 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 		const elementStack: Node[] = [];
 		// Metadata used by `findElementGroups` later
 		const elementMetadatas = new WeakMap<OptimizableNode, ElementMetadata>();
+		// Nodes whose children must be serialized in the SVG space, so that hast property
+		// names like `markerEnd` are written back as SVG attributes like `marker-end`
+		const svgParents = new WeakSet<ParentNode>();
 
 		/**
 		 * A non-static node causes all its parents to be non-optimizable
@@ -68,7 +73,12 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 				// which MDX will render as a fragment instead (an MDX fragment is a `mdxJsxFlowElement` type).
 				node.type === 'root' ||
 				// @ts-expect-error Access `.tagName` naively for perf
-				ignoreElementNames.has(node.tagName)
+				ignoreElementNames.has(node.tagName) ||
+				// `set:html`/`set:text` (e.g. from `rehypeCollapseScriptStyle`) are Astro directives that
+				// must reach JSX, `toHtml` would write them as literal attributes
+				(node.type === 'element' &&
+					node.properties != null &&
+					('set:html' in node.properties || 'set:text' in node.properties))
 			);
 		};
 
@@ -99,6 +109,14 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 				if (node.type === 'element' || isMdxComponentNode(node)) {
 					elementStack.push(node);
 					allPossibleElements.add(node);
+
+					const name = node.type === 'element' ? node.tagName : node.name;
+					if (
+						name === 'svg' ||
+						(name !== 'foreignObject' && svgParents.has(parents[parents.length - 1]))
+					) {
+						svgParents.add(node);
+					}
 
 					if (index != null && node.type === 'element') {
 						// Record metadata for element node to be used for grouping analysis later
@@ -144,10 +162,13 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 				el.attributes.push({
 					type: 'mdxJsxAttribute',
 					name: 'set:html',
-					value: toHtml(el.children),
+					value: toHtml(el.children, svgParents.has(el) ? svgOptions : undefined),
 				});
 			} else {
-				el.properties['set:html'] = toHtml(el.children);
+				el.properties['set:html'] = toHtml(
+					el.children,
+					svgParents.has(el) ? svgOptions : undefined,
+				);
 			}
 			el.children = [];
 		}
@@ -164,7 +185,7 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 					{
 						type: 'mdxJsxAttribute',
 						name: 'set:html',
-						value: toHtml(group.children),
+						value: toHtml(group.children, svgParents.has(group.parent) ? svgOptions : undefined),
 					},
 				],
 				children: [],

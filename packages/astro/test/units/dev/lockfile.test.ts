@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -18,6 +18,7 @@ import {
 	checkExistingServer,
 	type LockFileData,
 } from '../../../dist/core/dev/lockfile.js';
+import { stopExistingServer } from '../../../dist/cli/server.js';
 
 const validData: LockFileData = {
 	pid: 12345,
@@ -271,16 +272,61 @@ describe('isLockFileProcessAlive', () => {
 		assert.equal(await isLockFileProcessAlive(data, findProcess), false);
 	});
 
-	it('keeps the PID-only result when the command cannot be inspected', async () => {
+	it('returns false when a successful process lookup finds no matching PID', async () => {
 		const data = { ...validData, pid: childPid };
 
-		assert.equal(await isLockFileProcessAlive(data, async () => undefined), true);
+		assert.equal(
+			await isLockFileProcessAlive(data, async (pid) => {
+				assert.equal(pid, childPid);
+				return undefined;
+			}),
+			false,
+		);
+	});
+
+	it('keeps the PID-only result when the process command is unavailable', async () => {
+		const data = { ...validData, pid: childPid };
+
+		assert.equal(await isLockFileProcessAlive(data, async () => ({ pid: childPid })), true);
+	});
+
+	it('keeps the PID-only result when process inspection fails', async () => {
+		const data = { ...validData, pid: childPid };
+
 		assert.equal(
 			await isLockFileProcessAlive(data, async () => {
-				throw new Error('Process lookup failed');
+				throw Object.assign(new Error('spawn ps ENOENT'), { code: 'ENOENT' });
 			}),
 			true,
 		);
+	});
+
+	it('treats a Linux thread ID as stale without killing its owning process', {
+		skip: process.platform !== 'linux',
+	}, async () => {
+		// Wait for Node to initialize at least one non-main thread in the child.
+		let threadId: string | undefined;
+		for (let attempt = 0; attempt < 100 && threadId === undefined; attempt++) {
+			threadId = readdirSync(`/proc/${childPid}/task`).find((id) => id !== String(childPid));
+			if (threadId === undefined) await new Promise((resolve) => setTimeout(resolve, 20));
+		}
+		assert.ok(threadId, 'expected the child process to have a non-main thread');
+		const data = { ...validData, pid: Number(threadId) };
+		assert.equal(isProcessAlive(data.pid), true);
+
+		// Exercise the real tinyps lookup, not a stub returning undefined.
+		assert.equal(await isLockFileProcessAlive(data), false);
+
+		const tempDir = mkdtempSync(join(tmpdir(), 'astro-thread-lockfile-'));
+		const root = pathToFileURL(tempDir + '/');
+		try {
+			writeLockFile(root, data);
+			assert.equal(await checkExistingServer(root), null);
+			assert.equal(readLockFile(root), null);
+			assert.equal(isProcessAlive(childPid), true);
+		} finally {
+			rmSync(tempDir, { recursive: true, force: true });
+		}
 	});
 });
 
@@ -300,6 +346,42 @@ describe('checkExistingServer', () => {
 	it('cleans up a lock file when a live PID belongs to another command', async () => {
 		const data = { ...validData, pid: process.pid };
 		writeLockFile(root, data);
+
+		assert.equal(await checkExistingServer(root), null);
+		assert.equal(readLockFile(root), null);
+	});
+
+	it('keeps the lock file when signaling the live Astro process fails with EPERM', async (t) => {
+		// A real process whose command matches the Astro CLI entry, so the tinyps identity check passes.
+		const binDir = join(tempDir, 'node_modules', 'astro', 'bin');
+		mkdirSync(binDir, { recursive: true });
+		const astroBin = join(binDir, 'astro.mjs');
+		writeFileSync(astroBin, 'setInterval(() => {}, 1000);');
+		const child = spawn(process.execPath, [astroBin], { stdio: 'ignore' });
+		const pid = child.pid!;
+		t.after(() => child.kill());
+
+		const kill = process.kill.bind(process);
+		t.mock.method(process, 'kill', (target: number, signal?: string | number) => {
+			if (target === pid && signal === 0) {
+				throw Object.assign(new Error('kill EPERM'), { code: 'EPERM' });
+			}
+			return kill(target, signal);
+		});
+
+		const data = { ...validData, pid };
+		writeLockFile(root, data);
+
+		assert.deepEqual(await checkExistingServer(root), data);
+		assert.deepEqual(readLockFile(root), data);
+	});
+
+	it('removes the lock file when the recorded process does not exist (ESRCH)', async (t) => {
+		t.mock.method(process, 'kill', () => {
+			throw Object.assign(new Error('kill ESRCH'), { code: 'ESRCH' });
+		});
+
+		writeLockFile(root, validData);
 
 		assert.equal(await checkExistingServer(root), null);
 		assert.equal(readLockFile(root), null);
@@ -353,6 +435,44 @@ describe('killDevServer', () => {
 
 		assert.equal(isProcessAlive(pid), false);
 		assert.equal(readLockFile(root), null);
+	});
+
+	it('keeps the lock file and throws when the process cannot be signaled (EPERM)', async (t) => {
+		t.mock.method(process, 'kill', () => {
+			throw Object.assign(new Error('kill EPERM'), { code: 'EPERM' });
+		});
+
+		writeLockFile(root, validData);
+
+		await assert.rejects(killDevServer(root, validData), /permission denied/);
+		assert.deepEqual(readLockFile(root), validData);
+	});
+});
+// #endregion
+
+// #region stopExistingServer
+describe('stopExistingServer', () => {
+	let tempDir: string;
+	let root: URL;
+
+	before(() => {
+		tempDir = mkdtempSync(join(tmpdir(), 'astro-lockfile-'));
+		root = pathToFileURL(tempDir + '/');
+	});
+
+	after(() => {
+		rmSync(tempDir, { recursive: true, force: true });
+	});
+
+	it('keeps the lock file and throws when the process cannot be signaled (EPERM)', async (t) => {
+		t.mock.method(process, 'kill', () => {
+			throw Object.assign(new Error('kill EPERM'), { code: 'EPERM' });
+		});
+
+		writeLockFile(root, validData);
+
+		await assert.rejects(stopExistingServer(root, 'dev', validData.pid), /permission denied/);
+		assert.deepEqual(readLockFile(root), validData);
 	});
 });
 // #endregion
