@@ -191,6 +191,35 @@ describe('Image CDN', { timeout: 120000 }, () => {
 			);
 		});
 
+		it('only matches paths below the directory for /** pathnames', async () => {
+			const spyLogger = new SpyLogger();
+			const logger = spyLogger.forkIntegrationLogger('test-spy');
+			const regex = new RegExp(
+				remotePatternToRegex(
+					{ protocol: 'https', hostname: 'cdn.example.com', pathname: '/public/**' },
+					logger,
+				)!,
+			);
+			assert.equal(regex.test('https://cdn.example.com/public/a.jpg'), true);
+			assert.equal(regex.test('https://cdn.example.com/public/a/b.jpg'), true);
+			assert.equal(regex.test('https://cdn.example.com/public/a.jpg?w=100'), true);
+			assert.equal(
+				regex.test('https://cdn.example.com/public-assets/a.jpg'),
+				false,
+				'sibling path sharing the prefix should not match',
+			);
+			assert.equal(
+				regex.test('https://cdn.example.com/publicfile.jpg'),
+				false,
+				'file sharing the prefix should not match',
+			);
+			assert.equal(
+				regex.test('https://cdn.example.com/public/'),
+				false,
+				'the directory itself should not match',
+			);
+		});
+
 		it('treats metacharacters in the hostname as literals', async () => {
 			const spyLogger = new SpyLogger();
 			const logger = spyLogger.forkIntegrationLogger('test-spy');

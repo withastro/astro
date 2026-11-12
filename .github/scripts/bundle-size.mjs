@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { build } from 'esbuild';
+import { rolldown } from 'rolldown';
 
 const CLIENT_RUNTIME_PATH = 'packages/astro/src/runtime/client/';
 
@@ -67,36 +67,53 @@ ${table.join('\n')}`,
 }
 
 async function bundle(files) {
-	const { metafile } = await build({
-		entryPoints: [
-			...files.map(({ filename }) => filename),
-			...files.map(({ filename }) => `main/${filename}`).filter((f) => existsSync(f)),
-		],
-		bundle: true,
-		minify: true,
-		sourcemap: false,
-		target: ['esnext'],
-		outdir: 'out',
-		external: ['astro:*', 'aria-query', 'axobject-query'],
-		metafile: true,
-	});
+	const entryPoints = [
+		...files.map(({ filename }) => filename),
+		...files.map(({ filename }) => `main/${filename}`).filter((f) => existsSync(f)),
+	];
 
-	return Object.entries(metafile.outputs).reduce((acc, [filename, info]) => {
-		filename = filename.slice('out/'.length);
-		if (filename.startsWith('main/')) {
-			filename = filename.slice('main/'.length).replace(CLIENT_RUNTIME_PATH, '').replace('.js', '');
-			const oldSize = info.bytes;
-			return Object.assign(acc, {
-				[filename]: Object.assign(acc[filename] ?? { oldSize: 0, newSize: 0 }, { oldSize }),
-			});
-		}
-		filename = filename.replace(CLIENT_RUNTIME_PATH, '').replace('.js', '');
-		const newSize = info.bytes;
-		return Object.assign(acc, {
-			[filename]: Object.assign(acc[filename] ?? { oldSize: 0, newSize: 0 }, {
-				newSize,
-				sourceFile: Object.keys(info.inputs).find((src) => src.endsWith('.ts')),
-			}),
+	const sizes = {};
+	for (const entryPoint of entryPoints) {
+		const isOld = entryPoint.startsWith('main/');
+		const name = entryPoint.replace(/\.[^.]+$/, '');
+		const bundle = await rolldown({
+			input: { [name]: entryPoint },
+			platform: 'browser',
+			external: (id) =>
+				id.startsWith('astro:') ||
+				id === 'aria-query' ||
+				id.startsWith('aria-query/') ||
+				id === 'axobject-query' ||
+				id.startsWith('axobject-query/'),
+			transform: { target: 'esnext' },
 		});
-	}, {});
+
+		try {
+			const { output } = await bundle.generate({
+				format: 'esm',
+				minify: true,
+				codeSplitting: false,
+				entryFileNames: '[name].js',
+			});
+			const chunk = output.find((item) => item.type === 'chunk');
+			if (!chunk) continue;
+
+			const filename = entryPoint
+				.replace(/^main\//, '')
+				.replace(CLIENT_RUNTIME_PATH, '')
+				.replace(/\.[^.]+$/, '');
+			const size = Buffer.byteLength(chunk.code);
+			const entry = (sizes[filename] ??= { oldSize: 0, newSize: 0 });
+			if (isOld) {
+				entry.oldSize = size;
+			} else {
+				entry.newSize = size;
+				entry.sourceFile = entryPoint;
+			}
+		} finally {
+			await bundle.close();
+		}
+	}
+
+	return sizes;
 }

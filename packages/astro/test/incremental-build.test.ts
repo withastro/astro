@@ -271,7 +271,7 @@ describe('experimental.incrementalBuild', () => {
 				force: true,
 			});
 			fs.rmSync(untrackedCacheDir, { recursive: true, force: true });
-			const testPrerenderer = createTestPrerenderer();
+			const testPrerenderer = createTestPrerenderer({ omitMetadata: true });
 			untrackedFixture = await loadFixture({
 				root,
 				outDir: './dist/incremental-build-untracked/',

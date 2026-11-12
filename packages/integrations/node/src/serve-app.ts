@@ -63,7 +63,13 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 
 	process.on('unhandledRejection', (reason) => {
 		const requestUrl = requestContext.getStore();
-		if (!requestUrl || (reason instanceof Error && abortedRequestErrors.has(reason))) return;
+		if (!requestUrl) {
+			const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
+			logger.error(`Unhandled rejection outside request context\n${error}`);
+			process.exitCode = 1;
+			return;
+		}
+		if (reason instanceof Error && abortedRequestErrors.has(reason)) return;
 		const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
 		logger.error(`Unhandled rejection while rendering ${requestUrl}\n${error}`);
 	});

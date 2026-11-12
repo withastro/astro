@@ -108,3 +108,31 @@ describe('AstroCheck with an incompatible TypeScript', () => {
 		);
 	});
 });
+
+describe('AstroCheck cancellation polling', () => {
+	it("Skips @volar/language-service's cancellation polling sleep while checking", async () => {
+		const volarCommon = createRequire(require.resolve('@volar/kit'))(
+			'@volar/language-service/lib/utils/common.js',
+		);
+		const originalSleep = volarCommon.sleep;
+		let sleepCalls = 0;
+		const countingSleep = (ms: number) => {
+			sleepCalls++;
+			return originalSleep(ms);
+		};
+		volarCommon.sleep = countingSleep;
+		try {
+			const checker = new AstroCheck(
+				checkFixtureDir,
+				require.resolve('typescript/lib/typescript.js'),
+				undefined,
+			);
+			const result = await checker.lint({});
+			assert.ok(result.fileChecked > 0);
+			assert.strictEqual(sleepCalls, 0);
+			assert.strictEqual(volarCommon.sleep, countingSleep);
+		} finally {
+			volarCommon.sleep = originalSleep;
+		}
+	});
+});

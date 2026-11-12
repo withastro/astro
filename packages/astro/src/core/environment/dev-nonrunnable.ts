@@ -7,7 +7,7 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../types/public/internal.js';
-import { stringifyForScript } from '../../runtime/server/escape.js';
+import { stringifyForScript } from '@astrojs/runtime/_internal/server/escape.js';
 import type { RequestLogPayload } from './index.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { ASTRO_VERSION } from '../constants.js';
@@ -211,7 +211,9 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 		},
 
 		errorStrategy: 'dev',
+		rendersRedirectPage: () => false,
 		injectCspMetaTagsOnErrorPages: false,
+		logsStreamErrors: false,
 
 		logRequest(manifest: SSRManifest, payload: RequestLogPayload): void {
 			const { pathname, method, statusCode, isRewrite, timeStart } = payload;

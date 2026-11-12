@@ -1,17 +1,18 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { isAbsolute } from 'node:path';
 import colors from 'piccolore';
-import type { Plugin } from 'vite';
+import type { Plugin, ResolvedConfig } from 'vite';
+import { pathToDirectoryURL } from '../../core/build/common.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
-import { generateCspDigest } from '../../core/encryption.js';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
+import { copyCachedFile } from '../../core/fs/index.js';
 import type { AstroLogger } from '../../core/logger/core.js';
 import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
-import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import {
 	ASSETS_DIR,
@@ -33,6 +34,7 @@ import { filterAndTransformFontFaces } from './core/filter-and-transform-font-fa
 import { getOrCreateFontFamilyAssets } from './core/get-or-create-font-family-assets.js';
 import { optimizeFallbacks } from './core/optimize-fallbacks.js';
 import { resolveFamily } from './core/resolve-family.js';
+import { validateFamilyProperties } from './core/validate-family-properties.js';
 import type { FontFetcher, FontTypeExtractor } from './definitions.js';
 import { BuildFontFileIdGenerator } from './infra/build-font-file-id-generator.js';
 import { BuildUrlResolver } from './infra/build-url-resolver.js';
@@ -81,6 +83,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let built = false;
 	let serverAddress: AddressInfo | null = null;
 	let urls: Array<string> | null = null;
+	let resolvedConfig: ResolvedConfig;
 
 	function cleanup() {
 		componentDataByCssVariable = null;
@@ -93,6 +96,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 	return {
 		name: 'astro:fonts',
+		configResolved(config) {
+			resolvedConfig = config;
+		},
 		async buildStart() {
 			if (sync) {
 				return;
@@ -140,18 +146,26 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				settings.config.fonts?.map((family) =>
 					resolveFamily({ family: family as FontFamily, hasher }),
 				) ?? [];
+			const fontResolver = await UnifontFontResolver.create({
+				families: resolvedFamilies,
+				hasher,
+				storage,
+				root,
+			});
+			// Providers know what they can actually serve, so we can tell the user about
+			// values configured for a family that won't be honored
+			await Promise.all(
+				resolvedFamilies.map((family) =>
+					validateFamilyProperties({ family, fontResolver, logger, bold }),
+				),
+			);
 			const { fontFamilyAssets, fontFileById: _fontFileById } = await computeFontFamiliesAssets({
 				resolvedFamilies,
 				defaults,
 				bold,
 				logger,
 				stringMatcher,
-				fontResolver: await UnifontFontResolver.create({
-					families: resolvedFamilies,
-					hasher,
-					storage,
-					root,
-				}),
+				fontResolver,
 				getOrCreateFontFamilyAssets: ({ family, fontFamilyAssetsByUniqueKey }) =>
 					getOrCreateFontFamilyAssets({
 						family,
@@ -363,8 +377,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 
 			try {
-				const dir = getClientOutputDirectory(settings);
+				const dir = pathToDirectoryURL(
+					resolvedConfig.environments[ASTRO_VITE_ENVIRONMENT_NAMES.client].build.outDir,
+				);
 				const fontsDir = new URL(`.${assetsDir}`, dir);
+				const cacheDir = new URL(CACHE_DIR, settings.config.cacheDir);
 				try {
 					mkdirSync(fontsDir, { recursive: true });
 				} catch (cause) {
@@ -377,9 +394,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					);
 					await Promise.all(
 						Array.from(fontFileById.entries()).map(async ([id, associatedData]) => {
-							const data = await fontFetcher!.fetch({ id, ...associatedData });
+							// Fetching populates the cache, so the output can be copied from it
+							// with its timestamps kept (#18483).
+							await fontFetcher!.fetch({ id, ...associatedData });
 							try {
-								writeFileSync(new URL(id, fontsDir), data);
+								await copyCachedFile(new URL(id, cacheDir), new URL(id, fontsDir));
 							} catch (cause) {
 								throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 							}

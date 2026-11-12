@@ -9,6 +9,7 @@ import {
 	redirects,
 	actions,
 	middleware,
+	notFound,
 	pages,
 	i18n,
 } from '../../../dist/core/fetch/index.js';
@@ -338,6 +339,50 @@ describe('redirects()', () => {
 
 // #endregion
 
+// #region notFound()
+
+describe('notFound()', () => {
+	it('returns undefined when a route matches', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		assert.equal(notFound(state), undefined);
+	});
+
+	it('serves a prerendered 404 page through prerenderedErrorPageFetch', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(notFoundPage, { route: '/404', prerender: true }),
+		]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+		const fetchedUrls: string[] = [];
+		state.renderOptions.prerenderedErrorPageFetch = async (url: string) => {
+			fetchedUrls.push(url);
+			return new Response('<h1>Prerendered 404</h1>', {
+				headers: { 'Content-Type': 'text/html' },
+			});
+		};
+
+		const response = await notFound(state);
+
+		assert.ok(response);
+		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('X-Astro-Error'), null);
+		assert.deepEqual(
+			fetchedUrls.map((url) => new URL(url).pathname),
+			['/404.html'],
+		);
+		assert.equal(await response.text(), '<h1>Prerendered 404</h1>');
+	});
+});
+
+// #endregion
+
 // #region actions()
 
 describe('actions()', () => {
@@ -557,6 +602,71 @@ describe('pages()', () => {
 		assert.equal(response.status, 500);
 		const text = await response.text();
 		assert.match(text, /<h1>my custom 500<\/h1>/);
+	});
+
+	it('renders a localized 404 route with a 404 status', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Não encontrado</h1>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(notFoundPage, { route: '/pt/404' })],
+			{
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt'],
+					strategy: 'manual',
+					fallbackType: 'rewrite',
+					fallback: {},
+					domains: {},
+					domainLookupTable: {},
+				},
+			},
+		);
+		const request = stampApp(new Request('http://example.com/pt/404'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 404);
+		const text = await response.text();
+		assert.match(text, /<h1>Não encontrado<\/h1>/);
+	});
+
+	it('renders a localized 500 route with a 500 status', async () => {
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Erro</h1>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(errorPage, { route: '/pt/500' })],
+			{
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt'],
+					strategy: 'manual',
+					fallbackType: 'rewrite',
+					fallback: {},
+					domains: {},
+					domainLookupTable: {},
+				},
+			},
+		);
+		const request = stampApp(new Request('http://example.com/pt/500'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 500);
+	});
+
+	it('honors a status set on the state before rendering', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+		state.status = 503;
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 503);
 	});
 
 	it('returns a marked 404 for the app post-check when the custom 404 route is prerendered', async () => {
@@ -828,6 +938,94 @@ describe('Composed pipeline', () => {
 		assert.equal(final.status, 200);
 		assert.match(await final.text(), /<h1>Hello<\/h1>/);
 	});
+
+	it('passes resolved props to middleware and endpoints when actions() runs before middleware()', async () => {
+		let middlewareProps: unknown;
+		const app = createTestApp(
+			[createEndpoint({ GET: ({ props }: any) => Response.json(props) }, { route: '/echo' })],
+			{
+				middleware: async () => ({
+					onRequest: async (ctx: any, next: any) => {
+						middlewareProps = ctx.props;
+						return next();
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/echo'), app);
+		const state = new FetchState(request);
+
+		assert.equal(await actions(state), undefined);
+		const response = await middleware(state, () => pages(state));
+
+		assert.deepEqual(middlewareProps, {});
+		assert.deepEqual(await response.json(), {});
+	});
+
+	it('passes resolved props to endpoints when pages() runs without middleware()', async () => {
+		const app = createTestApp([
+			createEndpoint({ GET: ({ props }: any) => Response.json(props) }, { route: '/echo' }),
+		]);
+		const request = stampApp(new Request('http://example.com/echo'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.deepEqual(await response.json(), {});
+	});
+});
+
+describe('Composed pipeline with an over-encoded path', () => {
+	// Encoded more times than `validateAndDecodePathname` decodes.
+	const overEncodedUrl = 'http://example.com/api/%2525252525252525252561dmin';
+
+	function createOverEncodedState(onMiddleware?: () => void) {
+		const app = createTestApp([createPage(simplePage, { route: '/api/admin' })], {
+			trailingSlash: 'always',
+			middleware: async () => ({
+				onRequest: async (_ctx: any, next: any) => {
+					onMiddleware?.();
+					return next();
+				},
+			}),
+		});
+		return new FetchState(stampApp(new Request(overEncodedUrl), app));
+	}
+
+	it('trailingSlash() returns 400 instead of a redirect', async () => {
+		const response = trailingSlash(createOverEncodedState());
+		assert.equal(response?.status, 400);
+		assert.equal(await response?.text(), '');
+	});
+
+	it('middleware() returns 400 without running user middleware', async () => {
+		let middlewareRan = false;
+		const state = createOverEncodedState(() => {
+			middlewareRan = true;
+		});
+		const response = await middleware(state, () => pages(state));
+		assert.equal(response.status, 400);
+		assert.equal(await response.text(), '');
+		assert.equal(middlewareRan, false, 'user middleware should not run');
+	});
+
+	it('redirects() returns 400', async () => {
+		const response = await redirects(createOverEncodedState());
+		assert.equal(response?.status, 400);
+		assert.equal(await response?.text(), '');
+	});
+
+	it('actions() returns 400', async () => {
+		const response = await actions(createOverEncodedState());
+		assert.equal(response?.status, 400);
+		assert.equal(await response?.text(), '');
+	});
+
+	it('pages() returns 400', async () => {
+		const response = await pages(createOverEncodedState());
+		assert.equal(response.status, 400);
+		assert.equal(await response.text(), '');
+	});
 });
 
 // #endregion
@@ -966,7 +1164,7 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 
 	it('applies X-Forwarded-Proto when allowedDomains is configured', () => {
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
-			allowedDomains: [{ hostname: '**' }],
+			allowedDomains: [{ hostname: 'localhost' }],
 		});
 		const request = stampApp(
 			new Request('http://localhost:4321/', {
@@ -1052,6 +1250,85 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		const state = new FetchState(request);
 
 		assert.equal(state.url.hostname, 'localhost');
+	});
+
+	for (const host of [
+		'evil.com:443@example.com',
+		'evil.com:@example.com',
+		'evil.com:8080@example.com',
+		'evil.com@example.com',
+		'example.com?',
+		'example.com#',
+		'example.com%2f',
+	]) {
+		it(`ignores X-Forwarded-Host "${host}" that is not a plain host`, () => {
+			const app = createTestApp([createPage(simplePage, { route: '/' })], {
+				allowedDomains: [{ hostname: 'example.com' }],
+			});
+			const request = stampApp(
+				new Request('http://localhost:4321/', {
+					headers: {
+						'x-forwarded-proto': 'https',
+						'x-forwarded-host': host,
+					},
+				}),
+				app,
+			);
+			const state = new FetchState(request);
+
+			assert.equal(state.url.hostname, 'localhost');
+			assert.equal(new URL(state.request.url).hostname, 'localhost');
+		});
+	}
+
+	it('applies the hostname and port of an X-Forwarded-Host with a port', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com', port: '8443' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com:8443',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.href, 'https://example.com:8443/');
+		assert.equal(state.request.url, 'https://example.com:8443/');
+	});
+
+	it('does not apply X-Forwarded-Proto that the entry for the request host does not allow', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'domain1.com', protocol: 'https' }, { hostname: 'domain2.com' }],
+		});
+		const request = stampApp(
+			new Request('https://domain1.com/', {
+				headers: { 'x-forwarded-proto': 'http' },
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.href, 'https://domain1.com/');
+		assert.equal(state.request.url, 'https://domain1.com/');
+	});
+
+	it('applies X-Forwarded-Proto that the entry for the request host allows', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'domain1.com', protocol: 'https' }, { hostname: 'domain2.com' }],
+		});
+		const request = stampApp(
+			new Request('https://domain2.com/', {
+				headers: { 'x-forwarded-proto': 'http' },
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.href, 'http://domain2.com/');
 	});
 
 	it('resolves clientAddress from X-Forwarded-For when host is trusted', () => {

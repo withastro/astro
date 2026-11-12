@@ -5,9 +5,9 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="Home">
 	<h1>Advanced Routing</h1>
 	<p>
-		This example uses <code>src/app.ts</code> to control the request pipeline with Hono. Individual feature
-		middleware from <code>astro/hono</code> and <code>astro/fetch</code>{' '}
-		are composed together, with your own Hono middleware running between them.
+		This example uses <code>src/app.ts</code> to control the request pipeline with Hono. Individual
+		feature middleware from <code>astro/hono</code> and <code>astro/fetch</code> are composed
+		together, with your own Hono middleware running between them.
 	</p>
 
 	<div class="cards">
@@ -17,11 +17,15 @@ import Layout from '../layouts/Layout.astro';
 		</a>
 		<a href="/old-dashboard" class="card">
 			<h2>Old Dashboard Link</h2>
-			<p>Redirected by Astro's built-in routing inside <code>astro()</code>.</p>
+			<p>
+				Redirected by Astro's built-in routing inside <code>astro()</code>.
+			</p>
 		</a>
 		<a href="/es" class="card">
 			<h2>Spanish</h2>
-			<p>Served through Astro's i18n handling, also composed inside <code>astro()</code>.</p>
+			<p>
+				Served through Astro's i18n handling, also composed inside <code>astro()</code>.
+			</p>
 		</a>
 	</div>
 </Layout>

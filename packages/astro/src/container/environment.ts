@@ -154,7 +154,9 @@ export function createContainerEnvironment({
 		},
 
 		errorStrategy: 'default',
+		rendersRedirectPage: () => false,
 		injectCspMetaTagsOnErrorPages: false,
+		logsStreamErrors: false,
 		logRequest() {},
 	};
 }

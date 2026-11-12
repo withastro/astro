@@ -6,6 +6,7 @@ import type {
 	MdxRendererOptions,
 	MdxRenderResult,
 } from '@astrojs/internal-helpers/markdown';
+import { time, timedVisitorPlugins } from '@astrojs/internal-helpers/timings';
 import {
 	ASTRO_IMAGE_IMPORT,
 	createDefaultAstroMetadata,
@@ -112,36 +113,40 @@ export function createSatteriMdxProcessor(
 
 			let optimizeStatic: MdxCompileOptions['optimizeStatic'];
 			if (mdx.optimize) {
-				const ignoreElements =
+				const ignoreElementNames =
 					typeof mdx.optimize === 'object' ? mdx.optimize.ignoreElementNames : undefined;
 
 				optimizeStatic = {
 					component: 'Fragment',
 					prop: 'set:html',
-					...(ignoreElements && { ignoreElements }),
+					// `collapseScriptStyleText` moves script/style content into a `set:html` directive,
+					// which would be serialized as a literal attribute inside a static subtree
+					ignoreElements: ['script', 'style', ...(ignoreElementNames ?? [])],
 				};
 			}
 
 			const { gfm, smartPunctuation } = satteriOptions.features;
 
-			const mdxResult = await mdxToJs(content, {
-				mdastPlugins: allMdastPlugins,
-				hastPlugins,
-				optimizeStatic,
-				// `shared` carries the more specific `mdx({ gfm })` and wins, but only over booleans.
-				features: {
-					...satteriOptions.features,
-					gfm: typeof gfm === 'object' ? gfm : (shared.gfm ?? gfm ?? true) !== false,
-					smartPunctuation:
-						typeof smartPunctuation === 'object'
-							? smartPunctuation
-							: (shared.smartypants ?? smartPunctuation ?? true) !== false,
-				},
-				fileURL: pathToFileURL(filePath),
-				jsxImportSource: 'astro',
-				elementAttributeNameCase: 'html',
-				data: { astro: astroData },
-			});
+			const mdxResult = await time('markdown-file', filePath, () =>
+				mdxToJs(content, {
+					mdastPlugins: timedVisitorPlugins('mdx-plugin', allMdastPlugins),
+					hastPlugins: timedVisitorPlugins('mdx-plugin', hastPlugins),
+					optimizeStatic,
+					// `shared` carries the more specific `mdx({ gfm })` and wins, but only over booleans.
+					features: {
+						...satteriOptions.features,
+						gfm: typeof gfm === 'object' ? gfm : (shared.gfm ?? gfm ?? true) !== false,
+						smartPunctuation:
+							typeof smartPunctuation === 'object'
+								? smartPunctuation
+								: (shared.smartypants ?? smartPunctuation ?? true) !== false,
+					},
+					fileURL: pathToFileURL(filePath),
+					jsxImportSource: 'astro',
+					elementAttributeNameCase: 'html',
+					data: { astro: astroData },
+				}),
+			);
 			let compiled = mdxResult.code;
 
 			// Read the returned bag, not the seeded reference, so a plugin that replaces it is honored.

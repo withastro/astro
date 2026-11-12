@@ -26,9 +26,7 @@ export class YarnPackageManager implements PackageManager {
 	async getPackageVersion(name: string): Promise<string | undefined> {
 		try {
 			// https://yarnpkg.com/cli/why
-			const { stdout } = await this.#commandExecutor.execute('yarn', ['why', name, '--json'], {
-				shell: true,
-			});
+			const { stdout } = await this.#commandExecutor.execute('yarn', ['why', name, '--json']);
 
 			const hasUserDefinition = stdout.includes('workspace:.');
 

@@ -3,17 +3,22 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { init, parse } from 'es-module-lexer';
+import { init, parse } from 'es-module-lexer/minimal';
 
 const distRoot = fileURLToPath(new URL('../../../dist/', import.meta.url));
 const srcRoot = fileURLToPath(new URL('../../../src/', import.meta.url));
 
+const runtimeInternalPrefix = '@astrojs/runtime/_internal/';
+const renderScopeModule = fileURLToPath(
+	import.meta.resolve(`${runtimeInternalPrefix}core/render-scope/scope.js`),
+);
+
 /**
  * Walk the static + dynamic import graph of a built module, following relative
- * specifiers, and return every visited file.
+ * specifiers and `@astrojs/runtime/_internal/*` imports, and return every visited file.
  */
 async function collectModuleGraph(entry: string): Promise<Map<string, string>> {
-	await init;
+	await init();
 	const visited = new Map<string, string>();
 	const queue = [entry];
 	while (queue.length > 0) {
@@ -24,9 +29,13 @@ async function collectModuleGraph(entry: string): Promise<Map<string, string>> {
 		const [imports] = parse(source);
 		for (const record of imports) {
 			const specifier = record.n;
-			// Only relative specifiers stay inside the built package; bare and
-			// node: specifiers are leaves (asserted on separately via the source
+			// Relative specifiers and the render runtime package are followed; other bare
+			// and node: specifiers are leaves (asserted on separately via the source
 			// text). Non-literal dynamic imports have no resolvable specifier.
+			if (specifier?.startsWith(runtimeInternalPrefix)) {
+				queue.push(fileURLToPath(import.meta.resolve(specifier)));
+				continue;
+			}
 			if (!specifier || !specifier.startsWith('.')) continue;
 			queue.push(path.resolve(path.dirname(file), specifier));
 		}
@@ -53,18 +62,15 @@ describe('render scope edge safety', () => {
 		const graph = await collectModuleGraph(path.join(distRoot, 'core/app/entrypoints/index.js'));
 		assert.ok(graph.size > 0, 'expected the astro/app graph to contain modules');
 		assert.ok(
-			graph.has(path.join(distRoot, 'core/render-scope/scope.js')),
+			graph.has(renderScopeModule),
 			'expected the graph walk to reach the render scope modules',
 		);
 		for (const [file, source] of graph) {
-			assert.ok(
-				!source.includes('node:async_hooks'),
-				`${path.relative(distRoot, file)} references node:async_hooks`,
-			);
+			assert.ok(!source.includes('node:async_hooks'), `${file} references node:async_hooks`);
 		}
 	});
 
-	it('node-scope.ts has exactly one importer: core/build/default-prerenderer.ts', () => {
+	it('node-scope.ts is only imported by Node-only build code in core/build/', () => {
 		const importers: string[] = [];
 		for (const file of walkSourceFiles(srcRoot)) {
 			if (file.endsWith(`core${path.sep}render-scope${path.sep}node-scope.ts`)) continue;
@@ -73,6 +79,12 @@ describe('render scope edge safety', () => {
 				importers.push(path.relative(srcRoot, file));
 			}
 		}
-		assert.deepEqual(importers, [path.join('core', 'build', 'default-prerenderer.ts')]);
+		assert.ok(importers.length > 0);
+		for (const importer of importers) {
+			assert.ok(
+				importer.startsWith(path.join('core', 'build') + path.sep),
+				`${importer} imports node-scope.ts`,
+			);
+		}
 	});
 });

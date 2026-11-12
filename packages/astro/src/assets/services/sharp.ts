@@ -9,7 +9,7 @@ import type {
 	WebpOptions,
 	SharpConstructor,
 } from 'sharp';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import { resolveDefaultOutputFormat } from '../utils/inferSourceFormat.js';
 import { detector } from '../utils/vendor/image-size/detector.js';
@@ -119,8 +119,8 @@ async function loadSharp(): Promise<SharpConstructor> {
 	let sharpImport: SharpConstructor;
 	try {
 		sharpImport = (await import('sharp')).default;
-	} catch {
-		throw new AstroError(AstroErrorData.MissingSharp);
+	} catch (cause) {
+		throw new AstroError(AstroErrorData.MissingSharp, { cause });
 	}
 
 	// Disable the `sharp` `libvips` cache as it errors when the file is too small and operations are happening too fast (runs into a race condition) https://github.com/lovell/sharp/issues/3935#issuecomment-1881866341
@@ -243,9 +243,8 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		}
 
 		let data: Uint8Array;
-		let info: { format: string };
 		try {
-			({ data, info } = await result.toBuffer({ resolveWithObject: true }));
+			data = await result.toBuffer();
 		} catch {
 			// Sharp cannot decode this image (e.g. animated AVIF sequences).
 			// Pass it through unmodified rather than crashing the build. When Sharp adds support for these
@@ -262,7 +261,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 		return {
 			data: needsCopy ? new Uint8Array(data) : data,
-			format: info.format as ImageOutputFormat,
+			format: outputFormat,
 		};
 	},
 };

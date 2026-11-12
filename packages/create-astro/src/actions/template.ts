@@ -36,9 +36,10 @@ export function processTemplateReadme(content: string, packageManager: string): 
 
 	// Replace package manager references if not npm
 	if (packageManager !== 'npm') {
-		processed = processed
-			.replace(/\bnpm run\b/g, packageManager)
-			.replace(/\bnpm\b/g, packageManager);
+		// nub requires an explicit `run` for scripts, so `npm run <script>` maps to
+		// `nub run <script>` rather than dropping the `run` like pnpm/yarn/bun.
+		const runCommand = packageManager === 'nub' ? 'nub run' : packageManager;
+		processed = processed.replace(/\bnpm run\b/g, runCommand).replace(/\bnpm\b/g, packageManager);
 	}
 
 	return processed;
@@ -212,19 +213,9 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 		}
 
 		if (ctx.ai) {
-			// Generate AGENTS.md for AI coding agents, with a CLAUDE.md link
+			// Generate AGENTS.md for AI coding agents
 			const agentsPath = path.resolve(ctx.cwd, 'AGENTS.md');
-			const claudePath = path.resolve(ctx.cwd, 'CLAUDE.md');
 			fs.writeFileSync(agentsPath, generateAgentsMd());
-			try {
-				fs.symlinkSync('AGENTS.md', claudePath);
-			} catch {
-				try {
-					fs.linkSync(agentsPath, claudePath);
-				} catch {
-					// Link creation failed; AGENTS.md still exists
-				}
-			}
 		}
 
 		// Post-process in parallel

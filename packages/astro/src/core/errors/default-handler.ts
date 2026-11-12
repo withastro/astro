@@ -10,6 +10,7 @@ import { handleMiddleware } from '../middleware/astro-middleware.js';
 import { handlePages } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
 import { getRouteTable } from '../routing/route-table.js';
+import { provideCache } from '../cache/handler.js';
 import { provideSession } from '../session/provider.js';
 import { validateHost } from '../app/validate-headers.js';
 import { getErrorRoutePath } from '../../i18n/error-routes.js';
@@ -113,6 +114,7 @@ export async function renderDefaultError(
 		errorState.initialProps = { error };
 		try {
 			await provideSession(errorState);
+			await provideCache(errorState);
 			const response = await handleMiddleware(errorState, handlePages);
 			// A middleware rewrite (`ctx.rewrite()` / `next(payload)`) issued while
 			// rendering the error page swaps the state's routeData away from the

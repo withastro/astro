@@ -74,22 +74,31 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 			return () => {
 				// NOTE: the `base` is stripped from `req.url` for post middlewares
 
-				server.middlewares.use((req, _res, next) => {
+				server.middlewares.use((req, res, next) => {
 					const pathname = cleanUrl(req.url!);
+
+					// Malformed percent-encoding is a client error, not a 500. (#18650)
+					try {
+						decodeURI(pathname);
+					} catch {
+						res.statusCode = 400;
+						res.end('Bad Request');
+						return;
+					}
 
 					// Vite doesn't handle /foo/ if /foo.html exists, we handle it anyways
 					if (pathname.endsWith('/')) {
 						const pathnameWithoutSlash = pathname.slice(0, -1);
-						const htmlPath = fileURLToPath(outDir + pathnameWithoutSlash + '.html');
-						if (fs.existsSync(htmlPath)) {
+						const htmlPath = toFilePath(outDir + pathnameWithoutSlash + '.html');
+						if (htmlPath && fs.existsSync(htmlPath)) {
 							req.url = pathnameWithoutSlash + '.html';
 							return next();
 						}
 					}
 					// Vite doesn't handle /foo if /foo/index.html exists, we handle it anyways
 					else {
-						const htmlPath = fileURLToPath(outDir + pathname + '/index.html');
-						if (fs.existsSync(htmlPath)) {
+						const htmlPath = toFilePath(outDir + pathname + '/index.html');
+						if (htmlPath && fs.existsSync(htmlPath)) {
 							req.url = pathname + '/index.html';
 							return next();
 						}
@@ -100,4 +109,17 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 			};
 		},
 	};
+}
+
+/**
+ * Like `fileURLToPath`, but returns `undefined` for valid URLs that can't map to a
+ * file, such as an encoded `/` (`%2F`), so they fall through to a 404.
+ */
+function toFilePath(url: string): string | undefined {
+	try {
+		return fileURLToPath(url);
+	} catch (err) {
+		if ((err as NodeJS.ErrnoException).code === 'ERR_INVALID_FILE_URL_PATH') return undefined;
+		throw err;
+	}
 }

@@ -1,8 +1,6 @@
 import { ExtractedStyleType, type ExtractedStyle } from '@astrojs/astro2tsx';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
-import type { Segment } from 'muggle-string';
-import { toString } from 'muggle-string';
-import { buildMappings } from '../buildMappings.js';
+import { buildMappings, getText, type CodeSegment } from '../buildMappings.js';
 
 const SUPPORTED_LANGUAGES = ['css', 'scss', 'less'] as const;
 type SupportedLanguages = (typeof SUPPORTED_LANGUAGES)[number];
@@ -16,7 +14,7 @@ export function extractStylesheets(styles: ExtractedStyle[]): VirtualCode[] {
 }
 
 function mergeCSSContextsByLanguage(inlineStyles: ExtractedStyle[]): VirtualCode[] {
-	const codes: Record<SupportedLanguages, Segment<CodeInformation>[]> = {
+	const codes: Record<SupportedLanguages, CodeSegment<CodeInformation>[]> = {
 		css: [],
 		scss: [],
 		less: [],
@@ -27,11 +25,11 @@ function mergeCSSContextsByLanguage(inlineStyles: ExtractedStyle[]): VirtualCode
 
 		const isStyleAttribute = cssContext.type === ExtractedStyleType.StyleAttribute;
 		if (isStyleAttribute) currentCode.push('__ { ');
-		currentCode.push([
-			cssContext.content,
-			undefined,
-			cssContext.position.start,
-			{
+		currentCode.push({
+			text: cssContext.content,
+			start: cssContext.position.start,
+			end: cssContext.position.start + cssContext.content.length,
+			data: {
 				verification: false,
 				completion: true,
 				semantic: true,
@@ -39,7 +37,7 @@ function mergeCSSContextsByLanguage(inlineStyles: ExtractedStyle[]): VirtualCode
 				structure: true,
 				format: false,
 			},
-		]);
+		});
 		if (isStyleAttribute) currentCode.push(' }\n');
 	}
 
@@ -53,9 +51,12 @@ function mergeCSSContextsByLanguage(inlineStyles: ExtractedStyle[]): VirtualCode
 	return virtualCodes;
 }
 
-function createVirtualCodeForLanguage(code: Segment<CodeInformation>[], lang: string): VirtualCode {
+function createVirtualCodeForLanguage(
+	code: CodeSegment<CodeInformation>[],
+	lang: string,
+): VirtualCode {
 	const mappings = buildMappings(code);
-	const text = toString(code);
+	const text = getText(code);
 
 	return {
 		id: `style.${lang}`,

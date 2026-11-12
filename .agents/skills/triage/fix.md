@@ -57,7 +57,7 @@ This "breadcrumb" approach is more useful to maintainers than a wrong fix.
 
 Consider your potential fixes and verify that any modern features you plan to use are supported:
 
-- **Node.js:** When writing code for the runtime (server, build logic, integrations, etc.), target Node.js version `>=22.12.0`.
+- **Node.js:** When writing code for the runtime (server, build logic, integrations, etc.), target Node.js version `>=22.23.4`.
 - **Browsers:** If your fix relies on browser support for any web platform feature, check the browser compatibility table on MDN to confirm it is supported across our browser targets. Do not treat specification compliance as proof of browser support. If the feature lacks sufficient support, choose a different approach.
 
 ## Step 3: Implement the Fix
@@ -182,6 +182,7 @@ The report must include all information needed for a final GitHub comment to be 
    - Debug code, `console.log`s, or temporary test files
    - Changes outside `packages/` that were only needed for diagnosis/reproduction
    - Build artifacts that shouldn't be committed
+   - `pnpm-lock.yaml` — the triage workspace (`triage/*` in `pnpm-workspace.yaml`) causes `pnpm install` to add importer entries for the reproduction project. Always run `git checkout -- pnpm-lock.yaml` to restore it.
 3. Use `git checkout -- <file>` to discard unwanted changes
 4. Confirm with a final `git status` that only the intended fix files remain, and that they include a new `.changeset/*.md` file. If the fix modified a package but no changeset is present, go back and create it before finishing.
 5. DO NOT commit or push anything yet! The user will handle that at a later step.

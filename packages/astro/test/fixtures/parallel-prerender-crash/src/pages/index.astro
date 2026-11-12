@@ -1,0 +1,7 @@
+---
+import { isMainThread } from 'node:worker_threads';
+
+if (!isMainThread) process.exit(3);
+---
+
+<p>Unreachable in a worker</p>

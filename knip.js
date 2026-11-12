@@ -37,6 +37,7 @@ export default {
 			ignoreDependencies: [
 				'@astrojs/check', // Used by the build script but not as a standard module import
 				'bgproc', // Used by agents, documented in the AGENTS.md file
+				'rolldown', // Used by the bundle-size GitHub Action script in `.github/scripts`
 			],
 			// In smoke tests, we checkout to the docs repo so those binaries are not present in this project
 			// vsce and ovsx are only used in CI for publishing, and due to how we have to publish the VS Code extension have
@@ -81,15 +82,14 @@ export default {
 				'rehype-slug',
 				'rehype-toc',
 				'remark-code-titles',
+				// Imported by fixture source in test/units/vite-plugin-environment/astro-scan.test.ts
+				'clsx',
 				'@types/http-cache-semantics',
 				// Resolved from the user's project by `astro add cloudflare`.
 				'@astrojs/cloudflare',
 				// Optional peer dep: dynamically imported in config validation for the legacy
 				// remark/rehype pipeline. Knip flags it because it's referenced from source.
 				'@astrojs/markdown-remark',
-				// Not imported directly: pins a minimum version of Vite's rolldown dependency
-				// (>=1.2.10 fixes WebContainers). Remove once Vite requires it.
-				'rolldown',
 			],
 		},
 		'packages/astro-prism': {
@@ -98,6 +98,10 @@ export default {
 			ignoreUnresolved: ['#prism-loadLanguages'],
 		},
 		'packages/integrations/*': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			project,
+		},
+		'packages/renderers/*': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
 		},

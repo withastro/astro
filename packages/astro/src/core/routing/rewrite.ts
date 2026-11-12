@@ -4,7 +4,7 @@ import type { AstroConfig } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import { originPathnameSymbol } from '../constants.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import {
 	appendForwardSlash,
@@ -16,7 +16,10 @@ import {
 import { createRequest } from '../request.js';
 import { validateAndDecodePathname } from '../util/pathname.js';
 import { DEFAULT_404_ROUTE } from './internal/astro-designed-error-pages.js';
-import { isRoute404, isRoute500 } from './internal/route-errors.js';
+import {
+	isRoute404,
+	isRoute500,
+} from '@astrojs/runtime/_internal/core/routing/internal/route-errors.js';
 
 /**
  * Answers whether `route` produces `pathname`. See `createRewriteRouteValidator`.
@@ -83,13 +86,13 @@ export async function findRouteToRewrite({
 	// Error pages (404/500) take precedence over dynamic routes that might
 	// capture the same path (e.g. [locale] matching /404). See #15098.
 	if (isRoute404(decodedPathname)) {
-		const errorRoute = routes.find((route) => route.route === '/404');
+		const errorRoute = routes.find((route) => isRoute404(route.route));
 		if (errorRoute) {
 			return { routeData: errorRoute, newUrl, pathname: decodedPathname };
 		}
 	}
 	if (isRoute500(decodedPathname)) {
-		const errorRoute = routes.find((route) => route.route === '/500');
+		const errorRoute = routes.find((route) => isRoute500(route.route));
 		if (errorRoute) {
 			return { routeData: errorRoute, newUrl, pathname: decodedPathname };
 		}
@@ -144,7 +147,7 @@ export async function findRouteToRewrite({
 	} else if (firstValidationError) {
 		throw firstValidationError;
 	} else {
-		const custom404 = routes.find((route) => route.route === '/404');
+		const custom404 = routes.find((route) => isRoute404(route.route));
 		if (custom404) {
 			return { routeData: custom404, newUrl, pathname };
 		} else {
@@ -265,10 +268,9 @@ export function normalizeRewritePathname(
 		}
 	}
 
-	// Ensure pathname starts with '/' when needed
-	if (!pathname.startsWith('/') && shouldAppendSlash && urlPathname.endsWith('/')) {
-		pathname = prependForwardSlash(pathname);
-	}
+	// Route patterns always start with '/'. Stripping a base that ends in
+	// '/' must not leave a relative pathname, regardless of trailingSlash.
+	pathname = prependForwardSlash(pathname);
 
 	// If config.build.format = 'file' then pathname includes .html, so we need to remove it
 	if (buildFormat === 'file') {

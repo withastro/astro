@@ -5,10 +5,9 @@ import {
 	type ViteDevServer,
 	type Plugin as VitePlugin,
 } from 'vite';
+import { pathToDirectoryURL } from '../core/build/common.js';
 import type { BuildInternals } from '../core/build/internal.js';
-import type { StaticBuildOptions } from '../core/build/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
-import { getServerOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
 	ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID,
@@ -27,10 +26,7 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
  * @param opts
  * @param internals
  */
-export function vitePluginActionsBuild(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-): VitePlugin {
+export function vitePluginActionsBuild(internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-actions-build',
 
@@ -48,7 +44,7 @@ export function vitePluginActionsBuild(
 					chunk.type !== 'asset' &&
 					chunk.facadeModuleId === ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID
 				) {
-					const outputDirectory = getServerOutputDirectory(opts.settings);
+					const outputDirectory = pathToDirectoryURL(this.environment.config.build.outDir);
 					internals.astroActionsEntryPoint = new URL(chunkName, outputDirectory);
 				}
 			}
