@@ -566,19 +566,19 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../internal-helpers
       '@astrojs/markdown-satteri':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../markdown/satteri
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../runtime
       '@astrojs/telemetry':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../telemetry
       '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../vite-plugin-astro
       '@capsizecss/unpack':
         specifier: ^4.0.1
@@ -4542,10 +4542,10 @@ importers:
   packages/integrations/cloudflare:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/underscore-redirects':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../underscore-redirects
       '@cloudflare/vite-plugin':
         specifier: ^1.67.0
@@ -5201,10 +5201,10 @@ importers:
   packages/integrations/markdoc:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/prism':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../astro-prism
       '@markdoc/markdoc':
         specifier: ^0.5.11
@@ -5442,10 +5442,10 @@ importers:
   packages/integrations/mdx:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/markdown-satteri':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../markdown/satteri
       es-module-lexer:
         specifier: ^3.0.4
@@ -5692,10 +5692,10 @@ importers:
   packages/integrations/netlify:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/underscore-redirects':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../underscore-redirects
       '@netlify/blobs':
         specifier: ^11.1.7
@@ -5841,7 +5841,7 @@ importers:
   packages/integrations/node:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       send:
         specifier: ^1.2.1
@@ -6092,10 +6092,10 @@ importers:
   packages/integrations/preact:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/preact-renderer':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../renderers/preact
       '@preact/preset-vite':
         specifier: ^2.10.6
@@ -6114,10 +6114,10 @@ importers:
   packages/integrations/react:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/react-renderer':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../renderers/react
       '@vitejs/plugin-react':
         specifier: ^6.2.1
@@ -6332,10 +6332,10 @@ importers:
   packages/integrations/solid:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/solid-js-renderer':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../renderers/solid-js
       vite:
         specifier: ^8.3.6
@@ -6357,10 +6357,10 @@ importers:
   packages/integrations/svelte:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/svelte-renderer':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../renderers/svelte
       '@sveltejs/vite-plugin-svelte':
         specifier: ^7.3.1
@@ -6451,7 +6451,7 @@ importers:
   packages/integrations/vercel:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@vercel/analytics':
         specifier: ^2.0.1
@@ -6725,10 +6725,10 @@ importers:
   packages/integrations/vue:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/vue-renderer':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../renderers/vue
       '@vitejs/plugin-vue':
         specifier: ^6.0.10
@@ -7190,10 +7190,10 @@ importers:
   packages/markdown/remark:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/prism':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../astro-prism
       '@mdx-js/mdx':
         specifier: ^3.1.1
@@ -7290,10 +7290,10 @@ importers:
   packages/markdown/satteri:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/prism':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../astro-prism
       github-slugger:
         specifier: ^2.0.0
@@ -7315,10 +7315,10 @@ importers:
   packages/renderers/preact:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../runtime
       '@preact/signals':
         specifier: ^2.11.4
@@ -7367,10 +7367,10 @@ importers:
   packages/renderers/react:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../runtime
       '@vitejs/plugin-react':
         specifier: ^6.1.2
@@ -7428,7 +7428,7 @@ importers:
   packages/renderers/solid-js:
     dependencies:
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../runtime
       vitefu:
         specifier: ^1.1.3
@@ -7479,7 +7479,7 @@ importers:
   packages/renderers/svelte:
     dependencies:
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../runtime
       vitefu:
         specifier: ^1.1.3
@@ -7530,7 +7530,7 @@ importers:
   packages/renderers/vue:
     dependencies:
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../runtime
     devDependencies:
       '@astrojs/vite-plugin-astro':
@@ -7645,10 +7645,10 @@ importers:
         specifier: ^0.5.1
         version: 0.5.2
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../internal-helpers
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../runtime
       common-ancestor-path:
         specifier: ^2.0.0

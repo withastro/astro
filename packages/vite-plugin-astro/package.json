@@ -31,8 +31,8 @@
   },
   "dependencies": {
     "@astrojs/compiler-rs": "^0.5.1",
-    "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/runtime": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
+    "@astrojs/runtime": "workspace:^",
     "common-ancestor-path": "^2.0.0",
     "devalue": "^6.0.2",
     "magic-string": "^1.4.2",

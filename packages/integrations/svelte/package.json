@@ -38,8 +38,8 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/svelte-renderer": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
+    "@astrojs/svelte-renderer": "workspace:^",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "svelte2tsx": "^0.7.63",
     "vite": "^8.3.6"
