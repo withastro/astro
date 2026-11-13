@@ -1896,7 +1896,7 @@ export interface AstroUserConfig<
 	 * @name session.cookie
 	 * @type {string | AstroCookieSetOptions | undefined}
 	 * @version 5.7.0
-	 * @default `{ name: "astro-session", sameSite: "lax", httpOnly: true, secure: true }`
+	 * @default `{ name: "astro-session", sameSite: "lax", httpOnly: true, secure: true }` (`secure` is `false` in development)
 	 * @description
 	 *
 	 * The session cookie configuration. If set to a string, it will be used as the cookie name.
