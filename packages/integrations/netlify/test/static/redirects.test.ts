@@ -34,7 +34,7 @@ describe('SSG - Redirects', () => {
 			'301',
 
 			'/blog/*',
-			'/team/articles/*/index.html',
+			'/team/articles/:splat',
 			'301',
 
 			'',
