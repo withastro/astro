@@ -29,7 +29,7 @@ import { defineCollection as defineCollectionOrig } from './config.js';
 import type { LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import {
-	type CollectionMetadata,
+	type AnyCollectionMetadata,
 	getCollectionsMetadata as listCollectionsMetadata,
 } from './metadata.js';
 import {
@@ -101,7 +101,7 @@ export function createGetCollectionsMetadata({
 }: {
 	liveCollections: LiveCollectionConfigMap;
 }) {
-	return async function getCollectionsMetadata(): Promise<CollectionMetadata[]> {
+	return async function getCollectionsMetadata(): Promise<AnyCollectionMetadata[]> {
 		const { enabled, collections } = await import('astro:collections-metadata');
 		if (!enabled) {
 			throw new AstroError(AstroErrorData.CollectionMetadataNotEnabled);

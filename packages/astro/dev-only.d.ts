@@ -103,5 +103,5 @@ declare module 'virtual:astro:get-image' {
 
 declare module 'astro:collections-metadata' {
 	export const enabled: boolean;
-	export const collections: import('./src/content/metadata.js').CollectionMetadata[];
+	export const collections: import('./src/content/metadata.js').AnyCollectionMetadata[];
 }

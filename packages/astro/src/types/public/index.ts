@@ -24,7 +24,7 @@ export type {
 export type { ContainerRenderer } from '../../container/index.js';
 export type {
 	CollectionDescriptors,
-	CollectionMetadata,
+	AnyCollectionMetadata,
 	ExtractCollectionMetadata,
 	JSONValue,
 } from '../../content/metadata.js';

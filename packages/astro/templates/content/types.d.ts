@@ -82,7 +82,12 @@ declare module 'astro:content' {
 			>;
 		};
 	}[LiveCollectionName];
-	/** Facts about a collection, never its entries. Pass `name` to `getCollection()` or `getLiveCollection()`, depending on `type`. */
+	/**
+	 * Facts about a collection of the project, never its entries, with one variant for each
+	 * collection, and its exact `name` and `descriptors`. Pass `name` to `getCollection()` or
+	 * `getLiveCollection()`, depending on `type`. Code that runs outside the project, like
+	 * integrations and Markdown plugins, uses `AnyCollectionMetadata` from `astro` instead.
+	 */
 	export type CollectionMetadata = BuildTimeCollectionMetadata | LiveCollectionMetadata;
 	/**
 	 * The metadata of the collections that have the descriptors `D`, and optionally the type `T`.

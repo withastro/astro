@@ -24,8 +24,13 @@ export type ExtractCollectionMetadata<
 	T extends M['type'] = M['type'],
 > = Extract<M, { type: T; descriptors: D }>;
 
-/** Facts about a collection, never its entries. */
-export interface CollectionMetadata {
+/**
+ * Facts about any collection, never its entries, with `name` as a `string` and untyped
+ * descriptors. Integrations and Markdown plugins receive this shape, because a published package
+ * can't see the collections of a project. In a project, `CollectionMetadata` from `astro:content`
+ * has one variant for each collection, with its exact `name` and `descriptors`.
+ */
+export interface AnyCollectionMetadata {
 	name: string;
 	type: 'build-time' | 'live';
 	loader: { name: string };
@@ -45,8 +50,8 @@ const INLINE_LOADER_NAME = 'inline';
 /** Returns the metadata of collections, in the order they are defined. */
 export function getCollectionsMetadata(
 	collections: Record<string, CollectionWithDescriptors>,
-	type: CollectionMetadata['type'],
-): CollectionMetadata[] {
+	type: AnyCollectionMetadata['type'],
+): AnyCollectionMetadata[] {
 	return Object.entries(collections).map(([name, collection]) => {
 		const loader = collection.loader as
 			| { name?: unknown; descriptors?: Record<string, unknown> }
