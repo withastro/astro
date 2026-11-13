@@ -310,6 +310,15 @@ describe('astro:env validators', () => {
 			fixture.thenResultShouldBeInvalid('type');
 		});
 
+		it('Should fail if the variable is not entirely a number', () => {
+			for (const value of ['8080abc', '1,5', '10px', '', '   ']) {
+				fixture.givenInput(value, {
+					type: 'number',
+				});
+				fixture.thenResultShouldBeInvalid('type');
+			}
+		});
+
 		it('Should fail if conditions are not met', () => {
 			fixture.givenInput('10', {
 				type: 'number',
