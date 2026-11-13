@@ -539,16 +539,27 @@ const memoryProvider = ((config): CacheProvider => {
 				const tags = parseCacheTags(response.headers.get('Cache-Tag'));
 				// Clone the response so we can read the body for caching and still return it
 				const [forCache, forClient] = [response.clone(), response];
-				const entry = await serializeResponse(forCache, context.request, maxAge, swr, tags);
-
-				// Learn Vary headers from the response and build the storage key
-				let storeKey = primaryKey;
-				if (entry.vary) {
-					varyMap.set(primaryKey, entry.vary);
-					storeKey = primaryKey + buildVarySuffix(context.request, entry.vary);
-				}
-
-				cache.set(storeKey, entry);
+				// Not awaited, so the visitor receives the render as it streams.
+				const store = serializeResponse(forCache, context.request, maxAge, swr, tags)
+					.then((entry) => {
+						// Learn Vary headers from the response and build the storage key
+						let storeKey = primaryKey;
+						if (entry.vary) {
+							varyMap.set(primaryKey, entry.vary);
+							storeKey = primaryKey + buildVarySuffix(context.request, entry.vary);
+						}
+						cache.set(storeKey, entry);
+					})
+					.catch((error) => {
+						context.logger.warn(
+							`Skipping cache for ${requestUrl.pathname}${requestUrl.search} because the response body could not be read: ${String(
+								error,
+							)}`,
+						);
+					});
+				// Serverless runtimes may stop the request once the response is sent, which
+				// could drop the store; long-lived servers like Node don't provide `waitUntil`.
+				context.waitUntil?.(store);
 				forClient.headers.set('X-Astro-Cache', 'MISS');
 				return forClient;
 			}

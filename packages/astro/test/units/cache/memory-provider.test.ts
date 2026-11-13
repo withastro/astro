@@ -3,6 +3,7 @@ import { describe, it, mock } from 'node:test';
 import type { CacheProvider } from '../../../dist/core/cache/types.js';
 import type { MemoryCacheProviderOptions } from '../../../dist/core/cache/memory-provider.js';
 import memoryProvider from '../../../dist/core/cache/memory-provider.js';
+import { settlePendingStores, waitUntil } from './test-helpers.ts';
 
 /**
  * Helper: create a CacheProvider instance with optional config.
@@ -19,13 +20,15 @@ function makeRequest(url: string, headers: Record<string, string> = {}): Request
 }
 
 /**
- * Helper: create the context passed to `onRequest`, with a no-op logger.
+ * Helper: create the context passed to `onRequest`, with a no-op logger. The
+ * `waitUntil` hook records the store promise so tests can await it.
  */
 function makeContext(request: Request, warn: (message: string) => void = () => {}) {
 	return {
 		request,
 		url: new URL(request.url),
 		logger: { info() {}, warn, error() {} },
+		waitUntil,
 	};
 }
 
@@ -40,7 +43,7 @@ function makeNext({
 	tags,
 	headers = {},
 }: {
-	body?: string | null;
+	body?: string | ReadableStream<Uint8Array> | null;
 	status?: number;
 	maxAge?: number;
 	swr?: number;
@@ -84,6 +87,7 @@ describe('memory-provider onRequest', () => {
 		// First request — MISS
 		const req1 = makeRequest(url);
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
+		await settlePendingStores();
 
 		// Second request — HIT
 		const req2 = makeRequest(url);
@@ -114,10 +118,12 @@ describe('memory-provider onRequest', () => {
 
 		// First request — has Set-Cookie, should not cache
 		const req1 = makeRequest(url);
-		await provider.onRequest!(
+		const res1 = await provider.onRequest!(
 			makeContext(req1),
 			makeNext({ maxAge: 60, headers: { 'Set-Cookie': 'session=abc' } }),
 		);
+		assert.equal(res1.headers.has('X-Astro-Cache'), false);
+		await settlePendingStores();
 
 		// Second request — should be a miss (not cached)
 		const req2 = makeRequest(url);
@@ -133,6 +139,273 @@ describe('memory-provider onRequest', () => {
 
 // #endregion
 
+// #region onRequest: streaming miss
+
+describe('memory-provider streaming miss', () => {
+	// These tests fake a slow render with a body stream that sends `<head>` at once and holds
+	// `</html>` until the test calls `release()`. Each registers `t.after(() => release())` so
+	// a failed assertion still ends the body, and the next test's store wait can't stall on it.
+
+	/**
+	 * Helper: await an `onRequest` call, rejecting after 1s so a provider that waits for the
+	 * full body fails fast instead of hanging until the runner timeout. On failure, `release`
+	 * ends the held body so nothing is left pending.
+	 */
+	async function awaitOnRequest(
+		pending: Promise<Response>,
+		release: () => void,
+	): Promise<Response> {
+		let timer: ReturnType<typeof setTimeout> | undefined;
+		const timeout = new Promise<never>((_, reject) => {
+			timer = setTimeout(() => reject(new Error('onRequest waited for the full body')), 1000);
+		});
+		try {
+			return await Promise.race([pending, timeout]);
+		} catch (error) {
+			release();
+			throw error;
+		} finally {
+			clearTimeout(timer);
+		}
+	}
+
+	/**
+	 * Helper: yield to the event loop `count` times, so promise chains started earlier run to
+	 * completion before the next assertion.
+	 */
+	async function flushTurns(count: number): Promise<void> {
+		for (let i = 0; i < count; i++) {
+			await new Promise((resolve) => setImmediate(resolve));
+		}
+	}
+
+	/**
+	 * Helper: wait until the background store for `url` has landed. Each pass yields one event
+	 * loop turn, then probes with a response that has no cache headers, so the probe is never
+	 * stored itself. Gives up after 10 passes; the caller's HIT assertion then reports the miss.
+	 */
+	async function waitForStore(provider: CacheProvider, url: string): Promise<void> {
+		for (let i = 0; i < 10; i++) {
+			await flushTurns(1);
+			const probe = await provider.onRequest!(
+				makeContext(makeRequest(url)),
+				makeNext({ body: 'probe' }),
+			);
+			if (probe.headers.get('X-Astro-Cache') === 'HIT') return;
+		}
+	}
+
+	it('streams the body before the render completes', async (t) => {
+		const provider = createProvider();
+		const encoder = new TextEncoder();
+		const decoder = new TextDecoder();
+		let release!: () => void;
+		const rest = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		t.after(() => release());
+		const body = new ReadableStream<Uint8Array>({
+			async start(controller) {
+				controller.enqueue(encoder.encode('<head>'));
+				await rest;
+				controller.enqueue(encoder.encode('</html>'));
+				controller.close();
+			},
+		});
+		const url = 'http://localhost/page';
+
+		// onRequest must resolve while the body is still held behind `rest`
+		const res1 = await awaitOnRequest(
+			provider.onRequest!(makeContext(makeRequest(url)), makeNext({ maxAge: 60, body })),
+			release,
+		);
+		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
+
+		const reader = res1.body!.getReader();
+		const first = await reader.read();
+		assert.equal(decoder.decode(first.value), '<head>');
+
+		release();
+		const second = await reader.read();
+		assert.equal(decoder.decode(second.value), '</html>');
+		assert.equal((await reader.read()).done, true);
+		await settlePendingStores();
+
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, body: 'should-not-see' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res2.text(), '<head></html>');
+	});
+
+	it('streams the body before the render completes without waitUntil', async (t) => {
+		const provider = createProvider();
+		const encoder = new TextEncoder();
+		const decoder = new TextDecoder();
+		let release!: () => void;
+		const rest = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		t.after(() => release());
+		const body = new ReadableStream<Uint8Array>({
+			async start(controller) {
+				controller.enqueue(encoder.encode('<head>'));
+				await rest;
+				controller.enqueue(encoder.encode('</html>'));
+				controller.close();
+			},
+		});
+		const url = 'http://localhost/page';
+
+		// Node provides no `waitUntil`: the store must still run, and onRequest must still
+		// resolve before the body ends
+		const res = await awaitOnRequest(
+			provider.onRequest!(
+				{ ...makeContext(makeRequest(url)), waitUntil: undefined },
+				makeNext({ maxAge: 60, body }),
+			),
+			release,
+		);
+		assert.equal(res.headers.get('X-Astro-Cache'), 'MISS');
+
+		const reader = res.body!.getReader();
+		const first = await reader.read();
+		assert.equal(decoder.decode(first.value), '<head>');
+
+		release();
+		const second = await reader.read();
+		assert.equal(decoder.decode(second.value), '</html>');
+		assert.equal((await reader.read()).done, true);
+		await waitForStore(provider, url);
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, body: 'should-not-see' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res2.text(), '<head></html>');
+	});
+
+	it('stores the page when the visitor disconnects mid-stream', async (t) => {
+		const provider = createProvider();
+		const encoder = new TextEncoder();
+		const decoder = new TextDecoder();
+		let release!: () => void;
+		const rest = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		t.after(() => release());
+		const body = new ReadableStream<Uint8Array>({
+			async start(controller) {
+				controller.enqueue(encoder.encode('<head>'));
+				await rest;
+				controller.enqueue(encoder.encode('</html>'));
+				controller.close();
+			},
+		});
+		const url = 'http://localhost/page';
+
+		const res1 = await awaitOnRequest(
+			provider.onRequest!(makeContext(makeRequest(url)), makeNext({ maxAge: 60, body })),
+			release,
+		);
+		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
+
+		const reader = res1.body!.getReader();
+		const first = await reader.read();
+		assert.equal(decoder.decode(first.value), '<head>');
+		// The body is locked by the reader, so cancel through it rather than `res1.body`. The
+		// cancel settles only once the cache copy finishes too, so it is awaited after release.
+		const canceled = reader.cancel();
+
+		// The render keeps going after the visitor leaves, and the page is still stored
+		release();
+		await settlePendingStores();
+		await canceled;
+
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, body: 'should-not-see' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res2.text(), '<head></html>');
+	});
+
+	it('does not store a body that fails mid-stream', async () => {
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+		const encoder = new TextEncoder();
+		// The source errors after its first chunk, so the cache copy fails partway through the body.
+		const body = new ReadableStream<Uint8Array>({
+			start(controller) {
+				controller.enqueue(encoder.encode('<head>'));
+			},
+			pull(controller) {
+				controller.error(new Error('render failed'));
+			},
+		});
+		const warn = mock.fn<(message: string) => void>();
+
+		const res1 = await provider.onRequest!(
+			makeContext(makeRequest(url), warn),
+			makeNext({ maxAge: 60, body }),
+		);
+		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
+		await assert.rejects(res1.text(), { message: 'render failed' });
+		await settlePendingStores();
+
+		assert.equal(warn.mock.callCount(), 1);
+		assert.match(warn.mock.calls[0].arguments[0], /Skipping cache for \/page.*render failed/);
+
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, body: 'second' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'MISS');
+		assert.equal(await res2.text(), 'second');
+	});
+
+	it('does not store a body that fails mid-stream without waitUntil', async () => {
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+		const encoder = new TextEncoder();
+		// The source errors after its first chunk, so the cache copy fails partway through the body.
+		const body = new ReadableStream<Uint8Array>({
+			start(controller) {
+				controller.enqueue(encoder.encode('<head>'));
+			},
+			pull(controller) {
+				controller.error(new Error('render failed'));
+			},
+		});
+		const warn = mock.fn<(message: string) => void>();
+
+		// Without `waitUntil` nothing awaits the store, so a failure it does not catch itself
+		// would be an unhandled rejection that crashes a Node server; node:test fails on one.
+		const res1 = await provider.onRequest!(
+			{ ...makeContext(makeRequest(url), warn), waitUntil: undefined },
+			makeNext({ maxAge: 60, body }),
+		);
+		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
+		await assert.rejects(res1.text(), { message: 'render failed' });
+		// Without `waitUntil` the store is not returned to the test; yield a few event-loop
+		// turns so its catch runs before the warning is checked.
+		await flushTurns(10);
+
+		assert.equal(warn.mock.callCount(), 1);
+		assert.match(warn.mock.calls[0].arguments[0], /Skipping cache for \/page.*render failed/);
+
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, body: 'second' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'MISS');
+		assert.equal(await res2.text(), 'second');
+	});
+});
+
+// #endregion
+
 // #region onRequest: host-aware keys
 
 describe('memory-provider host-aware cache keys', () => {
@@ -141,6 +414,7 @@ describe('memory-provider host-aware cache keys', () => {
 
 		const req1 = makeRequest('http://host-a.com/page');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'host-a' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://host-b.com/page');
 		const res2 = await provider.onRequest!(
@@ -163,6 +437,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page?b=2&a=1');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
+		await settlePendingStores();
 
 		// Same params, different order — should HIT
 		const req2 = makeRequest('http://localhost/page?a=1&b=2');
@@ -178,6 +453,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?utm_source=twitter&utm_medium=social');
 		const res2 = await provider.onRequest!(
@@ -192,6 +468,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page?page=2');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'page-2' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?page=2&fbclid=abc123');
 		const res2 = await provider.onRequest!(
@@ -206,6 +483,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page?page=3');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'page-3' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?page=3&gclid=xyz789');
 		const res2 = await provider.onRequest!(
@@ -220,6 +498,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'no-params' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?utm_source=twitter&fbclid=abc&gclid=xyz');
 		const res2 = await provider.onRequest!(
@@ -234,6 +513,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page?id=1');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'id-1' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?id=2');
 		const res2 = await provider.onRequest!(
@@ -248,6 +528,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/list?page=1&sort=name');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'page-1' }));
+		await settlePendingStores();
 
 		// Different sort but same page — should HIT (sort not in include list)
 		const req2 = makeRequest('http://localhost/list?page=1&sort=date');
@@ -263,6 +544,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/list');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'no-params' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/list?sort=name&filter=active');
 		const res2 = await provider.onRequest!(
@@ -277,6 +559,7 @@ describe('memory-provider query parameters', () => {
 
 		const req1 = makeRequest('http://localhost/page?id=1');
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
+		await settlePendingStores();
 
 		const req2 = makeRequest('http://localhost/page?id=1&session_id=abc');
 		const res2 = await provider.onRequest!(
@@ -308,6 +591,7 @@ describe('memory-provider Vary header', () => {
 			makeContext(req1),
 			makeNext({ maxAge: 60, body: 'english', headers: { Vary: 'Accept-Language' } }),
 		);
+		await settlePendingStores();
 
 		// Second request: Accept-Language: fr — should MISS
 		const req2 = makeRequest(url, { 'Accept-Language': 'fr' });
@@ -317,6 +601,7 @@ describe('memory-provider Vary header', () => {
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'MISS');
 		assert.equal(await res2.text(), 'french');
+		await settlePendingStores();
 
 		// Third request: Accept-Language: en — should HIT from first
 		const req3 = makeRequest(url, { 'Accept-Language': 'en' });
@@ -368,11 +653,13 @@ describe('memory-provider LRU eviction', () => {
 		for (const path of ['/a', '/b']) {
 			const req = makeRequest(`http://localhost${path}`);
 			await provider.onRequest!(makeContext(req), makeNext({ maxAge: 60, body: path }));
+			await settlePendingStores();
 		}
 
 		// Add a third — should evict /a (oldest)
 		const req3 = makeRequest('http://localhost/c');
 		await provider.onRequest!(makeContext(req3), makeNext({ maxAge: 60, body: '/c' }));
+		await settlePendingStores();
 
 		// /b should still be cached (HIT)
 		const reqB = makeRequest('http://localhost/b');
@@ -410,6 +697,7 @@ describe('memory-provider invalidate', () => {
 		// Cache an entry with tags
 		const req1 = makeRequest(url);
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, tags: ['product'] }));
+		await settlePendingStores();
 
 		// Verify cached
 		const req2 = makeRequest(url);
@@ -435,6 +723,7 @@ describe('memory-provider invalidate', () => {
 		for (const path of ['/a', '/b']) {
 			const req = makeRequest(`http://localhost${path}`);
 			await provider.onRequest!(makeContext(req), makeNext({ maxAge: 60, body: path }));
+			await settlePendingStores();
 		}
 
 		// Invalidate only /a
@@ -463,6 +752,7 @@ describe('memory-provider invalidate', () => {
 
 		const req1 = makeRequest(url);
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, tags: ['product'] }));
+		await settlePendingStores();
 
 		await provider.invalidate({ tags: ['blog'] });
 
@@ -489,6 +779,7 @@ describe('memory-provider SWR', () => {
 			makeContext(req1),
 			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
 		);
+		await settlePendingStores();
 
 		// Wait for entry to become stale (just over 1 second)
 		await new Promise((r) => setTimeout(r, 1100));
@@ -525,6 +816,7 @@ describe('memory-provider SWR', () => {
 			makeContext(req1),
 			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
 		);
+		await settlePendingStores();
 
 		t.mock.timers.tick(2_000);
 		const req2 = makeRequest(url);
@@ -556,6 +848,7 @@ describe('memory-provider SWR', () => {
 			makeContext(makeRequest(url)),
 			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
 		);
+		await settlePendingStores();
 
 		t.mock.timers.tick(2_000);
 		const res2 = await provider.onRequest!(
@@ -587,6 +880,7 @@ describe('memory-provider response body', () => {
 
 		const req1 = makeRequest(url);
 		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body }));
+		await settlePendingStores();
 
 		const req2 = makeRequest(url);
 		const res2 = await provider.onRequest!(
@@ -605,6 +899,7 @@ describe('memory-provider response body', () => {
 			makeContext(req1),
 			makeNext({ maxAge: 60, status: 201, body: 'created' }),
 		);
+		await settlePendingStores();
 
 		const req2 = makeRequest(url);
 		const res2 = await provider.onRequest!(makeContext(req2), makeNext({ maxAge: 60 }));
@@ -645,6 +940,7 @@ describe('memory-provider response body', () => {
 				headers: { 'Content-Type': 'application/json', 'X-Custom': 'hello' },
 			}),
 		);
+		await settlePendingStores();
 
 		const req2 = makeRequest(url);
 		const res2 = await provider.onRequest!(makeContext(req2), makeNext({ maxAge: 60 }));
