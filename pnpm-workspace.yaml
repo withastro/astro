@@ -60,6 +60,8 @@ minimumReleaseAgeExclude:
   - '@bruits/*'
   # Renovate security update: undici@8.12.2
   - undici@8.12.2
+  # Renovate security update: @hono/node-server@2.1.6
+  - "@hono/node-server@2.1.6"
 peerDependencyRules:
   allowAny:
     - 'astro'
