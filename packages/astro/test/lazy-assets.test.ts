@@ -151,6 +151,16 @@ describe('experimental.lazyAssets', () => {
 					}
 				}
 			});
+			it('includes styles only for rendered slots when enabled', async () => {
+				const html = await fixture.readFile('/slots/index.html');
+				const css = await cssFor(fixture, html);
+				assert.match(css, /\.one[[{]/);
+				if (enabled) assert.doesNotMatch(css, /\.two[[{]/);
+				else assert.match(css, /\.two[[{]/);
+				const $ = cheerio.load(html);
+				assert.equal($('.one').length, 1);
+				assert.equal($('.two').length, 0);
+			});
 		});
 	}
 	describe('on-demand', () => {
@@ -176,6 +186,13 @@ describe('experimental.lazyAssets', () => {
 					assertStyles(await cssFor(fixture, html), selected);
 				}),
 			);
+		});
+		it('omits styles from unused slots', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const html = await (await app.render(new Request('http://example.com/slots'))).text();
+			const css = await cssFor(fixture, html);
+			assert.match(css, /\.one[[{]/);
+			assert.doesNotMatch(css, /\.two[[{]/);
 		});
 		it('streams before deferred markup resolves and emits its assets', async () => {
 			const app = await fixture.loadTestAdapterApp();
@@ -221,6 +238,12 @@ describe('experimental.lazyAssets', () => {
 				const html = await (await fixture.fetch(`/?component=${selected}`)).text();
 				assertStyles(await cssFor(fixture, html), selected);
 			}
+		});
+		it('omits styles from unused slots', async () => {
+			const html = await (await fixture.fetch('/slots')).text();
+			const css = await cssFor(fixture, html);
+			assert.match(css, /\.one[[{]/);
+			assert.doesNotMatch(css, /\.two[[{]/);
 		});
 	});
 });

@@ -33,6 +33,12 @@ export class AstroComponentInstance {
 		this.props = props;
 		this.factory = factory;
 		this.slotValues = slots;
+		if (
+			result._metadata.componentAssets ||
+			(factory.moduleId && result.componentMetadata.get(factory.moduleId)?.assets)
+		) {
+			return;
+		}
 		for (const name in slots) {
 			if (this.slotValues === slots) {
 				this.slotValues = {};
@@ -95,7 +101,6 @@ export class AstroComponentInstance {
 
 	// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
 	// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
-	// The slots are initialized eagerly for head propagation.
 	render(destination: RenderDestination): void | Promise<void> {
 		const returnValue = this.init(this.result);
 
