@@ -12,9 +12,9 @@
     "start": "node start.mjs"
   },
   "dependencies": {
-    "@astrojs/react-renderer": "^0.1.2",
+    "@astrojs/react-renderer": "^0.1.3",
     "@astrojs/runtime": "^0.1.1",
-    "@astrojs/vite-plugin-astro": "^0.1.2",
+    "@astrojs/vite-plugin-astro": "^0.1.3",
     "@hono/node-server": "^2.0.4",
     "@vitejs/plugin-react": "^6.1.2",
     "hono": "^4.13.13",

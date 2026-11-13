@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vite-plugin-astro",
   "description": "Vite plugin for the Astro component language.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
