@@ -10,3 +10,13 @@
 	<span style="display: inline-block; width: 1rem; height: 1rem"></span>
 	<span hidden>Hidden label</span>
 </a>
+
+<!-- Not rendered: visibility:hidden removes from layout — should not warn -->
+<div style="visibility: hidden">
+	<a href="/vis-hidden"></a>
+</div>
+
+<!-- Removed from accessibility tree: aria-hidden="true" — should not warn -->
+<div aria-hidden="true">
+	<a href="/aria-hidden"></a>
+</div>
