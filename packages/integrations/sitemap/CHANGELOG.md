@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.7.5
+
+### Patch Changes
+
+- [#18149](https://github.com/withastro/astro/pull/18149) [`71f4d06`](https://github.com/withastro/astro/commit/71f4d068e36251d4a64288b6381350be5abd49ee) Thanks [@irontaek](https://github.com/irontaek)! - Speeds up sitemap chunk generation for large sites by tracking assigned URLs with a Set.
+
 ## 3.7.4
 
 ### Patch Changes

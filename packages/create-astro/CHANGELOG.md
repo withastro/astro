@@ -1,5 +1,13 @@
 # create-astro
 
+## 5.3.2
+
+### Patch Changes
+
+- [#17477](https://github.com/withastro/astro/pull/17477) [`a475ac0`](https://github.com/withastro/astro/commit/a475ac0735a2d065153a9c5e27f71f649bd26f0b) Thanks [@alexanderdombroski](https://github.com/alexanderdombroski)! - Fixes create astro to use correct project name when creating in current directory "."
+
+- [#17487](https://github.com/withastro/astro/pull/17487) [`3cb7043`](https://github.com/withastro/astro/commit/3cb7043a7951c0b372c341d46f46be68617b8a70) Thanks [@colinhacks](https://github.com/colinhacks)! - Adds support for the [nub](https://nubjs.com) package manager
+
 ## 5.3.1
 
 ### Patch Changes
