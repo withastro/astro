@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { LocalFontProvider } from '../../../../dist/assets/fonts/providers/local.js';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
+import type { FontProviderInitContext } from '../../../../dist/assets/fonts/types.js';
+import { createFixture } from '../../test-utils.ts';
 
 describe('fonts providers', () => {
 	describe('config objects', () => {
@@ -21,6 +23,46 @@ describe('fonts providers', () => {
 			assert.deepStrictEqual(fontProviders.adobe({ id: 'foo' }).config, {
 				id: 'foo',
 			});
+		});
+	});
+
+	describe('npm', () => {
+		it('resolves installed font files to absolute paths with remote: false', async () => {
+			const fixture = await createFixture({
+				'package.json': JSON.stringify({ dependencies: { '@fontsource/foo': '1.0.0' } }),
+				'node_modules/@fontsource/foo/package.json': JSON.stringify({ version: '1.0.0' }),
+				'node_modules/@fontsource/foo/index.css':
+					"@font-face{font-family:'Foo';font-style:normal;font-weight:400;src:url(./files/foo-latin-400-normal.woff2) format('woff2');}",
+				'node_modules/@fontsource/foo/files/foo-latin-400-normal.woff2': '',
+			});
+			try {
+				const provider = fontProviders.npm({ remote: false });
+				const storage: FontProviderInitContext['storage'] = {
+					getItem: async (_key: string, init?: () => unknown) => (await init?.()) ?? null,
+					setItem: async () => {},
+				};
+				await provider.init?.({
+					storage,
+					root: pathToFileURL(`${fixture.path}/`),
+					fetch: async (url) => {
+						throw new Error(`Unexpected request to ${url}`);
+					},
+				});
+				const result = await provider.resolveFont({
+					familyName: 'Foo',
+					formats: ['woff2'],
+					weights: ['400'],
+					styles: ['normal'],
+					subsets: [],
+					options: undefined,
+				});
+				assert.deepStrictEqual(
+					result?.fonts.flatMap((font) => font.src.map((source) => 'url' in source && source.url)),
+					[fixture.getPath('node_modules/@fontsource/foo/files/foo-latin-400-normal.woff2')],
+				);
+			} finally {
+				await fixture.rm();
+			}
 		});
 	});
 
