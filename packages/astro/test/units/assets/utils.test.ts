@@ -9,6 +9,7 @@ import { isESMImportedImage, isRemoteImage } from '../../../dist/assets/utils/im
 import { propsToFilename } from '../../../dist/assets/utils/hash.js';
 import { dropAttributes } from '../../../dist/assets/runtime.js';
 import { generateImageStylesCSS } from '../../../dist/assets/utils/generateImageStylesCSS.js';
+import { imageSrcToImportId } from '../../../dist/assets/utils/resolveImports.js';
 
 // #region getAssetsPrefix
 describe('getAssetsPrefix', () => {
@@ -443,6 +444,17 @@ describe('dropAttributes', () => {
 		const attrs = { xmlns: 'test', fill: 'red' };
 		const result = dropAttributes(attrs);
 		assert.equal(result, attrs);
+	});
+});
+// #endregion
+
+// #region imageSrcToImportId
+describe('imageSrcToImportId', () => {
+	it('accepts the .tif extension', () => {
+		assert.equal(
+			imageSrcToImportId('./photo.tif', 'src/content/blog/post.md'),
+			'./photo.tif?astroContentImageFlag=&importer=src%2Fcontent%2Fblog%2Fpost.md',
+		);
 	});
 });
 // #endregion
