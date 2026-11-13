@@ -7,7 +7,14 @@ import previewServer from '../../core/preview/index.js';
 import { isRunByAgent, supportsAgentAutoBackgrounding } from '../agent.js';
 import { isIgnoreLock } from '../dev/index.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
-import { background, logs, previewServerCommand, status, stop } from '../server.js';
+import {
+	background,
+	isBackgroundEnvEnabled,
+	logs,
+	previewServerCommand,
+	status,
+	stop,
+} from '../server.js';
 
 interface PreviewOptions {
 	flags: Flags;
@@ -161,7 +168,7 @@ export async function preview({ flags }: PreviewOptions) {
 			port: server.port,
 			url: serverUrl,
 			urls: server.urls,
-			background: !!process.env.ASTRO_PREVIEW_BACKGROUND,
+			background: isBackgroundEnvEnabled(process.env.ASTRO_PREVIEW_BACKGROUND),
 			startedAt: new Date().toISOString(),
 		},
 		'preview',
