@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
@@ -30,6 +31,38 @@ function assertStyles(css: string, selected: 'one' | 'two') {
 }
 
 describe('experimental.lazyAssets', () => {
+	for (const output of ['static', 'server'] as const) {
+		it(`includes CSP hashes for inline component styles in ${output} output`, async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/lazy-assets/',
+				outDir: `./dist/csp-${output}/`,
+				output,
+				adapter: output === 'server' ? testAdapter() : undefined,
+				build: { inlineStylesheets: 'always' },
+				security: { csp: true },
+				experimental: { lazyAssets: true },
+			});
+			await fixture.build();
+			const response =
+				output === 'server'
+					? await (await fixture.loadTestAdapterApp()).render(new Request('http://example.com/'))
+					: new Response(await fixture.readFile('/index.html'));
+			const $ = cheerio.load(await response.text());
+			const policy =
+				response.headers.get('content-security-policy') ??
+				$('meta[http-equiv="Content-Security-Policy"]').attr('content');
+			assert.ok(policy);
+			const styleSources = policy
+				.split(';')
+				.find((directive) => directive.trim().startsWith('style-src '));
+			assert.ok(styleSources);
+			assert.ok($('style').length > 0);
+			for (const style of $('style').toArray()) {
+				const hash = createHash('sha256').update($(style).text()).digest('base64');
+				assert.ok(styleSources.includes(`'sha256-${hash}'`), `Missing hash for ${$(style).text()}`);
+			}
+		});
+	}
 	for (const [enabled, inlineStylesheets] of [
 		[true, 'always'],
 		[true, 'never'],
