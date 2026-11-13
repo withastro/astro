@@ -10,7 +10,7 @@ import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.j
 import { getAstroMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
-export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
+export function astroHeadBuildPlugin(internals: BuildInternals, lazyAssets: boolean): vite.Plugin {
 	return {
 		name: 'astro:head-metadata-build',
 		applyToEnvironment(environment) {
@@ -45,6 +45,9 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 					// <head> tag in the tree
 					if (modinfo) {
 						const meta = getAstroMetadata(modinfo);
+						if (lazyAssets && id.endsWith('.astro') && meta) {
+							getOrCreateMetadata(id).assets ??= { styles: [], scripts: [] };
+						}
 						if (meta?.containsHead) {
 							for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
 								let metadata = getOrCreateMetadata(pageInfo.id);

@@ -31,7 +31,11 @@ export function registerIfPropagating(
 	},
 ) {
 	// Fast path: explicit runtime hint is cheapest and most common for dynamic entries.
-	if (factory.propagation === 'self' || factory.propagation === 'in-tree') {
+	if (
+		result._metadata.componentAssets ||
+		factory.propagation === 'self' ||
+		factory.propagation === 'in-tree'
+	) {
 		// The runtime set supports both AstroComponentInstance and ServerIslandComponent,
 		// and integrations may push objects that satisfy this minimal `init()` contract.
 		result._metadata.propagators.add(

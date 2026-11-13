@@ -222,6 +222,12 @@ export function createRunnableEnvironment({
 			if (importer) {
 				const cssModule = await importer();
 				css = cssModule.css;
+				for (const [id, assets] of cssModule.componentAssets) {
+					manifest.componentMetadata.set(id, {
+						...(manifest.componentMetadata.get(id) ?? { containsHead: false, propagation: 'none' }),
+						assets,
+					});
+				}
 			} else {
 				getLogger(manifest).warn(
 					'assets',
@@ -244,9 +250,13 @@ export function createRunnableEnvironment({
 			return { scripts, styles, links };
 		},
 
-		componentMetadata(manifest: SSRManifest, routeData: RouteData) {
+		async componentMetadata(manifest: SSRManifest, routeData: RouteData) {
 			const filePath = new URL(`${routeData.component}`, manifest.rootDir);
-			return getComponentMetadata(filePath, loader);
+			const metadata = await getComponentMetadata(filePath, loader);
+			for (const [id, entry] of metadata) {
+				entry.assets = manifest.componentMetadata.get(id)?.assets;
+			}
+			return metadata;
 		},
 
 		getComponentByRoute,

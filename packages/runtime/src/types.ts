@@ -204,6 +204,7 @@ export interface RenderRouteInfo {
 export type PropagationHint = 'none' | 'self' | 'in-tree';
 
 export type SSRComponentMetadata = {
+	assets?: { styles: StylesheetAsset[]; scripts: SSRElement[] };
 	propagation: PropagationHint;
 	containsHead: boolean;
 };
@@ -223,6 +224,9 @@ export interface AstroComponentFactory {
  * on external configuration
  */
 export interface SSRMetadata {
+	componentAssets?: {
+		emitted: Set<string>;
+	};
 	hasHydrationScript: boolean;
 	/**
 	 * Names of renderers that have injected their hydration scripts

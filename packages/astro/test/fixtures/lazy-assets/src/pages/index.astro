@@ -1,0 +1,12 @@
+---
+import One from '../components/One.astro';
+import Two from '../components/Two.astro';
+import '../components/shared.css';
+const components = { one: One, two: Two };
+const Component = components[Astro.url.searchParams.get('component') === 'two' ? 'two' : 'one'];
+const deferred = Astro.url.searchParams.has('stream')
+	? Astro.locals.deferred
+	: undefined;
+---
+<html><head><title>Lazy assets</title></head><body><p>Early content</p><Component /><Component />{deferred?.then(() => <Two />)}</body></html>
+<style>body { margin: 0; }</style>

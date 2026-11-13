@@ -13,6 +13,8 @@ import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js'
 import type { PageBuildData, StaticBuildOptionsInput, StylesheetAsset } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 import { shouldInlineAsset } from './util.js';
+import { createHash } from 'node:crypto';
+import { createAssetLink } from '../../render/ssr-element.js';
 
 /***** ASTRO PLUGIN *****/
 
@@ -33,7 +35,16 @@ interface PluginOptions {
 	buildOptions: StaticBuildOptionsInput;
 }
 
-function isBuildCssBoundary(id: string, ctx: { getModuleInfo: Rolldown.GetModuleInfo }): boolean {
+function isComponentAssetBoundary(id: string): boolean {
+	return id.endsWith('.astro') || id.includes('.astro?astro&type=script');
+}
+
+function isBuildCssBoundary(
+	id: string,
+	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
+	lazyAssets: boolean,
+): boolean {
+	if (lazyAssets && isComponentAssetBoundary(id)) return true;
 	if (isPropagatedAssetBoundary(id)) return true;
 	const info = ctx.getModuleInfo(id);
 	if (!info || !moduleIsTopLevelPage(info)) return false;
@@ -61,6 +72,16 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
+		outputOptions(output) {
+			if (!settings.config.experimental.lazyAssets) return;
+			const manualChunks = output.manualChunks;
+			output.manualChunks = (id, meta) => {
+				if (isCSSRequest(id)) {
+					return `styles-${createHash('sha256').update(id).digest('hex').slice(0, 12)}`;
+				}
+				return manualChunks?.(id, meta);
+			};
+		},
 
 		applyToEnvironment(environment) {
 			return (
@@ -269,7 +290,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								const parentModuleInfos = getParentExtendedModuleInfos(
 									scopedToModule,
 									this,
-									(moduleId) => isBuildCssBoundary(moduleId, this),
+									(moduleId) => isBuildCssBoundary(moduleId, this, false),
 								);
 								for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 									if (moduleIsTopLevelPage(pageInfo)) {
@@ -352,11 +373,17 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					if (!isCSSRequest(id)) continue;
 
 					const parentModuleInfos = getParentExtendedModuleInfos(id, this, (importer) =>
-						isBuildCssBoundary(importer, this),
+						isBuildCssBoundary(importer, this, settings.config.experimental.lazyAssets),
 					);
 					for (const { info: pageInfo, depth, order } of parentModuleInfos) {
-						if (isPropagatedAssetBoundary(pageInfo.id)) {
-							const propagatedCss = (moduleIdToPropagatedCss[pageInfo.id] ??= new Set());
+						if (
+							isPropagatedAssetBoundary(pageInfo.id) ||
+							(settings.config.experimental.lazyAssets && isComponentAssetBoundary(pageInfo.id))
+						) {
+							const moduleId = isComponentAssetBoundary(pageInfo.id)
+								? pageInfo.id.split('?')[0]
+								: pageInfo.id;
+							const propagatedCss = (moduleIdToPropagatedCss[moduleId] ??= new Set());
 							for (const css of meta.importedCss) {
 								propagatedCss.add(css);
 							}
@@ -509,6 +536,28 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				// completely empty. The whole propagation handling could be better refactored in the future.
 				for (const moduleId in moduleIdToPropagatedCss) {
 					if (!moduleIdToPropagatedCss[moduleId].has(stylesheet.fileName)) continue;
+					if (settings.config.experimental.lazyAssets && moduleId.endsWith('.astro')) {
+						let metadata = internals.componentMetadata.get(moduleId);
+						if (!metadata) {
+							metadata = { propagation: 'in-tree', containsHead: false };
+							internals.componentMetadata.set(moduleId, metadata);
+						}
+						const assets = (metadata.assets ??= { styles: [], scripts: [] });
+						assets.styles.push(
+							sheet.type === 'external'
+								? {
+										...sheet,
+										src: createAssetLink(
+											sheet.src,
+											settings.config.base,
+											settings.config.build.assetsPrefix,
+										),
+									}
+								: sheet,
+						);
+						sheetAddedToPage = true;
+						continue;
+					}
 					let propagatedStyles = internals.propagatedStylesMap.get(moduleId);
 					if (!propagatedStyles) {
 						propagatedStyles = new Set();

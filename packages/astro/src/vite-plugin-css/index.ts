@@ -12,6 +12,7 @@ import {
 import { CSS_LANGS_RE } from '../core/viteUtils.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { RESOLVED_SERVER_ISLAND_MANIFEST } from '../core/server-islands/vite-plugin-server-islands.js';
+import type { SSRComponentMetadata } from '../types/public/internal.js';
 import {
 	ASTRO_CSS_EXTENSION_POST_PATTERN,
 	MODULE_DEV_CSS,
@@ -40,6 +41,7 @@ function isModuleLoadBoundary(id: string): boolean {
 }
 
 interface AstroVitePluginOptions {
+	lazyAssets: boolean;
 	routesList: RoutesList;
 	command: 'dev' | 'build';
 	/** Shared cache of CSS content by module ID. Populated by the transform hook and
@@ -70,6 +72,7 @@ function getComponentFromVirtualModuleCssName(virtualModulePrefix: string, id: s
  * @param routesList
  */
 export function astroDevCssPlugin({
+	lazyAssets,
 	routesList,
 	command,
 	cssContentCache,
@@ -118,7 +121,7 @@ export function astroDevCssPlugin({
 				async handler(id) {
 					if (id === RESOLVED_MODULE_DEV_CSS) {
 						return {
-							code: `export const css = new Set()`,
+							code: `export const css = new Set(); export const componentAssets = [];`,
 						};
 					}
 					if (id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)) {
@@ -141,7 +144,7 @@ export function astroDevCssPlugin({
 
 						if (!resolved?.id) {
 							return {
-								code: 'export const css = new Set()',
+								code: 'export const css = new Set(); export const componentAssets = [];',
 							};
 						}
 
@@ -150,7 +153,7 @@ export function astroDevCssPlugin({
 
 						if (!mod) {
 							return {
-								code: 'export const css = new Set()',
+								code: 'export const css = new Set(); export const componentAssets = [];',
 							};
 						}
 
@@ -164,7 +167,7 @@ export function astroDevCssPlugin({
 
 						// Walk through the graph depth-first
 						for (const collected of collectCSSWithOrder(componentPageId, mod, {
-							isBoundary: isPageModuleBoundary,
+							isBoundary: (id) => isPageModuleBoundary(id) || (lazyAssets && id.endsWith('.astro')),
 						})) {
 							// Use the CSS file ID as the key to deduplicate while keeping best ordering
 							if (!cssWithOrder.has(collected.idKey)) {
@@ -184,8 +187,42 @@ export function astroDevCssPlugin({
 							id: cssId,
 							url,
 						}));
+						const componentAssets: [string, NonNullable<SSRComponentMetadata['assets']>][] = [];
+						if (lazyAssets) {
+							const seen = new Set<string>();
+							const pending = [mod];
+							while (pending.length) {
+								const entry = pending.pop()!;
+								if (!entry.id || seen.has(entry.id)) continue;
+								seen.add(entry.id);
+								if (entry !== mod && isModuleLoadBoundary(entry.id)) continue;
+								if (entry.id.includes('?astroPropagatedAssets')) continue;
+								if (entry.id.endsWith('.astro')) {
+									const own = [
+										...collectCSSWithOrder(entry.id, entry, {
+											isBoundary: (id) => id.endsWith('.astro') || isPageModuleBoundary(id),
+										}),
+									];
+									componentAssets.push([
+										entry.id,
+										{
+											styles: own.map((style) => ({
+												type: 'inline',
+												content: cssContentCache.get(style.idKey) || style.content,
+												viteDevId: style.id,
+											})),
+											scripts: own.map((style) => ({
+												props: { type: 'module', src: style.url },
+												children: '',
+											})),
+										},
+									]);
+								}
+								pending.push(...entry.importedModules);
+							}
+						}
 						return {
-							code: `export const css = new Set(${JSON.stringify(cleanedCss)})`,
+							code: `export const css = new Set(${JSON.stringify(cleanedCss)}); export const componentAssets = ${JSON.stringify(componentAssets)};`,
 						};
 					}
 				},

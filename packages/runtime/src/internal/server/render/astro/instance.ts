@@ -6,6 +6,9 @@ import { registerIfPropagating } from '../head-propagation/runtime.js';
 import type { ComponentSlots } from '../slot.js';
 import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
+import { collectComponentAssets } from '../component-assets.js';
+import { markHTMLString } from '../../escape.js';
+import { renderTemplate } from './render-template.js';
 
 type ComponentProps = Record<string | number, any>;
 
@@ -63,7 +66,19 @@ export class AstroComponentInstance {
 			return this.returnValue;
 		}
 
+		let assetContent = collectComponentAssets(result, this.factory.moduleId);
+		if (!result._metadata.hasRenderedHead) {
+			result._metadata.extraHead.push(assetContent);
+			assetContent = '';
+		}
 		this.returnValue = this.factory(result, this.props, this.slotValues);
+		if (assetContent) {
+			const prependAssets = (value: AstroFactoryReturnValue) =>
+				renderTemplate`${markHTMLString(assetContent)}${isHeadAndContent(value) ? value.content : value}`;
+			this.returnValue = isPromise(this.returnValue)
+				? this.returnValue.then(prependAssets)
+				: prependAssets(this.returnValue);
+		}
 
 		// Save the resolved value after promise is resolved for optimization
 		if (isPromise(this.returnValue)) {

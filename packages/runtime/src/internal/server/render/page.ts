@@ -9,6 +9,7 @@ import { renderCspMetaTag } from './head.js';
 import type { AstroComponentFactory } from './index.js';
 import { isDeno, isNode, isWorkerd } from './util.js';
 import { isAstroComponentFactory } from './astro/factory.js';
+import { collectComponentAssets } from './component-assets.js';
 
 // Components rendered after the head can still insert CSP hashes, so for pages rendered to a
 // string the head writes a placeholder that is replaced with the real `<meta>` element once the
@@ -37,6 +38,9 @@ export async function renderPage(
 	streaming: boolean,
 	route?: RenderRouteInfo,
 ): Promise<Response> {
+	result._metadata.extraHead.push(
+		collectComponentAssets(result, (componentFactory as AstroComponentFactory).moduleId),
+	);
 	if (!isAstroComponentFactory(componentFactory)) {
 		const nonAstroMeta = result.componentMetadata.get((componentFactory as any).moduleId);
 		result._metadata.headInTree = nonAstroMeta?.containsHead ?? false;
@@ -87,7 +91,8 @@ export async function renderPage(
 	// Only routes on a propagation path need to await async slot pre-renders
 	// before flushing the head (see `collectPropagatedHeadParts`). Other routes
 	// keep streaming without blocking the head on unrelated markup `await`s.
-	result._metadata.routeHasPropagation = isPropagatingHint(pageMeta?.propagation ?? 'none');
+	result._metadata.routeHasPropagation =
+		!!result._metadata.componentAssets || isPropagatingHint(pageMeta?.propagation ?? 'none');
 
 	let body: BodyInit | Response;
 	if (streaming) {

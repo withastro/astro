@@ -62,6 +62,7 @@ export function getConfigHashInput(config: AstroConfig) {
 			oxc: config.vite.oxc,
 		},
 		experimental: {
+			lazyAssets: config.experimental.lazyAssets,
 			clientPrerender: config.experimental.clientPrerender,
 		},
 	};
