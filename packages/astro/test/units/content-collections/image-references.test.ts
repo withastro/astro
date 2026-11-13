@@ -52,6 +52,12 @@ describe('updateImageReferencesInData', () => {
 		assert.equal(result.image, './missing.png');
 	});
 
+	it('reads a remote image object back as the URL string', () => {
+		const data = { cover: { src: 'https://example.com/cover.jpg' } };
+		const result = updateImageReferencesInData(data, FILE_NAME, new Map(), [['cover']]);
+		assert.equal(result.cover, 'https://example.com/cover.jpg');
+	});
+
 	it('returns the data unchanged when there are no image imports', () => {
 		const data = { title: 'Hello', slug: 'hello-world' };
 		const result = updateImageReferencesInData(data, FILE_NAME, new Map(), undefined);

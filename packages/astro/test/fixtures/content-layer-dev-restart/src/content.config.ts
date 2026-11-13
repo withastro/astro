@@ -1,4 +1,5 @@
 import { defineCollection } from 'astro:content';
+import { image } from 'astro/content/image';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
@@ -6,6 +7,9 @@ const blog = defineCollection({
 	loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
 	schema: z.object({
 		title: z.string(),
+		// Root-absolute so resolving it needs Vite, and therefore the dev server's
+		// plugin container during sync.
+		cover: z.string().transform((src) => image(src)),
 	}),
 });
 

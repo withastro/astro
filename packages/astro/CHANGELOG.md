@@ -5,7 +5,7 @@
 ### Patch Changes
 
 - [#18641](https://github.com/withastro/astro/pull/18641) [`08e2cee`](https://github.com/withastro/astro/commit/08e2cee8b3ca41db0aa158549e51d2046fbd57a4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Validates the protocol, host and port from `X-Forwarded-Proto`, `X-Forwarded-Host` and `X-Forwarded-Port` together against each `security.allowedDomains` entry, instead of one at a time:
-  
+
   - A forwarded protocol is only applied when an entry allows it for the host in use.
   - A forwarded port is only applied when the entry for that host lists it.
   - A forwarded host without a forwarded protocol is validated with the protocol of the server.

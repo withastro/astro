@@ -9,6 +9,6 @@ const posts = await getCollection('blog');
 		<title>Content layer dev restart</title>
 	</head>
 	<body>
-		{posts.map((post) => <h2>{post.data.title}</h2>)}
+		{posts.map((post) => <h2>{post.data.title} {post.data.cover.width}x{post.data.cover.height}</h2>)}
 	</body>
 </html>
