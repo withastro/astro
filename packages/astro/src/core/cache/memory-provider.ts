@@ -378,12 +378,16 @@ async function serializeResponse(
 	};
 }
 
+/** Statuses the `Response` constructor rejects a body for, even an empty one. */
+const NULL_BODY_STATUSES = [101, 204, 205, 304];
+
 /**
  * Create a new Response from a CachedEntry.
  */
 function createResponseFromCacheEntry(entry: CachedEntry): Response {
 	const headers = new Headers(entry.headers);
-	return new Response(entry.body.slice(0), {
+	const body = NULL_BODY_STATUSES.includes(entry.status) ? null : entry.body.slice(0);
+	return new Response(body, {
 		status: entry.status,
 		headers,
 	});

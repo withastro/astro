@@ -611,6 +611,27 @@ describe('memory-provider response body', () => {
 		assert.equal(res2.status, 201);
 	});
 
+	for (const status of [204, 205, 304]) {
+		it(`serves a cached ${status} response as a HIT`, async () => {
+			const provider = createProvider();
+			const url = 'http://localhost/page';
+
+			const res1 = await provider.onRequest!(
+				makeContext(makeRequest(url)),
+				makeNext({ maxAge: 60, status, body: null }),
+			);
+			assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
+
+			const res2 = await provider.onRequest!(
+				makeContext(makeRequest(url)),
+				makeNext({ maxAge: 60, status, body: null }),
+			);
+			assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+			assert.equal(res2.status, status);
+			assert.equal(res2.body, null);
+		});
+	}
+
 	for (const status of [404, 500]) {
 		it(`does not cache empty ${status} responses that the router replaces with the error page`, async () => {
 			const provider = createProvider();
