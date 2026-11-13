@@ -38,7 +38,9 @@ export async function renderPage(
 	streaming: boolean,
 	route?: RenderRouteInfo,
 ): Promise<Response> {
-	collectComponentAssets(result, (componentFactory as AstroComponentFactory).moduleId);
+	if (!result.partial) {
+		collectComponentAssets(result, (componentFactory as AstroComponentFactory).moduleId);
+	}
 	if (!isAstroComponentFactory(componentFactory)) {
 		const nonAstroMeta = result.componentMetadata.get((componentFactory as any).moduleId);
 		result._metadata.headInTree = nonAstroMeta?.containsHead ?? false;

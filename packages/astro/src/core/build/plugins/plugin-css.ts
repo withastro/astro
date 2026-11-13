@@ -112,16 +112,18 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 
 		async generateBundle(_outputOptions, bundle) {
-			for (const id of this.getModuleIds()) {
-				const info = this.getModuleInfo(id);
-				const dependencies = assetDependencies.get(id) ?? new Set<string>();
-				for (const dependency of [
-					...(info?.importedIds ?? []),
-					...(info?.dynamicallyImportedIds ?? []),
-				]) {
-					dependencies.add(dependency);
+			if (settings.config.experimental.lazyAssets) {
+				for (const id of this.getModuleIds()) {
+					const info = this.getModuleInfo(id);
+					const dependencies = assetDependencies.get(id) ?? new Set<string>();
+					for (const dependency of [
+						...(info?.importedIds ?? []),
+						...(info?.dynamicallyImportedIds ?? []),
+					]) {
+						dependencies.add(dependency);
+					}
+					assetDependencies.set(id, dependencies);
 				}
-				assetDependencies.set(id, dependencies);
 			}
 			// Collect CSS modules that were bundled during SSR build for deduplication in client build
 			if (
@@ -271,15 +273,17 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 				// Skip if the chunk has no CSS, we want to handle CSS chunks only
 				if (meta.importedCss.size < 1) continue;
-				for (const id of Object.keys(chunk.modules).filter(isCSSRequest)) {
-					const injected = getParentExtendedModuleInfos(id, this, (importer) =>
-						isBuildCssBoundary(importer, this, true),
-					).some(({ info }) => info.id === PAGE_SSR_SCRIPT_ID);
-					for (const css of meta.importedCss) {
-						const modules = stylesheetModules.get(css) ?? new Set<string>();
-						modules.add(id);
-						stylesheetModules.set(css, modules);
-						if (injected) injectedStylesheets.add(css);
+				if (settings.config.experimental.lazyAssets) {
+					for (const id of Object.keys(chunk.modules).filter(isCSSRequest)) {
+						const injected = getParentExtendedModuleInfos(id, this, (importer) =>
+							isBuildCssBoundary(importer, this, true),
+						).some(({ info }) => info.id === PAGE_SSR_SCRIPT_ID);
+						for (const css of meta.importedCss) {
+							const modules = stylesheetModules.get(css) ?? new Set<string>();
+							modules.add(id);
+							stylesheetModules.set(css, modules);
+							if (injected) injectedStylesheets.add(css);
+						}
 					}
 				}
 
@@ -465,20 +469,22 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				}
 			}
 
-			const assetOrder = getComponentAssetOrder(
-				assetDependencies.keys(),
-				(id) => assetDependencies.get(id) ?? [],
-			);
-			for (const [fileName, modules] of stylesheetModules) {
-				stylesheetOrder.set(
-					fileName,
-					injectedStylesheets.has(fileName)
-						? -1
-						: Math.min(...Array.from(modules, (id) => assetOrder.get(id)!)),
+			if (settings.config.experimental.lazyAssets) {
+				const assetOrder = getComponentAssetOrder(
+					assetDependencies.keys(),
+					(id) => assetDependencies.get(id) ?? [],
 				);
-			}
-			for (const { sheet, fileName } of orderedStylesheets) {
-				sheet.order = stylesheetOrder.get(fileName)!;
+				for (const [fileName, modules] of stylesheetModules) {
+					stylesheetOrder.set(
+						fileName,
+						injectedStylesheets.has(fileName)
+							? -1
+							: Math.min(...Array.from(modules, (id) => assetOrder.get(id)!)),
+					);
+				}
+				for (const { sheet, fileName } of orderedStylesheets) {
+					sheet.order = stylesheetOrder.get(fileName)!;
+				}
 			}
 
 			// Keep the CSS assets that the cssScopeTo recovery code added to pages.

@@ -106,12 +106,14 @@ export async function manifestBuildPostHook(
 		// Cloudflare Workers that re-parse it on every cold isolate start.
 		let ssrManifest = stripPrerenderedRouteStyles(manifest);
 		ssrManifest = stripPrerenderOnlyEntryModules(ssrManifest, internals);
-		ssrManifest = {
-			...ssrManifest,
-			componentMetadata: ssrManifest.componentMetadata.filter(([id]) =>
-				internals.serverComponentIds.has(id),
-			),
-		};
+		if (options.settings.config.experimental.lazyAssets) {
+			ssrManifest = {
+				...ssrManifest,
+				componentMetadata: ssrManifest.componentMetadata.filter(([id]) =>
+					internals.serverComponentIds.has(id),
+				),
+			};
+		}
 		const code = injectManifest(ssrManifest, ssrManifestChunk.code);
 		mutate(ssrManifestChunk.fileName, code, false);
 	}

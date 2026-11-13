@@ -13,7 +13,9 @@ import { bufferPropagatedHead } from '../head-propagation/runtime.js';
 import { renderStreaming } from '../streaming.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
-import { isRenderTemplateResult } from './render-template.js';
+import { isRenderTemplateResult, renderTemplate } from './render-template.js';
+import { collectComponentAssets } from '../component-assets.js';
+import { markHTMLString } from '../../escape.js';
 
 const DOCTYPE_EXP = /<!doctype html/i;
 
@@ -351,6 +353,7 @@ async function callComponentAsTemplateResultOrResponse(
 	children: any,
 	route?: RenderRouteInfo,
 ) {
+	const assets = result.partial ? collectComponentAssets(result, componentFactory.moduleId) : '';
 	const factoryResult = await componentFactory(result, props, children);
 
 	if (factoryResult instanceof Response) {
@@ -373,7 +376,9 @@ async function callComponentAsTemplateResultOrResponse(
 		}
 
 		// return the content
-		return factoryResult.content;
+		return assets
+			? renderTemplate`${markHTMLString(assets)}${factoryResult.content}`
+			: factoryResult.content;
 	} else if (!isRenderTemplateResult(factoryResult)) {
 		throw new AstroError({
 			...AstroErrorData.OnlyResponseCanBeReturned,
@@ -384,7 +389,7 @@ async function callComponentAsTemplateResultOrResponse(
 		});
 	}
 
-	return factoryResult;
+	return assets ? renderTemplate`${markHTMLString(assets)}${factoryResult}` : factoryResult;
 }
 
 // Recursively calls component instances that might have head content

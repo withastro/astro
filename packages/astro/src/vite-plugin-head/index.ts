@@ -46,7 +46,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals, lazyAssets: bool
 			for (const [, output] of Object.entries(bundle)) {
 				if (output.type !== 'chunk') continue;
 				for (const [id] of Object.entries(output.modules)) {
-					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr) {
+					if (lazyAssets && this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr) {
 						internals.serverComponentIds.add(id);
 					}
 					moduleIds.add(id);

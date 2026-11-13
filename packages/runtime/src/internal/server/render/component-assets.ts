@@ -8,7 +8,7 @@ export function collectComponentAssets(result: SSRResult, moduleId: string | und
 	const { emitted } = (result._metadata.componentAssets ??= { emitted: new Set(), pending: [] });
 	let head = '';
 	const emit = (html: string, order: number) => {
-		if (result._metadata.hasRenderedHead) head += html;
+		if (result.partial || result._metadata.hasRenderedHead) head += html;
 		else result._metadata.componentAssets!.pending.push({ order, html });
 	};
 	for (const style of assets.styles) {

@@ -30,6 +30,17 @@ function createMetadata(): SSRComponentMetadata {
 }
 
 describe('component assets', () => {
+	it('emits partial-response assets without waiting for a head', () => {
+		const result = createResult(new Map([['/one.astro', createMetadata()]]));
+		result.partial = true;
+		result._metadata.hasRenderedHead = false;
+		const html = collectComponentAssets(result, '/one.astro');
+		assert.match(html, /<style/);
+		assert.match(html, /<link/);
+		assert.match(html, /<script/);
+		assert.equal(result._metadata.componentAssets!.pending.length, 0);
+		assert.equal(collectComponentAssets(result, '/one.astro'), '');
+	});
 	it('flushes early assets in dependency order and emits late assets directly', () => {
 		const parent = createMetadata();
 		parent.assets!.styles = [{ type: 'inline', content: '.parent{}', order: 2 }];

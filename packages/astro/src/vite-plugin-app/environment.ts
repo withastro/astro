@@ -22,6 +22,7 @@ import {
 } from '../core/redirects/index.js';
 import { loadRenderer } from '../core/render/index.js';
 import { getDefaultRoutes } from '../core/routing/default.js';
+import { SERVER_ISLAND_COMPONENT } from '../core/server-islands/endpoint.js';
 import { routeIsRedirect } from '../core/routing/helpers.js';
 import { createRewriteRouteValidator } from '../core/routing/rewrite-validate.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
@@ -251,6 +252,12 @@ export function createRunnableEnvironment({
 		},
 
 		async componentMetadata(manifest: SSRManifest, routeData: RouteData) {
+			if (
+				settings.config.experimental.lazyAssets &&
+				routeData.component === SERVER_ISLAND_COMPONENT
+			) {
+				return manifest.componentMetadata;
+			}
 			const filePath = new URL(`${routeData.component}`, manifest.rootDir);
 			const metadata = await getComponentMetadata(filePath, loader);
 			for (const [id, entry] of metadata) {

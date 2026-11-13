@@ -11,7 +11,11 @@ async function cssFor(fixture: Fixture, html: string) {
 		.toArray()
 		.map((el) => $(el).text());
 	for (const el of $('link[rel="stylesheet"]').toArray()) {
-		css.push(await fixture.readFile($(el).attr('href')!));
+		css.push(
+			await fixture.readFile(
+				(fixture.config.output === 'server' ? '/client' : '') + $(el).attr('href')!,
+			),
+		);
 	}
 	return css.join('\n');
 }
@@ -31,6 +35,43 @@ function assertStyles(css: string, selected: 'one' | 'two') {
 }
 
 describe('experimental.lazyAssets', () => {
+	for (const mode of ['dev', 'always', 'never'] as const) {
+		it(`includes server island styles in ${mode} responses`, async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/lazy-assets/',
+				outDir: `./dist/island-${mode}/`,
+				srcDir: './islands/',
+				output: 'server',
+				adapter: testAdapter(),
+				build: { inlineStylesheets: mode === 'dev' ? 'always' : mode },
+				experimental: { lazyAssets: true },
+			});
+			const server = mode === 'dev' ? await fixture.startDevServer() : undefined;
+			try {
+				if (!server) await fixture.build();
+				const app = server ? undefined : await fixture.loadTestAdapterApp();
+				const fetch = (path: string) =>
+					app ? app.render(new Request(`http://example.com${path}`)) : fixture.fetch(path);
+				const host = await (await fetch('/island')).text();
+				const islandUrl = /fetch\(["']([^"']*\/_server-islands\/[^"']+)["']/.exec(host)?.[1];
+				assert.ok(islandUrl);
+				const response = await fetch(islandUrl);
+				assert.equal(response.status, 200);
+				const html = await response.text();
+				const css = await cssFor(fixture, html);
+				assert.match(css, /\.one[[{]/);
+				assert.match(css, /\.child[[{]/);
+				assert.match(css, /\.shared\s*\{/);
+				assert.equal((css.match(/\.shared\s*\{/g) ?? []).length, 1);
+				const partial = await (await fetch('/partial')).text();
+				const partialCss = await cssFor(fixture, partial);
+				assert.match(partialCss, /\.partial-root[[{]/);
+				assert.match(partialCss, /\.one[[{]/);
+			} finally {
+				await server?.stop();
+			}
+		});
+	}
 	for (const output of ['static', 'server'] as const) {
 		it(`includes CSP hashes for inline component styles in ${output} output`, async () => {
 			const fixture = await loadFixture({
