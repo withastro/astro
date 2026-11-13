@@ -1,0 +1,12 @@
+{
+	"name": "prerender-cloudflare-env",
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	"compatibility_date": "2026-01-28",
+	"env": {
+		"staging": {
+			"vars": {
+				"ENVIRONMENT": "staging"
+			}
+		}
+	}
+}
