@@ -8,6 +8,7 @@ interface IAttributes {
 }
 
 const svgReg = /<svg\s([^>"']|"[^"]*"|'[^']*')*>/
+const svgStartReg = /<svg\s/
 
 const extractorRegExps = {
   height: /\sheight=(['"])([^%]+?)\1/,
@@ -88,8 +89,17 @@ function calculateByViewbox(attrs: IAttributes, viewbox: IAttributes): ISize {
 }
 
 export const SVG: IImage = {
-  // Scan only the first kilo-byte to speed up the check on larger files
-  validate: (input) => svgReg.test(toUTF8String(input, 0, 1000)),
+  validate: (input) => {
+    // Scan only the first kilo-byte to speed up the check on larger files
+    const head = toUTF8String(input, 0, 1000)
+    if (svgReg.test(head)) {
+      return true
+    }
+    // The root tag can start within the first kilo-byte but end after it,
+    // e.g. when it carries a large attribute such as draw.io's `content`.
+    // Only then scan the whole input, so other files keep the fast path.
+    return svgStartReg.test(head) && svgReg.test(toUTF8String(input))
+  },
 
   calculate(input) {
     const root = extractorRegExps.root.exec(toUTF8String(input))
