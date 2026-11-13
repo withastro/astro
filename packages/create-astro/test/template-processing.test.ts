@@ -4,6 +4,7 @@ import {
 	generateAgentsMd,
 	processTemplateReadme,
 	removeTemplateMarkerSections,
+	widenCaretRange,
 } from '../dist/index.js';
 
 describe('generateAgentsMd', async () => {
@@ -375,5 +376,25 @@ Check out the [documentation](https://docs.astro.build).`;
 		// Should preserve formatting and structure
 		assert.ok(result.includes('| Command | Action |'));
 		assert.ok(result.includes('- ✅ Feature 1'));
+	});
+});
+
+describe('widenCaretRange', async () => {
+	it('lowers the floor of a caret range to the major', async () => {
+		assert.equal(widenCaretRange('^7.3.8'), '^7.0.0');
+		assert.equal(widenCaretRange('^19.3.0'), '^19.0.0');
+	});
+
+	it('lowers the floor of a 0.x caret range to the minor', async () => {
+		assert.equal(widenCaretRange('^0.35.2'), '^0.35.0');
+	});
+
+	it('leaves ranges it cannot safely widen unchanged', async () => {
+		assert.equal(widenCaretRange('^0.0.3'), '^0.0.3');
+		assert.equal(widenCaretRange('^7.0.0-beta.3'), '^7.0.0-beta.3');
+		assert.equal(widenCaretRange('7.3.8'), '7.3.8');
+		assert.equal(widenCaretRange('~7.3.8'), '~7.3.8');
+		assert.equal(widenCaretRange('^5.0.0 || ^6.0.0'), '^5.0.0 || ^6.0.0');
+		assert.equal(widenCaretRange('workspace:*'), 'workspace:*');
 	});
 });
