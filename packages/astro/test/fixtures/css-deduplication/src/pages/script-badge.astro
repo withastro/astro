@@ -1,0 +1,14 @@
+---
+// A script that reaches the shared `Badge` chunk only through a dynamic import
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<script>
+			import('../scripts/widget').then(({ widget }) => console.log(widget));
+		</script>
+	</body>
+</html>

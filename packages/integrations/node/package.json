@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "11.1.11",
+  "version": "11.1.12",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -32,7 +32,7 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
     "send": "^1.2.1",
     "server-destroy": "^1.0.1"
   },
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@fastify/middie": "^9.3.6",
-    "@fastify/static": "^10.1.8",
+    "@fastify/static": "^10.1.10",
     "@types/express": "^5.0.6",
     "@types/node": "^22.10.6",
     "@types/send": "^1.2.1",
@@ -51,7 +51,7 @@
     "cheerio": "1.2.0",
     "devalue": "^6.0.3",
     "express": "^5.3.0",
-    "fastify": "^5.12.7",
+    "fastify": "^5.12.8",
     "node-mocks-http": "^1.18.1"
   },
   "astro": {

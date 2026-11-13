@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.13.2
+
+### Patch Changes
+
+- [#18695](https://github.com/withastro/astro/pull/18695) [`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005) Thanks [@matthewp](https://github.com/matthewp)! - Adds the `@astrojs/internal-helpers/renderer` export used by `@astrojs/react`, `@astrojs/preact`, `@astrojs/solid-js`, `@astrojs/svelte` and `@astrojs/vue`, which fail to load without it
+
 ## 0.13.1
 
 ### Patch Changes
