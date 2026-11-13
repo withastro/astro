@@ -167,7 +167,8 @@ export function astroDevCssPlugin({
 
 						// Walk through the graph depth-first
 						for (const collected of collectCSSWithOrder(componentPageId, mod, {
-							isBoundary: (id) => isPageModuleBoundary(id) || (lazyAssets && id.endsWith('.astro')),
+							isBoundary: (moduleId) =>
+								isPageModuleBoundary(moduleId) || (lazyAssets && moduleId.endsWith('.astro')),
 						})) {
 							// Use the CSS file ID as the key to deduplicate while keeping best ordering
 							if (!cssWithOrder.has(collected.idKey)) {
@@ -200,7 +201,8 @@ export function astroDevCssPlugin({
 								if (entry.id.endsWith('.astro')) {
 									const own = [
 										...collectCSSWithOrder(entry.id, entry, {
-											isBoundary: (id) => id.endsWith('.astro') || isPageModuleBoundary(id),
+											isBoundary: (moduleId) =>
+												moduleId.endsWith('.astro') || isPageModuleBoundary(moduleId),
 										}),
 									];
 									componentAssets.push([

@@ -21,10 +21,10 @@ function assertStyles(css: string, selected: 'one' | 'two') {
 	assert.match(css, /\.shared\s*\{/);
 	assert.match(css, /body\s*\{/);
 	if (selected === 'one') {
-		assert.match(css, /\.child[\[{]/);
+		assert.match(css, /\.child[[{]/);
 		assert.match(css, /letter-spacing:\s*7\.7px/);
 	} else {
-		assert.doesNotMatch(css, /\.child[\[{]/);
+		assert.doesNotMatch(css, /\.child[[{]/);
 		assert.doesNotMatch(css, /letter-spacing:\s*7\.7px/);
 	}
 }
@@ -50,7 +50,7 @@ describe('experimental.lazyAssets', () => {
 				const html = await fixture.readFile('/index.html');
 				const css = await cssFor(fixture, html);
 				if (enabled) assertStyles(css, 'one');
-				else assert.match(css, /\.two[\[{]/);
+				else assert.match(css, /\.two[[{]/);
 				const $ = cheerio.load(html);
 				assert.equal($('.one').length, 2);
 				assert.equal($('script[type="module"]').length, 1);
@@ -62,7 +62,7 @@ describe('experimental.lazyAssets', () => {
 				assert.doesNotMatch(code, /two-script/);
 				if (enabled) {
 					assert.equal((css.match(/\.shared\s*\{/g) ?? []).length, 1);
-					assert.equal((css.match(/\.one[\[{]/g) ?? []).length, 1);
+					assert.equal((css.match(/\.one[[{]/g) ?? []).length, 1);
 				}
 			});
 		});
@@ -113,7 +113,7 @@ describe('experimental.lazyAssets', () => {
 				if (chunk.done) break;
 				html += new TextDecoder().decode(chunk.value);
 			}
-			assert.match(await cssFor(fixture, html), /\.two[\[{]/);
+			assert.match(await cssFor(fixture, html), /\.two[[{]/);
 			assert.match(html, /class="two/);
 		});
 	});
