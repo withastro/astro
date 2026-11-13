@@ -1,0 +1,44 @@
+/* Global CSS - tests that imported CSS also respects target */
+@media screen and (min-width: 500px) {
+  body {
+    background: skyblue;
+  }
+}
+
+@media screen and (width >= 1000px) {
+  body {
+    background: plum;
+  }
+}
+
+/* Padding to ensure this doesn't get inlined */
+.pad1 { color: red; }
+.pad2 { color: blue; }
+.pad3 { color: green; }
+.pad4 { color: yellow; }
+.pad5 { color: orange; }
+.pad6 { color: purple; }
+.pad7 { color: pink; }
+.pad8 { color: brown; }
+.pad9 { color: black; }
+.pad10 { color: white; }
+.pad11 { color: gray; }
+.pad12 { color: cyan; }
+.pad13 { color: magenta; }
+.pad14 { color: lime; }
+.pad15 { color: olive; }
+.pad16 { color: navy; }
+.pad17 { color: teal; }
+.pad18 { color: maroon; }
+.pad19 { color: aqua; }
+.pad20 { color: fuchsia; }
+.pad21 { color: silver; }
+.pad22 { color: coral; }
+.pad23 { color: salmon; }
+.pad24 { color: tomato; }
+.pad25 { color: crimson; }
+.pad26 { color: orchid; }
+.pad27 { color: violet; }
+.pad28 { color: indigo; }
+.pad29 { color: khaki; }
+.pad30 { color: linen; }

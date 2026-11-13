@@ -1,0 +1,18 @@
+---
+export function getStaticPaths() {
+	return [{ params: { slug: 'a' }, props: {}, cacheKey: 'v1' }];
+}
+---
+
+<html>
+	<head>
+		<title>Script</title>
+	</head>
+	<body>
+		<h1>Script</h1>
+		<script>
+			import { label } from '../scripts/dep.js';
+			console.log(label);
+		</script>
+	</body>
+</html>

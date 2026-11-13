@@ -1,0 +1,17 @@
+---
+import CssModuleHmr from '../components/CssModuleHmr.jsx';
+---
+
+<html>
+	<head>
+		<title>CSS Module HMR</title>
+	</head>
+	<body>
+		<div id="ssr">
+			<CssModuleHmr />
+		</div>
+		<div id="island">
+			<CssModuleHmr client:load />
+		</div>
+	</body>
+</html>

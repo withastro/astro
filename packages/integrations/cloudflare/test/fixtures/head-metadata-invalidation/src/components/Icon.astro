@@ -1,0 +1,14 @@
+---
+const { name } = Astro.props;
+---
+
+<svg class={`icon icon-${name}`} viewBox="0 0 24 24">
+	{name === 'sun' ? <circle cx="12" cy="12" r="5" /> : <path d="M21 12.79A9 9 0 1 1 11.21 3" />}
+</svg>
+
+<style>
+	.icon {
+		width: 1em;
+		height: 1em;
+	}
+</style>

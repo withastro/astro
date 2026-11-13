@@ -1,0 +1,55 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "schedule:weekly",
+    ":disablePeerDependencies",
+    ":disableDependencyDashboard",
+    "customManagers:biomeVersions",
+    "helpers:pinGitHubActionDigestsToSemver"
+  ],
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "postUpdateOptions": ["pnpmDedupe"],
+  "toolSettings": {
+    "nodeMaxMemory": 3072
+  },
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "ignorePaths": ["**/node_modules/**"],
+  "packageRules": [
+    {
+      "groupName": "all non-major dependencies",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["engines"],
+      "enabled": false
+    }
+  ],
+  "ignoreDeps": [
+    // manually bumping deps
+    "@biomejs/biome",
+    "knip",
+    "@types/node",
+    // pnpm override key in pnpm-workspace.yaml, extracted as its own dep name
+    "@types/node@22",
+    "@types/vscode",
+
+    // TODO: investigate upgrade (has type issues)
+    "sharp",
+
+    // manually bumping workflow actions
+    "actions/labeler",
+
+    // pinned in .github/workflows/ci.yml while Deno 2.9.6 breaks @netlify/edge-functions-dev
+    "deno",
+
+    // flue
+    "@earendil-works/pi-ai",
+    "@flue/runtime"
+  ],
+  "minimumReleaseAge": "3 days"
+}

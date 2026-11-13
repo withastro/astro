@@ -1,0 +1,17 @@
+---
+// Simple JSX elements
+const items = ['apple', 'banana', 'cherry'];
+---
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Simple JSX Test</title>
+</head>
+<body>
+	<h1>Simple JSX Elements</h1>
+	<div>
+		{items.map(item => <span>{item}</span>)}
+	</div>
+	<p>Count: {items.length}</p>
+</body>
+</html>

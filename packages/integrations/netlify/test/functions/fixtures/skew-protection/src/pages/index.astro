@@ -1,0 +1,16 @@
+---
+import { actions } from 'astro:actions';
+---
+<html>
+<head>
+	<title>Skew Protection Test</title>
+	<meta name="astro-view-transitions-enabled" />
+</head>
+<body>
+	<h1>Home Page</h1>
+	<a href="/other">Go to other page (view transition)</a>
+	<form method="POST" action={actions.test}>
+		<button type="submit">Test Action</button>
+	</form>
+</body>
+</html>

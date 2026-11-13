@@ -1,0 +1,18 @@
+---
+Astro.csp.insertScriptResource("https://scripts.cdn.example.com");
+Astro.csp.insertScriptHash('sha256-customHash');
+Astro.csp.insertDirective("default-src 'self'");
+---
+
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width"/>
+	<title>Scripts</title>
+</head>
+<body>
+<main>
+	<h1>Scripts</h1>
+</main>
+</body>
+</html>

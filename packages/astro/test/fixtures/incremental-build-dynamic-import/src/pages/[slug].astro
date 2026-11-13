@@ -1,0 +1,16 @@
+---
+export function getStaticPaths() {
+	return [{ params: { slug: 'a' }, props: {}, cacheKey: 'v1' }];
+}
+
+const { label } = await import('../lib/dep.js');
+---
+
+<html>
+	<head>
+		<title>Dynamic import</title>
+	</head>
+	<body>
+		<p>{label}</p>
+	</body>
+</html>

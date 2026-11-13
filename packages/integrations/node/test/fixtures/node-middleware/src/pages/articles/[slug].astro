@@ -1,0 +1,9 @@
+---
+export const prerender = true;
+
+export function getStaticPaths() {
+	return [{ params: { slug: 'known-article' } }];
+}
+---
+
+<h1>Known article</h1>
