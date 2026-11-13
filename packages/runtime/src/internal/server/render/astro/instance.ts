@@ -66,12 +66,12 @@ export class AstroComponentInstance {
 			return this.returnValue;
 		}
 
-		let assetContent = collectComponentAssets(result, this.factory.moduleId);
-		if (!result._metadata.hasRenderedHead) {
-			result._metadata.extraHead.push(assetContent);
-			assetContent = '';
+		const assetContent = collectComponentAssets(result, this.factory.moduleId);
+		try {
+			this.returnValue = this.factory(result, this.props, this.slotValues);
+		} catch (error) {
+			this.returnValue = Promise.reject(error);
 		}
-		this.returnValue = this.factory(result, this.props, this.slotValues);
 		if (assetContent) {
 			const prependAssets = (value: AstroFactoryReturnValue) =>
 				renderTemplate`${markHTMLString(assetContent)}${isHeadAndContent(value) ? value.content : value}`;

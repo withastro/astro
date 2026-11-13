@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
 import eol from 'eol';
 import { type Fixture, loadFixture } from './test-utils.ts';
+import { readPageStyles } from './css-utils.ts';
 
 describe('PostCSS', () => {
 	let fixture: Fixture;
@@ -19,11 +19,7 @@ describe('PostCSS', () => {
 
 			// get bundled CSS (will be hashed, hence DOM query)
 			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href')!;
-			bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
-				.replace(/\s/g, '')
-				.replace('/n', '');
+			bundledCSS = (await readPageStyles(fixture, html)).replace(/\s/g, '').replace('/n', '');
 		},
 		{ timeout: 45000 },
 	);

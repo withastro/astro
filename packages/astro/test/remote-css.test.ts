@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
+import { readPageStyles } from './css-utils.ts';
 import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Remote CSS', () => {
@@ -18,10 +18,7 @@ describe('Remote CSS', () => {
 
 	it('Includes all styles on the page', async () => {
 		const html = await fixture.readFile('/index.html');
-		const $ = cheerio.load(html);
-
-		const relPath = $('link').attr('href')!;
-		const css = await fixture.readFile(relPath);
+		const css = await readPageStyles(fixture, html);
 
 		assert.match(css, /https:\/\/unpkg.com\/open-props/);
 		assert.match(css, /body/);

@@ -13,6 +13,7 @@ import { CSS_LANGS_RE } from '../core/viteUtils.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { RESOLVED_SERVER_ISLAND_MANIFEST } from '../core/server-islands/vite-plugin-server-islands.js';
 import type { SSRComponentMetadata } from '../types/public/internal.js';
+import { getComponentAssetOrder } from '../core/build/component-assets.js';
 import {
 	ASTRO_CSS_EXTENSION_POST_PATTERN,
 	MODULE_DEV_CSS,
@@ -190,6 +191,12 @@ export function astroDevCssPlugin({
 						}));
 						const componentAssets: [string, NonNullable<SSRComponentMetadata['assets']>][] = [];
 						if (lazyAssets) {
+							const assetOrder = getComponentAssetOrder([componentPageId], (moduleId) =>
+								Array.from(
+									env!.moduleGraph.getModuleById(moduleId)?.importedModules ?? [],
+									(dependency) => dependency.id!,
+								).filter(Boolean),
+							);
 							const seen = new Set<string>();
 							const pending = [mod];
 							while (pending.length) {
@@ -208,7 +215,9 @@ export function astroDevCssPlugin({
 									componentAssets.push([
 										entry.id,
 										{
+											order: assetOrder.get(entry.id)!,
 											styles: own.map((style) => ({
+												order: assetOrder.get(style.idKey)!,
 												type: 'inline',
 												content: cssContentCache.get(style.idKey) || style.content,
 												viteDevId: style.id,

@@ -18,9 +18,12 @@ describe('CSS deduplication for hydrated components', () => {
 		it('should not duplicate CSS for hydrated components', async () => {
 			const assets = await fixture.readdir('/_astro');
 
-			// Generated file for Counter.css — find it dynamically since the hash may change
-			const counterCssFile = assets.find((f) => f.startsWith('index.') && f.endsWith('.css'));
-			assert.ok(counterCssFile, 'Expected a CSS file starting with "index."');
+			const cssFiles = assets.filter((file) => file.endsWith('.css'));
+			const cssContents = await Promise.all(
+				cssFiles.map((file) => fixture.readFile(`/_astro/${file}`)),
+			);
+			const counterCssFile = cssFiles[cssContents.findIndex((css) => css.includes('.counter{'))];
+			assert.ok(counterCssFile, 'Expected a CSS file containing the counter styles');
 			const COUNTER_CSS_PATH = `/_astro/${counterCssFile}`;
 			let file = await fixture.readFile(COUNTER_CSS_PATH);
 			file = file.replace(/\s+/g, '');

@@ -139,9 +139,13 @@ describe('SSR manifest does not include inline CSS for prerendered routes', () =
 		const app = await fixture.loadTestAdapterApp();
 		const ssrRoute = app.manifest.routes.find((r) => r.routeData.route === '/not-prerendered');
 		assert.ok(ssrRoute, 'expected /not-prerendered route');
-		const hasInline = ssrRoute.styles.some(
-			(s) => s.type === 'inline' && s.content.includes('ssr-only'),
-		);
+		const styles = [
+			...ssrRoute.styles,
+			...Array.from(app.manifest.componentMetadata.values()).flatMap(
+				(metadata) => metadata.assets?.styles ?? [],
+			),
+		];
+		const hasInline = styles.some((s) => s.type === 'inline' && s.content.includes('ssr-only'));
 		assert.ok(hasInline, 'SSR route should retain its inline CSS in the manifest');
 	});
 

@@ -96,6 +96,18 @@ describe('experimental.lazyAssets', () => {
 				if (enabled) {
 					assert.equal((css.match(/\.shared\s*\{/g) ?? []).length, 1);
 					assert.equal((css.match(/\.one[[{]/g) ?? []).length, 1);
+					if (inlineStylesheets === 'never') {
+						const stylesheets = await Promise.all(
+							$('link[rel="stylesheet"]')
+								.toArray()
+								.map((element) => fixture.readFile($(element).attr('href')!)),
+						);
+						const componentStyles = stylesheets.filter((stylesheet) =>
+							/\.one[[{]/.test(stylesheet),
+						);
+						assert.equal(componentStyles.length, 1);
+						assert.match(componentStyles[0], /letter-spacing:\s*7\.7px/);
+					}
 				}
 			});
 		});

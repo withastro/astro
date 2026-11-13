@@ -41,11 +41,12 @@ describe('CSS ordering - import order', () => {
 
 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 
-			const [{ css }] = content;
-			let idx1 = css.indexOf('salmon');
-			let idx2 = css.indexOf('green');
+			const css = content.map((stylesheet) => stylesheet.css).join('\n');
+			const pageStyle = css.indexOf('body{background:salmon}');
+			const importedStyle = css.indexOf('body{background:green}');
 
-			assert.equal(idx1 > idx2, true, 'Page level CSS should be placed after imported CSS');
+			assert.ok(pageStyle >= 0, 'Expected the page background rule');
+			assert.ok(pageStyle > importedStyle, 'Page level CSS should override imported CSS');
 		});
 
 		it('import order is depth-first', async () => {
@@ -53,7 +54,7 @@ describe('CSS ordering - import order', () => {
 
 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 
-			const [{ css }] = content;
+			const css = content.map((stylesheet) => stylesheet.css).join('\n');
 			let idx1 = css.indexOf('#f5f5f5'); // whitesmoke minified
 			let idx2 = css.indexOf('#f0f8ff'); // aliceblue minified
 			let idx3 = css.indexOf('#deb887'); // burlywoord minified
@@ -66,7 +67,7 @@ describe('CSS ordering - import order', () => {
 			let html = await fixture.readFile('/index.html');
 
 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
-			const [, { css }] = content;
+			const css = content.map((stylesheet) => stylesheet.css).join('\n');
 			assert.ok(
 				!css.includes('.client-1{background:red!important}'),
 				'CSS from Client2.jsx leaked into index.astro when chunking',
@@ -100,9 +101,10 @@ describe('CSS ordering - import order', () => {
 			const content = await Promise.all(
 				getLinks(html).map((href) => getLinkContent(href, fixture)),
 			);
-			let [link1, link2] = content;
-			assert.ok(link1.css.includes('f0f8ff')); // aliceblue minified
-			assert.ok(link2.css.includes('ff0')); // yellow minified
+			const css = content.map((stylesheet) => stylesheet.css).join('\n');
+			assert.ok(css.includes('f0f8ff'));
+			assert.ok(css.includes('ff0'));
+			assert.ok(css.indexOf('f0f8ff') < css.indexOf('ff0'));
 		});
 	});
 });

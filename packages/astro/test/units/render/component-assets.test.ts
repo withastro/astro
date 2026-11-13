@@ -1,10 +1,17 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { collectComponentAssets } from '@astrojs/runtime/_internal/server/render/component-assets.js';
+import { renderAllHeadContent } from '@astrojs/runtime/_internal/server/render/head.js';
 import type { SSRComponentMetadata, SSRResult } from '../../../dist/types/public/internal.js';
 
 function createResult(metadata: Map<string, SSRComponentMetadata>) {
-	return { styles: new Set(), componentMetadata: metadata, _metadata: {} } as unknown as SSRResult;
+	return {
+		styles: new Set(),
+		scripts: new Set(),
+		links: new Set(),
+		componentMetadata: metadata,
+		_metadata: { hasRenderedHead: true, extraHead: [] },
+	} as unknown as SSRResult;
 }
 
 function createMetadata(): SSRComponentMetadata {
@@ -12,9 +19,10 @@ function createMetadata(): SSRComponentMetadata {
 		propagation: 'none',
 		containsHead: false,
 		assets: {
+			order: 0,
 			styles: [
-				{ type: 'inline', content: '.shared{color:red}', viteDevId: '/shared.css' },
-				{ type: 'external', src: '/shared.css' },
+				{ type: 'inline', content: '.shared{color:red}', viteDevId: '/shared.css', order: 0 },
+				{ type: 'external', src: '/shared.css', order: 1 },
 			],
 			scripts: [{ props: { type: 'module', src: '/shared.css' }, children: '' }],
 		},
@@ -22,6 +30,31 @@ function createMetadata(): SSRComponentMetadata {
 }
 
 describe('component assets', () => {
+	it('flushes early assets in dependency order and emits late assets directly', () => {
+		const parent = createMetadata();
+		parent.assets!.styles = [{ type: 'inline', content: '.parent{}', order: 2 }];
+		parent.assets!.scripts = [];
+		const child = createMetadata();
+		child.assets!.styles = [{ type: 'inline', content: '.child{}', order: 1 }];
+		child.assets!.scripts = [];
+		const result = createResult(
+			new Map([
+				['parent', parent],
+				['child', child],
+				['late', createMetadata()],
+			]),
+		);
+		result._metadata.hasRenderedHead = false;
+		assert.equal(collectComponentAssets(result, 'parent'), '');
+		assert.equal(collectComponentAssets(result, 'child'), '');
+		assert.equal(
+			String(renderAllHeadContent(result)),
+			'<style>.child{}</style>\n<style>.parent{}</style>',
+		);
+		assert.equal(result._metadata.componentAssets!.pending.length, 0);
+		assert.equal(collectComponentAssets(result, 'parent'), '');
+		assert.match(collectComponentAssets(result, 'late'), /shared/);
+	});
 	it('ignores unknown components without initializing request state', () => {
 		const result = createResult(new Map());
 		assert.equal(collectComponentAssets(result, undefined), '');
