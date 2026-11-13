@@ -22,6 +22,41 @@ function deriveFallbackVariant(data: Partial<unifont.FontFaceData>): FallbackVar
 	return 'normal';
 }
 
+function weightDistanceFrom400(weight: Partial<unifont.FontFaceData>['weight']): number {
+	if (weight === undefined) return 0;
+	const [min, max] = Array.isArray(weight)
+		? weight
+		: String(weight)
+				.split(' ')
+				.map((value) => (value === 'bold' ? 700 : value === 'normal' ? 400 : Number(value)));
+	const upper = max ?? min;
+	if (Number.isNaN(min) || Number.isNaN(upper)) return Number.POSITIVE_INFINITY;
+	if (min <= 400 && 400 <= upper) return 0;
+	return Math.min(Math.abs(min - 400), Math.abs(upper - 400));
+}
+
+/**
+ * Returns the collected font that best represents regular Latin text: Latin subset first,
+ * then normal style, then the weight closest to 400. Capsize computes `xWidthAvg` from Latin
+ * sample characters, so measuring another subset (eg. cyrillic) or an italic skews the metrics.
+ * See https://github.com/withastro/astro/issues/18736
+ */
+function pickFontForMetrics(
+	collectedFonts: Array<CollectedFontForMetrics>,
+): CollectedFontForMetrics {
+	const score = ({ data }: CollectedFontForMetrics): [number, number, number] => [
+		data.meta?.subset === undefined || data.meta.subset === 'latin' ? 0 : 1,
+		data.style === undefined || data.style === 'normal' ? 0 : 1,
+		weightDistanceFrom400(data.weight),
+	];
+	const isBetter = (a: CollectedFontForMetrics, b: CollectedFontForMetrics) => {
+		const [scoreA, scoreB] = [score(a), score(b)];
+		const index = scoreA.findIndex((value, i) => value !== scoreB[i]);
+		return index !== -1 && scoreA[index] < scoreB[index];
+	};
+	return collectedFonts.reduce((best, collected) => (isBetter(collected, best) ? collected : best));
+}
+
 export async function optimizeFallbacks({
 	family,
 	fallbacks: _fallbacks,
@@ -88,10 +123,13 @@ export async function optimizeFallbacks({
 	// We prepend the fallbacks with the local fonts
 	fallbacks = [...uniqueLocalFonts.map(nameForFont), ...fallbacks];
 	let css = '';
+	const metrics = await fontMetricsResolver.getMetrics(
+		family.name,
+		pickFontForMetrics(collectedFonts),
+	);
 
 	for (const { collected, localFonts } of collectedWithLocalFonts) {
 		const properties = unifontFontFaceDataToProperties(collected.data);
-		const metrics = await fontMetricsResolver.getMetrics(family.name, collected);
 		for (const font of localFonts) {
 			css += fontMetricsResolver.generateFontFace({
 				metrics,
