@@ -1,4 +1,4 @@
-import type { CollectionMetadata } from '../../content/metadata.js';
+import type { AnyCollectionMetadata } from '../../content/metadata.js';
 import type { AddressInfo } from 'node:net';
 import type { ViteDevServer, InlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
@@ -511,7 +511,7 @@ export interface BaseIntegrationHooks {
 	 * changes.
 	 */
 	'astro:collections:resolved': (options: {
-		collections: CollectionMetadata[];
+		collections: AnyCollectionMetadata[];
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 }

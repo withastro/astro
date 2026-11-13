@@ -1,4 +1,4 @@
-import type { CollectionMetadata } from '../content/metadata.js';
+import type { AnyCollectionMetadata } from '../content/metadata.js';
 import fsMod from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
@@ -704,7 +704,7 @@ export async function runHookCollectionsResolved({
 	settings,
 	logger,
 }: {
-	collections: CollectionMetadata[];
+	collections: AnyCollectionMetadata[];
 	settings: AstroSettings;
 	logger: AstroLogger;
 }) {
