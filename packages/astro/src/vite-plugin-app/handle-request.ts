@@ -9,6 +9,7 @@ import { setLogger } from '../core/logger/manifest-logger.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { createRequest } from '../core/request.js';
 import { validateAndDecodePathname } from '../core/util/pathname.js';
+import { validateHost } from '../core/app/validate-headers.js';
 import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { SSRManifest } from '../types/public/index.js';
@@ -108,7 +109,17 @@ export async function handleDevRequest(
 	const host =
 		(incomingRequest.headers[':authority'] as string | undefined) ?? incomingRequest.headers.host;
 
-	const origin = `${protocol}://${host}`;
+	// Validate the Host header against allowedDomains for consistency with production.
+	// In production, createRequest() validates the Host header against allowedDomains
+	// and falls back to localhost (with the server port) if it doesn't match.
+	// We do the same here so the dev server behaves consistently.
+	const validatedHost = validateHost(host, protocol, manifest.allowedDomains);
+	const fallbackHost = settings.config.server.port
+		? `localhost:${settings.config.server.port}`
+		: 'localhost';
+	const safeHost = validatedHost ?? fallbackHost;
+
+	const origin = `${protocol}://${safeHost}`;
 	const url = new URL(origin + incomingRequest.url);
 	let pathname: string;
 	if (manifest.trailingSlash === 'never' && !incomingRequest.url) {
