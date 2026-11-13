@@ -38,6 +38,12 @@ describe('serialize', () => {
 		const output = `{"a":[1,[[0,0]]]}`;
 		assert.equal(serializeProps(input), output);
 	});
+	it('serializes holes in sparse arrays as undefined', () => {
+		// biome-ignore lint/suspicious/noSparseArray: testing sparse array holes
+		const input = { a: new Array(2), b: [, 'x'], c: [[, 'y']] };
+		const output = `{"a":[1,[[0],[0]]],"b":[1,[[0],[0,"x"]]],"c":[1,[[1,[[0],[0,"y"]]]]]}`;
+		assert.equal(serializeProps(input), output);
+	});
 	it('can serialize deeply nested data without quadratic quote escaping', () => {
 		const input = { a: [{ b: [{ c: [{ d: [{ e: [{ f: [{ g: ['leaf'] }] }] }] }] }] }] };
 		const output =
