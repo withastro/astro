@@ -202,6 +202,36 @@ describe('serializedManifestPlugin - dev mode', () => {
 			assert.ok('fallbackType' in manifest.i18n, 'fallbackType should be present');
 			assert.ok('domainLookupTable' in manifest.i18n, 'domainLookupTable should be present');
 		});
+
+		// #18510: createSerializedManifest (dev) must fill domainLookupTable the same
+		// way the build plugin does, or Host-based locale routing never matches.
+		it('fills domainLookupTable from i18n.domains', async () => {
+			const settings = await createBasicSettings({
+				site: 'https://example.com',
+				output: 'server',
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt'],
+					domains: {
+						en: 'https://en.example.com',
+						pt: 'https://pt.example.com',
+					},
+					routing: {
+						prefixDefaultLocale: true,
+					},
+				},
+			});
+			const manifest = await getManifest(settings);
+			assert.ok(manifest.i18n, 'i18n should be defined');
+			assert.deepEqual(manifest.i18n.domainLookupTable, {
+				'https://en.example.com': 'en',
+				'https://pt.example.com': 'pt',
+			});
+			assert.deepEqual(manifest.i18n.domains, {
+				en: 'https://en.example.com',
+				pt: 'https://pt.example.com',
+			});
+		});
 	});
 
 	describe('key', () => {
