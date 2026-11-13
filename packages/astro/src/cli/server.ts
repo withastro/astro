@@ -46,6 +46,15 @@ export const previewServerCommand: BackgroundCommandConfig = {
 	envVar: 'ASTRO_PREVIEW_BACKGROUND',
 };
 
+// The `${ENV_VAR}=1` marker is set on the detached child spawned by `background()`,
+// and is what the child uses to record `background: true` in the lock file. Users can
+// also set it to opt out of agent auto-backgrounding, so treat `0`, `false`, and the
+// empty string as "not set" instead of relying on a bare `!!` coercion.
+// https://github.com/withastro/astro/issues/18719
+export function isBackgroundEnvEnabled(value: string | undefined): boolean {
+	return value !== undefined && value !== '' && value !== '0' && value.toLowerCase() !== 'false';
+}
+
 export interface BackgroundResult {
 	pid: number;
 	url: string;
