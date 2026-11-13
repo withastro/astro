@@ -9,20 +9,20 @@ import {
 	COLLECTION_FILES_PLUGIN_NAME,
 	type CollectionFilesApi,
 } from '@astrojs/internal-helpers/collections';
-import type { CollectionMetadata } from './metadata.js';
+import type { AnyCollectionMetadata } from './metadata.js';
 
 /**
  * The collection of each file compiled as a module when it's rendered, such as MDX and
  * `deferRender` entries, keyed by path relative to the project root.
  */
-export type CollectionFiles = Record<string, CollectionMetadata>;
+export type CollectionFiles = Record<string, AnyCollectionMetadata>;
 
 /**
  * Maps the files of entries rendered as modules to their collection. A file loaded by more
  * than one collection is left out, because its module is compiled once for all of them.
  */
 export function getCollectionFiles(
-	collections: CollectionMetadata[],
+	collections: AnyCollectionMetadata[],
 	entriesOf: (collection: string) => DataEntry[],
 ): CollectionFiles {
 	const files: CollectionFiles = {};

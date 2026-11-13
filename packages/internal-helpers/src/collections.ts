@@ -37,5 +37,5 @@ export interface CollectionFilesApi {
 	 * Returns the metadata of the collection that a file compiled as a module belongs to, or
 	 * `undefined` when it belongs to no collection, or to more than one.
 	 */
-	getCollection(fileId: string): CollectionMetadata | undefined;
+	getCollection(fileId: string): AnyCollectionMetadata | undefined;
 }
