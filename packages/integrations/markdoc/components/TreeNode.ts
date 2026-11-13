@@ -100,7 +100,6 @@ function renderTreeNodeToFactoryResult(result: SSRResult, treeNode: TreeNode) {
 		);
 
 		// Let the runtime know that this component is being used.
-		// @ts-expect-error Astro only uses `init()` so specify it only (plus `_metadata` is internal)
 		result._metadata.propagators.add({
 			init() {
 				return headAndContent;

@@ -30,7 +30,7 @@ export function getAllBuildPlugins(
 		vitePluginActionsBuild(internals),
 		pluginCssTargetLowering(),
 		...pluginCSS(options, internals),
-		astroHeadBuildPlugin(internals),
+		astroHeadBuildPlugin(internals, options.settings.config.experimental.lazyAssets),
 		pluginPrerender(options, internals),
 		pluginScripts(internals),
 		...pluginSSR(options, internals),

@@ -13,6 +13,10 @@ import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js'
 import type { PageBuildData, StaticBuildOptionsInput, StylesheetAsset } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 import { shouldInlineAsset } from './util.js';
+import { createHash } from 'node:crypto';
+import { createAssetLink } from '../../render/ssr-element.js';
+import { getComponentAssetOrder } from '../component-assets.js';
+import { PAGE_SSR_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 
 /***** ASTRO PLUGIN *****/
 
@@ -33,7 +37,16 @@ interface PluginOptions {
 	buildOptions: StaticBuildOptionsInput;
 }
 
-function isBuildCssBoundary(id: string, ctx: { getModuleInfo: Rolldown.GetModuleInfo }): boolean {
+function isComponentAssetBoundary(id: string): boolean {
+	return id.endsWith('.astro') || id.includes('.astro?astro&type=script');
+}
+
+function isBuildCssBoundary(
+	id: string,
+	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
+	lazyAssets: boolean,
+): boolean {
+	if (lazyAssets && isComponentAssetBoundary(id)) return true;
 	if (isPropagatedAssetBoundary(id)) return true;
 	const info = ctx.getModuleInfo(id);
 	if (!info || !moduleIsTopLevelPage(info)) return false;
@@ -58,9 +71,37 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const moduleIdToPropagatedCss: Record<string, Set<string>> = {};
 	// Map of page module specifiers to the CSS module IDs assigned to them by the SSR/prerender builds
 	const pageToSsrCssModules: Record<string, Set<string>> = {};
+	const stylesheetOrder = new Map<string, number>();
+	const serverCssAssets = new Map<string, string>();
+	const assetDependencies = new Map<string, Set<string>>();
+	const stylesheetModules = new Map<string, Set<string>>();
+	const injectedStylesheets = new Set<string>();
+	const orderedStylesheets: { sheet: StylesheetAsset & { order: number }; fileName: string }[] = [];
 
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
+		outputOptions(output) {
+			if (!settings.config.experimental.lazyAssets) return;
+			const manualChunks = output.manualChunks;
+			output.manualChunks = (id, meta) => {
+				if (isCSSRequest(id)) {
+					const boundaries = getParentExtendedModuleInfos(id, meta, (importer) =>
+						isBuildCssBoundary(importer, meta, true),
+					)
+						.filter(({ info }) => isBuildCssBoundary(info.id, meta, true))
+						.map(({ info }) =>
+							isComponentAssetBoundary(info.id) ? info.id.split('?')[0] : info.id,
+						);
+					if (boundaries.length > 0) {
+						return `styles-${createHash('sha256')
+							.update([...new Set(boundaries)].sort().join('\0'))
+							.digest('hex')
+							.slice(0, 12)}`;
+					}
+				}
+				return manualChunks?.(id, meta);
+			};
+		},
 
 		applyToEnvironment(environment) {
 			return (
@@ -71,6 +112,19 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 
 		async generateBundle(_outputOptions, bundle) {
+			if (settings.config.experimental.lazyAssets) {
+				for (const id of this.getModuleIds()) {
+					const info = this.getModuleInfo(id);
+					const dependencies = assetDependencies.get(id) ?? new Set<string>();
+					for (const dependency of [
+						...(info?.importedIds ?? []),
+						...(info?.dynamicallyImportedIds ?? []),
+					]) {
+						dependencies.add(dependency);
+					}
+					assetDependencies.set(id, dependencies);
+				}
+			}
 			// Collect CSS modules that were bundled during SSR build for deduplication in client build
 			if (
 				this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
@@ -112,6 +166,13 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						}
 					}
 
+					if (
+						settings.config.experimental.lazyAssets &&
+						cssModuleIds.length > 0 &&
+						importedCss?.size === 1
+					) {
+						serverCssAssets.set(cssModuleIds.sort().join('\n'), [...importedCss][0]);
+					}
 					// Track which component exports were rendered during SSR.
 					// This is used by the client build to determine if cssScopeTo CSS
 					// was tree-shaken (component not rendered in SSR) vs included.
@@ -177,6 +238,13 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					// Check if this chunk contains CSS modules that were already in SSR
 					const allModules = Object.keys(item.modules || {});
 					const cssModules = allModules.filter((m) => isCSSRequest(m));
+					const serverCssAsset = serverCssAssets.get(cssModules.sort().join('\n'));
+					if (serverCssAsset && meta.importedCss.size === 1) {
+						const [clientCssAsset] = meta.importedCss;
+						if (clientCssAsset !== serverCssAsset)
+							renameBundleAsset(bundle, clientCssAsset, serverCssAsset);
+						continue;
+					}
 
 					if (cssModules.length > 0) {
 						// Check if ALL CSS modules in this chunk were already bundled in SSR
@@ -205,6 +273,19 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 				// Skip if the chunk has no CSS, we want to handle CSS chunks only
 				if (meta.importedCss.size < 1) continue;
+				if (settings.config.experimental.lazyAssets) {
+					for (const id of Object.keys(chunk.modules).filter(isCSSRequest)) {
+						const injected = getParentExtendedModuleInfos(id, this, (importer) =>
+							isBuildCssBoundary(importer, this, true),
+						).some(({ info }) => info.id === PAGE_SSR_SCRIPT_ID);
+						for (const css of meta.importedCss) {
+							const modules = stylesheetModules.get(css) ?? new Set<string>();
+							modules.add(id);
+							stylesheetModules.set(css, modules);
+							if (injected) injectedStylesheets.add(css);
+						}
+					}
+				}
 
 				// For the client build, client:only styles need to be mapped
 				// over to their page. For this chunk, determine if it's a child of a
@@ -269,7 +350,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								const parentModuleInfos = getParentExtendedModuleInfos(
 									scopedToModule,
 									this,
-									(moduleId) => isBuildCssBoundary(moduleId, this),
+									(moduleId) => isBuildCssBoundary(moduleId, this, false),
 								);
 								for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 									if (moduleIsTopLevelPage(pageInfo)) {
@@ -352,11 +433,17 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					if (!isCSSRequest(id)) continue;
 
 					const parentModuleInfos = getParentExtendedModuleInfos(id, this, (importer) =>
-						isBuildCssBoundary(importer, this),
+						isBuildCssBoundary(importer, this, settings.config.experimental.lazyAssets),
 					);
 					for (const { info: pageInfo, depth, order } of parentModuleInfos) {
-						if (isPropagatedAssetBoundary(pageInfo.id)) {
-							const propagatedCss = (moduleIdToPropagatedCss[pageInfo.id] ??= new Set());
+						if (
+							isPropagatedAssetBoundary(pageInfo.id) ||
+							(settings.config.experimental.lazyAssets && isComponentAssetBoundary(pageInfo.id))
+						) {
+							const moduleId = isComponentAssetBoundary(pageInfo.id)
+								? pageInfo.id.split('?')[0]
+								: pageInfo.id;
+							const propagatedCss = (moduleIdToPropagatedCss[moduleId] ??= new Set());
 							for (const css of meta.importedCss) {
 								propagatedCss.add(css);
 							}
@@ -379,6 +466,24 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							}
 						}
 					}
+				}
+			}
+
+			if (settings.config.experimental.lazyAssets) {
+				const assetOrder = getComponentAssetOrder(
+					assetDependencies.keys(),
+					(id) => assetDependencies.get(id) ?? [],
+				);
+				for (const [fileName, modules] of stylesheetModules) {
+					stylesheetOrder.set(
+						fileName,
+						injectedStylesheets.has(fileName)
+							? -1
+							: Math.min(...Array.from(modules, (id) => assetOrder.get(id)!)),
+					);
+				}
+				for (const { sheet, fileName } of orderedStylesheets) {
+					sheet.order = stylesheetOrder.get(fileName)!;
 				}
 			}
 
@@ -509,6 +614,34 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				// completely empty. The whole propagation handling could be better refactored in the future.
 				for (const moduleId in moduleIdToPropagatedCss) {
 					if (!moduleIdToPropagatedCss[moduleId].has(stylesheet.fileName)) continue;
+					if (settings.config.experimental.lazyAssets && moduleId.endsWith('.astro')) {
+						let metadata = internals.componentMetadata.get(moduleId);
+						if (!metadata) {
+							metadata = { propagation: 'in-tree', containsHead: false };
+							internals.componentMetadata.set(moduleId, metadata);
+						}
+						const assets = (metadata.assets ??= { styles: [], scripts: [], order: 0 });
+						assets.styles.push(
+							sheet.type === 'external'
+								? {
+										...sheet,
+										order: stylesheetOrder.get(stylesheet.fileName)!,
+										src: createAssetLink(
+											sheet.src,
+											settings.config.base,
+											settings.config.build.assetsPrefix,
+											settings.adapter?.client?.assetQueryParams,
+										),
+									}
+								: { ...sheet, order: stylesheetOrder.get(stylesheet.fileName)! },
+						);
+						orderedStylesheets.push({
+							sheet: assets.styles[assets.styles.length - 1],
+							fileName: stylesheet.fileName,
+						});
+						sheetAddedToPage = true;
+						continue;
+					}
 					let propagatedStyles = internals.propagatedStylesMap.get(moduleId);
 					if (!propagatedStyles) {
 						propagatedStyles = new Set();

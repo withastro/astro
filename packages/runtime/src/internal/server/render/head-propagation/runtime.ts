@@ -47,7 +47,15 @@ export function registerIfPropagating(
 			result._metadata.propagators.add(
 				instance as typeof result._metadata.propagators extends Set<infer T> ? T : never,
 			);
+			return;
 		}
+	}
+	if (result._metadata.componentAssets) {
+		result._metadata.propagators.add({
+			init() {
+				instance.init(result);
+			},
+		});
 	}
 }
 

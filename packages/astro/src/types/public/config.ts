@@ -3636,6 +3636,33 @@ export interface AstroUserConfig<
 		incrementalBuild?: boolean;
 
 		/**
+		 * @name experimental.lazyAssets
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 7.5.0
+		 * @description
+		 *
+		 * Includes an Astro component's styles when the component renders. Use this
+		 * when a page imports several components but renders only a subset, such as
+		 * a page assembled from content management system blocks.
+		 *
+		 * Enable the flag in your Astro configuration:
+		 *
+		 * ```js
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     lazyAssets: true,
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * See the [experimental lazy assets](https://docs.astro.build/en/reference/experimental-flags/lazy-assets/) for more information.
+		 */
+		lazyAssets?: boolean;
+
+		/**
 		 * @name experimental.redirectPage
 		 * @type {boolean}
 		 * @default `false`

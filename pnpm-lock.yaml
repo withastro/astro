@@ -3586,6 +3586,12 @@ importers:
         specifier: ^1.9.18
         version: 1.9.18
 
+  packages/astro/test/fixtures/lazy-assets:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/lazy-layout:
     dependencies:
       astro:

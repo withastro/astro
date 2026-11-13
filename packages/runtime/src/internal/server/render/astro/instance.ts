@@ -6,6 +6,9 @@ import { registerIfPropagating } from '../head-propagation/runtime.js';
 import type { ComponentSlots } from '../slot.js';
 import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
+import { collectComponentAssets } from '../component-assets.js';
+import { markHTMLString } from '../../escape.js';
+import { renderTemplate } from './render-template.js';
 
 type ComponentProps = Record<string | number, any>;
 
@@ -30,6 +33,12 @@ export class AstroComponentInstance {
 		this.props = props;
 		this.factory = factory;
 		this.slotValues = slots;
+		if (
+			result._metadata.componentAssets ||
+			(factory.moduleId && result.componentMetadata.get(factory.moduleId)?.assets)
+		) {
+			return;
+		}
 		for (const name in slots) {
 			if (this.slotValues === slots) {
 				this.slotValues = {};
@@ -63,7 +72,19 @@ export class AstroComponentInstance {
 			return this.returnValue;
 		}
 
-		this.returnValue = this.factory(result, this.props, this.slotValues);
+		const assetContent = collectComponentAssets(result, this.factory.moduleId);
+		try {
+			this.returnValue = this.factory(result, this.props, this.slotValues);
+		} catch (error) {
+			this.returnValue = Promise.reject(error);
+		}
+		if (assetContent) {
+			const prependAssets = (value: AstroFactoryReturnValue) =>
+				renderTemplate`${markHTMLString(assetContent)}${isHeadAndContent(value) ? value.content : value}`;
+			this.returnValue = isPromise(this.returnValue)
+				? this.returnValue.then(prependAssets)
+				: prependAssets(this.returnValue);
+		}
 
 		// Save the resolved value after promise is resolved for optimization
 		if (isPromise(this.returnValue)) {
@@ -80,7 +101,6 @@ export class AstroComponentInstance {
 
 	// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
 	// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
-	// The slots are initialized eagerly for head propagation.
 	render(destination: RenderDestination): void | Promise<void> {
 		const returnValue = this.init(this.result);
 

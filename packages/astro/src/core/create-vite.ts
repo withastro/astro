@@ -204,7 +204,12 @@ export async function createVite(
 			vitePluginFetchable({ settings }),
 			command === 'dev' && vitePluginAstroServer({ settings, logger }),
 			command === 'dev' && vitePluginAstroServerClient(),
-			astroDevCssPlugin({ routesList, command, cssContentCache }),
+			astroDevCssPlugin({
+				routesList,
+				command,
+				cssContentCache,
+				lazyAssets: settings.config.experimental.lazyAssets,
+			}),
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
 			vitePluginAdapterConfig(settings),

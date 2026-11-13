@@ -12,6 +12,10 @@ import type { RenderDestination } from '@astrojs/runtime/_internal/server/render
 
 const DEFAULT_RESULT = {
 	clientDirectives: new Map(),
+	_metadata: {
+		hasRenderedHead: false,
+		extraHead: [] as string[],
+	},
 };
 
 describe('rendering', () => {
@@ -24,6 +28,7 @@ describe('rendering', () => {
 
 	beforeEach(() => {
 		evaluated.length = 0;
+		DEFAULT_RESULT._metadata.extraHead.length = 0;
 	});
 
 	it('components are evaluated and rendered depth-first', async () => {

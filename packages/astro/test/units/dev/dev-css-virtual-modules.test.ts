@@ -8,6 +8,7 @@ describe('dev CSS plugin environments', () => {
 		const plugins = astroDevCssPlugin({
 			routesList: {} as never,
 			command: 'dev',
+			lazyAssets: false,
 			cssContentCache: new Map(),
 		});
 
@@ -20,6 +21,7 @@ describe('dev CSS plugin environments', () => {
 		const plugins = astroDevCssPlugin({
 			routesList: {} as never,
 			command: 'build',
+			lazyAssets: false,
 			cssContentCache: new Map(),
 		});
 

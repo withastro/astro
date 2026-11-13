@@ -55,6 +55,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	prerenderConflictBehavior: 'warn',
 	fetchFile: 'fetch',
 	experimental: {
+		lazyAssets: false,
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,

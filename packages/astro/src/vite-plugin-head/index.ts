@@ -9,8 +9,9 @@ import { PROPAGATED_ASSET_FLAG } from '../content/consts.js';
 import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
 import { getAstroMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { getComponentAssetOrder } from '../core/build/component-assets.js';
 
-export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
+export function astroHeadBuildPlugin(internals: BuildInternals, lazyAssets: boolean): vite.Plugin {
 	return {
 		name: 'astro:head-metadata-build',
 		applyToEnvironment(environment) {
@@ -20,6 +21,12 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 			);
 		},
 		generateBundle(_opts, bundle) {
+			const assetOrder = lazyAssets
+				? getComponentAssetOrder(this.getModuleIds(), (id) => {
+						const info = this.getModuleInfo(id);
+						return info ? [...info.importedIds, ...info.dynamicallyImportedIds] : [];
+					})
+				: new Map<string, number>();
 			const map: SSRResult['componentMetadata'] = internals.componentMetadata;
 			const moduleIds = new Set<string>();
 			// Explicit runtime entries (`createComponent({ propagation: 'self' })`).
@@ -39,12 +46,23 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 			for (const [, output] of Object.entries(bundle)) {
 				if (output.type !== 'chunk') continue;
 				for (const [id] of Object.entries(output.modules)) {
+					if (lazyAssets && this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr) {
+						internals.serverComponentIds.add(id);
+					}
 					moduleIds.add(id);
 					const modinfo = this.getModuleInfo(id);
 
 					// <head> tag in the tree
 					if (modinfo) {
 						const meta = getAstroMetadata(modinfo);
+						if (lazyAssets && id.endsWith('.astro') && meta) {
+							getOrCreateMetadata(id).assets ??= {
+								styles: [],
+								scripts: [],
+								order: assetOrder.get(id)!,
+							};
+							getOrCreateMetadata(id).assets!.order = assetOrder.get(id)!;
+						}
 						if (meta?.containsHead) {
 							for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
 								let metadata = getOrCreateMetadata(pageInfo.id);
