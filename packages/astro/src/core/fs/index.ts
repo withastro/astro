@@ -33,6 +33,20 @@ export async function copyCachedFile(source: fs.PathLike, destination: fs.PathLi
 }
 
 /**
+ * Moves a file to `destination`. When the two paths are on different
+ * filesystems, copies the file and removes the source instead.
+ */
+export async function moveFile(source: fs.PathLike, destination: fs.PathLike): Promise<void> {
+	try {
+		await fs.promises.rename(source, destination);
+	} catch (err: any) {
+		if (err.code !== 'EXDEV') throw err;
+		await fs.promises.copyFile(source, destination);
+		await fs.promises.unlink(source);
+	}
+}
+
+/**
  * Restores timestamps only for unchanged public files. Build plugins may have
  * overwritten the copied files, so matching paths (or sizes) alone are not enough.
  * Source symlinks are followed, like Vite's public copy; destination symlinks are
