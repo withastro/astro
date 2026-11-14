@@ -122,8 +122,20 @@ jobs:
           # Also delete root package.json and node_modules to avoid vsce picking up any monorepo info
           mv ../../../package.json ../../../package.temp.json
           rm -rf ../../../node_modules
-          sleep 60s # wait for npm registry to update
-          npm i --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
+          # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm.
+          # Packages published earlier in this run may take a while to show up on the npm registry,
+          # so retry the install instead of failing on ETARGET.
+          for attempt in 1 2 3 4 5 6; do
+            sleep 60s # wait for npm registry to update
+            if npm i --workspaces=false; then
+              break
+            fi
+            if [ "$attempt" = 6 ]; then
+              echo "::error::npm install failed after $attempt attempts"
+              exit 1
+            fi
+            echo "npm install failed (attempt $attempt), retrying..."
+          done
           mv ./astro-ts-plugin-bundle ./node_modules/astro-ts-plugin-bundle
 
       - name: Publish to VSCode Marketplace

@@ -704,7 +704,8 @@ export interface AstroUserConfig<
 		 *
 		 * This prevents host header injection attacks where malicious actors can manipulate the `Astro.url` value by sending crafted `X-Forwarded-Host` headers.
 		 *
-		 * Each pattern can specify `protocol`, `hostname`, and `port`. All three are validated if provided.
+		 * Each pattern can specify `protocol`, `hostname`, and `port`. All three are validated together if provided. A pattern without a `protocol` allows `http` and `https`.
+		 * A pattern without a `port` allows any port in the host, but `X-Forwarded-Port` is only trusted when it matches a pattern's `port`.
 		 * The patterns support wildcards for flexible hostname matching:
 		 *
 		 * - `*.example.com` - matches exactly one subdomain level (e.g., `sub.example.com` but not `deep.sub.example.com`)
@@ -1347,7 +1348,7 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name build.client
 		 * @type {string}
-		 * @default `'./client'`
+		 * @default `'./client/'`
 		 * @description
 		 * Controls the output directory of your client-side CSS and JavaScript when building a website with server-rendered pages.
 		 * `outDir` controls where the code is built to.
@@ -1371,7 +1372,7 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name build.server
 		 * @type {string}
-		 * @default `'./server'`
+		 * @default `'./server/'`
 		 * @description
 		 * Controls the output directory of server JavaScript when building to SSR.
 		 *

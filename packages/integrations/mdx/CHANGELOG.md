@@ -1,5 +1,28 @@
 # @astrojs/mdx
 
+## 8.1.6
+
+### Patch Changes
+
+- [#18713](https://github.com/withastro/astro/pull/18713) [`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5) Thanks [@delucis](https://github.com/delucis)! - Unpins `@astrojs/*` dependencies to allow versions matching the `^` range to be installed
+- Updated dependencies [[`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5)]:
+  - @astrojs/markdown-satteri@0.4.10
+
+## 8.1.5
+
+### Patch Changes
+
+- Updated dependencies [[`d13beeb`](https://github.com/withastro/astro/commit/d13beeb66c753f03cbdbf4509cf2c527c816f1a4)]:
+  - @astrojs/markdown-satteri@0.4.9
+
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/markdown-satteri@0.4.8
+
 ## 8.1.3
 
 ### Patch Changes

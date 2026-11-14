@@ -177,7 +177,7 @@ export async function syncInternal({
 			await contentLayer.sync();
 			if (!skip?.cleanup) {
 				// Free up memory (usually in builds since we only need to use this once)
-				contentLayer.dispose();
+				globalContentLayer.dispose();
 			}
 			settings.timer.end('Sync content layer');
 		} finally {

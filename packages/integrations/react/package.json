@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/react",
   "description": "Use React components within Astro",
-  "version": "7.1.5",
+  "version": "7.1.9",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -39,8 +39,8 @@
     "test": "astro-scripts test \"test/**/*.test.ts\" --parallel"
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/react-renderer": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
+    "@astrojs/react-renderer": "workspace:^",
     "@vitejs/plugin-react": "^6.2.1"
   },
   "devDependencies": {

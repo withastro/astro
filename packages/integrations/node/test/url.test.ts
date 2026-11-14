@@ -64,7 +64,7 @@ describe('URL', () => {
 	it('return https when the X-Forwarded-Proto header is set to https', async () => {
 		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
-			headers: { 'X-Forwarded-Proto': 'https' },
+			headers: { 'X-Forwarded-Proto': 'https', Host: 'localhost:3000' },
 			url: '/',
 		});
 

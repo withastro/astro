@@ -80,6 +80,7 @@ export function createRequestFromNodeRequest(
 		getFirstForwardedValue(req.headers['x-forwarded-host']),
 		getFirstForwardedValue(req.headers['x-forwarded-port']),
 		allowedDomains,
+		{ protocol, host: untrustedHostname },
 	);
 	const validatedHostname = validateHost(
 		untrustedHostname,
@@ -151,6 +152,10 @@ export function createRequest(
 		getFirstForwardedValue(req.headers['x-forwarded-host']),
 		getFirstForwardedValue(req.headers['x-forwarded-port']),
 		allowedDomains,
+		{
+			protocol: providedProtocol,
+			host: typeof untrustedHostname === 'string' ? untrustedHostname : undefined,
+		},
 	);
 
 	const protocol = validated.protocol ?? providedProtocol;

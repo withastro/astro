@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/runtime",
   "description": "The render runtime of Astro components.",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",

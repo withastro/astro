@@ -1,5 +1,19 @@
 # @astrojs/vercel
 
+## 11.0.22
+
+### Patch Changes
+
+- [#18713](https://github.com/withastro/astro/pull/18713) [`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5) Thanks [@delucis](https://github.com/delucis)! - Unpins `@astrojs/*` dependencies to allow versions matching the `^` range to be installed
+
+## 11.0.21
+
+### Patch Changes
+
+- [#18680](https://github.com/withastro/astro/pull/18680) [`4f8e19a`](https://github.com/withastro/astro/commit/4f8e19aa28b9d67519a5fad84303c725654cbb4f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Prevents server function traces from including the entire project when a dependency uses paths the tracer cannot resolve.
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+
 ## 11.0.20
 
 ### Patch Changes

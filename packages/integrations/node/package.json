@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "11.1.11",
+  "version": "11.1.13",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -32,7 +32,7 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
     "send": "^1.2.1"
   },
   "peerDependencies": {

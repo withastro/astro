@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/solid-js",
-  "version": "7.1.2",
+  "version": "7.1.6",
   "description": "Use Solid components within Astro",
   "type": "module",
   "author": "withastro",
@@ -34,8 +34,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/solid-js-renderer": "workspace:*",
+    "@astrojs/internal-helpers": "workspace:^",
+    "@astrojs/solid-js-renderer": "workspace:^",
     "vite": "^8.3.6",
     "vite-plugin-solid": "^2.11.15"
   },
