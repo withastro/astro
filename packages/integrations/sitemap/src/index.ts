@@ -206,7 +206,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					if (chunks) {
 						try {
-							let groupedUrlCollection: SitemapItem['url'][] = [];
+							const groupedUrlCollection = new Set<SitemapItem['url']>();
 							const chunksItem: Record<string, SitemapItem[]> = {};
 							for (const [key, cb] of Object.entries(chunks)) {
 								// Create a new, separate collection for each key
@@ -222,31 +222,27 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 								// Assign the specific collection to its key
 								chunksItem[key] = collection;
-								groupedUrlCollection = [
-									...groupedUrlCollection,
-									...collection.map((coll) => coll.url),
-								];
+								for (const { url } of collection) {
+									groupedUrlCollection.add(url);
+								}
 							}
 							chunksItem['pages'] = urlData.filter(
-								(urlDataItem) => !groupedUrlCollection.includes(urlDataItem.url),
+								(urlDataItem) => !groupedUrlCollection.has(urlDataItem.url),
 							);
 							// Process each chunk here
-							await writeSitemapChunk(
-								{
-									filenameBase,
-									hostname: finalSiteUrl.href,
-									sitemapHostname: finalSiteUrl.href,
-									sourceData: chunksItem,
-									destinationDir: destDir,
-									publicBasePath: config.base,
-									customSitemaps,
-									limit: entryLimit,
-									xslURL,
-									lastmod,
-									namespaces: opts.namespaces,
-								},
-								config,
-							);
+							await writeSitemapChunk({
+								filenameBase,
+								hostname: finalSiteUrl.href,
+								sitemapHostname: finalSiteUrl.href,
+								sourceData: chunksItem,
+								destinationDir: destDir,
+								publicBasePath: config.base,
+								customSitemaps,
+								limit: entryLimit,
+								xslURL,
+								lastmod,
+								namespaces: opts.namespaces,
+							});
 							logger.info(`\`${outFile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 							return;
 						} catch (err) {
@@ -254,21 +250,18 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							return;
 						}
 					}
-					await writeSitemap(
-						{
-							filenameBase: filenameBase,
-							hostname: finalSiteUrl.href,
-							destinationDir: destDir,
-							publicBasePath: config.base,
-							sourceData: urlData,
-							limit: entryLimit,
-							customSitemaps,
-							xslURL: xslURL,
-							lastmod,
-							namespaces: opts.namespaces,
-						},
-						config,
-					);
+					await writeSitemap({
+						filenameBase: filenameBase,
+						hostname: finalSiteUrl.href,
+						destinationDir: destDir,
+						publicBasePath: config.base,
+						sourceData: urlData,
+						limit: entryLimit,
+						customSitemaps,
+						xslURL: xslURL,
+						lastmod,
+						namespaces: opts.namespaces,
+					});
 					logger.info(`\`${outFile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {
 					if (err instanceof ZodError) {

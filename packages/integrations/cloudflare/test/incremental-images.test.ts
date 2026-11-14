@@ -6,13 +6,14 @@ import { type Fixture, loadFixture } from './test-utils.ts';
 
 // The Cloudflare prerenderer renders pages out of process in workerd, so the
 // image transforms a page resolves are collected in the worker and reported to
-// the build through the prerender envelope. This verifies a skipped page still
-// emits its optimized images on a rebuild.
+// the build through the framed prerender response. This verifies a skipped page
+// still emits its optimized images on a rebuild.
 describe('experimental.incrementalBuild optimized images (workerd)', () => {
 	const root = new URL('./fixtures/incremental-images/', import.meta.url);
 	const cacheFile = new URL('node_modules/.astro/incremental-build.json', root);
 	let fixture: Fixture;
 	let optimizedPath: string | undefined;
+	let ogPath: string | undefined;
 
 	before(async () => {
 		fs.rmSync(new URL('dist/', root), { recursive: true, force: true });
@@ -23,6 +24,7 @@ describe('experimental.incrementalBuild optimized images (workerd)', () => {
 		await fixture.build();
 		const $ = cheerio.load(await fixture.readFile('/client/pic/a/index.html'));
 		optimizedPath = $('img').attr('src');
+		ogPath = $('meta[property="og:image"]').attr('content');
 	});
 
 	it("emits a skipped page's optimized images on rebuild", async () => {
@@ -49,5 +51,13 @@ describe('experimental.incrementalBuild optimized images (workerd)', () => {
 			fixture.pathExists(`/client${src}`),
 			'optimized image referenced by the skipped page should still be emitted',
 		);
+	});
+
+	it('emits images from getImage() in getStaticPaths() when every page is skipped', async () => {
+		const src = ogPath;
+		assert.ok(src?.startsWith('/_astro/'), `expected an optimized src, got ${src}`);
+		assert.notEqual(src, optimizedPath);
+		await fixture.build();
+		assert.ok(fixture.pathExists(`/client${src}`));
 	});
 });

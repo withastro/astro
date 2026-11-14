@@ -15,8 +15,8 @@ describe('resolveClientDir', () => {
 
 		// When import.meta.url (of shared.js) does not contain a "server" segment,
 		// the while loop should terminate and throw instead of looping forever.
-		// This simulates what happens when the entry point is bundled with esbuild
-		// into a path that lacks the expected "server" directory segment.
+		// This simulates what happens when the entry point is bundled into a single file
+		// at a path that lacks the expected "server" directory segment.
 		assert.throws(
 			() =>
 				resolveClientDir({

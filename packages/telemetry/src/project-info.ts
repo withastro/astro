@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process';
+import { exec } from 'node:child_process';
 import type { BinaryLike } from 'node:crypto';
 import { createHash } from 'node:crypto';
 import { detect } from 'package-manager-detector';
@@ -68,20 +68,23 @@ function createAnonymousValue(payload: BinaryLike): string {
 	return hash.digest('hex');
 }
 
-function getProjectIdFromGit(): string | null {
-	try {
-		const originBuffer = execSync(`git rev-list --max-parents=0 HEAD`, {
-			timeout: 500,
-			stdio: ['ignore', 'pipe', 'ignore'],
-		});
-		return String(originBuffer).trim();
-	} catch (_) {
-		return null;
-	}
+function getProjectIdFromGit(): Promise<string | null> {
+	return new Promise((resolve) => {
+		try {
+			const child = exec(`git rev-list --max-parents=0 HEAD`, { timeout: 500 }, (error, stdout) =>
+				resolve(error ? null : String(stdout).trim() || null),
+			);
+			child.stdin?.end();
+		} catch {
+			resolve(null);
+		}
+	});
 }
 
-function getProjectId(isCI: boolean): Pick<ProjectInfo, 'anonymousProjectId' | 'isGit'> {
-	const projectIdFromGit = getProjectIdFromGit();
+async function getProjectId(
+	isCI: boolean,
+): Promise<Pick<ProjectInfo, 'anonymousProjectId' | 'isGit'>> {
+	const projectIdFromGit = await getProjectIdFromGit();
 	if (projectIdFromGit) {
 		return {
 			isGit: true,
@@ -105,8 +108,7 @@ function getProjectId(isCI: boolean): Pick<ProjectInfo, 'anonymousProjectId' | '
 }
 
 export async function getProjectInfo(isCI: boolean): Promise<ProjectInfo> {
-	const projectId = getProjectId(isCI);
-	const packageManager = await detect();
+	const [projectId, packageManager] = await Promise.all([getProjectId(isCI), detect()]);
 	return {
 		...projectId,
 		packageManager: packageManager?.name,

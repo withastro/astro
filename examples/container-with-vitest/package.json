@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.23.4"
   },
   "scripts": {
     "dev": "astro dev",
@@ -14,14 +14,14 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@astrojs/react": "^6.0.2",
-    "astro": "^7.2.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "vitest": "^4.1.0"
+    "@astrojs/react": "^7.1.9",
+    "astro": "^7.4.12",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "vitest": "^5.1.0"
   },
   "devDependencies": {
-    "@types/react": "^18.3.28",
-    "@types/react-dom": "^18.3.7"
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0"
   }
 }

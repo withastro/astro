@@ -1,0 +1,9 @@
+---
+import Counter from '../components/Counter.jsx';
+---
+<Counter client:load label="Count" />
+
+<script>
+	const status: string = "ready";
+	document.documentElement.dataset.status = status;
+</script>

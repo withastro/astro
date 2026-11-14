@@ -9,7 +9,7 @@ import type {
 	WebpOptions,
 	SharpConstructor,
 } from 'sharp';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import { resolveDefaultOutputFormat } from '../utils/inferSourceFormat.js';
 import { detector } from '../utils/vendor/image-size/detector.js';
@@ -119,8 +119,8 @@ async function loadSharp(): Promise<SharpConstructor> {
 	let sharpImport: SharpConstructor;
 	try {
 		sharpImport = (await import('sharp')).default;
-	} catch {
-		throw new AstroError(AstroErrorData.MissingSharp);
+	} catch (cause) {
+		throw new AstroError(AstroErrorData.MissingSharp, { cause });
 	}
 
 	// Disable the `sharp` `libvips` cache as it errors when the file is too small and operations are happening too fast (runs into a race condition) https://github.com/lovell/sharp/issues/3935#issuecomment-1881866341
@@ -146,7 +146,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	getSrcSet: baseService.getSrcSet,
 	getRemoteSize: baseService.getRemoteSize,
-	async transform(inputBuffer, transformOptions, config) {
+	async transform(inputBuffer, transformOptions, config, logger) {
 		if (!sharp) sharp = await loadSharp();
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 		const kernel = config.service.config.kernel;
@@ -158,8 +158,8 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
 		if (outputFormat === 'svg') {
 			if (bufferFormat && bufferFormat !== 'svg') {
-				console.warn(
-					`⚠️  Astro expected an SVG for "${transform.src}" but the source is ${bufferFormat}. Passing it through as ${bufferFormat} instead.`,
+				logger.warn(
+					`Astro expected an SVG for "${transform.src}" but the source is ${bufferFormat}. Passing it through as ${bufferFormat} instead.`,
 				);
 				return { data: inputBuffer, format: bufferFormat as ImageOutputFormat };
 			}
@@ -243,15 +243,14 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		}
 
 		let data: Uint8Array;
-		let info: { format: string };
 		try {
-			({ data, info } = await result.toBuffer({ resolveWithObject: true }));
+			data = await result.toBuffer();
 		} catch {
 			// Sharp cannot decode this image (e.g. animated AVIF sequences).
 			// Pass it through unmodified rather than crashing the build. When Sharp adds support for these
 			// formats, the image will be optimized automatically without code changes.
-			console.warn(
-				`⚠️  Astro could not optimize image "${transform.src}". Sharp doesn't support this format. The image will be used unoptimized. Consider converting to WebP or placing in the public/ folder.`,
+			logger.warn(
+				`Astro could not optimize image "${transform.src}". Sharp doesn't support this format. The image will be used unoptimized. Consider converting to WebP or placing in the public/ folder.`,
 			);
 			return { data: inputBuffer, format: bufferFormat as ImageOutputFormat };
 		}
@@ -262,7 +261,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 		return {
 			data: needsCopy ? new Uint8Array(data) : data,
-			format: info.format as ImageOutputFormat,
+			format: outputFormat,
 		};
 	},
 };

@@ -1,14 +1,64 @@
 import type { RenderErrorOptions } from '../app/base.js';
 import type { RouteData } from '../../types/public/index.js';
+import type { SSRManifest } from '../app/types.js';
+import type { FetchState } from '../fetch/fetch-state.js';
 import { REROUTABLE_STATUS_CODES } from '../constants.js';
+import { getEnvironment } from '../environment/index.js';
+import { renderBuildError } from './build-handler.js';
+import { renderDefaultError } from './default-handler.js';
+import { renderDevError } from './dev-handler.js';
 
 /**
- * A strategy for rendering error responses (404, 500, etc.). Each execution
- * environment (prod SSR, build/prerender, dev server) supplies its own
- * implementation rather than overriding a method on the app.
+ * A strategy for rendering error responses (404, 500, etc.).
+ *
+ * Internal shape of `BaseApp`'s `#errorHandler` (whose default wraps
+ * {@link renderErrorPage}); external `BaseApp` subclasses may return their
+ * own implementation from the protected `createErrorHandler()`.
  */
 export interface ErrorHandler {
 	renderError(request: Request, options: RenderErrorOptions): Promise<Response>;
+}
+
+/**
+ * Renders the error page (404.astro / 500.astro or a plain response) for a
+ * request, dispatching to the strategy the manifest's environment selects:
+ * production/container default, dev (overlay + custom error routes, with or
+ * without CSP meta-tag injection), or build (500s throw so the build fails).
+ */
+export function renderErrorPage(
+	manifest: SSRManifest,
+	request: Request,
+	options: RenderErrorOptions,
+): Promise<Response> {
+	const env = getEnvironment(manifest);
+	switch (env.errorStrategy) {
+		case 'dev':
+			return renderDevError(manifest, request, options, {
+				shouldInjectCspMetaTags: env.injectCspMetaTagsOnErrorPages,
+			});
+		case 'build':
+			return renderBuildError(manifest, request, options);
+		case 'default':
+			return renderDefaultError(manifest, request, options);
+	}
+}
+
+/**
+ * Dispatches an internal error render for a request flowing through the
+ * handler chain: through the facade's late-bound `renderError` hook when the
+ * state was built by `BaseApp.render`'s fast path (preserving instance
+ * overrides/reassignments, e.g. cloudflare's prerender-error propagation),
+ * else through the environment's strategy via {@link renderErrorPage}.
+ */
+export function renderErrorFromState(
+	state: FetchState,
+	request: Request,
+	options: RenderErrorOptions,
+): Promise<Response> {
+	if (state.renderError) {
+		return state.renderError(request, options);
+	}
+	return renderErrorPage(state.manifest, request, options);
 }
 
 /**

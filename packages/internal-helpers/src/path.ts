@@ -235,8 +235,14 @@ export function isParentDirectory(parentPath: string, childPath: string): boolea
 		return false;
 	}
 
-	const normalizedParent = appendForwardSlash(slash(parentPath).toLowerCase());
-	const normalizedChild = slash(childPath).toLowerCase();
+	// Windows drive-letter paths live on case-insensitive filesystems, so
+	// fold case there. Everywhere else, compare exactly: on case-sensitive
+	// filesystems, `/app/DIST/client` is a different directory from
+	// `/app/dist/client` and must not be treated as being inside it.
+	const caseInsensitive = isWindowsAbsolutePath(parentPath) && isWindowsAbsolutePath(childPath);
+	const fold = (p: string) => (caseInsensitive ? p.toLowerCase() : p);
+	const normalizedParent = appendForwardSlash(fold(slash(parentPath)));
+	const normalizedChild = fold(slash(childPath));
 
 	// Don't allow same path (parent can't be parent of itself)
 	if (normalizedParent === normalizedChild || normalizedParent === normalizedChild + '/') {
@@ -244,6 +250,12 @@ export function isParentDirectory(parentPath: string, childPath: string): boolea
 	}
 
 	return normalizedChild.startsWith(normalizedParent);
+}
+
+const WINDOWS_ABSOLUTE_PATH = /^[a-zA-Z]:[\\/]/;
+
+function isWindowsAbsolutePath(path: string) {
+	return WINDOWS_ABSOLUTE_PATH.test(path);
 }
 
 export function slash(path: string) {
@@ -260,6 +272,28 @@ export function removeBase(path: string, base: string) {
 		return path.slice(removeTrailingForwardSlash(base).length);
 	}
 	return path;
+}
+
+/**
+ * Strips a configured request `base` from a pathname, only when the pathname is
+ * the base itself or lies under it at a path-segment boundary. `stripRequestBase('/appX/admin', '/app')`
+ * leaves the pathname untouched, whereas `stripRequestBase('/app/admin', '/app')` returns `/admin`.
+ *
+ * Leading slashes are collapsed first so `//admin` cannot pose as being under a
+ * `/` base. Route matching and `context.url.pathname` derive from separate
+ * copies of the request path, so a mismatch here lets a request reach a route
+ * whose base-prefixed pathname middleware never observes.
+ */
+export function stripRequestBase(pathname: string, base: string): string {
+	pathname = collapseDuplicateLeadingSlashes(pathname);
+	const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
+	if (pathname === baseWithoutTrailingSlash) {
+		return '/';
+	}
+	if (pathname.startsWith(baseWithoutTrailingSlash + '/')) {
+		return pathname.slice(baseWithoutTrailingSlash.length);
+	}
+	return pathname;
 }
 
 const WITH_FILE_EXT = /\/[^/]+\.\w+$/;

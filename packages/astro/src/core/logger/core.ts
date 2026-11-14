@@ -1,4 +1,5 @@
 import colors from 'piccolore';
+import type { AstroRuntimeLogger } from '../../types/public/context.js';
 
 export interface AstroLoggerDestination {
 	/**
@@ -303,4 +304,18 @@ export class AstroIntegrationLogger {
 			this.options.destination.close();
 		}
 	}
+}
+
+export function astroToRuntimeLogger(logger: AstroLogger): AstroRuntimeLogger {
+	return {
+		info(msg: string) {
+			logger.info(null, msg);
+		},
+		warn(msg: string) {
+			logger.warn(null, msg);
+		},
+		error(msg: string) {
+			logger.error(null, msg);
+		},
+	};
 }

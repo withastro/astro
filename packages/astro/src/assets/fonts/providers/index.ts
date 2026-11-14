@@ -13,6 +13,8 @@ import { type LocalFamilyOptions, LocalFontProvider } from './local.js';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 
+const VARIABLE_SUFFIX_RE = / Variable$/;
+
 /** [Adobe](https://docs.astro.build/en/reference/font-provider-reference/#adobe) */
 function adobe(config: AdobeProviderOptions): FontProvider {
 	const provider = providers.adobe(config);
@@ -28,6 +30,9 @@ function adobe(config: AdobeProviderOptions): FontProvider {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -47,6 +52,9 @@ function bunny(): FontProvider {
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
 		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
+		},
 	};
 }
 
@@ -65,6 +73,9 @@ function fontshare(): FontProvider {
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
 		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
+		},
 	};
 }
 
@@ -78,10 +89,23 @@ function fontsource(): FontProvider {
 			initializedProvider = await provider(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
-			return await initializedProvider?.resolveFont(familyName, rest);
+			const result = await initializedProvider?.resolveFont(familyName, rest);
+			// The fontsource API uses family names without a "Variable" suffix (e.g. "Inter"),
+			// but fontsource's website and npm packages use "Inter Variable" for variable fonts.
+			// Retry without the suffix so both naming conventions work. See #18143.
+			if (!result?.fonts?.length && familyName.endsWith(' Variable')) {
+				return await initializedProvider?.resolveFont(
+					familyName.replace(VARIABLE_SUFFIX_RE, ''),
+					rest,
+				);
+			}
+			return result;
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -101,6 +125,9 @@ function google(): FontProvider<GoogleFamilyOptions | undefined> {
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
 		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
+		},
 	};
 }
 
@@ -113,28 +140,14 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 		async init(context) {
 			initializedProvider = await provider(context);
 		},
-		async resolveFont({ familyName, options, ...rest }) {
-			// Workaround for https://github.com/unjs/unifont/issues/336
-			// unifont joins glyphs with .join("") instead of .join(","), producing
-			// an invalid `icon_names` query param that causes Google to return the
-			// full font. Pre-joining into a single element sidesteps the bug.
-			const patchedOptions =
-				options?.experimental?.glyphs && options.experimental.glyphs.length > 1
-					? {
-							...options,
-							experimental: {
-								...options.experimental,
-								glyphs: [options.experimental.glyphs.join(',')],
-							},
-						}
-					: options;
-			return await initializedProvider?.resolveFont(familyName, {
-				options: patchedOptions,
-				...rest,
-			});
+		async resolveFont({ familyName, ...rest }) {
+			return await initializedProvider?.resolveFont(familyName, rest);
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -166,6 +179,9 @@ function npm(
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
 		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
+		},
 	};
 }
 
@@ -178,7 +194,7 @@ function npm(
  * - [Google](https://docs.astro.build/en/reference/font-provider-reference/#google)
  * - [Google Icons](https://docs.astro.build/en/reference/font-provider-reference/#google-icons)
  * - [Local](https://docs.astro.build/en/reference/font-provider-reference/#local)
- * - [NPM](TODO:)
+ * - [NPM](https://docs.astro.build/en/reference/font-provider-reference/#npm)
  */
 export const fontProviders = {
 	adobe,

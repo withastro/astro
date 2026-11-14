@@ -1,0 +1,5 @@
+---
+export const prerender = false;
+Astro.cookies.set('before-error', '1', { path: '/' });
+throw new Error('Expected error');
+---

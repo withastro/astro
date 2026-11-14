@@ -7,6 +7,7 @@ import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { inferSourceFormat } from '../utils/inferSourceFormat.js';
 import { fetchWithRedirects } from '../utils/redirectValidation.js';
+import type { AstroRuntimeLogger } from '../../types/public/context.js';
 
 const isLocal = (url: string) => {
 	const hostname = new URL(url).hostname;
@@ -32,12 +33,20 @@ export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 	}
 }
 
+export type LocalImageLoadResult =
+	| { kind: 'loaded'; buffer: Buffer }
+	| { kind: 'invalid-path' }
+	| { kind: 'not-found' }
+	| { kind: 'failed' };
+
 export const handleImageRequest = async ({
 	request,
 	loadLocalImage,
+	logger,
 }: {
 	request: Request;
-	loadLocalImage: (src: string, baseUrl: URL) => Promise<Buffer | undefined>;
+	loadLocalImage: (src: string, baseUrl: URL) => Promise<LocalImageLoadResult>;
+	logger: AstroRuntimeLogger;
 }) => {
 	const imageService = await getConfiguredImageService();
 
@@ -46,7 +55,7 @@ export const handleImageRequest = async ({
 	}
 
 	const url = new URL(request.url);
-	const transform = await imageService.parseURL(url, imageConfig);
+	const transform = await imageService.parseURL(url, imageConfig, logger);
 
 	if (!transform?.src) {
 		return new Response('Invalid request', { status: 400 });
@@ -70,14 +79,29 @@ export const handleImageRequest = async ({
 
 		inputBuffer = await loadRemoteImage(new URL(transform.src));
 	} else {
-		inputBuffer = await loadLocalImage(removeQueryString(transform.src), url);
+		const result = await loadLocalImage(removeQueryString(transform.src), url);
+		switch (result.kind) {
+			case 'invalid-path':
+				return new Response('Invalid request', { status: 400 });
+			case 'not-found':
+				return new Response('Not Found', { status: 404 });
+			case 'failed':
+				return new Response('Internal Server Error', { status: 500 });
+			case 'loaded':
+				inputBuffer = result.buffer;
+		}
 	}
 
 	if (!inputBuffer) {
 		return new Response('Internal Server Error', { status: 500 });
 	}
 
-	const { data, format } = await imageService.transform(inputBuffer, transform, imageConfig);
+	const { data, format } = await imageService.transform(
+		inputBuffer,
+		transform,
+		imageConfig,
+		logger,
+	);
 
 	return new Response(data as Uint8Array<ArrayBuffer>, {
 		status: 200,

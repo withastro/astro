@@ -3,8 +3,8 @@ import { describe, it } from 'node:test';
 import {
 	extractDirectives,
 	generateHydrateScript,
-} from '../../../dist/runtime/server/hydration.js';
-import { renderElement } from '../../../dist/runtime/server/render/util.js';
+} from '@astrojs/runtime/_internal/server/hydration.js';
+import { renderElement } from '@astrojs/runtime/_internal/server/render/util.js';
 
 // Minimal clientDirectives map matching what Astro registers by default
 const clientDirectives = new Map([
@@ -180,5 +180,40 @@ describe('generateHydrateScript', () => {
 			html.includes('data-astro-transition-persist="&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"'),
 		);
 		assert.ok(!html.includes(`data-astro-transition-persist="${payload}"`));
+	});
+
+	it('coerces renderer attributes before escaping them', async () => {
+		const payload = '"><img src=x onerror=alert(1)>';
+		let coercions = 0;
+		const value = {
+			toString() {
+				coercions++;
+				return coercions === 1 ? 'safe' : payload;
+			},
+		};
+		const island = await generateHydrateScript(
+			{
+				renderer: {
+					clientEntrypoint: 'renderer.js',
+				} as any,
+				result: {
+					resolve: async (path: string) => path,
+				} as any,
+				astroId: 'abc123',
+				props: {},
+				attrs: { 'data-renderer': value } as any,
+			},
+			{
+				hydrate: 'load',
+				componentUrl: 'component.jsx',
+				componentExport: { value: 'default' },
+				displayName: 'Island',
+			} as any,
+		);
+		const html = renderElement('astro-island', island, false);
+
+		assert.equal(coercions, 1);
+		assert.ok(html.includes('data-renderer="safe"'));
+		assert.ok(!html.includes(payload));
 	});
 });

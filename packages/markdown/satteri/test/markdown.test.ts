@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { HastPluginDefinition, MdastPluginDefinition } from 'satteri';
-import { createSatteriMarkdownProcessor, satteriHeadingIdsPlugin } from '../dist/index.js';
+import { createSatteriMarkdownProcessor, satteri, satteriHeadingIdsPlugin } from '../dist/index.js';
 
 describe('satteri markdown', () => {
 	it('renders basic markdown', async () => {
@@ -50,6 +50,15 @@ describe('satteri markdown', () => {
 		assert.ok(code.includes('"hello"'));
 	});
 
+	it('accepts a granular options object for `smartPunctuation`', async () => {
+		const renderer = await satteri({
+			features: { smartPunctuation: { dashes: false } },
+		}).createRenderer({});
+		const { code } = await renderer.render('He said "hello" -- really');
+		assert.match(code, /“hello”/);
+		assert.ok(code.includes('--'));
+	});
+
 	it('collects local image paths into metadata', async () => {
 		const processor = await createSatteriMarkdownProcessor();
 		const { metadata } = await processor.render('![alt](./local.png)');
@@ -82,6 +91,52 @@ describe('satteri markdown', () => {
 		assert.deepEqual(metadata.headings, [
 			{ depth: 2, slug: 'some-text', text: 'Some text' },
 			{ depth: 2, slug: 'some-text-1', text: 'Some text' },
+		]);
+	});
+
+	it('resets heading slugs across multiple renders when `satteriHeadingIdsPlugin()` is reused', async () => {
+		const plugin = satteriHeadingIdsPlugin();
+		const processor = await createSatteriMarkdownProcessor({
+			hastPlugins: [plugin],
+		});
+		const first = await processor.render('## Introduction\n\n## Summary');
+		const second = await processor.render('## Introduction\n\n## Summary');
+		assert.deepEqual(first.metadata.headings, [
+			{ depth: 2, slug: 'introduction', text: 'Introduction' },
+			{ depth: 2, slug: 'summary', text: 'Summary' },
+		]);
+		assert.deepEqual(second.metadata.headings, [
+			{ depth: 2, slug: 'introduction', text: 'Introduction' },
+			{ depth: 2, slug: 'summary', text: 'Summary' },
+		]);
+	});
+
+	it('keeps heading slugs isolated across concurrent renders with async plugins', async () => {
+		let isFirstHeading = true;
+		const asyncPlugin: HastPluginDefinition = {
+			name: 'async-plugin',
+			element: {
+				filter: ['h1'],
+				async visit() {
+					if (isFirstHeading) {
+						isFirstHeading = false;
+						await new Promise((resolve) => setTimeout(resolve, 20));
+					}
+				},
+			},
+		};
+		const processor = await createSatteriMarkdownProcessor({
+			hastPlugins: [asyncPlugin, satteriHeadingIdsPlugin()],
+		});
+		const [first, second] = await Promise.all([
+			processor.render('# Introduction'),
+			processor.render('# Introduction'),
+		]);
+		assert.deepEqual(first.metadata.headings, [
+			{ depth: 1, slug: 'introduction', text: 'Introduction' },
+		]);
+		assert.deepEqual(second.metadata.headings, [
+			{ depth: 1, slug: 'introduction', text: 'Introduction' },
 		]);
 	});
 
@@ -135,5 +190,26 @@ describe('satteri markdown', () => {
 		});
 		assert.equal(metadata.frontmatter.title, 'hello');
 		assert.equal(metadata.frontmatter.injected, 'HELLO');
+	});
+
+	it('accepts conditional plugin factories', async () => {
+		const mdUppercasePlugin: MdastPluginDefinition = {
+			name: 'mdx-uppercase',
+			text(node, ctx) {
+				ctx.setProperty(node, 'value', node.value.toUpperCase());
+			},
+		};
+
+		const satteriProcessor = satteri({
+			mdastPlugins: [(ctx) => (ctx.sourceFormat === 'markdown' ? [mdUppercasePlugin] : null)],
+		});
+
+		const processor = await createSatteriMarkdownProcessor({
+			mdastPlugins: satteriProcessor.options.mdastPlugins,
+		});
+
+		const { code } = await processor.render('Hello');
+
+		assert.match(code, /<p>HELLO<\/p>/);
 	});
 });

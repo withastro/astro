@@ -1,16 +1,3 @@
-import type { SSRResult } from '../../../types/public/internal.js';
-import { createRenderInstruction } from './instruction.js';
+// NOTE: Although this entrypoint is exported, it is internal API and may change at any time.
 
-/**
- * Emitted by the compiler when entering an HTML `<template>` element.
- */
-export function templateEnter(_result: SSRResult) {
-	return createRenderInstruction({ type: 'template-enter' });
-}
-
-/**
- * Emitted by the compiler when exiting an HTML `<template>` element.
- */
-export function templateExit(_result: SSRResult) {
-	return createRenderInstruction({ type: 'template-exit' });
-}
+export * from '@astrojs/runtime/_internal/server/render/template-depth.js';

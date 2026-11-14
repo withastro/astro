@@ -96,6 +96,55 @@ describe('evaluateBaseRewrite — rewrite', () => {
 });
 // #endregion
 
+// #region evaluateBaseRewrite — path-segment boundaries
+describe('evaluateBaseRewrite — path-segment boundaries', () => {
+	it('does not rewrite a URL whose first segment merely starts with the base', () => {
+		// base '/s' must not swallow '/src/...' (e.g. Vite virtual module requests
+		// emitted without the base by the dev server).
+		const result = evaluateBaseRewrite(
+			'/src/pages/index.astro?astro&type=style&index=0&lang.css',
+			'/src/pages/index.astro',
+			undefined,
+			'/s',
+			'',
+		);
+		assert.equal(result.action, 'check-public');
+	});
+
+	it('returns not-found for an HTML request whose first segment merely starts with the base', () => {
+		const result = evaluateBaseRewrite(
+			'/docs-archive/page',
+			'/docs-archive/page',
+			'text/html',
+			'/docs',
+			'',
+		);
+		assert.equal(result.action, 'not-found');
+	});
+
+	it('still rewrites the exact base match', () => {
+		const result = evaluateBaseRewrite('/s', '/s', undefined, '/s', '');
+		assert.equal(result.action, 'rewrite');
+		if (result.action === 'rewrite') {
+			assert.equal(result.newUrl, '/');
+		}
+	});
+
+	it('still rewrites URLs under the base, preserving query params', () => {
+		const result = evaluateBaseRewrite('/s/page?foo=bar', '/s/page', undefined, '/s', '');
+		assert.equal(result.action, 'rewrite');
+		if (result.action === 'rewrite') {
+			assert.equal(result.newUrl, '/page?foo=bar');
+		}
+	});
+
+	it('does not rewrite a prefix-colliding segment when the base has a trailing slash', () => {
+		const result = evaluateBaseRewrite('/docsX/page', '/docsX/page', undefined, '/docs/', '/');
+		assert.equal(result.action, 'check-public');
+	});
+});
+// #endregion
+
 // #region evaluateBaseRewrite — not-found-subpath
 describe('evaluateBaseRewrite — not-found-subpath', () => {
 	it('returns not-found-subpath for / when base is not /', () => {

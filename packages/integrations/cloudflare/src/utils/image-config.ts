@@ -20,8 +20,8 @@ export type ImageServiceConfig =
 	  };
 
 /** Normalize string | compound config into separate build/runtime modes.
- *  `transformAtBuild` is true when the compound config is used; this opts the user
- *  in to build-time image optimization. The string form preserves runtime-only behavior. */
+ *  `transformAtBuild` is true for compound config and for the `compile` and
+ *  `cloudflare-binding` string modes, including the default. */
 export function normalizeImageServiceConfig(config: ImageServiceConfig | undefined): {
 	buildService: ImageServiceMode;
 	runtimeService: ImageServiceMode;
@@ -33,9 +33,7 @@ export function normalizeImageServiceConfig(config: ImageServiceConfig | undefin
 		return {
 			buildService: mode,
 			runtimeService: mode === 'compile' ? 'passthrough' : mode,
-			// Only `compile` opts in to build-time transforms via the string shorthand.
-			// String `cloudflare-binding` preserves the historical runtime-only behavior.
-			transformAtBuild: mode === 'compile',
+			transformAtBuild: mode === 'compile' || mode === 'cloudflare-binding',
 		};
 	}
 	// Compound config: user explicitly opts in to build-time transforms.
@@ -59,16 +57,20 @@ const CLOUDFLARE_PASSTHROUGH_ENDPOINT = {
 // Used by both `compile` and `cloudflare-binding` for URL generation in workerd.
 const WORKERD_IMAGE_SERVICE = { entrypoint: '@astrojs/cloudflare/image-service-workerd' };
 
+const BINDING_BUILD_IMAGE_SERVICE = { entrypoint: '@astrojs/cloudflare/image-service-binding' };
+
 const SHARP_IMAGE_SERVICE = 'astro/assets/services/sharp';
 
-// Whether `image.service` was configured by the user or an integration, rather than being
-// Astro's default Sharp service or the workerd stub this adapter writes for `compile` mode.
-export function hasUserImageService(config: AstroConfig['image']): boolean {
-	return (
-		!!config.service?.entrypoint &&
-		config.service.entrypoint !== SHARP_IMAGE_SERVICE &&
-		config.service.entrypoint !== WORKERD_IMAGE_SERVICE.entrypoint
-	);
+const COMPILE_BUILD_IMAGE_SERVICE = { entrypoint: SHARP_IMAGE_SERVICE };
+
+export function getRuntimeImageService(
+	service: AstroConfig['image']['service'],
+): Extract<AstroConfig['image']['service'], { entrypoint: string }> {
+	return 'runtime' in service ? service.runtime : service;
+}
+
+function hasUserImageService(config: AstroConfig['image']): boolean {
+	return 'runtime' in config.service || config.service.entrypoint !== SHARP_IMAGE_SERVICE;
 }
 
 export function setImageConfig(
@@ -78,6 +80,7 @@ export function setImageConfig(
 	logger: AstroIntegrationLogger,
 ) {
 	const { buildService, runtimeService } = normalizeImageServiceConfig(service);
+	const runtimeEntrypoint = config?.service && getRuntimeImageService(config.service).entrypoint;
 
 	switch (buildService) {
 		case 'passthrough':
@@ -109,7 +112,7 @@ export function setImageConfig(
 			// original images instead of transforming on demand.
 			return {
 				...config,
-				service: WORKERD_IMAGE_SERVICE,
+				service: { build: BINDING_BUILD_IMAGE_SERVICE, runtime: WORKERD_IMAGE_SERVICE },
 				endpoint:
 					command === 'dev' || runtimeService === 'cloudflare-binding'
 						? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
@@ -117,15 +120,28 @@ export function setImageConfig(
 			};
 
 		case 'compile': {
+			// A user-defined passthroughImageService() disables the incompatible Cloudflare image service.
+			if (runtimeEntrypoint === passthroughImageService().entrypoint) {
+				return { ...config, endpoint: CLOUDFLARE_PASSTHROUGH_ENDPOINT };
+			}
 			// Dev: IMAGES binding (via Cloudflare Vite plugin) for real transforms.
 			// Build: endpoint depends on runtime - `cloudflare-binding` uses IMAGES, `passthrough` uses generic.
 			const endpoint =
 				command === 'dev' || runtimeService === 'cloudflare-binding'
 					? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
 					: CLOUDFLARE_PASSTHROUGH_ENDPOINT;
+			if (hasUserImageService(config)) {
+				return { ...config, endpoint };
+			}
 			return {
 				...config,
-				service: hasUserImageService(config) ? config.service : WORKERD_IMAGE_SERVICE,
+				service: {
+					build: {
+						...COMPILE_BUILD_IMAGE_SERVICE,
+						config: getRuntimeImageService(config.service).config,
+					},
+					runtime: WORKERD_IMAGE_SERVICE,
+				},
 				endpoint,
 			};
 		}
@@ -134,7 +150,7 @@ export function setImageConfig(
 			// Sharp's native binding cannot load inside workerd, in dev or in production.
 			// This also catches `imageService: 'custom'` without a configured `image.service`,
 			// which silently inherits Astro's default Sharp service.
-			if (command === 'dev' && config.service.entrypoint === SHARP_IMAGE_SERVICE) {
+			if (command === 'dev' && runtimeEntrypoint === SHARP_IMAGE_SERVICE) {
 				logger.warn(
 					`The Sharp image service cannot run inside the workerd runtime, so '/_image' requests will fail in dev and production. Configure a workerd-compatible 'image.service', or set 'imageService' to 'compile' for build-time optimization. See https://docs.astro.build/en/guides/integrations-guide/cloudflare/#imageservice`,
 				);
@@ -147,7 +163,7 @@ export function setImageConfig(
 			};
 
 		default:
-			if (config.service.entrypoint === 'astro/assets/services/sharp') {
+			if (runtimeEntrypoint === SHARP_IMAGE_SERVICE) {
 				logger.warn(
 					`The current configuration does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'passthrough' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`,
 				);

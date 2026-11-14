@@ -2,11 +2,13 @@
 const name = 'Testing';
 const TagA = 'p style=color:red;'
 const TagB = 'p><script id="pwnd">console.log("pwnd")</script>'
+const TagC = 'p/data-injected=true'
 ---
 <html>
 	<head><title>{name}</title></head>
 	<body>
 		<TagA id="target" />
 		<TagB />
+		<TagC id="slash" />
 	</body>
 </html>

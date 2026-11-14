@@ -27,19 +27,28 @@ export function validatePackageName(packageName: string): boolean {
 }
 
 /**
- * Validates a package name and throws an error if invalid.
+ * Validates a package name with an optional tag or version and throws an error if invalid.
  *
- * @param packageName - The package name to validate
- * @throws {Error} If the package name is invalid
+ * @param packageName - The package name and optional tag or version to validate
+ * @throws {Error} If the package name, tag, or version is invalid
  *
  * @example
  * ```ts
  * assertValidPackageName('react'); // OK
+ * assertValidPackageName('react@latest'); // OK
  * assertValidPackageName('react; whoami'); // throws Error
  * ```
  */
 export function assertValidPackageName(packageName: string): asserts packageName is string {
-	if (!validatePackageName(packageName)) {
+	const tagSeparator = packageName.lastIndexOf('@');
+	const hasTag = tagSeparator > 0;
+	const untaggedPackageName = hasTag ? packageName.slice(0, tagSeparator) : packageName;
+	const tag = hasTag ? packageName.slice(tagSeparator + 1) : undefined;
+
+	if (
+		!validatePackageName(untaggedPackageName) ||
+		(tag !== undefined && !validatePackageName(tag))
+	) {
 		throw new Error(
 			`Invalid package name "${packageName}". Package names must follow npm naming rules: ` +
 				`lowercase letters, numbers, hyphens, underscores, and dots. ` +

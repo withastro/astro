@@ -173,7 +173,9 @@ async function createShikiHighlighterInternal({
 
 	const highlighter = await createHighlighter({
 		langs: ['plaintext', ...langs],
-		langAlias,
+		// Shallow-clone to prevent Shiki's Registry.loadLanguage() from mutating
+		// the caller's object when it registers built-in language aliases.
+		langAlias: { ...langAlias },
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
 		engine: shikiEngine,
 	});

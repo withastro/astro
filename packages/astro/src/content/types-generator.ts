@@ -10,8 +10,8 @@ import {
 	type ViteDevServer,
 } from 'vite';
 import * as z from 'zod/v4';
-import { AstroError } from '../core/errors/errors.js';
-import { AstroErrorData } from '../core/errors/index.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
+import { AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -39,6 +39,7 @@ import {
 	getEntryType,
 	reloadContentConfigObserver,
 } from './utils.js';
+import { getContentConfigLoadPromise } from './config-prewarm.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -137,13 +138,23 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
-			await reloadContentConfigObserver({
-				fs,
-				settings,
-				environment: viteServer.environments[
-					ASTRO_VITE_ENVIRONMENT_NAMES.astro
-				] as RunnableDevEnvironment,
-			});
+			// Dev server creation may already be loading this config. Wait for that
+			// exact load when present; otherwise this path owns the reload. Do not
+			// infer ownership from the global observer status because `astro sync`
+			// can retain a settled status from an earlier invocation in the process.
+			const prewarm = getContentConfigLoadPromise();
+			if (prewarm) {
+				await prewarm;
+			} else {
+				await reloadContentConfigObserver({
+					fs,
+					settings,
+					environment: viteServer.environments[
+						ASTRO_VITE_ENVIRONMENT_NAMES.astro
+					] as RunnableDevEnvironment,
+					logger,
+				});
+			}
 			return { shouldGenerateTypes: true };
 		}
 

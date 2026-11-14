@@ -1,4 +1,4 @@
-import type { PrerenderRenderMetadata } from 'astro';
+import type { PrerenderRenderMetadata, StaticPathsMetadata } from 'astro';
 import type { SerializedRouteData } from 'astro/app/manifest';
 
 /**
@@ -15,6 +15,7 @@ interface SerializedPathWithRoute {
  */
 export interface StaticPathsResponse {
 	paths: SerializedPathWithRoute[];
+	metadata?: StaticPathsMetadata;
 }
 
 /**
@@ -23,35 +24,17 @@ export interface StaticPathsResponse {
 export interface PrerenderRequest {
 	url: string;
 	routeData: SerializedRouteData;
-	/**
-	 * When true, the worker collects incremental-build metadata during the render
-	 * and returns a `PrerenderEnvelope` instead of the raw response.
-	 */
-	incremental?: boolean;
 }
 
-/**
- * Response for an incremental prerender request. The raw response cannot carry
- * the render metadata on its own, so the body, status, and headers are wrapped
- * alongside the collected metadata.
- */
-export interface PrerenderEnvelope {
+export interface PrerenderResponseMetadata {
 	status: number;
 	statusText: string;
 	headers: [string, string][];
-	/** Base64-encoded response body. */
-	body: string;
-	metadata: PrerenderRenderMetadata;
+	hasBody: boolean;
+	/**
+	 * The metadata collected during the render, or `undefined` when no render
+	 * scope could be installed in the worker (degraded collection — the path is
+	 * recorded as "not tracked", which is distinct from tracked-but-empty).
+	 */
+	metadata?: PrerenderRenderMetadata;
 }
-
-export interface SerializedStaticImageEntry {
-	originalPath: string;
-	originalSrcPath: string | undefined;
-	transforms: Array<{
-		hash: string;
-		finalPath: string;
-		transform: Record<string, any>;
-	}>;
-}
-
-export type StaticImagesResponse = SerializedStaticImageEntry[];

@@ -16,6 +16,8 @@ import {
 	RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
 } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
+import { getImageServiceEnvironmentOptions } from './image-service.js';
+import { IMAGE_SERVICE_ENVIRONMENT_NAME } from '../../assets/consts.js';
 import { cleanChunkName } from './util.js';
 import { makeAstroPageEntryPointFileName } from './static-build.js';
 
@@ -36,7 +38,7 @@ export interface CreateViteBuildConfigOptions {
 	 * A function that checks whether a given module name is a rollup input.
 	 * Used by entryFileNames to determine the server entry.
 	 */
-	isRolldownInput: (moduleName: string | undefined) => boolean;
+	isRolldownInput: (moduleName: string | null | undefined) => boolean;
 }
 
 /**
@@ -49,6 +51,22 @@ export interface CreateViteBuildConfigOptions {
 export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.InlineConfig {
 	const { settings, viteConfig, routes, plugins, builder, isRolldownInput } = opts;
 	const legacyAdapter = !settings.adapter || isLegacyAdapter(settings.adapter);
+	const userTreeshake = viteConfig.build?.rolldownOptions?.treeshake;
+
+	// Separate Astro-managed environment keys from user-defined ones so that the
+	// managed environments always appear last (and in a fixed order) in the object.
+	// Vite's `configResolved` fires per environment in key-insertion order, and the
+	// `astro:resolve-input` plugin relies on `ssr` being resolved last so its
+	// rolldown input value is the one that persists. If a user-defined
+	// `environments.ssr` is spread first, its key position would place SSR earlier
+	// in the iteration order, causing later environments to overwrite the saved
+	// input. See https://github.com/withastro/astro/issues/17760
+	const {
+		[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: userSsr,
+		[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]: userPrerender,
+		[ASTRO_VITE_ENVIRONMENT_NAMES.client]: userClient,
+		...userEnvironments
+	} = viteConfig.environments ?? {};
 
 	return {
 		...viteConfig,
@@ -66,6 +84,21 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 				...viteConfig.build?.rolldownOptions,
 				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
 				preserveEntrySignatures: 'exports-only',
+				// Compiled components declare `const $$Foo = $$createComponent(...)` at the top level.
+				// Without marking the call pure, Rolldown keeps it and reports the component's default
+				// export as rendered even when unused (e.g. re-exported from a barrel file), so Vite's
+				// `cssScopeTo` check keeps the component's scoped styles. https://github.com/withastro/astro/issues/18491
+				treeshake:
+					userTreeshake === false
+						? false
+						: {
+								...(typeof userTreeshake === 'object' ? userTreeshake : {}),
+								manualPureFunctions: [
+									...((typeof userTreeshake === 'object' && userTreeshake.manualPureFunctions) ||
+										[]),
+									'$$createComponent',
+								],
+							},
 				checks: {
 					...viteConfig.build?.rolldownOptions?.checks,
 					// Disable Rolldown's built-in plugin timing warnings. These fire by default
@@ -143,8 +176,10 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 		environments: {
-			...(viteConfig.environments ?? {}),
+			...userEnvironments,
+			[IMAGE_SERVICE_ENVIRONMENT_NAME]: getImageServiceEnvironmentOptions(settings),
 			[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]: {
+				...userPrerender,
 				build: {
 					emitAssets: true,
 					outDir: fileURLToPath(getPrerenderOutputDirectory(settings)),
@@ -157,24 +192,21 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 						output: {
 							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
-							...viteConfig.environments?.prerender?.build?.rolldownOptions?.output,
+							...userPrerender?.build?.rolldownOptions?.output,
 						},
 					},
 					ssr: true,
 				},
 			},
 			[ASTRO_VITE_ENVIRONMENT_NAMES.client]: {
+				...userClient,
 				build: {
 					emitAssets: true,
 					target: 'esnext',
 					outDir: fileURLToPath(getClientOutputDirectory(settings)),
 					copyPublicDir: true,
-					sourcemap:
-						viteConfig.environments?.client?.build?.sourcemap ??
-						viteConfig.build?.sourcemap ??
-						false,
-					minify:
-						viteConfig.environments?.client?.build?.minify ?? viteConfig.build?.minify ?? true,
+					sourcemap: userClient?.build?.sourcemap ?? viteConfig.build?.sourcemap ?? false,
+					minify: userClient?.build?.minify ?? viteConfig.build?.minify ?? true,
 					rolldownOptions: {
 						preserveEntrySignatures: 'exports-only',
 						output: {
@@ -199,17 +231,18 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 								}
 								return `${settings.config.build.assets}/[name].[hash][extname]`;
 							},
-							...viteConfig.environments?.client?.build?.rolldownOptions?.output,
+							...userClient?.build?.rolldownOptions?.output,
 						},
 					},
 				},
 			},
 			[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: {
+				...userSsr,
 				build: {
 					outDir: fileURLToPath(getServerOutputDirectory(settings)),
 					rolldownOptions: {
 						output: {
-							...viteConfig.environments?.ssr?.build?.rolldownOptions?.output,
+							...userSsr?.build?.rolldownOptions?.output,
 						},
 					},
 				},

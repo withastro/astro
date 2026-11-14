@@ -44,7 +44,7 @@ export interface BaseSessionConfig {
 interface DriverConfig<TDriver extends SessionDriverConfig> extends BaseSessionConfig {
 	/** Config object for a session driver */
 	driver: TDriver;
-	/** @deprecated Pass options to the driver function directly. This will be removed in Astro 7 */
+	/** @deprecated Pass options to the driver function directly. This will be removed in Astro 8 */
 	options?: never;
 }
 
@@ -56,12 +56,12 @@ interface UnstorageConfig<
 > extends BaseSessionConfig {
 	/**
 	 * Entrypoint for an unstorage session driver
-	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 7
+	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 8
 	 */
 	driver?: TDriver;
 	/**
 	 * Options for the unstorage driver
-	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 7
+	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 8
 	 */
 	options?: TOptions;
 }
@@ -69,12 +69,12 @@ interface UnstorageConfig<
 interface CustomConfig extends BaseSessionConfig {
 	/**
 	 * Entrypoint for a custom session driver
-	 * @deprecated Use the object shape (type `SessionDriverConfig`). This will be removed in Astro 7
+	 * @deprecated Use the object shape (type `SessionDriverConfig`). This will be removed in Astro 8
 	 */
 	driver?: string;
 	/**
 	 * Options for the custom session driver
-	 * @deprecated Use the object shape (type `SessionDriverConfig`). This will be removed in Astro 7
+	 * @deprecated Use the object shape (type `SessionDriverConfig`). This will be removed in Astro 8
 	 */
 	options?: Record<string, unknown>;
 }

@@ -5,7 +5,7 @@ import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type * as z from 'zod/v4';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
@@ -77,6 +77,10 @@ export class ContentLayer {
 	 */
 	get loading() {
 		return this.#queue.size > 0 || this.#queue.pending > 0;
+	}
+
+	get store() {
+		return this.#store;
 	}
 
 	/**
@@ -347,6 +351,7 @@ export class ContentLayer {
 				}
 			}),
 		);
+		this.#validateReferences(contentConfig.config.collections, logger);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
@@ -357,6 +362,79 @@ export class ContentLayer {
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
+		}
+	}
+
+	/**
+	 * After all loaders complete, walks every entry's data to find reference objects
+	 * (`{ id, collection }`) and checks that the referenced entry exists in the store.
+	 * This replaces the inline Zod validation that was removed in the Zod 4 upgrade.
+	 */
+	#validateReferences(collections: Record<string, any>, logger: { error(message: string): void }) {
+		const collectionNames = new Set(Object.keys(collections));
+		for (const collectionName of collectionNames) {
+			for (const entry of this.#store.values(collectionName)) {
+				if (entry?.data) {
+					this.#findInvalidReferences(
+						entry.data,
+						collectionNames,
+						collectionName,
+						entry.id,
+						logger,
+						'',
+					);
+				}
+			}
+		}
+	}
+
+	#findInvalidReferences(
+		value: unknown,
+		collectionNames: Set<string>,
+		ownerCollection: string,
+		ownerId: string,
+		logger: { error(message: string): void },
+		path: string,
+	) {
+		if (value == null || typeof value !== 'object') return;
+
+		if (Array.isArray(value)) {
+			for (let i = 0; i < value.length; i++) {
+				this.#findInvalidReferences(
+					value[i],
+					collectionNames,
+					ownerCollection,
+					ownerId,
+					logger,
+					`${path}[${i}]`,
+				);
+			}
+			return;
+		}
+
+		const obj = value as Record<string, unknown>;
+		// A reference object has `id` (or `slug`) and `collection` string fields
+		if (typeof obj.collection === 'string' && collectionNames.has(obj.collection)) {
+			const refId =
+				typeof obj.id === 'string' ? obj.id : typeof obj.slug === 'string' ? obj.slug : undefined;
+			if (refId !== undefined && !this.#store.has(obj.collection, refId)) {
+				const fieldPath = path ? ` (field: ${path})` : '';
+				logger.error(
+					`Invalid content reference: entry "${ownerId}" in collection "${ownerCollection}"${fieldPath} references "${refId}" in collection "${obj.collection}", but that entry does not exist.`,
+				);
+			}
+			return;
+		}
+
+		for (const [key, val] of Object.entries(obj)) {
+			this.#findInvalidReferences(
+				val,
+				collectionNames,
+				ownerCollection,
+				ownerId,
+				logger,
+				path ? `${path}.${key}` : key,
+			);
 		}
 	}
 

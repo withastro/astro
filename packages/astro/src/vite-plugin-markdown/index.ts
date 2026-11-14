@@ -3,15 +3,19 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isFrontmatterValid } from '@astrojs/internal-helpers/frontmatter';
 import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import type { Plugin } from 'vite';
-import { safeParseFrontmatter } from '../content/utils.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { MARKDOWN_CONTENT_ENTRY_FLAG } from '../content/consts.js';
+import { hasContentFlag, safeParseFrontmatter } from '../content/utils.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { isMarkdownFile, isPage } from '../core/util.js';
 import { normalizePath } from '../core/viteUtils.js';
-import { shorthash } from '../runtime/server/shorthash.js';
+import { shorthash } from '@astrojs/runtime/_internal/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
-import { getFileInfo, specialQueriesRE } from '../vite-plugin-utils/index.js';
+import { createDefaultAstroMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/metadata.js';
+import {
+	getFileInfo,
+	specialQueriesRE,
+} from '@astrojs/vite-plugin-astro/_internal/vite-plugin-utils/index.js';
 import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
 
@@ -25,7 +29,7 @@ const astroServerRuntimeModulePath = normalizePath(
 );
 
 const astroErrorModulePath = normalizePath(
-	fileURLToPath(new URL('../core/errors/index.js', import.meta.url)),
+	fileURLToPath(import.meta.resolve('@astrojs/runtime/_internal/core/errors/index.js')),
 );
 
 export default function markdown({ settings, logger }: AstroPluginOptions): Plugin {
@@ -43,7 +47,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				id: /^[^/]/,
 			},
 			async handler(source, importer, options) {
-				if (importer?.endsWith('.md')) {
+				if (importer?.split('?')[0].endsWith('.md')) {
 					let resolved = await this.resolve(source, importer, options);
 					if (!resolved) resolved = await this.resolve('./' + source, importer, options);
 					return resolved;
@@ -119,7 +123,10 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					});
 				}
 
-				const { layout } = frontmatter;
+				// `layout` only applies to Markdown pages and direct imports, not content collection entries.
+				const layout = hasContentFlag(id, MARKDOWN_CONTENT_ENTRY_FLAG)
+					? undefined
+					: frontmatter.layout;
 
 				if (frontmatter.setup) {
 					logger.warn(

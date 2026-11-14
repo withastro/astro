@@ -1,5 +1,17 @@
 # @astrojs/partytown
 
+## 2.1.9
+
+### Patch Changes
+
+- [#18439](https://github.com/withastro/astro/pull/18439) [`3e80f04`](https://github.com/withastro/astro/commit/3e80f0408d1eabb4c8f9cc6430a0837bc61f1184) Thanks [@hanford](https://github.com/hanford)! - Updates Partytown to 1.0.1, which preserves queued events when falling back to the main thread with `dataLayer.push` forwarded using `preserveBehavior`.
+
+## 2.1.8
+
+### Patch Changes
+
+- [#17986](https://github.com/withastro/astro/pull/17986) [`b1f9088`](https://github.com/withastro/astro/commit/b1f908874c8e1521abae0cf6945f2980a4d7e005) Thanks [@hanford](https://github.com/hanford)! - Updates `@qwik.dev/partytown` from 0.13.2 to 0.14.4, bringing fixes for analytics event forwarding and iframe loading, support for Google Tag Manager's Tag Assistant preview, and automatic execution of scripts added after client-side navigation.
+
 ## 2.1.7
 
 ### Patch Changes

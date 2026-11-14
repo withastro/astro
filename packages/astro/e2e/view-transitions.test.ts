@@ -4,6 +4,8 @@ import { type DevServer, testFactory, waitForHydrate, warmupDevServer } from './
 declare global {
 	interface Window {
 		preloads: string[];
+		restoredScrollY?: number;
+		initialScrollRestoration?: ScrollRestoration;
 		clientSideRouterForTestsParkedHere?: (
 			url: string,
 			options?: { history?: 'auto' | 'replace' | 'push' },
@@ -355,6 +357,71 @@ test.describe('View Transitions', () => {
 		expect(oldScrollY).toEqual(newScrollY);
 	});
 
+	test('Scroll position restored instantly with smooth scroll-behavior', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/smooth-scroll'));
+		await expect(page.locator('#smooth-scroll')).toBeVisible();
+
+		await page.evaluate(() => window.scrollTo({ top: 2000, behavior: 'instant' }));
+		await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(2000);
+
+		await page.click('#click-one');
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+
+		// Read scrollY synchronously after the router restores it, before a smooth scroll could progress
+		await page.evaluate(() =>
+			document.addEventListener(
+				'astro:after-swap',
+				() => (window.restoredScrollY = window.scrollY),
+				{ once: true },
+			),
+		);
+		await page.goBack();
+		await expect.poll(() => page.evaluate(() => window.restoredScrollY)).toBe(2000);
+	});
+
+	test('Reload leaves scroll restoration to the browser', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await expect(page.locator('#longpage')).toBeInViewport();
+
+		await page.evaluate(() => window.scrollTo({ top: 1000, behavior: 'instant' }));
+		await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(1000);
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
+
+		// Capture the mode the browser sees at document start, before the router's module runs
+		await page.addInitScript(() => {
+			window.initialScrollRestoration = history.scrollRestoration;
+		});
+		await page.reload();
+		await expect(page.locator('#longpage')).toBeAttached();
+
+		expect(await page.evaluate(() => window.initialScrollRestoration)).toBe('auto');
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
+	});
+
+	test('History navigation after a cancelled unload restores manual scroll restoration', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await expect(page.locator('#longpage')).toBeInViewport();
+		await page.click('#click-one');
+		await expect(page.locator('#one')).toBeVisible();
+
+		// Simulate a `beforeunload` that doesn't end in an unload (e.g. a cancelled prompt)
+		await page.evaluate(() => window.dispatchEvent(new Event('beforeunload')));
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('auto');
+
+		await page.goBack();
+		await expect(page.locator('#longpage')).toBeVisible();
+		await page.goForward();
+		await expect(page.locator('#one')).toBeVisible();
+		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
+	});
+
 	test('Fragment scroll position restored on back button', async ({ page, astro }) => {
 		// Go to the long page
 		await page.goto(astro.resolveUrl('/long-page'));
@@ -563,6 +630,73 @@ test.describe('View Transitions', () => {
 		}).toPass();
 	});
 
+	test('persisted <video> keeps its DOM identity across navigation (not re-created by media reification)', async ({
+		page,
+		astro,
+	}) => {
+		// Regression for #17749: reifyMediaElements() used to replace every <video>/<audio>
+		// of the new body, including the live one carried over via transition:persist.
+		// An expando survives the swap only if the element itself survived.
+		await page.goto(astro.resolveUrl('/video-one'));
+		const vid = page.locator('video');
+		await expect(vid).toBeVisible();
+		await vid.evaluate(
+			(el) => ((el as HTMLVideoElement & { __persisted?: string }).__persisted = 'yes'),
+		);
+
+		await page.click('#click-two');
+		await expect(page.locator('#video-two')).toBeVisible();
+		const marker = await page.evaluate(
+			() =>
+				(document.querySelector('video') as (HTMLVideoElement & { __persisted?: string }) | null)
+					?.__persisted,
+		);
+		expect(marker).toBe('yes');
+	});
+
+	test('media inside a persisted subtree keep their identity even when the inner persist container has no counterpart', async ({
+		page,
+		astro,
+	}) => {
+		// The outer container is matched on page 2, the inner one is not — it travels as a
+		// descendant. Media there were live before the swap and must not be reified.
+		await page.goto(astro.resolveUrl('/nested-persist-one'));
+		const vid = page.locator('#nested-video');
+		await expect(vid).toBeVisible();
+		await vid.evaluate(
+			(el) => ((el as HTMLVideoElement & { __persisted?: string }).__persisted = 'yes'),
+		);
+
+		await page.click('#click-two');
+		await expect(page.locator('#nested-two')).toBeVisible();
+		const marker = await page.evaluate(
+			() =>
+				(
+					document.querySelector('#nested-video') as
+						| (HTMLVideoElement & { __persisted?: string })
+						| null
+				)?.__persisted,
+		);
+		expect(marker).toBe('yes');
+		// The placeholder of page 2 was replaced by the carried-over subtree.
+		await expect(page.locator('#nested-placeholder')).toHaveCount(0);
+	});
+
+	test('reified <video muted> preserves the muted IDL property after navigation', async ({
+		page,
+		astro,
+	}) => {
+		// Regression for #18152: reifyMediaElements() copies the muted content attribute
+		// via setAttribute(), but Chrome does not sync it to video.muted on script-created
+		// elements. The fix explicitly sets the property after cloning attributes.
+		await page.goto(astro.resolveUrl('/one'));
+		await page.click('#click-video-muted');
+		const vid = page.locator('#muted-vid');
+		await expect(vid).toBeVisible();
+		const muted = await vid.evaluate((el) => (el as HTMLVideoElement).muted);
+		expect(muted).toBe(true);
+	});
+
 	test('React Islands can persist using transition:persist', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-one'));
@@ -632,6 +766,71 @@ test.describe('View Transitions', () => {
 		cnt = page.locator('.counter pre');
 		// Count should remain, but the prefix should be updated
 		await expect(cnt).toHaveText('B1');
+	});
+
+	test('Vite styles keep HMR after returning to a route', async ({ page, astro }) => {
+		const expectLoads = collectLoads(page);
+		await page.goto(astro.resolveUrl('/one'));
+		await page.click('#click-svelte-styles');
+
+		const nestedMessage = page.locator('.nested-message');
+		const pageTitle = page.locator('#island-one');
+		await expect(nestedMessage).toHaveCSS('background-color', 'rgb(128, 0, 0)');
+		await expect(pageTitle).toHaveCSS('color', 'rgb(0, 0, 255)');
+
+		const nestedSvelteStyles = page.locator('style[data-vite-dev-id*="SvelteMessage.svelte"]');
+		const cssStyles = page.locator('style[data-vite-dev-id*="client-router-hmr.css"]');
+		await expect(nestedSvelteStyles).toHaveCount(1);
+		await expect(cssStyles).toHaveCount(1);
+		const nestedSvelteStyle = nestedSvelteStyles.first();
+		const cssStyle = cssStyles.first();
+		await nestedSvelteStyle.evaluate((element) => (element.dataset.hmrStyle = 'nested-svelte'));
+		await cssStyle.evaluate((element) => (element.dataset.hmrStyle = 'css'));
+
+		await page.click('#click-away');
+		await expect(page.locator('#one')).toHaveText('Page 1');
+		await page.goBack();
+		await expect(pageTitle).toBeVisible();
+
+		await expect(page.locator('style[data-hmr-style="nested-svelte"]')).toHaveCount(1);
+		await expect(page.locator('style[data-hmr-style="css"]')).toHaveCount(1);
+
+		await astro.editFile('./src/components/SvelteMessage.svelte', (contents) =>
+			contents.replace('background-color: maroon', 'background-color: navy'),
+		);
+		await expect(nestedMessage).toHaveCSS('background-color', 'rgb(0, 0, 128)');
+
+		await astro.editFile('./src/components/client-router-hmr.css', (contents) =>
+			contents.replace('color: blue', 'color: red'),
+		);
+		await expect(pageTitle).toHaveCSS('color', 'rgb(255, 0, 0)');
+		await expectLoads(1);
+	});
+
+	test('Vite style nodes receive updated contents during head swaps', async ({ page, astro }) => {
+		const expectLoads = collectLoads(page);
+		await page.goto(astro.resolveUrl('/island-svelte-one'));
+
+		const cssStyle = page.locator('style[data-vite-dev-id*="client-router-hmr.css"]');
+		await expect(cssStyle).toHaveCount(1);
+		await cssStyle.evaluate((element) => (element.dataset.hmrStyle = 'css'));
+		await page.evaluate(() => {
+			document.addEventListener(
+				'astro:before-swap',
+				(event) => {
+					const incomingStyle = event.newDocument.querySelector<HTMLStyleElement>(
+						'style[data-vite-dev-id*="client-router-hmr.css"]',
+					);
+					if (incomingStyle) incomingStyle.textContent += '#island-two { color: red; }';
+				},
+				{ once: true },
+			);
+		});
+
+		await page.click('#click-two');
+		await expect(page.locator('#island-two')).toHaveCSS('color', 'rgb(255, 0, 0)');
+		await expect(page.locator('style[data-hmr-style="css"]')).toHaveCount(1);
+		await expectLoads(1);
 	});
 
 	test('Vue Islands can persist using transition:persist', async ({ page, astro }) => {
@@ -933,7 +1132,7 @@ test.describe('View Transitions', () => {
 		// go to external page
 		await page.click('#click-redirect-external');
 		await page.waitForURL('https://example.com/', { waitUntil: 'commit', timeout: 5000 });
-		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
+		await expect(page, 'should have content').toHaveTitle('Example Domain');
 		await expectLoads(2);
 	});
 
@@ -1067,6 +1266,7 @@ test.describe('View Transitions', () => {
 		const button = page.locator('#react-client-load-navigate-button');
 
 		await expect(button, 'should have content').toHaveText('Navigate to `/two`');
+		await waitForHydrate(page, button);
 
 		await button.click();
 

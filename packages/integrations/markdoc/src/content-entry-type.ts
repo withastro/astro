@@ -2,11 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
+import { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import { emitClientAsset } from 'astro/assets/utils';
-import { emitImageMetadata } from 'astro/assets/utils/node';
+import { emitImageMetadata, markImageReferenced } from 'astro/assets/utils/node';
 import type { Rolldown, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
@@ -324,11 +325,10 @@ async function emitOptimizedImages(
 					const fsPath = resolved.id;
 
 					if (src) {
-						// We cannot track images in Markdoc, Markdoc rendering always strips out the proxy. As such, we'll always
+						// We cannot track images in Markdoc, Markdoc rendering always strips out the tracking. As such, we'll always
 						// assume that the image is referenced elsewhere, to be on safer side.
 						if (ctx.astroConfig.output === 'static') {
-							if (globalThis.astroAsset.referencedImages)
-								globalThis.astroAsset.referencedImages.add(fsPath);
+							markImageReferenced(ctx.pluginContext, fsPath);
 						}
 
 						node.attributes[attributeName] = { ...src, fsPath };
@@ -414,11 +414,15 @@ function safeParseFrontmatter(fileContents: string, filePath: string) {
 		// because markdoc struggles with spaces
 		return parseFrontmatter(fileContents, { frontmatter: 'empty-with-lines' });
 	} catch (e: any) {
-		if (e.name === 'YAMLException') {
-			const err: Error & ViteErrorPayload['err'] = e;
+		if (isYAMLParseError(e)) {
+			const err = e as Error & ViteErrorPayload['err'];
+			err.stack ??= '';
 			err.id = filePath;
-			err.loc = { file: e.id, line: e.mark.line + 1, column: e.mark.column };
-			err.message = e.reason;
+			const position = e.linePos?.[0];
+			if (position) {
+				err.loc = { file: filePath, line: position.line, column: position.col - 1 };
+			}
+			err.message = e.message;
 			throw err;
 		} else {
 			throw e;

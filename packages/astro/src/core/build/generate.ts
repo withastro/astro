@@ -2,71 +2,73 @@ import nodeFs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
+import { recordTiming, time } from '@astrojs/internal-helpers/timings';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
+import type { ViteBuilder } from 'vite';
 import {
 	generateImagesForPath,
-	getStaticImageList,
 	prepareAssetsGenerationEnv,
-	restoreStaticImages,
+	StaticImageRegistry,
 } from '../../assets/build/generate.js';
-import {
-	appendForwardSlash,
-	collapseDuplicateTrailingSlashes,
-	hasFileExtension,
-	joinPaths,
-	removeLeadingForwardSlash,
-	removeTrailingForwardSlash,
-	trimSlashes,
-} from '../../core/path.js';
+import type { SerializedStaticImage } from '../../assets/types.js';
+import { removeTrailingForwardSlash, trimSlashes } from '../../core/path.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
-import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroLogger } from '../logger/core.js';
 import type {
 	AstroPrerenderer,
+	PathWithRoute,
 	PrerenderResult,
 	RouteToHeaders,
 } from '../../types/public/index.js';
-import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
-import { hashCryptoKey } from '../encryption.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import type { RouteData, SSRError } from '../../types/public/internal.js';
+import { hashCryptoKey } from '@astrojs/runtime/_internal/core/encryption.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/_internal/core/render-scope/node-scope.js';
+import type { RenderCollectors } from '@astrojs/runtime/_internal/core/render-scope/scope.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
-import { redirectTemplate } from '../routing/3xx.js';
+import { hasMetaRefreshTo, redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
-import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../output-filename.js';
-import { getOutFile, getOutFolder } from './common.js';
-import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
-import {
-	beginContentEntryCollection,
-	endContentEntryCollection,
-} from './incremental-content-collector.js';
-import { beginImageCollection, endImageCollection } from './incremental-image-collector.js';
+import { getOutFile, getOutFolder, getUrlForPath } from './common.js';
+import { createDefaultPrerenderer } from './default-prerenderer.js';
+import { loadBuildImageService } from './image-service.js';
+import { createParallelPrerenderer, type ParallelPrerenderer } from './parallel-prerenderer.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
+import { buildPhase } from './timings/index.js';
 import type { StaticBuildOptions } from './types.js';
-import type { AstroSettings } from '../../types/astro.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
 	prerenderOutputDir: URL,
+	builder: ViteBuilder,
+) {
+	// Collects images resolved outside of any render, e.g. at module top level.
+	const buildCollectors: RenderCollectors<SerializedStaticImage> = {
+		staticImages: [],
+		referencedImages: new Set(),
+	};
+	return ensureAsyncRenderScope().run(buildCollectors, () =>
+		generatePagesInBuildScope(options, internals, prerenderOutputDir, builder, buildCollectors),
+	);
+}
+
+async function generatePagesInBuildScope(
+	options: StaticBuildOptions,
+	internals: BuildInternals,
+	prerenderOutputDir: URL,
+	builder: ViteBuilder,
+	buildCollectors: RenderCollectors<SerializedStaticImage>,
 ) {
 	const generatePagesTimer = performance.now();
-	const ssr = options.settings.buildOutput === 'server';
-	const logger = options.logger;
 	const hasPagesToGenerate = hasPrerenderedPages(internals);
-
-	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
-	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
-	if (ssr && !hasPagesToGenerate) {
-		delete globalThis?.astroAsset?.addStaticImage;
-	}
 
 	// Exit early when no prerendered pages were discovered to avoid setting up
 	// and tearing down the prerenderer for an empty set of routes.
@@ -74,16 +76,24 @@ export async function generatePages(
 		return;
 	}
 
+	const ssr = options.settings.buildOutput === 'server';
+	const logger = options.logger;
+	const images = new StaticImageRegistry();
+	images.addReferencedImages(internals.referencedImages);
+
 	// Get or create the prerenderer
-	let prerenderer: DefaultPrerenderer;
+	let prerenderer: AstroPrerenderer;
+	let parallelPrerenderer: ParallelPrerenderer | undefined;
 	const settingsPrerenderer = options.settings.prerenderer;
-	if (!settingsPrerenderer) {
-		// No custom prerenderer - create default
-		prerenderer = createDefaultPrerenderer({
+	if (!settingsPrerenderer && options.settings.config.experimental.parallelPrerender) {
+		prerenderer = parallelPrerenderer = createParallelPrerenderer({
 			internals,
 			options,
 			prerenderOutputDir,
 		});
+	} else if (!settingsPrerenderer) {
+		// No custom prerenderer - create default
+		prerenderer = createDefaultPrerenderer({ internals, options, prerenderOutputDir });
 	} else if (typeof settingsPrerenderer === 'function') {
 		// Factory function - create default and pass it
 		const defaultPrerenderer = createDefaultPrerenderer({
@@ -91,52 +101,55 @@ export async function generatePages(
 			options,
 			prerenderOutputDir,
 		});
-		prerenderer = settingsPrerenderer(defaultPrerenderer);
+		prerenderer = settingsPrerenderer(defaultPrerenderer, {
+			outputDirectories: options.outputDirectories,
+		});
 	} else {
 		// Direct prerenderer object - use as-is
 		prerenderer = settingsPrerenderer;
 	}
+	if (settingsPrerenderer && options.settings.config.experimental.parallelPrerender) {
+		logger.warn(
+			'build',
+			`\`experimental.parallelPrerender\` is not supported by the "${prerenderer.name}" prerenderer and will be ignored.`,
+		);
+	}
 
 	// Set up the prerenderer
-	await prerenderer.setup?.();
+	await buildPhase('prerenderer setup', async () => prerenderer.setup?.());
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
 	const routeToHeaders: RouteToHeaders = new Map();
-	let staticImageList = getStaticImageList();
 
 	// Incremental build support
 	let cache: IncrementalBuildCache | null = null;
 	if (options.settings.config.experimental.incrementalBuild) {
-		// Per-path content-entry and image tracking is collected through a single
-		// process-global side channel, which cannot attribute records to the right
-		// path once renders interleave. Rather than risk skipping a stale page, the
-		// cache is disabled when the build renders paths concurrently.
-		if (options.settings.config.build.concurrency > 1) {
-			logger.warn(
-				'build',
-				'The incremental build cache is disabled because `build.concurrency` is greater than 1.',
-			);
-		} else {
-			const [configHash, lockfileHash, keyDigest] = await Promise.all([
-				computeConfigHash(options.settings.config),
-				computeLockfileHash(fileURLToPath(options.settings.config.root)),
-				options.key.then(hashCryptoKey),
-			]);
-			cache = IncrementalBuildCache.load(
-				options.settings,
-				configHash,
-				lockfileHash,
-				keyDigest,
-				internals.contentEntryRenderHashes ?? new Map(),
-				options.force,
-			);
-		}
+		const [configHash, lockfileHash, keyDigest] = await Promise.all([
+			computeConfigHash(options.settings.config),
+			computeLockfileHash(fileURLToPath(options.settings.config.root)),
+			options.key.then(hashCryptoKey),
+		]);
+		cache = IncrementalBuildCache.load(
+			options.settings,
+			configHash,
+			lockfileHash,
+			keyDigest,
+			internals.contentEntryRenderHashes ?? new Map(),
+			options.force,
+		);
 	}
 
 	try {
 		// Get all static paths with their routes from the prerenderer
-		const pathsWithRoutes = await prerenderer.getStaticPaths();
+		const staticPaths = await buildPhase('static paths', () => prerenderer.getStaticPaths());
+		let pathsWithRoutes: PathWithRoute[];
+		if (Array.isArray(staticPaths)) {
+			pathsWithRoutes = staticPaths;
+		} else {
+			pathsWithRoutes = staticPaths.paths;
+			images.addMetadata(staticPaths.metadata);
+		}
 
 		// Check if i18n domains are configured (incompatible with prerendering)
 		const hasI18nDomains =
@@ -146,7 +159,9 @@ export async function generatePages(
 
 		// Filter paths for conflicts (same path from multiple routes)
 		const { config } = options.settings;
-		const builtPaths = new Set<string>();
+		// Maps each normalized pathname to the route that first claimed it,
+		// so conflict warnings identify the actual winning route.
+		const builtPaths = new Map<string, RouteData>();
 		const filteredPaths: typeof pathsWithRoutes = [];
 		const fallbackPaths: typeof pathsWithRoutes = [];
 		for (const pathWithRoute of pathsWithRoutes) {
@@ -163,36 +178,31 @@ export async function generatePages(
 
 			// Path hasn't been built yet, include it
 			if (!builtPaths.has(normalized)) {
-				builtPaths.add(normalized);
+				builtPaths.set(normalized, route);
 			} else {
-				// Path was already built. Check if this route has higher priority.
-				const matchedRoute = matchRoute(decodeURI(pathname), options.routesList);
-				if (!matchedRoute) {
-					continue;
-				}
+				// Path was already built by another route (or a duplicate from the same route).
+				const winningRoute = builtPaths.get(normalized)!;
 
-				if (matchedRoute !== route) {
-					// Current route is lower-priority. Warn or error based on config.
-					if (config.prerenderConflictBehavior === 'error') {
-						throw new AstroError({
-							...AstroErrorData.PrerenderRouteConflict,
-							message: AstroErrorData.PrerenderRouteConflict.message(
-								matchedRoute.route,
-								route.route,
-								normalized,
-							),
-							hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
-						});
-					} else if (config.prerenderConflictBehavior === 'warn') {
-						const msg = AstroErrorData.PrerenderRouteConflict.message(
-							matchedRoute.route,
+				// Warn or error based on config.
+				if (config.prerenderConflictBehavior === 'error') {
+					throw new AstroError({
+						...AstroErrorData.PrerenderRouteConflict,
+						message: AstroErrorData.PrerenderRouteConflict.message(
+							winningRoute.route,
 							route.route,
 							normalized,
-						);
-						logger.warn('build', msg);
-					}
-					continue;
+						),
+						hint: AstroErrorData.PrerenderRouteConflict.hint(winningRoute.route, route.route),
+					});
+				} else if (config.prerenderConflictBehavior === 'warn') {
+					const msg = AstroErrorData.PrerenderRouteConflict.message(
+						winningRoute.route,
+						route.route,
+						normalized,
+					);
+					logger.warn('build', msg);
 				}
+				continue;
 			}
 
 			const paths = route.type === 'fallback' ? fallbackPaths : filteredPaths;
@@ -201,8 +211,11 @@ export async function generatePages(
 		const generationPhases = [filteredPaths, fallbackPaths];
 
 		// Generate each path
-		if (config.build.concurrency > 1) {
-			const limit = PLimit(config.build.concurrency);
+		const generationConcurrency = parallelPrerenderer
+			? parallelPrerenderer.workerCount * config.build.concurrency
+			: config.build.concurrency;
+		if (generationConcurrency > 1) {
+			const limit = PLimit(generationConcurrency);
 			// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
 			//
 			// NOTE: ideally we could consider an iterator to avoid the batching limitation
@@ -223,6 +236,7 @@ export async function generatePages(
 									logger,
 									cache,
 									cacheKey,
+									images,
 								),
 							),
 						);
@@ -242,9 +256,14 @@ export async function generatePages(
 						logger,
 						cache,
 						cacheKey,
+						images,
 					);
 				}
 			}
+		}
+
+		if (parallelPrerenderer) {
+			images.addMetadata(await parallelPrerenderer.finish());
 		}
 
 		// After generation, propagate distURL from the deserialized routes (used during generation)
@@ -294,125 +313,139 @@ export async function generatePages(
 			cache.writeManifest(options.settings);
 		}
 
+		images.addMetadata({
+			staticImages: buildCollectors.staticImages,
+			referencedImages: [...buildCollectors.referencedImages!],
+		});
+
 		// Must happen before teardown since collectStaticImages fetches from the prerender server
-		staticImageList = getStaticImageList();
 		if (prerenderer.collectStaticImages) {
-			const adapterImages = await prerenderer.collectStaticImages();
-			for (const [path, entry] of adapterImages) {
-				staticImageList.set(path, entry);
+			images.addStaticImageList(await prerenderer.collectStaticImages());
+		}
+
+		logger.info(
+			null,
+			colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
+		);
+
+		const staticImageList = images.images;
+		if (staticImageList.size) {
+			logger.info(
+				'SKIP_FORMAT',
+				`${colors.bgGreen(colors.black(` generating optimized images `))}`,
+			);
+
+			const totalCount = Array.from(staticImageList.values())
+				.map((x) => x.transforms.size)
+				.reduce((a, b) => a + b, 0);
+			const cpuCount = os.availableParallelism();
+			const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount, {
+				loadImageService: () => loadBuildImageService(builder, options.settings),
+				referencedImages: images.referencedImages,
+			});
+			const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
+			const errors: Error[] = [];
+
+			const assetsTimer = performance.now();
+			for (const [originalPath, transforms] of staticImageList) {
+				// Process each source image in parallel based on the queue’s concurrency
+				// (`cpuCount`). Process each transform for a source image sequentially.
+				//
+				// # Design Decision:
+				// We have 3 source images (A.png, B.png, C.png) and 3 transforms for
+				// each:
+				// ```
+				// A1.png A2.png A3.png
+				// B1.png B2.png B3.png
+				// C1.png C2.png C3.png
+				// ```
+				//
+				// ## Option 1
+				// Enqueue all transforms indiscriminantly
+				// ```
+				// |_A1.png   |_B2.png   |_C1.png
+				// |_B3.png   |_A2.png   |_C3.png
+				// |_C2.png   |_A3.png   |_B1.png
+				// ```
+				// * Advantage: Maximum parallelism, saturate CPU
+				// * Disadvantage: Spike in context switching
+				//
+				// ## Option 2
+				// Enqueue all transforms, but constrain processing order by source image
+				// ```
+				// |_A3.png   |_B1.png   |_C2.png
+				// |_A1.png   |_B3.png   |_C1.png
+				// |_A2.png   |_B2.png   |_C3.png
+				// ```
+				// * Advantage: Maximum parallelism, saturate CPU (same as Option 1) in
+				//   hope to avoid context switching
+				// * Disadvantage: Context switching still occurs and performance still
+				//   suffers
+				//
+				// ## Option 3
+				// Enqueue each source image, but perform the transforms for that source
+				// image sequentially
+				// ```
+				// \_A1.png   \_B1.png   \_C1.png
+				//  \_A2.png   \_B2.png   \_C2.png
+				//   \_A3.png   \_B3.png   \_C3.png
+				// ```
+				// * Advantage: Less context switching
+				// * Disadvantage: If you have a low number of source images with high
+				//   number of transforms then this is suboptimal.
+				//
+				// ## BEST OPTION:
+				// **Option 3**. Most projects will have a higher number of source images
+				// with a few transforms on each. Even though Option 2 should be faster
+				// and _should_ prevent context switching, this was not observed in
+				// nascent tests. Context switching was high and the overall performance
+				// was half of Option 3.
+				//
+				// If looking to optimize further, please consider the following:
+				// * Avoid `queue.add()` in an async for loop. Notice the `await
+				//   queue.onIdle();` after this loop. We do not want to create a scenario
+				//   where tasks are added to the queue after the queue.onIdle() resolves.
+				//   This can break tests and create annoying race conditions.
+				// * Exposing a concurrency property in `astro.config.mjs` to allow users
+				//   to override Node’s os.availableParallelism() default.
+				// * Create a proper performance benchmark for asset transformations of
+				//   projects in varying sizes of source images and transforms.
+				queue
+					.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
+					.catch((e) => {
+						logger.warn('build', `Unable to generate optimized image for ${originalPath}: ${e}`);
+						errors.push(
+							new Error(`Error generating image for ${originalPath}: ${e}`, { cause: e }),
+						);
+					});
 			}
+
+			await queue.onIdle();
+			if (errors.length === 1) {
+				throw errors[0];
+			} else if (errors.length > 1) {
+				throw new AggregateError(
+					errors,
+					`${errors.length} errors occurred during asset generation`,
+				);
+			}
+
+			const assetsTimeEnd = performance.now();
+			logger.info(
+				null,
+				colors.green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`),
+			);
 		}
 	} finally {
 		// Always teardown to avoid leaking adapter resources when generation fails.
 		await prerenderer.teardown?.();
 	}
 
-	logger.info(
-		null,
-		colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
-	);
-
-	// Default pipeline always runs
-	if (staticImageList.size) {
-		logger.info('SKIP_FORMAT', `${colors.bgGreen(colors.black(` generating optimized images `))}`);
-
-		const totalCount = Array.from(staticImageList.values())
-			.map((x) => x.transforms.size)
-			.reduce((a, b) => a + b, 0);
-		const cpuCount = os.availableParallelism();
-		const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount);
-		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
-		const errors: Error[] = [];
-
-		const assetsTimer = performance.now();
-		for (const [originalPath, transforms] of staticImageList) {
-			// Process each source image in parallel based on the queue’s concurrency
-			// (`cpuCount`). Process each transform for a source image sequentially.
-			//
-			// # Design Decision:
-			// We have 3 source images (A.png, B.png, C.png) and 3 transforms for
-			// each:
-			// ```
-			// A1.png A2.png A3.png
-			// B1.png B2.png B3.png
-			// C1.png C2.png C3.png
-			// ```
-			//
-			// ## Option 1
-			// Enqueue all transforms indiscriminantly
-			// ```
-			// |_A1.png   |_B2.png   |_C1.png
-			// |_B3.png   |_A2.png   |_C3.png
-			// |_C2.png   |_A3.png   |_B1.png
-			// ```
-			// * Advantage: Maximum parallelism, saturate CPU
-			// * Disadvantage: Spike in context switching
-			//
-			// ## Option 2
-			// Enqueue all transforms, but constrain processing order by source image
-			// ```
-			// |_A3.png   |_B1.png   |_C2.png
-			// |_A1.png   |_B3.png   |_C1.png
-			// |_A2.png   |_B2.png   |_C3.png
-			// ```
-			// * Advantage: Maximum parallelism, saturate CPU (same as Option 1) in
-			//   hope to avoid context switching
-			// * Disadvantage: Context switching still occurs and performance still
-			//   suffers
-			//
-			// ## Option 3
-			// Enqueue each source image, but perform the transforms for that source
-			// image sequentially
-			// ```
-			// \_A1.png   \_B1.png   \_C1.png
-			//  \_A2.png   \_B2.png   \_C2.png
-			//   \_A3.png   \_B3.png   \_C3.png
-			// ```
-			// * Advantage: Less context switching
-			// * Disadvantage: If you have a low number of source images with high
-			//   number of transforms then this is suboptimal.
-			//
-			// ## BEST OPTION:
-			// **Option 3**. Most projects will have a higher number of source images
-			// with a few transforms on each. Even though Option 2 should be faster
-			// and _should_ prevent context switching, this was not observed in
-			// nascent tests. Context switching was high and the overall performance
-			// was half of Option 3.
-			//
-			// If looking to optimize further, please consider the following:
-			// * Avoid `queue.add()` in an async for loop. Notice the `await
-			//   queue.onIdle();` after this loop. We do not want to create a scenario
-			//   where tasks are added to the queue after the queue.onIdle() resolves.
-			//   This can break tests and create annoying race conditions.
-			// * Exposing a concurrency property in `astro.config.mjs` to allow users
-			//   to override Node’s os.availableParallelism() default.
-			// * Create a proper performance benchmark for asset transformations of
-			//   projects in varying sizes of source images and transforms.
-			queue
-				.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
-				.catch((e) => {
-					logger.warn('build', `Unable to generate optimized image for ${originalPath}: ${e}`);
-					errors.push(new Error(`Error generating image for ${originalPath}: ${e}`, { cause: e }));
-				});
-		}
-
-		await queue.onIdle();
-		if (errors.length === 1) {
-			throw errors[0];
-		} else if (errors.length > 1) {
-			throw new AggregateError(errors, `${errors.length} errors occurred during asset generation`);
-		}
-
-		const assetsTimeEnd = performance.now();
-		logger.info(null, colors.green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
-
-		delete globalThis?.astroAsset?.addStaticImage;
-	}
-
 	await runHookBuildGenerated({
 		settings: options.settings,
 		logger,
 		routeToHeaders,
+		dir: options.outputDirectories.client,
 	});
 }
 
@@ -497,7 +530,7 @@ export async function renderPath({
 							!routeData.distURL.find(
 								(url) =>
 									url.href
-										.replace(config.outDir.toString(), '')
+										.replace(options.outputDirectories.client.toString(), '')
 										.replace(/(?:\/index\.html|\.html)$/, '') === trimSlashes(pathname),
 							)
 						) {
@@ -539,7 +572,9 @@ export async function renderPath({
 	let metadata: PrerenderResult['metadata'];
 	try {
 		const rendered = normalizePrerenderResult(
-			await prerenderer.render(request, { routeData: route }),
+			await time('page-render', pathname, () =>
+				prerenderer.render(request, { routeData: route, collectMetadata: true }),
+			),
 		);
 		response = rendered.response;
 		metadata = rendered.metadata;
@@ -564,20 +599,39 @@ export async function renderPath({
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		body = redirectTemplate({
-			status: response.status,
-			absoluteLocation: location,
-			relativeLocation: locationSite,
-			from: fromPath,
-		});
-		if (config.compressHTML) {
-			body = body.replaceAll('\n', '');
+		// A body on a redirect means `src/pages/3xx.astro` rendered one
+		// (`experimental.redirectPage`); it already honors `compressHTML` through
+		// the normal page renderer.
+		if (response.body) {
+			body = await response.text();
+			if (!hasMetaRefreshTo(body, locationSite)) {
+				logger.warn(
+					'redirects',
+					`\`src/pages/3xx.astro\` rendered the redirect from \`${fromPath}\` to \`${locationSite}\` without a matching \`<meta http-equiv="refresh" content="...;url=${locationSite}">\` tag. A static build sends no \`Location\` header, so visitors will not be redirected.`,
+				);
+			}
+		} else {
+			body = redirectTemplate({
+				status: response.status,
+				absoluteLocation: location,
+				relativeLocation: locationSite,
+				from: fromPath,
+			});
+			if (config.compressHTML) {
+				body = body.replaceAll('\n', '');
+			}
 		}
 		if (route.type !== 'redirect') {
 			route.redirect = location.toString();
 		}
 	} else {
 		if (!response.body) {
+			if (response.status >= 400) {
+				logger.warn(
+					'build',
+					`Skipped writing \`${pathname}\`: the page responded with status ${response.status} and an empty body.`,
+				);
+			}
 			return null;
 		}
 		body = Buffer.from(await response.arrayBuffer());
@@ -585,7 +639,12 @@ export async function renderPath({
 
 	// Compute output paths
 	const encodedPath = encodeURI(pathname);
-	const outFolder = getOutFolder(options.settings, encodedPath, route);
+	const outFolder = getOutFolder({
+		outRoot: options.outputDirectories.client,
+		buildFormat: config.build.format,
+		pathname: encodedPath,
+		routeData: route,
+	});
 	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
 	if (route.distURL) {
 		route.distURL.push(outFile);
@@ -600,7 +659,17 @@ export async function renderPath({
 	}
 
 	// Public files take priority over generated routes
-	if (checkPublicConflict(outFile, route, options.settings, logger)) return null;
+	if (
+		checkPublicConflict({
+			outFile,
+			route,
+			outRoot: options.outputDirectories.client,
+			publicDir: config.publicDir,
+			logger,
+		})
+	) {
+		return null;
+	}
 
 	return { body, outFile, outFolder, metadata };
 }
@@ -619,6 +688,7 @@ async function generatePathWithPrerenderer(
 	logger: AstroLogger,
 	cache: IncrementalBuildCache | null,
 	cacheKey: string | undefined,
+	images: StaticImageRegistry,
 ): Promise<void> {
 	const timeStart = performance.now();
 	const { config } = options.settings;
@@ -627,10 +697,15 @@ async function generatePathWithPrerenderer(
 
 	// Compute the output file path (needed for both skip check and recording)
 	const encodedPath = encodeURI(pathname);
-	const outFolder = getOutFolder(options.settings, encodedPath, route);
+	const outFolder = getOutFolder({
+		outRoot: options.outputDirectories.client,
+		buildFormat: config.build.format,
+		pathname: encodedPath,
+		routeData: route,
+	});
 	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
-	// Relative path from outDir for cache storage
-	const relativeOutFile = outFile.href.slice(config.outDir.href.length);
+	// Relative path from the resolved client output directory for cache storage
+	const relativeOutFile = outFile.href.slice(options.outputDirectories.client.href.length);
 
 	// Look up the dependency hash for this route
 	const dependencyHash = internals.pageDependencyHashes?.get(route.component) ?? '';
@@ -647,10 +722,14 @@ async function generatePathWithPrerenderer(
 
 		if (existsInDist || restored) {
 			// The page is not rendered, so its optimized-image transforms are never
-			// re-registered. Replay them into the global list so the asset pipeline
+			// re-registered. Replay them into the static image list so the asset pipeline
 			// still emits the images its restored HTML references.
 			const restoredImages = cache.previousStaticImages(route.component, pathname);
-			if (restoredImages) restoreStaticImages(restoredImages);
+			const restoredReferencedImages = cache.previousReferencedImages(route.component, pathname);
+			images.addMetadata({
+				staticImages: restoredImages,
+				referencedImages: restoredReferencedImages,
+			});
 
 			// Likewise, the route contributes no response headers when it is not
 			// rendered. Replay them so a `staticHeaders` adapter still writes this
@@ -664,8 +743,8 @@ async function generatePathWithPrerenderer(
 			}
 
 			// Record in the new cache so orphan detection knows this path is still alive,
-			// carrying forward the content entries, image transforms, and headers the
-			// path resolved last build.
+			// carrying forward the content entries, image metadata, and headers the path
+			// resolved last build.
 			cache.record(
 				route.component,
 				dependencyHash,
@@ -674,6 +753,7 @@ async function generatePathWithPrerenderer(
 				relativeOutFile,
 				cache.previousContentEntryKeys(route.component, pathname),
 				restoredImages,
+				restoredReferencedImages,
 				restoredHeaders,
 			);
 
@@ -694,6 +774,7 @@ async function generatePathWithPrerenderer(
 				'SKIP_FORMAT',
 				restored ? ` ${colors.green('(restored)')}` : ` ${colors.green('(cached)')}`,
 			);
+			recordPageTiming(pathname, route, timeStart, true);
 			return;
 		}
 	}
@@ -705,13 +786,11 @@ async function generatePathWithPrerenderer(
 		addPageName(pathname, options);
 	}
 
-	// Collect the content entries and image transforms resolved while generating
-	// this path, so they can be folded into the path's cache entry and replayed
-	// when the path is skipped on a later build.
-	if (cache) {
-		beginContentEntryCollection();
-		beginImageCollection();
-	}
+	// The prerenderer collects the content
+	// entries and image transforms resolved while rendering this path in its own
+	// runtime and reports them on the render's metadata, so they can be folded
+	// into the path's cache entry and replayed when the path is skipped on a
+	// later build.
 	const result = await renderPath({
 		prerenderer,
 		pathname,
@@ -720,14 +799,10 @@ async function generatePathWithPrerenderer(
 		routeToHeaders,
 		logger,
 	});
-	// In-process prerenderers populate these collectors while rendering; always
-	// end them to clear the buckets for the next path. An out-of-process
-	// prerenderer (e.g. workerd) collects in its own runtime and reports the
-	// result on the render's metadata, which takes precedence when present.
-	const collectedContentEntryKeys = cache ? endContentEntryCollection() : undefined;
-	const collectedStaticImages = cache ? endImageCollection() : undefined;
-	const contentEntryKeys = result?.metadata?.contentEntryKeys ?? collectedContentEntryKeys;
-	const staticImages = result?.metadata?.staticImages ?? collectedStaticImages;
+	images.addMetadata(result?.metadata);
+	const contentEntryKeys = result?.metadata?.contentEntryKeys;
+	const staticImages = result?.metadata?.staticImages;
+	const referencedImages = result?.metadata?.referencedImages;
 	// Headers are collected only for `staticHeaders` adapters (see `renderPath`).
 	// Persist them so a skipped path can replay its route into the headers file.
 	const headers = cache ? [...(routeToHeaders.get(pathname)?.headers ?? [])] : undefined;
@@ -739,15 +814,15 @@ async function generatePathWithPrerenderer(
 		// resurrecting output the path no longer emits. Leaving it unrecorded makes
 		// `findOrphanedFiles` prune that copy and forces a re-render next build.
 		logRenderTime(logger, timeStart, true);
+		recordPageTiming(pathname, route, timeStart, false);
 		return;
 	}
 
 	await nodeFs.promises.mkdir(result.outFolder, { recursive: true });
 	await nodeFs.promises.writeFile(result.outFile, result.body);
 
-	// Record this path in the new cache. A path without a cacheKey is never
-	// recorded, since it can never be skipped on a later build.
-	if (cache && cacheKey !== undefined) {
+	// Without a cache key or render metadata, the path cannot be skipped safely.
+	if (cache && cacheKey !== undefined && result.metadata !== undefined) {
 		await cache.writeOutputFile(options.settings, relativeOutFile, result.body);
 		cache.record(
 			route.component,
@@ -757,11 +832,17 @@ async function generatePathWithPrerenderer(
 			relativeOutFile,
 			contentEntryKeys,
 			staticImages,
+			referencedImages,
 			headers,
 		);
 	}
 
 	logRenderTime(logger, timeStart, false);
+	recordPageTiming(pathname, route, timeStart, false);
+}
+
+function recordPageTiming(pathname: string, route: RouteData, timeStart: number, cached: boolean) {
+	recordTiming('page', pathname, performance.now() - timeStart, { route: route.route, cached });
 }
 
 function logRenderTime(logger: AstroLogger, timeStart: number, notCreated: boolean) {
@@ -783,79 +864,27 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pageName);
 }
 
-function getUrlForPath(
-	pathname: string,
-	base: string,
-	origin: string,
-	format: AstroConfig['build']['format'],
-	trailingSlash: AstroConfig['trailingSlash'],
-	routeType: RouteType,
-	isIndex: boolean,
-): URL {
-	/**
-	 * Examples:
-	 * pathname: /, /foo
-	 * base: /
-	 */
-
-	let ending: string;
-	// For `preserve`, non-index routes output as flat `.html` files (like `file`),
-	// while index routes output as `dir/index.html` (like `directory`).
-	const effectiveFormat = format === 'preserve' ? (isIndex ? 'directory' : 'file') : format;
-	switch (effectiveFormat) {
-		case 'directory': {
-			ending = trailingSlash === 'never' ? '' : '/';
-			break;
-		}
-		case 'file':
-		default: {
-			ending = '.html';
-			break;
-		}
-	}
-	let buildPathname: string;
-	if (pathname === '/' || pathname === '') {
-		if (effectiveFormat === 'file') {
-			buildPathname = joinPaths(base, 'index.html');
-		} else {
-			buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
-		}
-	} else if (routeType === 'endpoint') {
-		const buildPathRelative = removeLeadingForwardSlash(pathname);
-		let endpointPathname = joinPaths(base, buildPathRelative);
-		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
-			endpointPathname = appendForwardSlash(endpointPathname);
-		} else if (trailingSlash === 'never') {
-			endpointPathname = removeTrailingForwardSlash(endpointPathname);
-		}
-		buildPathname = endpointPathname;
-	} else {
-		const buildPathRelative =
-			removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
-		buildPathname = joinPaths(base, buildPathRelative);
-	}
-	return new URL(buildPathname, origin);
-}
-
 /**
  * Check if a file exists in the public directory that would conflict with the output file.
  * Public files take priority over generated routes. Returns true if there's a conflict.
  */
-function checkPublicConflict(
-	outFile: URL,
-	route: RouteData,
-	settings: AstroSettings,
-	logger: AstroLogger,
-): boolean {
-	const outRoot =
-		settings.buildOutput === 'static' && !settings.adapter?.adapterFeatures?.preserveBuildClientDir
-			? settings.config.outDir
-			: settings.config.build.client;
-
+function checkPublicConflict({
+	outFile,
+	route,
+	outRoot,
+	publicDir,
+	logger,
+}: {
+	outFile: URL;
+	route: RouteData;
+	outRoot: URL;
+	publicDir: URL;
+	logger: AstroLogger;
+}): boolean {
 	// Compute the relative path by comparing URL hrefs directly to avoid
 	// fileURLToPath issues with encoded characters like %2F.
 	const relativePath = outFile.href.slice(outRoot.href.length);
-	const publicFileUrl = new URL(relativePath, settings.config.publicDir);
+	const publicFileUrl = new URL(relativePath, publicDir);
 	if (nodeFs.existsSync(publicFileUrl)) {
 		logger.warn(
 			'build',

@@ -1,11 +1,16 @@
 import { strict as assert } from 'node:assert';
+import { EventEmitter } from 'node:events';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { glob } from '../../../dist/content/loaders/glob.js';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import {
+	createTempDir,
 	createTestConfigObserver,
 	createMinimalSettings,
 	createMarkdownEntryType,
@@ -507,5 +512,393 @@ describe('Glob Loader', () => {
 		await contentLayer.sync();
 
 		assert.ok(warnings.some((w) => w.includes('No files found matching')));
+	});
+
+	it('prunes stale entries when the last file in a collection is deleted', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(join(contentDir, 'post.md'), '---\ntitle: Post MD\n---\nContent MD');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/posts' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+		assert.equal(store.values('posts').length, 1);
+
+		// Delete the only file, leaving the (still existing) directory in place
+		rmSync(join(contentDir, 'post.md'));
+
+		await contentLayer.sync();
+		assert.equal(store.values('posts').length, 0);
+	});
+
+	it('throws on duplicate IDs when prerenderConflictBehavior is error', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(join(contentDir, 'post.md'), '---\ntitle: Post MD\n---\nContent MD');
+		writeFileSync(join(contentDir, 'post.mdx'), '---\ntitle: Post MDX\n---\nContent MDX');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [
+				createMarkdownEntryType(),
+				{ extensions: ['.mdx'], getEntryInfo: createMarkdownEntryType().getEntryInfo },
+			],
+			config: { prerenderConflictBehavior: 'error' },
+		});
+
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'info',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.{md,mdx}', base: 'src/content/posts' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await assert.rejects(() => contentLayer.sync(), {
+			name: 'DuplicateContentEntrySlugError',
+		});
+	});
+
+	it('suppresses duplicate ID warning when prerenderConflictBehavior is ignore', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(join(contentDir, 'post.md'), '---\ntitle: Post MD\n---\nContent MD');
+		writeFileSync(join(contentDir, 'post.mdx'), '---\ntitle: Post MDX\n---\nContent MDX');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [
+				createMarkdownEntryType(),
+				{ extensions: ['.mdx'], getEntryInfo: createMarkdownEntryType().getEntryInfo },
+			],
+			config: { prerenderConflictBehavior: 'ignore' },
+		});
+
+		const warnings: string[] = [];
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'warn') {
+						warnings.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.{md,mdx}', base: 'src/content/posts' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		// No duplicate warnings should be logged
+		assert.ok(!warnings.some((w) => w.includes('post')));
+	});
+
+	// Colons are reserved in Windows filenames, so the file under test cannot be created there.
+	it('loads files whose names contain a colon', {
+		skip: process.platform === 'win32',
+	}, async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'space');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(
+			join(contentDir, 'Guide: Architecture.md'),
+			'---\ntitle: Guide Architecture\n---\n\nA document with a colon in its filename.',
+		);
+
+		const store = new MutableDataStore();
+		const errors: string[] = [];
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'error') {
+						errors.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			spacecraft: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/space' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		// The colon-containing file should be loaded without errors
+		assert.ok(!errors.some((e) => e.includes('The URL must be of scheme file')));
+
+		const entries = store.values('spacecraft');
+		const colonEntry = entries.find((e) => e.id === 'guide-architecture');
+		assert.ok(colonEntry, 'Entry with colon in filename should be loaded');
+		assert.ok(colonEntry.body?.includes('colon in its filename'));
+	});
+
+	it('propagates eager rendering errors so the build fails', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(join(contentDir, 'broken.md'), '---\ntitle: Broken\n---\nSome content');
+
+		const failingEntryType = {
+			...createMarkdownEntryType(),
+			getRenderFunction: async () => async () => {
+				throw new Error('render plugin exploded');
+			},
+		};
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [failingEntryType],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/posts' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await assert.rejects(() => contentLayer.sync(), {
+			message: 'render plugin exploded',
+		});
+	});
+
+	it('loads files whose paths contain # or ?', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'blog');
+		mkdirSync(join(contentDir, 'f#'), { recursive: true });
+		writeFileSync(
+			join(contentDir, 'c#-basics.md'),
+			'---\ntitle: C# basics\n---\n\nPattern matching in C#.',
+		);
+		writeFileSync(join(contentDir, 'f#', 'intro.md'), '---\ntitle: F# intro\n---\n\nIntro to F#.');
+		// `?` is reserved in Windows filenames.
+		if (process.platform !== 'win32') {
+			writeFileSync(join(contentDir, 'why?.md'), '---\ntitle: Why\n---\n\nA question.');
+		}
+
+		const store = new MutableDataStore();
+		const errors: string[] = [];
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'error') {
+						errors.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			blog: defineCollection({
+				loader: glob({ pattern: '**/*.md', base: 'src/content/blog' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		assert.deepEqual(errors, []);
+		const entries = store.values('blog');
+		const csharp = entries.find((e) => e.id === 'c-basics');
+		assert.ok(csharp, 'Entry with # in filename should be loaded');
+		assert.ok(csharp.body?.includes('Pattern matching in C#.'));
+		assert.ok(
+			entries.find((e) => e.id === 'f/intro'),
+			'Entry inside a directory with # should be loaded',
+		);
+		if (process.platform !== 'win32') {
+			assert.ok(
+				entries.find((e) => e.id === 'why'),
+				'Entry with ? in filename should be loaded',
+			);
+		}
+	});
+});
+
+describe('Glob Loader watcher', () => {
+	it('reloads changed files matched by a leading extglob pattern', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content');
+		mkdirSync(join(contentDir, 'blog'), { recursive: true });
+		mkdirSync(join(contentDir, 'hidden'), { recursive: true });
+		const postPath = join(contentDir, 'blog', 'post.md');
+		const hiddenPath = join(contentDir, 'hidden', 'secret.md');
+		writeFileSync(postPath, '---\ntitle: Post\n---\nOriginal');
+		writeFileSync(hiddenPath, '---\ntitle: Secret\n---\nHidden');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+		const watcher = Object.assign(new EventEmitter(), { add: () => {} });
+
+		const collections = {
+			blog: defineCollection({
+				loader: glob({ pattern: '!(hidden)/**/*.md', base: 'src/content' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+			watcher: watcher as any,
+		});
+
+		await contentLayer.sync();
+		assert.deepEqual(
+			store.values('blog').map((e) => e.id),
+			['blog/post'],
+		);
+
+		writeFileSync(postPath, '---\ntitle: Post\n---\nUpdated');
+		watcher.emit('change', postPath);
+		watcher.emit('change', hiddenPath);
+		await new Promise((resolve) => setTimeout(resolve, 100));
+
+		const entries = store.values('blog');
+		assert.deepEqual(
+			entries.map((e) => e.id),
+			['blog/post'],
+		);
+		assert.equal(entries[0].body?.trim(), 'Updated');
+	});
+
+	it('ignores changed files inside a directory excluded by a negation pattern', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content');
+		mkdirSync(join(contentDir, 'blog'), { recursive: true });
+		mkdirSync(join(contentDir, '_docs', 'sub'), { recursive: true });
+		const postPath = join(contentDir, 'blog', 'post.md');
+		const docPath = join(contentDir, '_docs', 'x.md');
+		const nestedDocPath = join(contentDir, '_docs', 'sub', 'y.md');
+		writeFileSync(postPath, '---\ntitle: Post\n---\nPost');
+		writeFileSync(docPath, '---\ntitle: X\n---\nX');
+		writeFileSync(nestedDocPath, '---\ntitle: Y\n---\nY');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+		const watcher = Object.assign(new EventEmitter(), { add: () => {} });
+
+		const collections = {
+			docs: defineCollection({
+				loader: glob({ pattern: ['**/*.md', '!_docs'], base: 'src/content' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+			watcher: watcher as any,
+		});
+
+		await contentLayer.sync();
+		assert.deepEqual(
+			store.values('docs').map((e) => e.id),
+			['blog/post'],
+		);
+
+		watcher.emit('change', docPath);
+		watcher.emit('change', nestedDocPath);
+		await new Promise((resolve) => setTimeout(resolve, 100));
+
+		assert.deepEqual(
+			store.values('docs').map((e) => e.id),
+			['blog/post'],
+		);
 	});
 });

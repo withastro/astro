@@ -5,7 +5,7 @@ import { findBox, toUTF8String } from './utils.js'
 /** Extracts the codestream from a containerized JPEG XL image */
 function extractCodestream(input: Uint8Array): Uint8Array | undefined {
   const jxlcBox = findBox(input, 'jxlc', 0)
-  if (jxlcBox) {
+  if (jxlcBox && jxlcBox.size >= 8) {
     return input.slice(jxlcBox.offset + 8, jxlcBox.offset + jxlcBox.size)
   }
 
@@ -24,10 +24,13 @@ function extractPartialStreams(input: Uint8Array): Uint8Array[] {
   while (offset < input.length) {
     const jxlpBox = findBox(input, 'jxlp', offset)
     if (!jxlpBox) break
+    if (jxlpBox.size < 12) break
     partialStreams.push(
       input.slice(jxlpBox.offset + 12, jxlpBox.offset + jxlpBox.size),
     )
-    offset = jxlpBox.offset + jxlpBox.size
+    const nextOffset = jxlpBox.offset + jxlpBox.size
+    if (nextOffset <= offset) break
+    offset = nextOffset
   }
   return partialStreams
 }

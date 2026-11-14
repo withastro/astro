@@ -1,0 +1,22 @@
+---
+import { Image } from 'astro:assets';
+import penguin from '../../assets/penguin.jpg';
+
+export function getStaticPaths() {
+	return [
+		{ params: { slug: 'a' }, cacheKey: 'v1' },
+		{ params: { slug: 'b' }, cacheKey: 'v1' },
+	];
+}
+
+const { slug } = Astro.params;
+---
+
+<html>
+	<body>
+		<h1>{slug}</h1>
+		<!-- The same transform on both pages: the dedup hit must still be attributed. -->
+		<Image src={penguin} alt="A penguin" width={100} />
+		{slug === 'b' ? <Image src={penguin} alt="A smaller penguin" width={50} /> : null}
+	</body>
+</html>

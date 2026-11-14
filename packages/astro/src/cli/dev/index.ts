@@ -10,38 +10,30 @@ import {
 } from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
 import { printHelp } from '../../core/messages/runtime.js';
-import { isRunByAgent } from '../agent.js';
+import { isRunByAgent, supportsAgentAutoBackgrounding } from '../agent.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
 	flags: Flags;
 }
 
-/**
- * `yargs-parser` camel-cases `--ignore-lock` to `flags.ignoreLock`.
- */
 export function isIgnoreLock(flags: Flags): boolean {
 	return flags.ignoreLock === true;
 }
 
 /**
- * `--ignore-lock` skips the lock file entirely, so a background dev server started with it
- * could never be found by `astro dev stop`/`status`/`logs`. Returns an error message if
- * background mode (explicit `--background`, or implied by AI agent detection) is combined
- * with `--ignore-lock`, or `null` if there's no conflict.
+ * Returns an error message when `--ignore-lock` is combined with an explicit `--background`,
+ * or `null` otherwise. A background server started with `--ignore-lock` could never be found
+ * by `astro dev stop`/`status`/`logs` because the flag skips the lock file entirely.
+ * Background implied by AI agent detection never reaches this check: the CLI drops it
+ * whenever `--ignore-lock` is set.
  */
-export function getBackgroundIgnoreLockConflict(
-	flags: Flags,
-	wantsBackground: boolean,
-): string | null {
-	if (!wantsBackground) {
+export function getBackgroundIgnoreLockConflict(flags: Flags): string | null {
+	if (!flags.background) {
 		return null;
 	}
-	const reason = flags.background
-		? '`--background`'
-		: 'an auto-detected AI agent environment, which runs the dev server in the background automatically';
 	return [
-		`\`--ignore-lock\` cannot be used together with ${reason}.`,
+		'`--ignore-lock` cannot be used together with `--background`.',
 		'',
 		'Background dev servers rely on the lock file so `astro dev stop`, `astro dev status`, and `astro dev logs` can find them.',
 		'Run the dev server in the foreground to use --ignore-lock.',
@@ -123,14 +115,18 @@ export async function dev({ flags }: DevOptions) {
 		return;
 	}
 
-	// When an AI coding agent is detected, enable background mode and JSON logging automatically.
 	const agentDetected = !process.env.ASTRO_DEV_BACKGROUND && isRunByAgent();
 	if (agentDetected) {
 		flags.json = true;
 	}
 
 	const ignoreLock = isIgnoreLock(flags);
-	const wantsBackground = !!flags.background || agentDetected;
+	// Agent-inferred background yields to `--ignore-lock`: the flag means a one-off
+	// foreground server that `stop`/`status`/`logs` won't track.
+	// https://github.com/withastro/astro/issues/17903
+	const wantsBackground =
+		!!flags.background ||
+		(supportsAgentAutoBackgrounding(process.platform) && agentDetected && !ignoreLock);
 
 	const logger = createLoggerFromFlags(flags);
 	const subcommand = flags._[3]?.toString();
@@ -158,16 +154,12 @@ export async function dev({ flags }: DevOptions) {
 
 	// Reject conflicting flag combinations up front, before starting anything.
 	if (ignoreLock) {
-		const conflict =
-			getBackgroundIgnoreLockConflict(flags, wantsBackground) ?? getForceIgnoreLockConflict(flags);
+		const conflict = getBackgroundIgnoreLockConflict(flags) ?? getForceIgnoreLockConflict(flags);
 		if (conflict) {
 			throw new Error(conflict);
 		}
 	}
 
-	// Handle `astro dev --background` or auto-enable when an AI coding agent is detected.
-	// Skip if ASTRO_DEV_BACKGROUND is set — this means we're the spawned child process
-	// and should run the foreground dev server, not recurse into background mode.
 	if (wantsBackground) {
 		const { background } = await import('./background.js');
 		await background({ flags, logger });
@@ -190,7 +182,7 @@ export async function dev({ flags }: DevOptions) {
 	// an existing server, and it won't be tracked by `astro dev stop`/`status`/`logs`.
 	// We still do a read-only check purely to give the user a heads-up.
 	if (ignoreLock) {
-		const existingServer = checkExistingServer(root);
+		const existingServer = await checkExistingServer(root);
 		if (existingServer) {
 			logger.info(
 				'SKIP_FORMAT',
@@ -204,7 +196,7 @@ export async function dev({ flags }: DevOptions) {
 		return await devServer(inlineConfig);
 	}
 
-	const existingServer = checkExistingServer(root);
+	const existingServer = await checkExistingServer(root);
 	if (existingServer) {
 		if (flags.force) {
 			// --force: kill the existing server and replace it

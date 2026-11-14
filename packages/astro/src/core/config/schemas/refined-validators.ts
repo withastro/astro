@@ -242,7 +242,7 @@ export function validateFontsCssVariables(
 		const { cssVariable } = fonts[i];
 		if (!cssVariable.startsWith('--') || cssVariable.includes(' ') || cssVariable.includes(':')) {
 			issues.push({
-				message: `**cssVariable** property "${cssVariable}" contains invalid characters for CSS variable generation. It must start with -- and be a valid indent: https://developer.mozilla.org/en-US/docs/Web/CSS/ident.`,
+				message: `**cssVariable** property "${cssVariable}" contains invalid characters for CSS variable generation. It must start with -- and be a valid ident: https://developer.mozilla.org/en-US/docs/Web/CSS/ident.`,
 				path: ['fonts', i, 'cssVariable'],
 			});
 		}

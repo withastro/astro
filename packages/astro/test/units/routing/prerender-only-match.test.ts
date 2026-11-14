@@ -3,25 +3,30 @@ import { describe, it } from 'node:test';
 import { matchRoute } from '../../../dist/core/routing/dev.js';
 import { makeRoute, spreadPart, staticPart } from './test-helpers.ts';
 import { defaultLogger } from '../test-utils.ts';
-import { RouteCache } from '../../../dist/core/render/route-cache.js';
+import { setEnvironment } from '../../../dist/core/environment/index.js';
+import { productionEnvironment } from '../../../dist/core/environment/production.js';
+import { setLogger } from '../../../dist/core/logger/manifest-logger.js';
+import { updateRouteTable } from '../../../dist/core/routing/route-table.js';
 
-import type { RunnablePipeline } from '../../../dist/vite-plugin-app/pipeline.js';
 import type { RouteData } from '../../../dist/types/public/index.js';
 import type { SSRManifest } from '../../../dist/core/app/types.js';
 
 /**
- * Creates a minimal mock pipeline and manifest for testing matchRoute.
+ * Creates a minimal mock manifest for testing matchRoute, registering a
+ * matching environment/logger and installing the given routes into the
+ * per-manifest route table — `matchRoute` reads all of them through the
+ * manifest registries.
  * `componentLoaders` maps route component paths to functions producing their
  * module exports; a loader that throws simulates a module that cannot be
  * imported in the current environment (e.g. `cloudflare:workers` in Node).
  * `loadedComponents` records every component whose module was requested.
  */
-function createMockPipelineAndManifest(
+function createMockManifest(
 	componentLoaders: Record<string, () => any>,
+	routes: RouteData[],
 	logger = defaultLogger,
 ) {
 	const loadedComponents: string[] = [];
-	const routeCache = new RouteCache(defaultLogger);
 	const manifest = {
 		serverLike: false,
 		base: '/',
@@ -31,16 +36,18 @@ function createMockPipelineAndManifest(
 		buildClientDir: new URL('file:///fake/client/'),
 		outDir: new URL('file:///fake/'),
 	} as unknown as SSRManifest;
-	const pipeline = {
-		logger,
-		routeCache,
-		manifest,
-		getComponentByRoute(route: RouteData) {
+	setLogger(manifest, logger);
+	setEnvironment(manifest, {
+		...productionEnvironment,
+		name: 'test-dev',
+		runtimeMode: 'development',
+		async getComponentByRoute(_manifest, route: RouteData) {
 			loadedComponents.push(route.component);
 			return componentLoaders[route.component]();
 		},
-	} as unknown as RunnablePipeline;
-	return { pipeline, manifest, loadedComponents };
+	});
+	updateRouteTable(manifest, routes);
+	return { manifest, loadedComponents };
 }
 
 const trailingSlash = 'ignore';
@@ -85,15 +92,17 @@ describe('matchRoute with prerenderOnly', () => {
 	// prerender gate route /_image through the Node prerender handler, which
 	// previously imported the endpoint's module there and crashed.
 	it('skips non-prerendered routes without importing their components', async () => {
-		const { pipeline, manifest, loadedComponents } = createMockPipelineAndManifest({
-			'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
-			'src/pages/[...slug].astro': () => ({
-				getStaticPaths: () => [{ params: { slug: 'blog' } }],
-			}),
-		});
+		const { manifest, loadedComponents } = createMockManifest(
+			{
+				'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
+				'src/pages/[...slug].astro': () => ({
+					getStaticPaths: () => [{ params: { slug: 'blog' } }],
+				}),
+			},
+			[ssrImageEndpoint, prerenderedCatchAll],
+		);
 
-		const routesList = { routes: [ssrImageEndpoint, prerenderedCatchAll] };
-		const result = await matchRoute('/_image', routesList, pipeline, manifest, {
+		const result = await matchRoute(manifest, '/_image', {
 			prerenderOnly: true,
 		});
 
@@ -105,18 +114,17 @@ describe('matchRoute with prerenderOnly', () => {
 	});
 
 	it('still imports non-prerendered components without prerenderOnly', async () => {
-		const { pipeline, manifest } = createMockPipelineAndManifest({
-			'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
-			'src/pages/[...slug].astro': () => ({
-				getStaticPaths: () => [{ params: { slug: 'blog' } }],
-			}),
-		});
-
-		const routesList = { routes: [ssrImageEndpoint, prerenderedCatchAll] };
-		await assert.rejects(
-			() => matchRoute('/_image', routesList, pipeline, manifest),
-			/cloudflare:workers/,
+		const { manifest } = createMockManifest(
+			{
+				'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
+				'src/pages/[...slug].astro': () => ({
+					getStaticPaths: () => [{ params: { slug: 'blog' } }],
+				}),
+			},
+			[ssrImageEndpoint, prerenderedCatchAll],
 		);
+
+		await assert.rejects(() => matchRoute(manifest, '/_image'), /cloudflare:workers/);
 	});
 
 	it('keeps filtering through the .html alt-pathname retry', async () => {
@@ -130,17 +138,19 @@ describe('matchRoute with prerenderOnly', () => {
 			prerender: false,
 		});
 
-		const { pipeline, manifest, loadedComponents } = createMockPipelineAndManifest({
-			'src/pages/foo.ts': runtimeOnlyModule,
-			'src/pages/[...slug].astro': () => ({
-				getStaticPaths: () => [{ params: { slug: 'bar' } }],
-			}),
-		});
+		const { manifest, loadedComponents } = createMockManifest(
+			{
+				'src/pages/foo.ts': runtimeOnlyModule,
+				'src/pages/[...slug].astro': () => ({
+					getStaticPaths: () => [{ params: { slug: 'bar' } }],
+				}),
+			},
+			[ssrEndpoint, prerenderedCatchAll],
+		);
 
 		// '/foo.html' matches no candidate, so matchRoute retries with '/foo',
 		// which must keep skipping the non-prerendered endpoint.
-		const routesList = { routes: [ssrEndpoint, prerenderedCatchAll] };
-		const result = await matchRoute('/foo.html', routesList, pipeline, manifest, {
+		const result = await matchRoute(manifest, '/foo.html', {
 			prerenderOnly: true,
 		});
 
@@ -155,15 +165,17 @@ describe('matchRoute with prerenderOnly', () => {
 	// prerender handler would render a 404 for /_image instead of letting the
 	// SSR handler serve it.
 	it('does not fall back to a prerendered 404 when candidates were skipped', async () => {
-		const { pipeline, manifest, loadedComponents } = createMockPipelineAndManifest({
-			'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
-			'src/pages/[...slug].astro': () => ({
-				getStaticPaths: () => [{ params: { slug: 'blog' } }],
-			}),
-		});
+		const { manifest, loadedComponents } = createMockManifest(
+			{
+				'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
+				'src/pages/[...slug].astro': () => ({
+					getStaticPaths: () => [{ params: { slug: 'blog' } }],
+				}),
+			},
+			[ssrImageEndpoint, prerenderedCatchAll, prerendered404],
+		);
 
-		const routesList = { routes: [ssrImageEndpoint, prerenderedCatchAll, prerendered404] };
-		const result = await matchRoute('/_image', routesList, pipeline, manifest, {
+		const result = await matchRoute(manifest, '/_image', {
 			prerenderOnly: true,
 		});
 
@@ -175,12 +187,14 @@ describe('matchRoute with prerenderOnly', () => {
 	});
 
 	it('still falls back to the 404 when nothing was skipped', async () => {
-		const { pipeline, manifest } = createMockPipelineAndManifest({
-			'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
-		});
+		const { manifest } = createMockManifest(
+			{
+				'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
+			},
+			[ssrImageEndpoint, prerendered404],
+		);
 
-		const routesList = { routes: [ssrImageEndpoint, prerendered404] };
-		const result = await matchRoute('/nope', routesList, pipeline, manifest, {
+		const result = await matchRoute(manifest, '/nope', {
 			prerenderOnly: true,
 		});
 
@@ -199,18 +213,18 @@ describe('matchRoute with prerenderOnly', () => {
 			debug: () => {},
 		} as unknown as typeof defaultLogger;
 
-		const { pipeline, manifest } = createMockPipelineAndManifest(
+		const { manifest } = createMockManifest(
 			{
 				'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
 				'src/pages/[...slug].astro': () => ({
 					getStaticPaths: () => [{ params: { slug: 'blog' } }],
 				}),
 			},
+			[ssrImageEndpoint, prerenderedCatchAll],
 			spyLogger,
 		);
 
-		const routesList = { routes: [ssrImageEndpoint, prerenderedCatchAll] };
-		await matchRoute('/_image', routesList, pipeline, manifest, {
+		await matchRoute(manifest, '/_image', {
 			prerenderOnly: true,
 		});
 
@@ -218,15 +232,17 @@ describe('matchRoute with prerenderOnly', () => {
 	});
 
 	it('returns prerendered matches as usual', async () => {
-		const { pipeline, manifest } = createMockPipelineAndManifest({
-			'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
-			'src/pages/[...slug].astro': () => ({
-				getStaticPaths: () => [{ params: { slug: 'blog' } }],
-			}),
-		});
+		const { manifest } = createMockManifest(
+			{
+				'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
+				'src/pages/[...slug].astro': () => ({
+					getStaticPaths: () => [{ params: { slug: 'blog' } }],
+				}),
+			},
+			[ssrImageEndpoint, prerenderedCatchAll],
+		);
 
-		const routesList = { routes: [ssrImageEndpoint, prerenderedCatchAll] };
-		const result = await matchRoute('/blog', routesList, pipeline, manifest, {
+		const result = await matchRoute(manifest, '/blog', {
 			prerenderOnly: true,
 		});
 

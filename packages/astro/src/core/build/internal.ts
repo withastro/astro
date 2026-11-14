@@ -35,6 +35,15 @@ export interface BuildInternals {
 	entrySpecifierToBundleMap: Map<string, string>;
 
 	/**
+	 * Specifiers written to `entrySpecifierToBundleMap` by the prerender environment
+	 * that have not been overwritten by the SSR or client environments. These point
+	 * to chunk files inside the prerender output directory, which is deleted after
+	 * page generation. They must be stripped from the SSR manifest to avoid dangling
+	 * references.
+	 */
+	prerenderOnlyEntrySpecifiers: Set<string>;
+
+	/**
 	 * A map for page-specific information.
 	 */
 	pagesByKeys: Map<string, PageBuildData>;
@@ -115,6 +124,13 @@ export interface BuildInternals {
 	ssrAssetsPerEnvironment: Map<AstroEnvironmentNames, Set<string>>;
 
 	/**
+	 * Output directory hrefs whose `.vite/manifest.json` was written only because Astro forced
+	 * `build.manifest` on that environment. Populated by vitePluginSSRAssets and cleaned up
+	 * after the build.
+	 */
+	astroViteManifestDirectories: Set<string>;
+
+	/**
 	 * Chunks extracted during build that need post-build injection (manifest, content).
 	 * Populated by top-level buildApp, consumed by post plugin.
 	 */
@@ -154,6 +170,9 @@ export interface BuildInternals {
 	 * cache only reuses them while the encryption key is unchanged.
 	 */
 	serverIslandPageComponents?: Set<string>;
+
+	/** Images kept in the output even without a transform. */
+	referencedImages?: ReadonlySet<string>;
 }
 
 /**
@@ -167,6 +186,7 @@ export function createBuildInternals(): BuildInternals {
 		prerenderCssAssetByModuleKey: new Map(),
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
+		prerenderOnlyEntrySpecifiers: new Set<string>(),
 		pagesByKeys: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
@@ -183,6 +203,7 @@ export function createBuildInternals(): BuildInternals {
 		loggerEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
 		ssrAssetsPerEnvironment: new Map(),
+		astroViteManifestDirectories: new Set(),
 	};
 }
 

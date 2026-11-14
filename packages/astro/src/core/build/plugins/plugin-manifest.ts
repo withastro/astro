@@ -6,7 +6,8 @@ import { resolveMiddlewareMode } from '../../../integrations/adapter-utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
 import type { ExtractedChunk } from '../static-build.js';
-import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import { BEFORE_HYDRATION_SCRIPT_ID } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-scripts/index.js';
+import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { toFallbackType } from '../../app/common.js';
 import { serializeRouteData, toRoutingStrategy } from '../../app/entrypoints/index.js';
 import type {
@@ -25,11 +26,12 @@ import {
 	getStyleResources,
 	shouldTrackCspHashes,
 	trackScriptHashes,
+	trackScriptIntegrity,
 	trackStyleHashes,
 } from '../../csp/common.js';
 import { partitionByKind } from '../../csp/runtime.js';
 import { generateSpeculationRulesContent } from '../../../prefetch/speculation-rules.js';
-import { encodeKey, generateCspDigest } from '../../encryption.js';
+import { encodeKey, generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { getOutFile, getOutFolder } from '../common.js';
@@ -62,7 +64,8 @@ import { sessionConfigToManifest } from '../../session/utils.js';
  */
 
 export const MANIFEST_REPLACE = '@@ASTRO_MANIFEST_REPLACE@@';
-const replaceExp = new RegExp(`['"]${MANIFEST_REPLACE}['"]`, 'g');
+// Backtick included: Rolldown's minifier may rewrite string literals as template literals.
+const replaceExp = new RegExp(`['"\`]${MANIFEST_REPLACE}['"\`]`, 'g');
 
 /**
  * Post-build hook that injects the computed manifest into bundled chunks.
@@ -101,7 +104,8 @@ export async function manifestBuildPostHook(
 		// HTML on disk already has them inlined, and the SSR worker never renders
 		// these routes. Stripping keeps the entry chunk small on platforms like
 		// Cloudflare Workers that re-parse it on every cold isolate start.
-		const ssrManifest = stripPrerenderedRouteStyles(manifest);
+		let ssrManifest = stripPrerenderedRouteStyles(manifest);
+		ssrManifest = stripPrerenderOnlyEntryModules(ssrManifest, internals);
 		const code = injectManifest(ssrManifest, ssrManifestChunk.code);
 		mutate(ssrManifestChunk.fileName, code, false);
 	}
@@ -124,7 +128,7 @@ async function createManifest(
 	// Add assets from the client build.
 	const clientStatics = new Set(
 		await glob('**/*', {
-			cwd: fileURLToPath(buildOpts.settings.config.build.client),
+			cwd: fileURLToPath(buildOpts.outputDirectories.client),
 		}),
 	);
 	for (const file of clientStatics) {
@@ -144,7 +148,13 @@ async function createManifest(
 
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
-	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
+	const manifest = await buildManifest(
+		buildOpts,
+		internals,
+		Array.from(staticFiles),
+		encodedKey,
+		clientStatics,
+	);
 	return manifest;
 }
 
@@ -173,11 +183,32 @@ function stripPrerenderedRouteStyles(manifest: SerializedSSRManifest): Serialize
 	return stripped ? { ...manifest, routes } : manifest;
 }
 
+/**
+ * Returns a copy of the manifest with `entryModules` entries removed for
+ * specifiers that were only emitted by the prerender environment. Those
+ * chunks live in the prerender output directory, which is deleted after
+ * page generation, so referencing them from the SSR manifest would produce
+ * dangling asset URLs at runtime.
+ */
+function stripPrerenderOnlyEntryModules(
+	manifest: SerializedSSRManifest,
+	internals: BuildInternals,
+): SerializedSSRManifest {
+	if (internals.prerenderOnlyEntrySpecifiers.size === 0) return manifest;
+	const filtered = Object.fromEntries(
+		Object.entries(manifest.entryModules).filter(
+			([key]) => !internals.prerenderOnlyEntrySpecifiers.has(key),
+		),
+	);
+	return { ...manifest, entryModules: filtered };
+}
+
 async function buildManifest(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	staticFiles: string[],
 	encodedKey: string,
+	clientFiles: Set<string>,
 ): Promise<SerializedSSRManifest> {
 	const { settings } = opts;
 
@@ -267,14 +298,19 @@ async function buildManifest(
 
 		// Add the built .html file as a staticFile
 		if (route.prerender && route.pathname) {
-			const outFolder = getOutFolder(opts.settings, route.pathname, route);
+			const outFolder = getOutFolder({
+				outRoot: opts.outputDirectories.client,
+				buildFormat: opts.settings.config.build.format,
+				pathname: route.pathname,
+				routeData: route,
+			});
 			const outFile = getOutFile(
 				opts.settings.config.build.format,
 				outFolder,
 				route.pathname,
 				route,
 			);
-			const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
+			const file = outFile.toString().replace(opts.outputDirectories.client.toString(), '');
 			staticFiles.push(file);
 		}
 	}
@@ -317,13 +353,36 @@ async function buildManifest(
 		// folded into the `-elem` directives at render time.
 		const scriptHashes = [
 			...getScriptHashes(cspConfig),
-			...(await trackScriptHashes(internals, settings, algorithm)),
+			...(await trackScriptHashes({
+				internals,
+				settings,
+				algorithm,
+			})),
 		];
 		const styleHashes = [
 			...getStyleHashes(cspConfig),
 			...settings.injectedCsp.styleHashes,
-			...(await trackStyleHashes(internals, settings, algorithm)),
+			...(await trackStyleHashes({
+				internals,
+				settings,
+				algorithm,
+			})),
 		];
+
+		let importMapContent: string | undefined;
+		if (getStrictDynamic(cspConfig)) {
+			const scriptIntegrity = await trackScriptIntegrity({
+				settings,
+				algorithm,
+				clientRoot: opts.outputDirectories.client,
+				clientFiles,
+				assetQueryString,
+			});
+			if (scriptIntegrity) {
+				importMapContent = scriptIntegrity.importMapContent;
+				scriptHashes.push(...scriptIntegrity.hashes);
+			}
+		}
 
 		// When both CSP and clientPrerender are enabled, generate a static speculation rules
 		// script whose hash can be included in the CSP policy. Dynamic per-URL injection would
@@ -364,6 +423,7 @@ async function buildManifest(
 			scriptDirective,
 			styleDirective,
 			speculationRulesContent,
+			importMapContent,
 		};
 	}
 
@@ -387,8 +447,8 @@ async function buildManifest(
 		outDir: opts.settings.config.outDir.toString(),
 		srcDir: opts.settings.config.srcDir.toString(),
 		publicDir: opts.settings.config.publicDir.toString(),
-		buildClientDir: opts.settings.config.build.client.toString(),
-		buildServerDir: opts.settings.config.build.server.toString(),
+		buildClientDir: opts.outputDirectories.client.toString(),
+		buildServerDir: opts.outputDirectories.server.toString(),
 		adapterName: opts.settings.adapter?.name ?? '',
 		assetsDir: opts.settings.config.build.assets,
 		routes,
@@ -405,7 +465,7 @@ async function buildManifest(
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
 		inlinedScripts: Array.from(internals.inlinedScripts),
-		assets: staticFiles.map(prefixAssetPath),
+		assets: staticFiles.map(prefixAssetPath).sort(),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		checkOrigin:

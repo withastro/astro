@@ -1,0 +1,12 @@
+---
+import Tabs from '../components/Tabs.svelte';
+
+const name = 'tab"><b id="injected">x</b><i title="';
+---
+
+<html>
+	<body>
+		<Tabs active={name}><p id="content" slot={name}>content</p></Tabs>
+		<Tabs client:load active={name}><p id="hydrated-content" slot={name}>content</p></Tabs>
+	</body>
+</html>

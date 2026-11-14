@@ -1,4 +1,5 @@
 import type { AddressInfo } from 'node:net';
+import type { AstroRenderer, ClientDirectiveConfig } from '@astrojs/vite-plugin-astro';
 import type { ViteDevServer, InlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
 import type { AssetsGlobalStaticImagesList, SerializedStaticImage } from '../../assets/types.js';
@@ -27,40 +28,11 @@ export interface RouteOptions {
 	prerender?: boolean;
 }
 
-/* Client Directives */
-type DirectiveHydrate = () => Promise<void>;
-type DirectiveLoad = () => Promise<DirectiveHydrate>;
-
-type DirectiveOptions = {
-	/**
-	 * The component displayName
-	 */
-	name: string;
-	/**
-	 * The attribute value provided
-	 */
-	value: string;
-};
-
-export type ClientDirective = (
-	load: DirectiveLoad,
-	options: DirectiveOptions,
-	el: HTMLElement,
-) => void;
-
-export interface ClientDirectiveConfig {
-	name: string;
-	entrypoint: string | URL;
-}
-
-export interface AstroRenderer {
-	/** Name of the renderer. */
-	name: string;
-	/** Import entrypoint for the client/browser renderer. */
-	clientEntrypoint?: string | URL;
-	/** Import entrypoint for the server/build/ssr renderer. */
-	serverEntrypoint: string | URL;
-}
+export type {
+	AstroRenderer,
+	ClientDirective,
+	ClientDirectiveConfig,
+} from '@astrojs/vite-plugin-astro';
 
 export type AdapterSupportsKind =
 	(typeof AdapterFeatureStability)[keyof typeof AdapterFeatureStability];
@@ -251,31 +223,71 @@ export interface PathWithRoute {
 }
 
 /**
- * Incremental-build data an out-of-process prerenderer collects while rendering
- * a page, reported back to the build process so skipped pages can be tracked and
- * replayed without a re-render.
+ * Incremental-build data a prerenderer collects while rendering a page,
+ * reported back to the build orchestrator so skipped pages can be tracked and
+ * replayed without a re-render. This is the only attribution channel: every
+ * prerenderer — in-process and out-of-process — collects in its own rendering
+ * runtime and reports the result by value here.
  */
 export interface PrerenderRenderMetadata {
-	/** Root-relative `filePath`s of the content entries the page rendered. */
-	contentEntryKeys?: string[];
-	/** Optimized-image transforms the page resolved. */
-	staticImages?: SerializedStaticImage[];
+	/** Root-relative `filePath`s of the content entries the page rendered, or an empty array. */
+	contentEntryKeys: string[];
+	/** Optimized-image transforms the page resolved, or an empty array. */
+	staticImages: SerializedStaticImage[];
+	/** Absolute source paths of images the page referenced without a transform. */
+	referencedImages?: string[];
+}
+
+/** Image data recorded while computing static paths, e.g. by `getImage()` in `getStaticPaths()`. */
+export type StaticPathsMetadata = Pick<
+	PrerenderRenderMetadata,
+	'staticImages' | 'referencedImages'
+>;
+
+/** The paths a prerenderer's `getStaticPaths()` returns, with the images they resolved. */
+export interface StaticPathsResult {
+	paths: PathWithRoute[];
+	metadata?: StaticPathsMetadata;
 }
 
 /**
  * The richer result a prerenderer's `render()` may return instead of a bare
  * `Response`, pairing the rendered response with the incremental-build metadata
- * collected for that page. Used by out-of-process prerenderers, which collect
- * the metadata in their own runtime rather than in the build's collectors.
+ * collected for that page. `metadata` is `undefined` when the page was not
+ * tracked (the prerenderer could not collect).
  */
 export interface PrerenderResult {
 	response: Response;
 	metadata?: PrerenderRenderMetadata;
 }
 
+/** The output directories resolved by Vite for each Astro build environment. */
+export interface AstroBuildOutputDirectories {
+	/** The resolved Vite client output directory. */
+	client: URL;
+	/** The resolved Vite SSR output directory. */
+	server: URL;
+	/** The resolved Vite prerender output directory. */
+	prerender: URL;
+}
+
+/** Values available when Astro creates a custom prerenderer. */
+export interface AstroPrerendererFactoryContext {
+	outputDirectories: AstroBuildOutputDirectories;
+}
+
+/** Creates a custom prerenderer after Vite has resolved its build environments. */
+export type AstroPrerendererFactory = (
+	defaultPrerenderer: AstroPrerenderer,
+	context: AstroPrerendererFactoryContext,
+) => AstroPrerenderer;
+
 /**
  * Custom prerenderer that adapters can provide to control how pages are prerendered.
  * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
+ *
+ * A prerenderer running outside of Astro's process calls `installRenderScope()`, then
+ * `StaticPaths.getAllWithMetadata()` and `renderForPrerender()` so images are collected.
  */
 export interface AstroPrerenderer {
 	name: string;
@@ -286,8 +298,10 @@ export interface AstroPrerenderer {
 	/**
 	 * Returns pathnames with their routes to prerender. The route is included to avoid
 	 * needing to re-match routes later, which can be incorrect due to route priority.
+	 *
+	 * Returning a bare array instead of a {@link StaticPathsResult} is deprecated.
 	 */
-	getStaticPaths: () => Promise<PathWithRoute[]>;
+	getStaticPaths: () => Promise<PathWithRoute[] | StaticPathsResult>;
 	/**
 	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
 	 * @param request - The request to render. The URL reflects the build format
@@ -295,23 +309,28 @@ export interface AstroPrerenderer {
 	 *   use the `pathname` from the `PathWithRoute` entry returned by `getStaticPaths`.
 	 * @param options - Render options
 	 * @param options.routeData - The matched route for this path
-	 * @returns A `Response`, or a {@link PrerenderResult} pairing the response with
-	 *   the incremental-build metadata the page resolved. Out-of-process
-	 *   prerenderers return the latter to report metadata they collect in their own
-	 *   runtime; in-process prerenderers populate the build's collectors directly
-	 *   and return a bare `Response`.
+	 * @param options.collectMetadata - Deprecated, always `true`.
+	 *   The prerenderer should collect the page's per-render
+	 *   incremental metadata in its rendering runtime and report it on a
+	 *   {@link PrerenderResult}. A prerenderer that cannot collect may ignore the
+	 *   flag and return a bare `Response`; its paths are then recorded as
+	 *   "not tracked".
+	 * @returns A {@link PrerenderResult}, whose metadata tells Astro which images to generate.
+	 *   Returning a bare `Response` is deprecated.
 	 */
 	render: (
 		request: Request,
-		options: { routeData: RouteData },
+		options: { routeData: RouteData; collectMetadata?: boolean },
 	) => Promise<Response | PrerenderResult>;
 	/**
 	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
 	 * into the Node-side static image list. The default Sharp pipeline runs after.
+	 *
+	 * @deprecated Report images from `getStaticPaths()` and `render()`, and set the `build` image service with `image.service`.
 	 */
 	collectStaticImages?: () => Promise<AssetsGlobalStaticImagesList>;
 	/**
-	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
+	 * Called after all pages are prerendered and images are generated. Use for cleanup like stopping a preview server.
 	 */
 	teardown?: () => Promise<void>;
 }
@@ -422,9 +441,7 @@ export interface BaseIntegrationHooks {
 	}) => void | Promise<void>;
 	'astro:build:start': (options: {
 		logger: AstroIntegrationLogger;
-		setPrerenderer: (
-			prerenderer: AstroPrerenderer | ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer),
-		) => void;
+		setPrerenderer: (prerenderer: AstroPrerenderer | AstroPrerendererFactory) => void;
 	}) => void | Promise<void>;
 	'astro:build:setup': (options: {
 		vite: InlineConfig;
@@ -434,12 +451,14 @@ export interface BaseIntegrationHooks {
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 	'astro:build:generated': (options: {
+		/** The resolved Vite client output directory for this build. */
 		dir: URL;
 		logger: AstroIntegrationLogger;
 		routeToHeaders: RouteToHeaders;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
+		/** The resolved Vite client output directory for this build. */
 		dir: URL;
 		assets: Map<string, URL[]>;
 		logger: AstroIntegrationLogger;

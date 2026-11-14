@@ -1,5 +1,51 @@
 # create-astro
 
+## 5.3.2
+
+### Patch Changes
+
+- [#17477](https://github.com/withastro/astro/pull/17477) [`a475ac0`](https://github.com/withastro/astro/commit/a475ac0735a2d065153a9c5e27f71f649bd26f0b) Thanks [@alexanderdombroski](https://github.com/alexanderdombroski)! - Fixes create astro to use correct project name when creating in current directory "."
+
+- [#17487](https://github.com/withastro/astro/pull/17487) [`3cb7043`](https://github.com/withastro/astro/commit/3cb7043a7951c0b372c341d46f46be68617b8a70) Thanks [@colinhacks](https://github.com/colinhacks)! - Adds support for the [nub](https://nubjs.com) package manager
+
+## 5.3.1
+
+### Patch Changes
+
+- [#18475](https://github.com/withastro/astro/pull/18475) [`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab) Thanks [@ematipico](https://github.com/ematipico)! - Bumps the minimum supported Node.js version to 22.23.4, which includes the fixes from the [October 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+  
+  This is a patch release because the [Node.js support and upgrade policy](https://docs.astro.build/en/upgrade-astro/#nodejs-support-and-upgrade-policies) allows the Core team to raise the minimum Maintenance LTS version in a patch release when a disclosed and fixed Node.js security flaw affects Astro.
+
+## 5.3.0
+
+### Minor Changes
+
+- [#18277](https://github.com/withastro/astro/pull/18277) [`2715958`](https://github.com/withastro/astro/commit/2715958666b0a706b069d0592da3a070b3796a9b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases the minimum Node.js version to 22.22.0
+  
+  The minimum supported Node.js version is now 22.22.0, the latest Node.js 22 release supported by StackBlitz. This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+### Patch Changes
+
+- [#18218](https://github.com/withastro/astro/pull/18218) [`acc0460`](https://github.com/withastro/astro/commit/acc0460886e43b467852696cf710b04de558503b) Thanks [@KTrain5169](https://github.com/KTrain5169)! - `create-astro` no longer places a `CLAUDE.md` in projects, as Claude Code now supports `AGENTS.md`.
+
+## 5.2.6
+
+### Patch Changes
+
+- [#18263](https://github.com/withastro/astro/pull/18263) [`882dd98`](https://github.com/withastro/astro/commit/882dd98cd9f11c4e7bd0b812d37f865dfca75d3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the automatic `allowScripts` and `allowBuilds` pre-approval from generated projects. Astro's dependencies no longer run install scripts, so the workaround is no longer needed.
+
+## 5.2.5
+
+### Patch Changes
+
+- [#18210](https://github.com/withastro/astro/pull/18210) [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d) Thanks [@edmundhung](https://github.com/edmundhung)! - Allows Astro CLI commands to install tagged package versions
+
+## 5.2.4
+
+### Patch Changes
+
+- [#17756](https://github.com/withastro/astro/pull/17756) [`f88c875`](https://github.com/withastro/astro/commit/f88c875c2c89af3b8cbb9f9eebdcddde6e0645c8) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `npm install` warnings on npm v11+ about esbuild's install scripts not being covered by `allowScripts`. Adds `ensureNpmScriptsAllowed()` to pre-approve esbuild in `package.json` before running `npm install`, matching the existing pnpm v11 compatibility fix.
+
 ## 5.2.3
 
 ### Patch Changes

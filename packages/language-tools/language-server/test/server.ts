@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { LanguageServerHandle } from '@volar/test-utils';
 import { startLanguageServer } from '@volar/test-utils';
-import * as protocol from 'vscode-languageserver-protocol/node.js';
+import * as protocol from 'vscode-languageserver-protocol/node';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import { fixtureDir } from './test-utils.ts';
@@ -40,6 +40,13 @@ export async function getLanguageServer(): Promise<LanguageServer> {
 			},
 			{
 				textDocument: {
+					codeAction: {
+						codeActionLiteralSupport: {
+							codeActionKind: { valueSet: ['source.organizeImports', 'quickfix'] },
+						},
+						dataSupport: true,
+						resolveSupport: { properties: ['edit'] },
+					},
 					definition: {
 						linkSupport: true,
 					},

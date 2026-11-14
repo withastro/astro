@@ -19,6 +19,7 @@ import {
 	isProcessAlive,
 	readLockFile,
 	removeLockFile,
+	signalServerProcess,
 	type LockFileData,
 	type ServerCommand,
 } from '../core/dev/lockfile.js';
@@ -124,6 +125,19 @@ export function buildBackgroundArgs(command: ServerCommand, flags: Flags): strin
 	if (flags.root) args.push('--root', String(flags.root));
 	if (flags.allowedHosts) args.push('--allowed-hosts', String(flags.allowedHosts));
 	if (flags.json) args.push('--json');
+	if (flags.mode) args.push('--mode', String(flags.mode));
+	if (flags.site) args.push('--site', String(flags.site));
+	if (flags.base) args.push('--base', String(flags.base));
+	if (flags.outDir) args.push('--out-dir', String(flags.outDir));
+	if (flags.verbose) args.push('--verbose');
+	if (flags.silent) args.push('--silent');
+	if (flags.open != null) {
+		if (typeof flags.open === 'string') {
+			args.push('--open', flags.open);
+		} else if (flags.open) {
+			args.push('--open');
+		}
+	}
 	return args;
 }
 
@@ -132,11 +146,7 @@ export async function stopExistingServer(
 	command: ServerCommand,
 	pid: number,
 ): Promise<void> {
-	try {
-		process.kill(pid, 'SIGTERM');
-	} catch {
-		// Process may have already exited between check and kill.
-	}
+	signalServerProcess(pid, 'SIGTERM');
 
 	const deadline = Date.now() + GRACEFUL_SHUTDOWN_TIMEOUT;
 	while (Date.now() < deadline) {
@@ -145,11 +155,7 @@ export async function stopExistingServer(
 	}
 
 	if (isProcessAlive(pid)) {
-		try {
-			process.kill(pid, 'SIGKILL');
-		} catch {
-			// Already dead.
-		}
+		signalServerProcess(pid, 'SIGKILL');
 	}
 
 	removeLockFile(root, command);
@@ -166,7 +172,7 @@ export async function background({
 }): Promise<void> {
 	const root = getRootURL(flags);
 
-	const existing = checkExistingServer(root, config.command);
+	const existing = await checkExistingServer(root, config.command);
 	if (existing && !flags.force) {
 		logger.info('SKIP_FORMAT', formatServerRunningMessage(existing, config, { existing: true }));
 		return;
@@ -251,7 +257,7 @@ export async function stop({
 	config: BackgroundCommandConfig;
 }): Promise<void> {
 	const root = getRootURL(flags);
-	const existing = checkExistingServer(root, config.command);
+	const existing = await checkExistingServer(root, config.command);
 
 	if (!existing) {
 		logger.info('SKIP_FORMAT', `No ${config.command} server is running.`);
@@ -272,7 +278,7 @@ export async function status({
 	config: BackgroundCommandConfig;
 }): Promise<void> {
 	const root = getRootURL(flags);
-	const existing = checkExistingServer(root, config.command);
+	const existing = await checkExistingServer(root, config.command);
 
 	if (!existing) {
 		logger.info('SKIP_FORMAT', `No ${config.command} server is running.`);
@@ -305,7 +311,7 @@ export async function logs({
 	config: BackgroundCommandConfig;
 }): Promise<void> {
 	const root = getRootURL(flags);
-	const existing = checkExistingServer(root, config.command);
+	const existing = await checkExistingServer(root, config.command);
 
 	if (!existing) {
 		logger.error('SKIP_FORMAT', `No ${config.command} server is running.`);

@@ -1,6 +1,5 @@
 import type { OmitPreservingIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { VALID_INPUT_FORMATS, VALID_OUTPUT_FORMATS } from './consts.js';
-import type { ImageService } from './services/service.js';
 
 export type ImageQualityPreset = 'low' | 'mid' | 'high' | 'max' | (string & {});
 export type ImageQuality = ImageQualityPreset | number;
@@ -21,7 +20,7 @@ export type AssetsGlobalStaticImagesList = Map<
  * A single image transform flattened for persistence in the incremental build
  * cache. `AssetsGlobalStaticImagesList` nests transforms under their original
  * path; this carries the original path and transform hash inline so a skipped
- * page's transforms can be replayed into the global list without a re-render.
+ * page's transforms can be replayed into the static image list without a re-render.
  */
 export interface SerializedStaticImage {
 	originalPath: string;
@@ -29,17 +28,6 @@ export interface SerializedStaticImage {
 	finalPath: string;
 	originalSrcPath: string | undefined;
 	transform: ImageTransform;
-}
-
-declare global {
-	var astroAsset: {
-		imageService?: ImageService;
-		addStaticImage?:
-			| ((options: ImageTransform, hashProperties: string[], fsPath: string | undefined) => string)
-			| undefined;
-		staticImages?: AssetsGlobalStaticImagesList;
-		referencedImages?: Set<string>;
-	};
 }
 
 const isESMImport = Symbol('#isESM');
@@ -62,7 +50,7 @@ export type ImageMetadata = {
 
 export function isImageMetadata(src: any): src is ImageMetadata {
 	// For ESM-imported images the fsPath property is set but not enumerable
-	return src.fsPath && !('fsPath' in src);
+	return !!src.fsPath && !Object.prototype.propertyIsEnumerable.call(src, 'fsPath');
 }
 
 /**
@@ -84,28 +72,26 @@ export type SrcSetValue = UnresolvedSrcSetValue & {
 export type UnresolvedImageTransform = Simplify<
 	OmitPreservingIndexSignature<ImageTransform, 'src'> & {
 		src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
-		inferSize?: boolean;
+		inferSize?: boolean | undefined;
 	}
 > & {
 	[isESMImport]?: never;
 };
 
+type Undefinable<T> = T extends object ? { [K in keyof T]?: T[K] | undefined } : T;
+
 /**
  * Options accepted by the image transformation service.
  */
-export type ImageTransform = {
-	src: ImageMetadata | string;
-	width?: number | undefined;
-	widths?: number[] | undefined;
-	densities?: (number | `${number}x`)[] | undefined;
-	height?: number | undefined;
-	quality?: ImageQuality | undefined;
-	format?: ImageOutputFormat | undefined;
-	fit?: ImageFit | undefined;
-	position?: string | undefined;
-	background?: string | undefined;
-	[key: string]: any;
-} & Astro.CustomImageProps;
+export type ImageTransform = Simplify<
+	Undefinable<ImageSharedProps<object>> &
+		Astro.CustomImageProps & {
+			src: ImageMetadata | string;
+			width?: number | undefined;
+			height?: number | undefined;
+			[key: string]: any;
+		}
+>;
 
 export interface GetImageResult {
 	rawOptions: ImageTransform;

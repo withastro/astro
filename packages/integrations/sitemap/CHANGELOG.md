@@ -1,5 +1,17 @@
 # @astrojs/sitemap
 
+## 3.7.5
+
+### Patch Changes
+
+- [#18149](https://github.com/withastro/astro/pull/18149) [`71f4d06`](https://github.com/withastro/astro/commit/71f4d068e36251d4a64288b6381350be5abd49ee) Thanks [@irontaek](https://github.com/irontaek)! - Speeds up sitemap chunk generation for large sites by tracking assigned URLs with a Set.
+
+## 3.7.4
+
+### Patch Changes
+
+- [#17851](https://github.com/withastro/astro/pull/17851) [`52d3f56`](https://github.com/withastro/astro/commit/52d3f56999ecdf92510b2c16ed2a3a4785b9c73a) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the sitemap outputting a URL with an empty path for the homepage (e.g. `https://example.com` instead of `https://example.com/`) when `trailingSlash` is set to `"never"` or `build.format` is set to `"file"`
+
 ## 3.7.3
 
 ### Patch Changes
