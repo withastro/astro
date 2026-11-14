@@ -82,12 +82,14 @@ public-hoist-pattern[]=*lit*
 }`,
 };
 
-const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
+const OFFICIAL_ADAPTER_TO_IMPORT_MAP = {
 	netlify: '@astrojs/netlify',
 	vercel: '@astrojs/vercel',
 	cloudflare: '@astrojs/cloudflare',
 	node: '@astrojs/node',
-};
+} as const;
+
+type OfficialAdapterName = keyof typeof OFFICIAL_ADAPTER_TO_IMPORT_MAP;
 
 export async function add(names: string[], { flags }: AddOptions) {
 	ensureProcessNodeEnv('production');
@@ -331,7 +333,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 		for (const integration of integrations) {
 			if (isAdapter(integration)) {
 				const officialExportName =
-					OFFICIAL_ADAPTER_TO_IMPORT_MAP[integration.id] ??
+					OFFICIAL_ADAPTER_TO_IMPORT_MAP[integration.id as OfficialAdapterName] ??
 					Object.values(OFFICIAL_ADAPTER_TO_IMPORT_MAP).find(
 						(packageName) => packageName === integration.packageName,
 					);
