@@ -219,13 +219,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 					logger,
 					scripts: { 'generate-types': 'wrangler types' },
 				});
-
-				await addToGitignore({
-					root,
-					flags,
-					logger,
-					entries: ['.wrangler', 'worker-configuration.d.ts'],
-				});
 			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
 				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
@@ -278,13 +271,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 					defaultConfigContent: STUBS.LIT_NPMRC,
 				});
 			}
-			// The Vercel adapter outputs to .vercel/output which should be gitignored
-			if (integrations.find((integration) => integration.packageName === OFFICIAL_ADAPTER_TO_IMPORT_MAP.vercel)) {
-				await addToGitignore({ root, flags, logger, entries: ['.vercel'] });
-			}
-			if (integrations.find((integration) => integration.packageName === OFFICIAL_ADAPTER_TO_IMPORT_MAP.netlify)) {
-				await addToGitignore({ root, flags, logger, entries: ['.netlify'] });
-			}
 			break;
 		}
 		case 'cancelled': {
@@ -302,6 +288,29 @@ export async function add(names: string[], { flags }: AddOptions) {
 		}
 		case 'none':
 			break;
+	}
+
+	if (hasCloudflareIntegration) {
+		await addToGitignore({
+			root,
+			flags,
+			logger,
+			entries: ['.wrangler', 'worker-configuration.d.ts'],
+		});
+	}
+	if (
+		integrations.find(
+			(integration) => integration.packageName === OFFICIAL_ADAPTER_TO_IMPORT_MAP.vercel,
+		)
+	) {
+		await addToGitignore({ root, flags, logger, entries: ['.vercel'] });
+	}
+	if (
+		integrations.find(
+			(integration) => integration.packageName === OFFICIAL_ADAPTER_TO_IMPORT_MAP.netlify,
+		)
+	) {
+		await addToGitignore({ root, flags, logger, entries: ['.netlify'] });
 	}
 
 	let mod: ProxifiedModule<any> | undefined;
