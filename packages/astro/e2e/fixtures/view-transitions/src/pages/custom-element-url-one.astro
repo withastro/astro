@@ -1,0 +1,18 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<p id="custom-element-url-one">Page 1</p>
+	<a id="click-two" href="/custom-element-url-two?x=1">go to 2</a>
+	<script>
+		customElements.define(
+			'url-reader',
+			class extends HTMLElement {
+				connectedCallback() {
+					this.textContent = location.pathname + location.search;
+					history.replaceState(history.state, '', this.getAttribute('href'));
+				}
+			},
+		);
+	</script>
+</Layout>

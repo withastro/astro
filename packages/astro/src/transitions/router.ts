@@ -172,20 +172,7 @@ function runScripts() {
 }
 
 // Add a new entry to the browser history. This also sets the new page in the browser address bar.
-// Sets the scroll position according to the hash fragment of the new location.
-const moveToLocation = (
-	to: URL,
-	from: URL,
-	options: Options,
-	pageTitleForBrowserHistory: string,
-	historyState?: State,
-) => {
-	const intraPage = samePage(from, to);
-
-	const targetPageTitle = document.title;
-	document.title = pageTitleForBrowserHistory;
-
-	let scrolledToTop = false;
+const writeHistoryEntry = (to: URL, options: Options, historyState?: State) => {
 	if (to.href !== location.href && !historyState) {
 		if (options.history === 'replace') {
 			const current = history.state;
@@ -207,10 +194,15 @@ const moveToLocation = (
 			);
 		}
 	}
-	document.title = targetPageTitle;
 	// now we are on the new page for non-history navigation!
 	// (with history navigation page change happens before popstate is fired)
 	originalLocation = to;
+};
+
+// Sets the scroll position according to the hash fragment of the new location.
+const scrollToLocation = (to: URL, from: URL, historyState?: State) => {
+	const intraPage = samePage(from, to);
+	let scrolledToTop = false;
 
 	// freshly loaded pages start from the top
 	if (!intraPage) {
@@ -314,13 +306,15 @@ async function updateDOM(
 		}
 	};
 
-	const pageTitleForBrowserHistory = document.title; // document.title will be overridden by swap()
+	// The history entry is written right before the insert, which synchronously connects the new
+	// page's custom elements: they must already see the new location and history entry. See #18739.
 	const swapEvent = await doSwap(
 		preparationEvent,
 		currentTransition.viewTransition!,
 		animateFallbackOld,
+		(event) => writeHistoryEntry(event.to, options, historyState),
 	);
-	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
+	scrollToLocation(swapEvent.to, swapEvent.from, historyState);
 	triggerEvent('astro:after-swap');
 
 	// Resolve the finished promise of the simulation's ViewTransition.
@@ -378,7 +372,8 @@ async function transition(
 	}
 	if (samePage(from, to) && !options.formData) {
 		if ((direction !== 'back' && to.hash) || (direction === 'back' && from.hash)) {
-			moveToLocation(to, from, options, document.title, historyState);
+			writeHistoryEntry(to, options, historyState);
+			scrollToLocation(to, from, historyState);
 			if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 			return;
 		}

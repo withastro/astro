@@ -930,6 +930,25 @@ test.describe('View Transitions', () => {
 		await expectLoads(1);
 	});
 
+	test('Custom elements connected by the swap see the new location and history entry', async ({
+		page,
+		astro,
+	}) => {
+		const expectLoads = collectLoads(page);
+
+		await page.goto(astro.resolveUrl('/custom-element-url-one'));
+		await expect(page.locator('#custom-element-url-one')).toHaveText('Page 1');
+
+		await page.click('#click-two');
+		await expect(page.locator('#custom-element-url-two')).toHaveText('Page 2');
+		await expect(page.locator('#url-reader')).toHaveText('/custom-element-url-two?x=1');
+
+		// The element's replaceState must not overwrite page 1's history entry
+		await page.goBack();
+		await expect(page.locator('#custom-element-url-one')).toHaveText('Page 1');
+		await expectLoads(1);
+	});
+
 	test('Importing ClientRouter w/o using the component must not mess with history', async ({
 		page,
 		astro,
