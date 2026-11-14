@@ -135,14 +135,7 @@ importers:
         version: 5.1.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.6)
 
   benchmark/packages/adapter:
-    dependencies:
-      server-destroy:
-        specifier: ^1.0.1
-        version: 1.0.1
     devDependencies:
-      '@types/server-destroy':
-        specifier: ^1.0.4
-        version: 1.0.4
       astro:
         specifier: workspace:*
         version: link:../../../packages/astro
@@ -151,14 +144,7 @@ importers:
         version: link:../../../scripts
 
   benchmark/packages/timer:
-    dependencies:
-      server-destroy:
-        specifier: ^1.0.1
-        version: 1.0.1
     devDependencies:
-      '@types/server-destroy':
-        specifier: ^1.0.4
-        version: 1.0.4
       astro:
         specifier: workspace:*
         version: link:../../../packages/astro
@@ -5846,9 +5832,6 @@ importers:
       send:
         specifier: ^1.2.1
         version: 1.2.1(supports-color@10.2.2)
-      server-destroy:
-        specifier: ^1.0.1
-        version: 1.0.1
     devDependencies:
       '@fastify/middie':
         specifier: ^9.3.6
@@ -5865,9 +5848,6 @@ importers:
       '@types/send':
         specifier: ^1.2.1
         version: 1.2.1
-      '@types/server-destroy':
-        specifier: ^1.0.4
-        version: 1.0.4
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -11418,9 +11398,6 @@ packages:
   '@types/serve-static@2.2.0':
     resolution: {integrity: sha512-8mam4H1NHLtu7nmtalF7eyBH14QyOASmcxHhSfEoRyr0nP/YdoesEtU+uSRvMe96TW/HPTtkoKqQLl53N7UXMQ==}
 
-  '@types/server-destroy@1.0.4':
-    resolution: {integrity: sha512-+x8oAQ4Xp1wtDi2Hlmi7gUNXZNVhB5EoSQpi0qEmINdDN5Ab724WLGAalEdT1SudVY/NzMhbfZO7vU+klT0R+A==}
-
   '@types/triple-beam@1.3.5':
     resolution: {integrity: sha512-6WaYesThRMCl19iryMYP7/x2OVgCtbIVflDGFpWnb9irXI3UjYE4AzmYuiUKY1AJstGijoY+MgUszMgRxIYTYw==}
 
@@ -15738,9 +15715,6 @@ packages:
   serve-static@2.2.1:
     resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
     engines: {node: '>= 18'}
-
-  server-destroy@1.0.1:
-    resolution: {integrity: sha512-rb+9B5YBIEzYcD6x2VKidaa+cqYBJQKnU4oe4E3ANwRRN56yk/ua1YCJT1n21NTS8w6CcOclAKNP3PhdCXKYtQ==}
 
   set-blocking@2.0.0:
     resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
@@ -20708,10 +20682,6 @@ snapshots:
   '@types/serve-static@2.2.0':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 22.19.19
-
-  '@types/server-destroy@1.0.4':
-    dependencies:
       '@types/node': 22.19.19
 
   '@types/triple-beam@1.3.5': {}
@@ -25927,8 +25897,6 @@ snapshots:
       send: 1.2.1(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
-
-  server-destroy@1.0.1: {}
 
   set-blocking@2.0.0: {}
 
