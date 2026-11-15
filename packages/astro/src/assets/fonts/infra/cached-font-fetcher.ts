@@ -1,4 +1,5 @@
 import { isAbsolute } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { FontFetcher, Storage } from '../definitions.js';
 import type { FontFileData } from '../types.js';
@@ -37,6 +38,9 @@ export class CachedFontFetcher implements FontFetcher {
 			try {
 				if (isAbsolute(url)) {
 					return await this.#readFile(url);
+				}
+				if (url.startsWith('file:')) {
+					return await this.#readFile(fileURLToPath(url));
 				}
 				const response = await this.#fetch(url, init ?? undefined);
 				if (!response.ok) {

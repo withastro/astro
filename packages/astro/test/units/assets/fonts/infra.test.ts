@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { defineFontProvider } from 'unifont';
 import type { InitializedProvider } from 'unifont';
 import { BuildFontFileIdGenerator } from '../../../../dist/assets/fonts/infra/build-font-file-id-generator.js';
@@ -125,6 +125,23 @@ describe('fonts infra', () => {
 			await fontFetcher.fetch({ id: 'abc', url: '/foo/bar', init: undefined });
 
 			assert.deepStrictEqual(filesUrls, ['/foo/bar']);
+			assert.deepStrictEqual(fetchUrls, []);
+		});
+
+		it('reads files if path is a file: URL', async () => {
+			const { filesUrls, readFile } = createReadFileMock({ ok: true });
+			const { fetchUrls, fetch } = createFetchMock({ ok: true });
+			const storage = new SpyStorage();
+			const fontFetcher = new CachedFontFetcher({
+				storage,
+				readFile,
+				fetch,
+			});
+
+			const testUrl = pathToFileURL('/foo/bar.woff2').href;
+			await fontFetcher.fetch({ id: 'abc', url: testUrl, init: undefined });
+
+			assert.deepStrictEqual(filesUrls, [fileURLToPath(testUrl)]);
 			assert.deepStrictEqual(fetchUrls, []);
 		});
 
