@@ -1,4 +1,5 @@
-import type { Diagnostic } from '@volar/language-server';
+import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-server';
+import type { TextDocument } from 'vscode-html-languageservice';
 
 // List of codes:
 // https://github.com/Microsoft/TypeScript/blob/main/src/compiler/diagnosticMessages.json
@@ -134,4 +135,75 @@ function isNoCantReturnOutsideFunction(diagnostic: Diagnostic) {
  */
 function isNoIsolatedModuleError(diagnostic: Diagnostic) {
 	return diagnostic.code !== DiagnosticCodes.ISOLATED_MODULE_COMPILE_ERR;
+}
+
+/**
+ * Reports named imports from `.astro` files that resolve to the component's default export.
+ *
+ * When a component's own frontmatter or template uses its clean name (e.g. `Image.astro` importing
+ * `{ Image }` from `astro:assets`), the generated TSX keeps a suffixed default export and re-exports
+ * it under the clean name so TypeScript can offer it as an auto-import. Compiled Astro components
+ * only have a default export, so a named import of that re-export is `undefined` at runtime.
+ * Other components have no named export, and TypeScript reports these imports itself.
+ * See https://github.com/withastro/astro/issues/18749
+ */
+export function getNamedAstroComponentImportDiagnostics(
+	ts: typeof import('typescript'),
+	program: import('typescript').Program,
+	fileName: string,
+	document: TextDocument,
+): Diagnostic[] {
+	const sourceFile = program.getSourceFile(fileName);
+	if (!sourceFile) return [];
+
+	const checker = program.getTypeChecker();
+	const diagnostics: Diagnostic[] = [];
+	for (const statement of sourceFile.statements) {
+		if (
+			!ts.isImportDeclaration(statement) ||
+			!ts.isStringLiteral(statement.moduleSpecifier) ||
+			!statement.moduleSpecifier.text.endsWith('.astro')
+		) {
+			continue;
+		}
+
+		const namedBindings = statement.importClause?.namedBindings;
+		if (!namedBindings || !ts.isNamedImports(namedBindings)) continue;
+
+		const moduleSymbol = checker.getSymbolAtLocation(statement.moduleSpecifier);
+		const defaultExport =
+			moduleSymbol && checker.tryGetMemberInModuleExports('default', moduleSymbol);
+		if (!defaultExport) continue;
+
+		const resolvedDefaultExport = resolveAlias(ts, checker, defaultExport);
+		for (const element of namedBindings.elements) {
+			const importedName = (element.propertyName ?? element.name).text;
+			if (importedName === 'default') continue;
+
+			const importedSymbol = checker.getSymbolAtLocation(element.name);
+			if (!importedSymbol || resolveAlias(ts, checker, importedSymbol) !== resolvedDefaultExport) {
+				continue;
+			}
+
+			diagnostics.push({
+				message: `Astro components only have a default export. Use \`import ${element.name.text} from ${statement.moduleSpecifier.getText(sourceFile)}\` instead.`,
+				range: Range.create(
+					document.positionAt(element.getStart(sourceFile)),
+					document.positionAt(element.getEnd()),
+				),
+				severity: DiagnosticSeverity.Error,
+				source: 'astro',
+			});
+		}
+	}
+
+	return diagnostics;
+}
+
+function resolveAlias(
+	ts: typeof import('typescript'),
+	checker: import('typescript').TypeChecker,
+	symbol: import('typescript').Symbol,
+) {
+	return symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
 }

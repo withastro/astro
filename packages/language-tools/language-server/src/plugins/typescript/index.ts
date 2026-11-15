@@ -4,7 +4,10 @@ import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../../core/index.js';
 import { enhancedProvideCodeActions, enhancedResolveCodeAction } from './codeActions.js';
 import { enhancedProvideCompletionItems, enhancedResolveCompletionItem } from './completions.js';
-import { enhancedProvideSemanticDiagnostics } from './diagnostics.js';
+import {
+	enhancedProvideSemanticDiagnostics,
+	getNamedAstroComponentImportDiagnostics,
+} from './diagnostics.js';
 
 export const create = (
 	ts: typeof import('typescript'),
@@ -92,7 +95,27 @@ export const create = (
 							const diagnostics = await typeScriptPlugin.provideDiagnostics!(document, token);
 							if (!diagnostics) return null;
 
-							return enhancedProvideSemanticDiagnostics(diagnostics, tsxLineCount);
+							const enhancedDiagnostics = enhancedProvideSemanticDiagnostics(
+								diagnostics,
+								tsxLineCount,
+							);
+
+							const program =
+								typeScriptPlugin.provide?.['typescript/languageService']().getProgram();
+							const typescriptProject = context.project.typescript;
+							if (tsxLineCount === undefined || !program || !typescriptProject) {
+								return enhancedDiagnostics;
+							}
+
+							return [
+								...enhancedDiagnostics,
+								...getNamedAstroComponentImportDiagnostics(
+									ts,
+									program,
+									typescriptProject.uriConverter.asFileName(decoded![0]),
+									document,
+								),
+							];
 						},
 					};
 				},

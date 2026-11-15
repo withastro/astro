@@ -103,6 +103,51 @@ describe('TypeScript - Diagnostics', async () => {
 		assert.strictEqual(diagnostics.items.length, 1);
 	});
 
+	it('reports named imports of an Astro component that re-exports itself under its name', async () => {
+		// `Picture.astro` imports `{ Picture }`, so its generated TSX keeps the clean-name re-export.
+		const document = await languageServer.openFakeDocument(
+			`---\nimport { Picture } from './src/components/Picture.astro';\nimport Image from './src/components/Image.astro';\n---\n<Picture /><Image />`,
+			'astro',
+		);
+		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
+			document.uri,
+		)) as FullDocumentDiagnosticReport;
+
+		assert.deepStrictEqual(
+			diagnostics.items
+				.filter((diagnostic) => diagnostic.source === 'astro')
+				.map((diagnostic) => ({ ...diagnostic, data: {} })),
+			[
+				{
+					data: {},
+					message:
+						"Astro components only have a default export. Use `import Picture from './src/components/Picture.astro'` instead.",
+					range: Range.create(1, 9, 1, 16),
+					severity: DiagnosticSeverity.Error,
+					source: 'astro',
+				},
+			],
+		);
+	});
+
+	it('reports named imports of other Astro components once, through TypeScript', async () => {
+		const document = await languageServer.openFakeDocument(
+			`---\nimport { BlogPost } from './src/components/BlogPost.astro';\n---\n<BlogPost />`,
+			'astro',
+		);
+		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
+			document.uri,
+		)) as FullDocumentDiagnosticReport;
+		const importDiagnostics = diagnostics.items.filter(
+			(diagnostic) => diagnostic.range.start.line === 1,
+		);
+
+		assert.deepStrictEqual(
+			importDiagnostics.map((diagnostic) => diagnostic.code),
+			[2614],
+		);
+	});
+
 	it('does not report a local declaration conflict when importing Image from astro:assets', async () => {
 		const document = await languageServer.handle.openTextDocument(
 			path.join(fixtureDir, 'image.astro'),
