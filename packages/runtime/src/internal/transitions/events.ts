@@ -175,11 +175,15 @@ export async function doSwap(
 	afterPreparation: BeforeEvent,
 	viewTransition: ViewTransition,
 	afterDispatch?: () => Promise<void>,
+	beforeInsert?: (event: TransitionBeforeSwapEvent) => void,
 ) {
 	const event = new TransitionBeforeSwapEvent(afterPreparation, viewTransition);
 	document.dispatchEvent(event);
 	if (afterDispatch) {
 		await afterDispatch();
+	}
+	if (beforeInsert) {
+		beforeInsert(event);
 	}
 	event.swap();
 	return event;

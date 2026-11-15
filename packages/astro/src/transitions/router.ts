@@ -172,20 +172,7 @@ function runScripts() {
 }
 
 // Add a new entry to the browser history. This also sets the new page in the browser address bar.
-// Sets the scroll position according to the hash fragment of the new location.
-const moveToLocation = (
-	to: URL,
-	from: URL,
-	options: Options,
-	pageTitleForBrowserHistory: string,
-	historyState?: State,
-) => {
-	const intraPage = samePage(from, to);
-
-	const targetPageTitle = document.title;
-	document.title = pageTitleForBrowserHistory;
-
-	let scrolledToTop = false;
+const writeHistoryEntry = (to: URL, options: Options, historyState?: State) => {
 	if (to.href !== location.href && !historyState) {
 		if (options.history === 'replace') {
 			const current = history.state;
@@ -207,11 +194,30 @@ const moveToLocation = (
 			);
 		}
 	}
-	document.title = targetPageTitle;
 	// now we are on the new page for non-history navigation!
 	// (with history navigation page change happens before popstate is fired)
 	originalLocation = to;
+};
 
+// Sets the scroll position according to the hash fragment of the new location.
+const moveToLocation = (
+	to: URL,
+	from: URL,
+	options: Options,
+	pageTitleForBrowserHistory: string,
+	historyState?: State,
+	historyWritten = false,
+) => {
+	const intraPage = samePage(from, to);
+
+	if (!historyWritten) {
+		const targetPageTitle = document.title;
+		document.title = pageTitleForBrowserHistory;
+		writeHistoryEntry(to, options, historyState);
+		document.title = targetPageTitle;
+	}
+
+	let scrolledToTop = false;
 	// freshly loaded pages start from the top
 	if (!intraPage) {
 		scrollTo({ left: 0, top: 0, behavior: 'instant' });
@@ -319,8 +325,14 @@ async function updateDOM(
 		preparationEvent,
 		currentTransition.viewTransition!,
 		animateFallbackOld,
+		(event) => {
+			const targetPageTitle = document.title;
+			document.title = pageTitleForBrowserHistory;
+			writeHistoryEntry(event.to, options, historyState);
+			document.title = targetPageTitle;
+		},
 	);
-	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
+	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState, true);
 	triggerEvent('astro:after-swap');
 
 	// Resolve the finished promise of the simulation's ViewTransition.
