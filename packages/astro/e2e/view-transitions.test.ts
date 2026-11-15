@@ -2085,4 +2085,57 @@ test.describe('View Transitions', () => {
 		await expect(page.locator('head link[rel="stylesheet"][href="after"]')).toHaveCount(1);
 		await expect(page.locator('head link[rel="stylesheet"][href="before"]')).toHaveCount(1);
 	});
+
+	test('custom elements upgraded during swap see the new page URL and history entry', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/one'));
+
+		await page.evaluate(() => {
+			(window as any).__swapObservations = {};
+			document.addEventListener(
+				'astro:before-swap',
+				() => {
+					(window as any).__swapObservations.beforeSwapHref = window.location.href;
+				},
+				{ once: true },
+			);
+			if (!customElements.get('url-reader-element')) {
+				customElements.define(
+					'url-reader-element',
+					class extends HTMLElement {
+						connectedCallback() {
+							(window as any).__swapObservations.connectedHref = window.location.href;
+							(window as any).__swapObservations.connectedStateIndex = history.state?.index;
+							history.replaceState(
+								{ ...history.state, fromElement: true },
+								'',
+								'/custom-element-url?tab=2',
+							);
+						}
+					},
+				);
+			}
+		});
+
+		await page.click('#click-custom-element-url');
+		await expect(page.locator('#custom-element-page')).toHaveText('Custom Element Page');
+
+		const observations = await page.evaluate(() => ({
+			...(window as any).__swapObservations,
+			finalHref: window.location.href,
+			finalState: history.state,
+		}));
+
+		expect(observations.beforeSwapHref).toBe(astro.resolveUrl('/one'));
+		expect(observations.connectedHref).toBe(astro.resolveUrl('/custom-element-url'));
+		expect(observations.connectedStateIndex).toBe(1);
+		expect(observations.finalHref).toBe(astro.resolveUrl('/custom-element-url?tab=2'));
+		expect(observations.finalState?.fromElement).toBe(true);
+
+		await page.goBack();
+		await expect(page.locator('#one')).toHaveText('Page 1');
+		expect(page.url()).toBe(astro.resolveUrl('/one'));
+	});
 });
