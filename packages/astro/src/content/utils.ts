@@ -201,7 +201,11 @@ export async function getEntryData<
 			const schemaContext = {
 				filePath,
 				image: () =>
-					z.string().transform((val) => resolveImageField(contentLayerImageContext, { src: val })),
+					z
+						.string()
+						.transform((val) =>
+							runWithContentImageContext(contentLayerImageContext, () => resolveImageField(val)),
+						),
 			};
 			attachContentImageResolver(schemaContext, imageResolver);
 			imageContext = schemaContext;

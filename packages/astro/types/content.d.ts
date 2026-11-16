@@ -181,41 +181,7 @@ declare module 'astro:content' {
 		| { collection: C; id: string }
 		| { collection: C; slug: string };
 
-	/**
-	 * Resolve an entry id to a reference to an entry in another collection.
-	 *
-	 * Call it from inside a schema transform, so it composes with any validator and its result
-	 * can be validated further:
-	 *
-	 * ```js
-	 * schema: z.object({
-	 *   author: z.string().transform((id) => reference('authors', id)),
-	 * })
-	 * ```
-	 */
-	export function reference<
-		C extends
-			| CollectionKey
-			// Allow generic `string` to avoid excessive type errors in the config
-			// if `dev` is not running to update as you edit.
-			// Invalid collection names will be caught at build time.
-			| (string & {}),
-	>(
-		collection: C,
-		lookup: ReferenceLookup<C>,
-	): C extends CollectionKey ? ReferenceDataEntry<C> : never;
-
-	/**
-	 * @deprecated Pass the entry id as a second argument instead. `reference(collection, id)` is
-	 * an ordinary function rather than a schema factory, so it works with any validator and its
-	 * result can be validated further:
-	 *
-	 * ```js
-	 * schema: z.object({
-	 *   author: z.string().transform((id) => reference('authors', id)),
-	 * })
-	 * ```
-	 */
+	/** @deprecated Use `reference(collection, id)` from `astro/content/fields` in a schema transform instead. */
 	export function reference<
 		C extends
 			| CollectionKey

@@ -7,7 +7,6 @@ import {
 	getEntry,
 	getLiveCollection,
 	getLiveEntry,
-	reference,
 	render,
 	type CollectionEntry,
 	type CollectionKey,
@@ -15,6 +14,7 @@ import {
 	type ReferenceDataEntry,
 	type RenderResult,
 } from 'astro:content';
+import { reference } from 'astro/content/fields';
 
 // `astro sync` augments these two interfaces, and nothing else. Declaring them by hand, the way
 // an integration would, is the same thing the generated types do.

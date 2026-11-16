@@ -106,7 +106,7 @@ export type { ImageFunction };
 
 export interface SchemaContext {
 	/**
-	 * @deprecated Use `image()` from `astro/content/image` instead, which is an ordinary
+	 * @deprecated Use `image()` from `astro/content/fields` instead, which is an ordinary
 	 * function rather than a schema factory, so it works with any validator and its result
 	 * can be validated further:
 	 *

@@ -1,5 +1,5 @@
 import { defineCollection } from 'astro:content';
-import { image } from 'astro/content/image';
+import { image } from 'astro/content/fields';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 

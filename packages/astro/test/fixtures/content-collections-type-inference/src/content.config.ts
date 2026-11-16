@@ -1,4 +1,5 @@
 import { defineCollection, reference } from 'astro:content';
+import { reference as referenceField } from 'astro/content/fields';
 import { z } from 'astro/zod';
 import type { Loader } from 'astro/loaders';
 
@@ -67,7 +68,7 @@ const dynamic = defineCollection({
 const referencing = defineCollection({
 	loader: async () => [{ id: '1', author: '1', legacyAuthor: '1' }],
 	schema: z.object({
-		author: z.string().transform((id) => reference('schemaless', id)),
+		author: z.string().transform((id) => referenceField('schemaless', id)),
 		legacyAuthor: reference('schemaless'),
 	}),
 });

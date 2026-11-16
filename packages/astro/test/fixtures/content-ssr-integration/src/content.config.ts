@@ -1,11 +1,11 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
-import { image } from 'astro/content/image';
+import { image } from 'astro/content/fields';
 
 const blog = defineCollection({
 	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
-	// `heroImage` is resolved through `astro/content/image` on purpose. This fixture is the
+	// `heroImage` is resolved through `astro/content/fields` on purpose. This fixture is the
 	// one built with `preventNodeBuiltinDependencyPlugin`, so routing a field through that
 	// Node-only module is what makes the build assert it never reaches the `astro:content`
 	// runtime bundle, which has to keep running on Cloudflare and Deno.

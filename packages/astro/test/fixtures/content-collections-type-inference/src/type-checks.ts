@@ -73,13 +73,14 @@ const _standardDataOk: StandardData = { headline: 'Hello' };
 // ============================================================================
 
 import { reference, type ReferenceDataEntry } from 'astro:content';
+import { reference as referenceField } from 'astro/content/fields';
 
 // With a lookup, it resolves to the reference itself — the shape `getEntry()` takes.
-const _blogRef: ReferenceDataEntry<'blog'> = reference('blog', 'my-post');
+const _blogRef: ReferenceDataEntry<'blog'> = referenceField('blog', 'my-post');
 // A numeric id is accepted too, and still narrows to the right collection.
-const _blogRefFromNumber: ReferenceDataEntry<'blog'> = reference('blog', 1);
+const _blogRefFromNumber: ReferenceDataEntry<'blog'> = referenceField('blog', 1);
 // @ts-expect-error - a reference to `blog` is not a reference to `legacy`
-const _wrongCollection: ReferenceDataEntry<'legacy'> = reference('blog', 'my-post');
+const _wrongCollection: ReferenceDataEntry<'legacy'> = referenceField('blog', 'my-post');
 
 // Without one, it returns a schema, and the schema's output is the reference.
 const _blogRefSchema = reference('blog');
@@ -160,7 +161,7 @@ const _stillInferred: CollectionEntry<'legacy'>['data'] = { title: 123, legacyFi
 // inside the config it is inferred from makes the config depend on itself, and every collection
 // in it collapses to `any`.
 type IsNever<T> = [T] extends [never] ? true : false;
-const _unknownReference = reference('nope', 'an-id');
+const _unknownReference = referenceField('nope', 'an-id');
 const _unknownIsNever: IsNever<typeof _unknownReference> = true;
-const _knownReference = reference('legacy', 'an-id');
+const _knownReference = referenceField('legacy', 'an-id');
 const _knownIsNotNever: IsNever<typeof _knownReference> = false;

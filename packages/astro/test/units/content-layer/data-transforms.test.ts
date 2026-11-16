@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import { z } from 'zod';
 import { defineCollection } from '../../../dist/content/config.js';
 import { createReference } from '../../../dist/content/runtime.js';
+import { reference as referenceField } from '../../../dist/content/fields.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
@@ -712,38 +713,38 @@ describe('Content Layer - reference()', () => {
 
 	describe('reference(collection, lookup)', () => {
 		it('resolves a string id', () => {
-			assert.deepEqual(reference('cats', 'tabby'), { collection: 'cats', id: 'tabby' });
+			assert.deepEqual(referenceField('cats', 'tabby'), { collection: 'cats', id: 'tabby' });
 		});
 
 		it('resolves a numeric id to a string', () => {
-			assert.deepEqual(reference('cats', 1), { collection: 'cats', id: '1' });
+			assert.deepEqual(referenceField('cats', 1), { collection: 'cats', id: '1' });
 		});
 
 		it('is idempotent, so re-parsing transformed data is a no-op', () => {
-			const resolved = reference('cats', 'tabby');
-			assert.deepEqual(reference('cats', resolved), resolved);
+			const resolved = referenceField('cats', 'tabby');
+			assert.deepEqual(referenceField('cats', resolved), resolved);
 		});
 
 		it('passes a legacy `slug` reference through without renaming it', () => {
-			assert.deepEqual(reference('cats', { collection: 'cats', slug: 'tabby' }), {
+			assert.deepEqual(referenceField('cats', { collection: 'cats', slug: 'tabby' }), {
 				collection: 'cats',
 				slug: 'tabby',
 			});
 		});
 
 		it('throws when the reference belongs to another collection', () => {
-			assert.throws(() => reference('cats', { collection: 'dogs', id: 'beagle' }), {
+			assert.throws(() => referenceField('cats', { collection: 'dogs', id: 'beagle' }), {
 				name: 'InvalidContentReferenceError',
 				message: /expected a reference to `cats`, but received one to `dogs`/,
 			});
 		});
 
 		it('throws on a lookup that is not an id', () => {
-			assert.throws(() => reference('cats', true as any), {
+			assert.throws(() => referenceField('cats', true as any), {
 				name: 'InvalidContentReferenceError',
 			});
 			// An explicit `undefined` is a mistake, not a request for the schema form.
-			assert.throws(() => reference('cats', undefined as any), {
+			assert.throws(() => referenceField('cats', undefined as any), {
 				name: 'InvalidContentReferenceError',
 			});
 		});

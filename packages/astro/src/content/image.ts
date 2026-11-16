@@ -9,7 +9,7 @@ import { getContentImageContext, getContentImageResolver } from './image-context
 export { getContentImageContext, runWithContentImageContext } from './image-context.js';
 
 /**
- * Config-time image helper, published as `astro/content/image`.
+ * Config-time image helper, published as `astro/content/fields`.
  *
  * This is a Node-only entrypoint, like `astro/loaders`: it is imported by
  * `content.config.ts`, never by a page, so it is free to touch the filesystem. Keeping it

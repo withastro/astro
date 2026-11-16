@@ -851,62 +851,21 @@ function resolveReference(
 	};
 }
 
-/**
- * Two signatures, kept apart by whether a lookup was passed.
- *
- * `reference(collection, id)` is an ordinary function, so it composes with any validator and
- * its result can be validated further:
- *
- * ```js
- * schema: z.object({
- *   author: z.string().transform((id) => reference('authors', id)),
- * })
- * ```
- *
- * `reference(collection)` returns a Zod schema instead, and only works in a Zod schema. It
- * is deprecated, and routed through the same resolution.
- */
-export interface ReferenceFunction {
-	/**
-	 * @deprecated Pass the entry id as a second argument instead. `reference(collection, id)`
-	 * is an ordinary function rather than a schema factory, so it works with any validator and
-	 * its result can be validated further:
-	 *
-	 * ```js
-	 * schema: z.object({
-	 *   author: z.string().transform((id) => reference('authors', id)),
-	 * })
-	 * ```
-	 */
-	(collection: string): z.ZodType<ReferenceField, ReferenceLookup>;
-	(collection: string, lookup: ReferenceLookup): ReferenceField;
+/** Converts an entry ID or reference object to a normalized reference for the given collection. */
+export function reference(collection: string, lookup: ReferenceLookup): ReferenceField {
+	const resolved = resolveReference(collection, lookup);
+	if (!resolved.ok) {
+		throw new AstroError({
+			...AstroErrorData.InvalidContentReferenceError,
+			message: AstroErrorData.InvalidContentReferenceError.message(collection, resolved.message),
+		});
+	}
+	return resolved.value;
 }
 
-export function createReference(): ReferenceFunction {
-	function reference(collection: string): z.ZodType<ReferenceField, ReferenceLookup>;
-	function reference(collection: string, lookup: ReferenceLookup): ReferenceField;
-	function reference(
-		collection: string,
-		...rest: [] | [ReferenceLookup]
-	): ReferenceField | z.ZodType<ReferenceField, ReferenceLookup> {
-		// Arity, not the value: `reference('authors', undefined)` is a mistake worth reporting,
-		// not a request for the deprecated schema form.
-		if (rest.length > 0) {
-			const resolved = resolveReference(collection, rest[0]);
-			if (!resolved.ok) {
-				throw new AstroError({
-					...AstroErrorData.InvalidContentReferenceError,
-					message: AstroErrorData.InvalidContentReferenceError.message(
-						collection,
-						resolved.message,
-					),
-				});
-			}
-			return resolved.value;
-		}
-
-		// Deprecated schema form. The union stays in front of the resolution so that a value of
-		// the wrong type is still reported by Zod, with its own message and path.
+/** Creates the Zod schema factory used by `astro:content` for reference fields. */
+export function createReference() {
+	return function reference(collection: string) {
 		return z
 			.union([
 				z.number(),
@@ -928,9 +887,7 @@ export function createReference(): ReferenceFunction {
 				}
 				return resolved.value;
 			});
-	}
-
-	return reference;
+	};
 }
 
 type PropagatedAssetsModule = {
