@@ -31,7 +31,7 @@ describe('Astro basic build', () => {
 			Object.keys($(selector).attr() ?? {}).some((name) => name.startsWith('data-astro-cid-'));
 
 		assert.equal($('#spread-plain').length, 1);
-		assert.match($('#spread-plain').attr('class')!, /astro-.*/);
+		assert.equal($('#spread-plain').attr('class'), undefined);
 		assert.ok(hasScopeAttribute('#spread-plain'));
 
 		// Each element only gets its own class, not one left on the spread object by the element before it.

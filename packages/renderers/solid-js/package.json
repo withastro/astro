@@ -44,9 +44,9 @@
   "devDependencies": {
     "@astrojs/vite-plugin-astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^1.9.18",
-    "vite": "^8.3.5",
-    "vite-plugin-solid": "^2.11.15"
+    "solid-js": "^1.9.19",
+    "vite": "^8.3.8",
+    "vite-plugin-solid": "^2.11.16"
   },
   "publishConfig": {
     "provenance": true
