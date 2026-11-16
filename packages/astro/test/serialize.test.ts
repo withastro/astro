@@ -50,6 +50,14 @@ describe('serialize', () => {
 		const output = `{"a":[1,[[1,[[0],[0,"tail"]]]]]}`;
 		assert.equal(serializeProps(input), output);
 	});
+	it('serializes array indices rather than a custom iterator', () => {
+		const input: any[] = [1];
+		input[Symbol.iterator] = function* () {
+			yield 2;
+		};
+		const output = `{"a":[1,[[0,1]]]}`;
+		assert.equal(serializeProps({ a: input }), output);
+	});
 	it('can serialize deeply nested data without quadratic quote escaping', () => {
 		const input = { a: [{ b: [{ c: [{ d: [{ e: [{ f: [{ g: ['leaf'] }] }] }] }] }] }] };
 		const output =
