@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { expectTypeOf } from 'expect-type';
+import type { ActionInputError } from '../../dist/actions/runtime/entrypoints/server.js';
 import { defineAction } from '../../dist/actions/runtime/server.js';
 import type { ActionInputSchema } from '../../dist/actions/runtime/types.js';
 import { z } from '../../dist/zod.js';
@@ -15,6 +16,10 @@ const inputSchema = z.object({
 // Schema validator.
 
 describe('ActionInputSchema', () => {
+	it('Exports ActionInputError from astro:actions', () => {
+		expectTypeOf<ActionInputError<Record<string, any>>>().toMatchTypeOf<Error>();
+	});
+
 	describe(`accept = 'form'`, () => {
 		it('Infers action input schema', async () => {
 			const _action = defineAction({

@@ -10,7 +10,8 @@ Parse the `FormData` in your handler instead, using [`@standard-community/standa
 
 ```diff
 + import { parseFormData } from '@standard-community/standard-form';
-  import { ActionError, defineAction } from 'astro:actions';
+-  import { ActionError, defineAction } from 'astro:actions';
++ import { ActionInputError, defineAction } from 'astro:actions';
   import { z } from 'zod';
 
   const schema = z.object({ comment: z.string() });
@@ -23,7 +24,7 @@ Parse the `FormData` in your handler instead, using [`@standard-community/standa
 +     handler: async (formData) => {
 +       const result = await parseFormData(schema, formData);
 +       if (result.issues) {
-+         throw new ActionError({ code: 'BAD_REQUEST', message: result.issues[0].message });
++         throw new ActionInputError(result.issues);
 +       }
 +       const { comment } = result.value;
         // ...

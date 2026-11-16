@@ -69,12 +69,14 @@ export function defineAction<
 	 * the validator of your choice:
 	 *
 	 * ```ts
+	 * import { ActionInputError, defineAction } from 'astro:actions';
 	 * import { parseFormData } from 'astro/preview-release/form';
 	 *
 	 * defineAction({
 	 * 	accept: 'form',
 	 * 	handler: async (formData) => {
 	 * 		const result = await parseFormData(schema, formData);
+	 * 		if (result.issues) throw new ActionInputError(result.issues);
 	 * 		// ...
 	 * 	},
 	 * });
