@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/solid-js-renderer",
   "description": "The Solid renderer of Astro components, for `astro()` from `@astrojs/vite-plugin-astro`",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
