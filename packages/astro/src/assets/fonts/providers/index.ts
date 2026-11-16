@@ -14,21 +14,20 @@ import { readFile } from 'node:fs/promises';
 
 const VARIABLE_SUFFIX_RE = / Variable$/;
 
-// `astro/config` re-exports these factories, so unifont (and its css-tree dependency) is
-// imported on first use rather than whenever a config file is loaded.
 async function loadUnifontProviders() {
 	return (await import('unifont')).providers;
 }
 
 /** [Adobe](https://docs.astro.build/en/reference/font-provider-reference/#adobe) */
 function adobe(config: AdobeProviderOptions): FontProvider {
+	const name = 'adobe';
 	let initializedProvider: InitializedProvider | undefined;
 	return {
-		name: 'adobe',
+		name,
 		config,
 		async init(context) {
 			const providers = await loadUnifontProviders();
-			initializedProvider = await providers.adobe(config)(context);
+			initializedProvider = await providers[name](config)(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
@@ -44,12 +43,13 @@ function adobe(config: AdobeProviderOptions): FontProvider {
 
 /** [Bunny](https://docs.astro.build/en/reference/font-provider-reference/#bunny) */
 function bunny(): FontProvider {
+	const name = 'bunny';
 	let initializedProvider: InitializedProvider | undefined;
 	return {
-		name: 'bunny',
+		name,
 		async init(context) {
 			const providers = await loadUnifontProviders();
-			initializedProvider = await providers.bunny()(context);
+			initializedProvider = await providers[name]()(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
@@ -65,12 +65,13 @@ function bunny(): FontProvider {
 
 /** [Fontshare](https://docs.astro.build/en/reference/font-provider-reference/#fontshare) */
 function fontshare(): FontProvider {
+	const name = 'fontshare';
 	let initializedProvider: InitializedProvider | undefined;
 	return {
-		name: 'fontshare',
+		name,
 		async init(context) {
 			const providers = await loadUnifontProviders();
-			initializedProvider = await providers.fontshare()(context);
+			initializedProvider = await providers[name]()(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
@@ -86,12 +87,13 @@ function fontshare(): FontProvider {
 
 /** [Fontsource](https://docs.astro.build/en/reference/font-provider-reference/#fontsource) */
 function fontsource(): FontProvider {
+	const name = 'fontsource';
 	let initializedProvider: InitializedProvider | undefined;
 	return {
-		name: 'fontsource',
+		name,
 		async init(context) {
 			const providers = await loadUnifontProviders();
-			initializedProvider = await providers.fontsource()(context);
+			initializedProvider = await providers[name]()(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			const result = await initializedProvider?.resolveFont(familyName, rest);
@@ -117,12 +119,13 @@ function fontsource(): FontProvider {
 
 /** [Google](https://docs.astro.build/en/reference/font-provider-reference/#google) */
 function google(): FontProvider<GoogleFamilyOptions | undefined> {
+	const name = 'google';
 	let initializedProvider: InitializedProvider<GoogleFamilyOptions> | undefined;
 	return {
-		name: 'google',
+		name,
 		async init(context) {
 			const providers = await loadUnifontProviders();
-			initializedProvider = await providers.google()(context);
+			initializedProvider = await providers[name]()(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
@@ -138,12 +141,13 @@ function google(): FontProvider<GoogleFamilyOptions | undefined> {
 
 /** [Google Icons](https://docs.astro.build/en/reference/font-provider-reference/#google-icons) */
 function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
+	const name = 'googleicons';
 	let initializedProvider: InitializedProvider<GoogleiconsFamilyOptions> | undefined;
 	return {
-		name: 'googleicons',
+		name,
 		async init(context) {
 			const providers = await loadUnifontProviders();
-			initializedProvider = await providers.googleicons()(context);
+			initializedProvider = await providers[name]()(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
@@ -168,12 +172,13 @@ function local(): FontProvider<LocalFamilyOptions> {
 function npm(
 	options?: Omit<NpmProviderOptions, 'root' | 'readFile'>,
 ): FontProvider<NpmFamilyOptions | undefined> {
+	const name = 'npm';
 	let initializedProvider: InitializedProvider<NpmFamilyOptions> | undefined;
 	return {
-		name: 'npm',
+		name,
 		async init(context) {
 			const providers = await loadUnifontProviders();
-			initializedProvider = await providers.npm({
+			initializedProvider = await providers[name]({
 				...options,
 				root: fileURLToPath(context.root),
 				readFile: (path) => readFile(path, 'utf-8').catch(() => null),

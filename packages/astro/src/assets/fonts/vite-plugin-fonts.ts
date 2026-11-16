@@ -101,8 +101,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			if (sync || !settings.config.fonts?.length) {
 				return;
 			}
-			// Loaded on demand because unifont and capsize pull in large dependencies
-			// (css-tree, fontkitten) that projects without fonts never use.
 			const [{ CapsizeFontMetricsResolver }, { UnifontFontResolver }] = await Promise.all([
 				import('./infra/capsize-font-metrics-resolver.js'),
 				import('./infra/unifont-font-resolver.js'),
