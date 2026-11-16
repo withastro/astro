@@ -145,26 +145,19 @@ jobs:
           binding_version=$(node -p "require('./node_modules/@astrojs/compiler-binding/package.json').version")
           rm -rf node_modules/@astrojs/compiler-binding-*
           npm_config_cpu=wasm32 npm i --no-save --package-lock=false "@astrojs/compiler-binding@$binding_version"
-          targets=(win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64)
-          for target in "${targets[@]}"; do
-            npx vsce package --target "$target" --out "$RUNNER_TEMP/astro-vscode-$target.vsix"
-          done
+          npx vsce package --out "$RUNNER_TEMP/astro-vscode.vsix"
 
       - name: Publish to VSCode Marketplace
         if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
-          for target in win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64; do
-            npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --skip-duplicate --packagePath "$RUNNER_TEMP/astro-vscode-$target.vsix"
-          done
+          npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --skip-duplicate --packagePath "$RUNNER_TEMP/astro-vscode.vsix"
 
       - name: Publish to OpenVSX
         if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
-          for target in win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64; do
-            npx ovsx publish "$RUNNER_TEMP/astro-vscode-$target.vsix" -p ${{ secrets.OVSX_TOKEN }} --skip-duplicate
-          done
+          npx ovsx publish "$RUNNER_TEMP/astro-vscode.vsix" -p ${{ secrets.OVSX_TOKEN }} --skip-duplicate
           
       - name: Restore root package.json and node_modules
         if: steps.release.outputs.has_vscode == 'true'
