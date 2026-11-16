@@ -39,7 +39,7 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:^",
     "@astrojs/runtime": "workspace:^",
-    "@vitejs/plugin-react": "^6.1.2",
+    "@vitejs/plugin-react": "^6.3.0",
     "ultrahtml": "^1.7.0"
   },
   "peerDependencies": {
@@ -55,7 +55,7 @@
     "astro-scripts": "workspace:*",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "vite": "^8.3.5"
+    "vite": "^8.3.8"
   },
   "publishConfig": {
     "provenance": true

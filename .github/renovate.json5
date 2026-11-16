@@ -18,6 +18,17 @@
     "enabled": true
   },
   "ignorePaths": ["**/node_modules/**"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/pnpm-workspace\\.yaml$/"],
+      "matchStrings": [
+        "-\\s*'(?<depName>@vercel/[^@']+)@(?<currentValue>[^']+)'"
+      ],
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "npm"
+    }
+  ],
   "packageRules": [
     {
       "groupName": "all non-major dependencies",

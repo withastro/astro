@@ -29,7 +29,7 @@
     "@astrojs/internal-helpers": "workspace:^",
     "@astrojs/prism": "workspace:^",
     "github-slugger": "^2.0.0",
-    "satteri": "^0.11.6"
+    "satteri": "^0.11.7"
   },
   "devDependencies": {
     "@types/estree": "^1.0.10",
