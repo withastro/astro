@@ -865,7 +865,7 @@ export function reference(collection: string, lookup: ReferenceLookup): Referenc
 
 /** Creates the Zod schema factory used by `astro:content` for reference fields. */
 export function createReference() {
-	return function reference(collection: string) {
+	return (collection: string) => {
 		return z
 			.union([
 				z.number(),

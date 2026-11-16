@@ -252,3 +252,12 @@ declare module 'astro:content' {
 	/** @deprecated Use `CollectionEntry<C>['data']`. */
 	export type InferLoaderSchema<C extends CollectionKey> = ResolvedDataMap[C];
 }
+
+declare module 'astro/content/fields' {
+	export function reference<C extends import('astro:content').CollectionKey | (string & {})>(
+		collection: C,
+		lookup: string | number | { collection: C; id: string } | { collection: C; slug: string },
+	): C extends import('astro:content').CollectionKey
+		? import('astro:content').ReferenceDataEntry<C>
+		: never;
+}
