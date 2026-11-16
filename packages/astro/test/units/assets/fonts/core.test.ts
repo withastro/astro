@@ -2032,6 +2032,26 @@ describe('fonts core', () => {
 				],
 			);
 		});
+
+		it('returns variable weight when the preloaded weight range is inside it', () => {
+			const preloadedUrls = (weight: string, fileWeight = '400 900') =>
+				filterPreloads(
+					[{ style: 'normal', subset: undefined, type: 'woff2', url: 'foo', weight: fileWeight }],
+					[{ weight }],
+				)?.map(({ url }) => url);
+
+			assert.deepStrictEqual(preloadedUrls('400 700'), ['foo']);
+			assert.deepStrictEqual(preloadedUrls('500 600'), ['foo']);
+			assert.deepStrictEqual(preloadedUrls('500\t600'), ['foo']);
+			assert.deepStrictEqual(preloadedUrls('400 900'), ['foo']);
+			assert.deepStrictEqual(preloadedUrls('700'), ['foo']);
+			assert.deepStrictEqual(preloadedUrls('400.5'), ['foo']);
+			assert.deepStrictEqual(preloadedUrls('300 700'), []);
+			assert.deepStrictEqual(preloadedUrls('100 300'), []);
+			assert.deepStrictEqual(preloadedUrls('300'), []);
+			assert.deepStrictEqual(preloadedUrls('400.9', '400.1'), []);
+			assert.deepStrictEqual(preloadedUrls('500\t600', '500'), []);
+		});
 	});
 
 	describe('createGetFontFileURL()', () => {
