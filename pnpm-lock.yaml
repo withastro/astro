@@ -467,7 +467,7 @@ importers:
         specifier: ^0.1.2
         version: link:../../packages/vite-plugin-astro
       '@hono/node-server':
-        specifier: ^2.0.4
+        specifier: ^2.1.6
         version: 2.1.6(hono@4.13.16)
       '@vitejs/plugin-react':
         specifier: ^6.1.2
