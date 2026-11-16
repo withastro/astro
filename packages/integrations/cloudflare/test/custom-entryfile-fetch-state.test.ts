@@ -16,7 +16,7 @@ describe('Custom entry file using astro/fetch', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-entryfile-fetch-state/',
-			server: { port: 0 },
+			server: { port: 48100 },
 		});
 		await fixture.build();
 		await writeFile(
