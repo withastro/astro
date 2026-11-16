@@ -149,15 +149,14 @@ jobs:
               win32-arm64) os=win32; cpu=arm64 ;;
               linux-x64) os=linux; cpu=x64 ;;
               linux-arm64) os=linux; cpu=arm64 ;;
-              linux-armhf) os=linux; cpu=arm ;;
+              linux-armhf) os=linux; cpu=wasm32 ;;
               darwin-x64) os=darwin; cpu=x64 ;;
               darwin-arm64) os=darwin; cpu=arm64 ;;
               alpine-x64) os=linux; cpu=x64; libc=musl ;;
               alpine-arm64) os=linux; cpu=arm64; libc=musl ;;
             esac
-            if [ "$target" = linux-armhf ]; then
-              npm i --no-save --package-lock=false @astrojs/compiler-binding-wasm32-wasi
-            elif [ -n "${libc:-}" ]; then
+            rm -rf node_modules/@astrojs/compiler-binding-*
+            if [ -n "${libc:-}" ]; then
               npm i --no-save --package-lock=false --os="$os" --cpu="$cpu" --libc="$libc"
               unset libc
             else
