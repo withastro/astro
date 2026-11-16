@@ -106,8 +106,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/astro
       autocannon:
-        specifier: ^8.0.0
-        version: 8.0.0
+        specifier: ^9.0.0
+        version: 9.0.0
       markdown-table:
         specifier: ^3.1.0
         version: 3.1.0
@@ -196,10 +196,10 @@ importers:
   examples/advanced-routing:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.12
+        specifier: ^11.1.13
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       hono:
         specifier: ^4.13.16
@@ -208,22 +208,22 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.1.4
+        specifier: ^8.1.6
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.19
         version: link:../../packages/astro-rss
       '@astrojs/sitemap':
-        specifier: ^3.7.4
+        specifier: ^3.7.5
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       sharp:
         specifier: ^0.35.0
@@ -232,16 +232,16 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
 
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^7.1.7
+        specifier: ^7.1.9
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       react:
         specifier: ^19.3.1
@@ -272,25 +272,25 @@ importers:
         specifier: ^3.17.5
         version: 3.17.5
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
 
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.1.4
+        specifier: ^6.1.6
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^7.1.7
+        specifier: ^7.1.9
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
-        specifier: ^7.1.4
+        specifier: ^7.1.6
         version: link:../../packages/integrations/solid
       '@astrojs/svelte':
-        specifier: ^9.1.4
+        specifier: ^9.1.6
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
-        specifier: ^7.1.4
+        specifier: ^7.1.6
         version: link:../../packages/integrations/vue
       '@types/react':
         specifier: ^19.3.0
@@ -299,7 +299,7 @@ importers:
         specifier: ^19.3.0
         version: 19.3.0(@types/react@19.3.0)
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       preact:
         specifier: ^11.1.1
@@ -323,13 +323,13 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.1.4
+        specifier: ^6.1.6
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.11.4
         version: 2.11.4(preact@11.1.1)
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       preact:
         specifier: ^11.1.1
@@ -338,7 +338,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^7.1.7
+        specifier: ^7.1.9
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^19.3.0
@@ -347,7 +347,7 @@ importers:
         specifier: ^19.3.0
         version: 19.3.0(@types/react@19.3.0)
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       react:
         specifier: ^19.3.1
@@ -359,10 +359,10 @@ importers:
   examples/framework-solid:
     dependencies:
       '@astrojs/solid-js':
-        specifier: ^7.1.4
+        specifier: ^7.1.6
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.18
@@ -371,10 +371,10 @@ importers:
   examples/framework-svelte:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^9.1.4
+        specifier: ^9.1.6
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       svelte:
         specifier: ^5.57.3
@@ -383,10 +383,10 @@ importers:
   examples/framework-vue:
     dependencies:
       '@astrojs/vue':
-        specifier: ^7.1.4
+        specifier: ^7.1.6
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.45
@@ -395,40 +395,40 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.12
+        specifier: ^11.1.13
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
 
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.12
+        specifier: ^11.1.13
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
-        specifier: ^9.1.4
+        specifier: ^9.1.6
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       svelte:
         specifier: ^5.57.3
@@ -437,7 +437,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       sass:
         specifier: ^1.108.0
@@ -452,23 +452,23 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
 
   examples/vite-plugin-astro-hono:
     dependencies:
       '@astrojs/react-renderer':
-        specifier: ^0.1.1
+        specifier: ^0.1.3
         version: link:../../packages/renderers/react
       '@astrojs/runtime':
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../../packages/runtime
       '@astrojs/vite-plugin-astro':
-        specifier: ^0.1.1
+        specifier: ^0.1.3
         version: link:../../packages/vite-plugin-astro
       '@hono/node-server':
-        specifier: ^2.0.4
-        version: 2.0.4(hono@4.13.16)
+        specifier: ^2.1.6
+        version: 2.1.6(hono@4.13.16)
       '@vitejs/plugin-react':
         specifier: ^6.1.2
         version: 6.2.1(@rolldown/plugin-babel@0.3.0)(oxc-transform-react@0.157.0)(vite@8.3.6)
@@ -488,22 +488,22 @@ importers:
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^2.1.4
+        specifier: ^2.1.5
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.1.4
+        specifier: ^8.1.6
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^6.1.4
+        specifier: ^6.1.6
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       preact:
         specifier: ^11.1.1
@@ -512,13 +512,13 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.1.4
+        specifier: ^6.1.6
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^1.1.1
         version: 1.1.1(nanostores@1.5.5)(preact@11.1.1)
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.5.5
@@ -530,7 +530,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.1.4
+        specifier: ^8.1.6
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.3.4
@@ -539,7 +539,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -554,7 +554,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^7.4.10
+        specifier: ^7.4.12
         version: link:../../packages/astro
       vitest:
         specifier: ^5.1.0
@@ -566,19 +566,19 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../internal-helpers
       '@astrojs/markdown-satteri':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../markdown/satteri
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../runtime
       '@astrojs/telemetry':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../telemetry
       '@astrojs/vite-plugin-astro':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../vite-plugin-astro
       '@capsizecss/unpack':
         specifier: ^4.0.1
@@ -2842,6 +2842,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/content-render-tree-shaking:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/content-ssr-integration:
     dependencies:
       '@astrojs/mdx':
@@ -4542,10 +4551,10 @@ importers:
   packages/integrations/cloudflare:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/underscore-redirects':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../underscore-redirects
       '@cloudflare/vite-plugin':
         specifier: ^1.67.0
@@ -5201,10 +5210,10 @@ importers:
   packages/integrations/markdoc:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/prism':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../astro-prism
       '@markdoc/markdoc':
         specifier: ^0.5.11
@@ -5442,10 +5451,10 @@ importers:
   packages/integrations/mdx:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/markdown-satteri':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../markdown/satteri
       es-module-lexer:
         specifier: ^3.0.4
@@ -5692,10 +5701,10 @@ importers:
   packages/integrations/netlify:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/underscore-redirects':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../underscore-redirects
       '@netlify/blobs':
         specifier: ^11.1.7
@@ -5841,7 +5850,7 @@ importers:
   packages/integrations/node:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       send:
         specifier: ^1.2.1
@@ -6092,10 +6101,10 @@ importers:
   packages/integrations/preact:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/preact-renderer':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../renderers/preact
       '@preact/preset-vite':
         specifier: ^2.10.6
@@ -6114,10 +6123,10 @@ importers:
   packages/integrations/react:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/react-renderer':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../renderers/react
       '@vitejs/plugin-react':
         specifier: ^6.2.1
@@ -6332,10 +6341,10 @@ importers:
   packages/integrations/solid:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/solid-js-renderer':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../renderers/solid-js
       vite:
         specifier: ^8.3.6
@@ -6357,10 +6366,10 @@ importers:
   packages/integrations/svelte:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/svelte-renderer':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../renderers/svelte
       '@sveltejs/vite-plugin-svelte':
         specifier: ^7.3.1
@@ -6451,7 +6460,7 @@ importers:
   packages/integrations/vercel:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@vercel/analytics':
         specifier: ^2.0.1
@@ -6725,10 +6734,10 @@ importers:
   packages/integrations/vue:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/vue-renderer':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../renderers/vue
       '@vitejs/plugin-vue':
         specifier: ^6.0.10
@@ -7190,10 +7199,10 @@ importers:
   packages/markdown/remark:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/prism':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../astro-prism
       '@mdx-js/mdx':
         specifier: ^3.1.1
@@ -7290,10 +7299,10 @@ importers:
   packages/markdown/satteri:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/prism':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../astro-prism
       github-slugger:
         specifier: ^2.0.0
@@ -7315,10 +7324,10 @@ importers:
   packages/renderers/preact:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../runtime
       '@preact/signals':
         specifier: ^2.11.4
@@ -7367,10 +7376,10 @@ importers:
   packages/renderers/react:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../internal-helpers
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../runtime
       '@vitejs/plugin-react':
         specifier: ^6.1.2
@@ -7428,7 +7437,7 @@ importers:
   packages/renderers/solid-js:
     dependencies:
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../runtime
       vitefu:
         specifier: ^1.1.3
@@ -7479,7 +7488,7 @@ importers:
   packages/renderers/svelte:
     dependencies:
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../runtime
       vitefu:
         specifier: ^1.1.3
@@ -7530,7 +7539,7 @@ importers:
   packages/renderers/vue:
     dependencies:
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../runtime
     devDependencies:
       '@astrojs/vite-plugin-astro':
@@ -7645,10 +7654,10 @@ importers:
         specifier: ^0.5.1
         version: 0.5.2
       '@astrojs/internal-helpers':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../internal-helpers
       '@astrojs/runtime':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../runtime
       common-ancestor-path:
         specifier: ^2.0.0
@@ -8197,11 +8206,6 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  '@babel/parser@8.0.10':
-    resolution: {integrity: sha512-h+ah2Kg0ne1Vii892dShj9gky9I5jPzkd8x4s/3xgN/P2bMWmHS3qq59tum3mCVjCBXI8uqfYyYtrfp1Mz6+1w==}
-    engines: {node: ^22.18.0 || >=24.11.0}
-    hasBin: true
-
   '@babel/parser@8.1.0':
     resolution: {integrity: sha512-fpqZYAC+Tthr19JbEKxXhCGutvfm/+roMe+ULrgUKI+GVyzkQiTMTSheORcWIAzW8T3Oo3W5UavWSvAWmsp7fA==}
     engines: {node: ^22.18.0 || >=24.11.0}
@@ -8283,10 +8287,6 @@ packages:
   '@babel/types@7.29.11':
     resolution: {integrity: sha512-WCsemW40Cpc6gouC1SrY6PBaZ+oLRlEVY9XBvZBI7il/HyUrb2nJ505wE1MHEFyDZNnrWDEuy4jL50WVHfTTSQ==}
     engines: {node: '>=6.9.0'}
-
-  '@babel/types@8.0.10':
-    resolution: {integrity: sha512-KV8Y+teoRsmXeEPS4sCJY1kwV+hcPzHP1qQqgCxrjKOehLdBaxpsFBfoJ8MXWFV80y6Jw56+TM95wR0Per8dYw==}
-    engines: {node: ^22.18.0 || >=24.11.0}
 
   '@babel/types@8.1.0':
     resolution: {integrity: sha512-8V8aSTDx012YPmDQF30vrokyxVFdRAU2YBS2VzrnfLAGkP8floVnjckwgFcD0Jrvf6GWMSRdCrYVsk3tyMwZRg==}
@@ -9431,11 +9431,11 @@ packages:
       '@modelcontextprotocol/sdk':
         optional: true
 
-  '@hono/node-server@2.0.4':
-    resolution: {integrity: sha512-Ut3y0dMMPWy6bZ2kVfx25EOVbZlm15dhF4mOsezMlhpNHy+4MkU1qN9Y6lnruYi4wPmFzimGX2X7LF/FwHli4A==}
+  '@hono/node-server@2.1.6':
+    resolution: {integrity: sha512-p/KH9MnfNcsm3sR6x4lNgm5j+QN4Et8srKredl9DZfXiyZ1UQ3aQ2YVpFLbqktYN5JI+DB+VZFKM2PqE5hLKjQ==}
     engines: {node: '>=20'}
     peerDependencies:
-      hono: ^4
+      hono: ^4 || ^5.0.0-0
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -11790,14 +11790,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
-  '@vue/compiler-core@3.5.44':
-    resolution: {integrity: sha512-k34nCytbK8PQ1gR2mGROYOw6Pnv/mumqIdrZ3x2tbyXZDWm7ViKGLTfdB+DRrWqEQsLgGJvn0WN9jBif5zCTLQ==}
-
   '@vue/compiler-core@3.5.45':
     resolution: {integrity: sha512-XGHJrM6ufZARAc/w+tyOswStw9tdKiqCKBScI4gGaNxD+aaGu/HQWgKJ+JItjRLPqenQ7iE7G8AJC7T5ew1p+g==}
-
-  '@vue/compiler-dom@3.5.44':
-    resolution: {integrity: sha512-W5AoBFWdw1lQAKiHowkfgFKFab82oSRT6sGsPfw/q1GRjsy/ZJFLHGhJyBRIFN9APLTUduDH9U2JAiPOIyKuYg==}
 
   '@vue/compiler-dom@3.5.45':
     resolution: {integrity: sha512-LbP2d19GSOYGPmvMBBCVJVlv7TKtjM1Cfeyu3cYia720pknZP+1cLX7H5MVatvruT6MuJhiPuNbQBW/MDn/EwA==}
@@ -11819,9 +11813,6 @@ packages:
   '@vue/devtools-shared@8.2.1':
     resolution: {integrity: sha512-Fkac7lUdGReh6pVOi3AYPRGe82LQqRmAfThW7RRligOAP0ZA/Z1z9XLHDM9dv34pV2HRc79DK8uKPeG2fLnA/g==}
 
-  '@vue/reactivity@3.5.44':
-    resolution: {integrity: sha512-u+QJdKeBBEADkPdevsL+6E12QlYVfBD8Zcw5qjDQKtamI6l14KyqazJMobhCKelhWN5zpyKUiEDoTyHE93cqWw==}
-
   '@vue/reactivity@3.5.45':
     resolution: {integrity: sha512-WqkyubNWpI4OYBOipSrjIssMdJO8K1i9Zts/Wm8Er10/0msOEwCyWWWvZnAI7WW3kQsTong6DJp8Cbb+vd4cPA==}
 
@@ -11833,9 +11824,6 @@ packages:
 
   '@vue/server-renderer@3.5.45':
     resolution: {integrity: sha512-1fNXUHhhsWf4EVL4XixbGBU5mKdiIXJAB82feHRTyPPo6ZUEYWIJuEeUl3mVV6QDBp50HJOX4obLhxYXlrjrzA==}
-
-  '@vue/shared@3.5.44':
-    resolution: {integrity: sha512-H82XLH0DjmSOdbEwO15x3QTo1f5PWEtv237eLpYKc0mqLu+B8hnq16lFWmuBmNurkeiG3wr+oM1FhOll/YVFRg==}
 
   '@vue/shared@3.5.45':
     resolution: {integrity: sha512-ue9fgHmVNPlP7iW3+cxoBX/Cnlw53dHlVSw0JKGY6z1lObg8pHoj928M2nzG4/yVsMZ3NaRZ2s2z61uC16NDwQ==}
@@ -12063,8 +12051,8 @@ packages:
   atomically@2.1.1:
     resolution: {integrity: sha512-P4w9o2dqARji6P7MHprklbfiArZAWvo07yW7qs3pdljb3BWr12FIB7W+p0zJiuiVsUpRO0iZn1kFFcpPegg0tQ==}
 
-  autocannon@8.0.0:
-    resolution: {integrity: sha512-fMMcWc2JPFcUaqHeR6+PbmEpTxCrPZyBUM95oG4w3ngJ8NfBNas/ZXA+pTHXLqJ0UlFVTcy05GC25WxKx/M20A==}
+  autocannon@9.0.0:
+    resolution: {integrity: sha512-hUIWSNtxPEdvFFz/ZGzvoCkfN4Pw9RZBXr4zT95Ff8lEUUvUMB9BnOdjW3lwlCZfpY/US2fWUjZ5+GTtcJKjIQ==}
     hasBin: true
 
   autoprefixer@10.6.2:
@@ -12199,10 +12187,6 @@ packages:
     resolution: {integrity: sha512-YovQ3rzhaLMIrDjNDMkNS01tea93qhEhG5xy8f6+R0l+dw3Ki+5sCoIoI942iuLZTHWogWktgwVDhU09iNEimQ==}
     engines: {node: 20 || >=22}
 
-  brace-expansion@5.0.9:
-    resolution: {integrity: sha512-ScQ4IuvIEF1TMlP7Zt+vjJ//9zlPb2SDcxWxM3bk8s6t6GGdJ7KO1dCcTidOPJKePW30LE/2cT7wCyPho9/Wxg==}
-    engines: {node: 20 || >=22}
-
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
@@ -12227,9 +12211,6 @@ packages:
 
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
-
-  buffer@5.7.1:
-    resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
 
   buffer@6.0.3:
     resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
@@ -13277,10 +13258,6 @@ packages:
     resolution: {integrity: sha512-eru+uCPQ2g+nLBkf84MHP/KyNNMar0BDy0j+i8Fb72GF9/YHBZ58q7FODUtfVV7XU9nfRUHXSmaM8NmZcIbZ4Q==}
     engines: {node: '>=20'}
 
-  find-my-way@9.8.0:
-    resolution: {integrity: sha512-JtyUgATO7qxRp2zKhrmWof74Mqxc1ikbwpwMY97p8ipuTj2QtreA4gK2JNAF6SOqqHnYYkwMUvsgQVi2AJxIyw==}
-    engines: {node: '>=20'}
-
   find-up-simple@1.0.1:
     resolution: {integrity: sha512-afd4O7zpqHeRyg4PfDQsXmlDe2PfdHtJt6Akt8jOWaApLOZk5JXs6VMR29lz03pRe9mpykrRCYIYxaJYcfpncQ==}
     engines: {node: '>=18'}
@@ -13673,8 +13650,8 @@ packages:
     resolution: {integrity: sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ==}
     engines: {node: '>=16.17.0'}
 
-  hyperid@3.3.0:
-    resolution: {integrity: sha512-7qhCVT4MJIoEsNcbhglhdmBKb09QtcmJNiIQGq7js/Khf5FtQQ9bzcAuloeqBeee7XD7JqDeve9KNlQya5tSGQ==}
+  hyperid@4.0.0:
+    resolution: {integrity: sha512-vjhh0CG44/iGjcNEjebL0BpRDR+C7d1KZ1Yqf92ralTOO5JjZiGHQT0bjDaKuNu1kk3jB+5jGFhNbxkT0wcQmA==}
 
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
@@ -16449,14 +16426,6 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  uuid-parse@1.1.0:
-    resolution: {integrity: sha512-OdmXxA8rDsQ7YpNVbKSJkNzTw2I+S5WsbMDnCtIWSQaosNAcWtFuI/YK1TjzUI6nbkgiqEyh8gWngfcv8Asd9A==}
-
-  uuid@8.3.2:
-    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
-    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
-    hasBin: true
-
   v8-to-istanbul@9.3.0:
     resolution: {integrity: sha512-kiGUalWN+rgBJ/1OHZsBtU4rXZOfj/7rKQxULKlIzwzQSvMJUUNgPwJEEh7gU6xEVxC0ahoOBvN2YI8GH6FNgA==}
     engines: {node: '>=10.12.0'}
@@ -17663,10 +17632,6 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.11
 
-  '@babel/parser@8.0.10':
-    dependencies:
-      '@babel/types': 8.0.10
-
   '@babel/parser@8.1.0':
     dependencies:
       '@babel/types': 8.1.0
@@ -17745,8 +17710,8 @@ snapshots:
   '@babel/template@8.0.0':
     dependencies:
       '@babel/code-frame': 8.0.6
-      '@babel/parser': 8.0.10
-      '@babel/types': 8.0.10
+      '@babel/parser': 8.1.0
+      '@babel/types': 8.1.0
 
   '@babel/traverse@7.29.8(supports-color@10.2.2)':
     dependencies:
@@ -17774,11 +17739,6 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.29.11
       '@babel/helper-validator-identifier': 7.29.7
-
-  '@babel/types@8.0.10':
-    dependencies:
-      '@babel/helper-string-parser': 8.0.8
-      '@babel/helper-validator-identifier': 8.0.6
 
   '@babel/types@8.1.0':
     dependencies:
@@ -18789,7 +18749,7 @@ snapshots:
     dependencies:
       '@fastify/error': 4.2.0
       fastify-plugin: 6.0.0
-      find-my-way: 9.8.0
+      find-my-way: 9.10.0
       path-to-regexp: 8.4.2
       reusify: 1.1.0
 
@@ -18820,7 +18780,7 @@ snapshots:
     dependencies:
       '@earendil-works/pi-agent-core': 0.87.1(supports-color@10.2.2)(ws@8.22.0)(zod@4.6.7)
       '@earendil-works/pi-ai': 0.87.1(supports-color@10.2.2)(ws@8.22.0)(zod@4.6.7)
-      '@hono/node-server': 2.0.4(hono@4.13.16)
+      '@hono/node-server': 2.1.6(hono@4.13.16)
       '@modelcontextprotocol/client': 2.0.0
       '@valibot/to-json-schema': 1.5.0(valibot@1.5.0)
       hono: 4.13.16
@@ -18852,7 +18812,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@hono/node-server@2.0.4(hono@4.13.16)':
+  '@hono/node-server@2.1.6(hono@4.13.16)':
     dependencies:
       hono: 4.13.16
 
@@ -21196,7 +21156,7 @@ snapshots:
       '@babel/types': 7.29.11
       '@vue/babel-helper-vue-transform-on': 1.5.0
       '@vue/babel-plugin-resolve-type': 1.5.0(@babel/core@7.29.7)(supports-color@10.2.2)
-      '@vue/shared': 3.5.44
+      '@vue/shared': 3.5.45
     optionalDependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
     transitivePeerDependencies:
@@ -21212,7 +21172,7 @@ snapshots:
       '@babel/types': 7.29.11
       '@vue/babel-helper-vue-transform-on': 2.0.1
       '@vue/babel-plugin-resolve-type': 2.0.1(@babel/core@7.29.7)(supports-color@10.2.2)
-      '@vue/shared': 3.5.44
+      '@vue/shared': 3.5.45
     optionalDependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
     transitivePeerDependencies:
@@ -21240,14 +21200,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vue/compiler-core@3.5.44':
-    dependencies:
-      '@babel/parser': 7.29.12
-      '@vue/shared': 3.5.44
-      entities: 7.0.1
-      estree-walker: 2.0.2
-      source-map-js: 1.2.2
-
   '@vue/compiler-core@3.5.45':
     dependencies:
       '@babel/parser': 7.29.12
@@ -21255,11 +21207,6 @@ snapshots:
       entities: 7.0.1
       estree-walker: 2.0.2
       source-map-js: 1.2.2
-
-  '@vue/compiler-dom@3.5.44':
-    dependencies:
-      '@vue/compiler-core': 3.5.44
-      '@vue/shared': 3.5.44
 
   '@vue/compiler-dom@3.5.45':
     dependencies:
@@ -21298,10 +21245,6 @@ snapshots:
 
   '@vue/devtools-shared@8.2.1': {}
 
-  '@vue/reactivity@3.5.44':
-    dependencies:
-      '@vue/shared': 3.5.44
-
   '@vue/reactivity@3.5.45':
     dependencies:
       '@vue/shared': 3.5.45
@@ -21323,8 +21266,6 @@ snapshots:
       '@vue/compiler-ssr': 3.5.45
       '@vue/runtime-dom': 3.5.45
       '@vue/shared': 3.5.45
-
-  '@vue/shared@3.5.44': {}
 
   '@vue/shared@3.5.45': {}
 
@@ -21423,7 +21364,7 @@ snapshots:
 
   alpinejs@3.17.5:
     dependencies:
-      '@vue/reactivity': 3.5.44
+      '@vue/reactivity': 3.5.45
 
   am-i-vibing@0.5.0:
     dependencies:
@@ -21542,7 +21483,7 @@ snapshots:
       stubborn-fs: 2.0.0
       when-exit: 2.1.5
 
-  autocannon@8.0.0:
+  autocannon@9.0.0:
     dependencies:
       '@minimistjs/subarg': 1.0.0
       chalk: 4.1.2
@@ -21555,7 +21496,7 @@ snapshots:
       hdr-histogram-js: 3.0.1
       hdr-histogram-percentiles-obj: 3.0.0
       http-parser-js: 0.5.10
-      hyperid: 3.3.0
+      hyperid: 4.0.0
       lodash.chunk: 4.2.0
       lodash.clonedeep: 4.5.0
       lodash.flatten: 4.4.0
@@ -21699,10 +21640,6 @@ snapshots:
     dependencies:
       balanced-match: 4.0.2
 
-  brace-expansion@5.0.9:
-    dependencies:
-      balanced-match: 4.0.2
-
   braces@3.0.3:
     dependencies:
       fill-range: 7.1.1
@@ -21724,11 +21661,6 @@ snapshots:
   buffer-equal-constant-time@1.0.1: {}
 
   buffer-from@1.1.2: {}
-
-  buffer@5.7.1:
-    dependencies:
-      base64-js: 1.5.1
-      ieee754: 1.2.1
 
   buffer@6.0.3:
     dependencies:
@@ -22851,12 +22783,6 @@ snapshots:
       fast-querystring: 1.1.2
       safe-regex2: 5.1.1
 
-  find-my-way@9.8.0:
-    dependencies:
-      fast-deep-equal: 3.1.3
-      fast-querystring: 1.1.2
-      safe-regex2: 5.1.1
-
   find-up-simple@1.0.1: {}
 
   find-up@4.1.0:
@@ -23365,11 +23291,9 @@ snapshots:
 
   human-signals@5.0.0: {}
 
-  hyperid@3.3.0:
+  hyperid@4.0.0:
     dependencies:
-      buffer: 5.7.1
-      uuid: 8.3.2
-      uuid-parse: 1.1.0
+      buffer: 6.0.3
 
   iconv-lite@0.6.3:
     dependencies:
@@ -24502,7 +24426,7 @@ snapshots:
 
   minimatch@10.2.6:
     dependencies:
-      brace-expansion: 5.0.9
+      brace-expansion: 5.0.12
 
   minimatch@11.0.5:
     dependencies:
@@ -26696,10 +26620,6 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  uuid-parse@1.1.0: {}
-
-  uuid@8.3.2: {}
-
   v8-to-istanbul@9.3.0:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -26798,7 +26718,7 @@ snapshots:
       '@babel/plugin-syntax-import-meta': 7.10.4(@babel/core@7.29.7)
       '@babel/plugin-transform-typescript': 7.29.9(@babel/core@7.29.7)(supports-color@10.2.2)
       '@vue/babel-plugin-jsx': 1.5.0(@babel/core@7.29.7)(supports-color@10.2.2)
-      '@vue/compiler-dom': 3.5.44
+      '@vue/compiler-dom': 3.5.45
       kolorist: 1.8.0
       magic-string: 0.30.21
       vite: 8.3.6(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.108.0)(tsx@4.23.15)(yaml@2.9.1)

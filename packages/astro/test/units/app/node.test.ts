@@ -574,6 +574,121 @@ describe('node', () => {
 			});
 		});
 
+		describe('protocol, host and port together', () => {
+			const plainSocket = { encrypted: false, remoteAddress: '2.2.2.2' };
+
+			it('does not produce http for an https-only forwarded host without X-Forwarded-Proto', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: plainSocket,
+						headers: { host: 'internal:4321', 'x-forwarded-host': 'domain1.com' },
+					},
+					{ allowedDomains: [{ hostname: 'domain1.com', protocol: 'https' }] },
+				);
+				assert.equal(result.url, 'http://localhost/');
+			});
+
+			it('ignores X-Forwarded-Port that is only listed for another host', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: plainSocket,
+						headers: {
+							'x-forwarded-host': 'a.com',
+							'x-forwarded-proto': 'https',
+							'x-forwarded-port': '8443',
+						},
+					},
+					{
+						allowedDomains: [
+							{ hostname: 'a.com', protocol: 'https' },
+							{ hostname: 'b.com', port: '8443' },
+						],
+					},
+				);
+				assert.equal(result.url, 'https://a.com/');
+			});
+
+			it('matches an entry with port 443 against an https host without a port', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: plainSocket,
+						headers: {
+							'x-forwarded-host': 'staging.myapp.com',
+							'x-forwarded-proto': 'https',
+						},
+					},
+					{
+						allowedDomains: [{ hostname: 'staging.myapp.com', protocol: 'https', port: '443' }],
+					},
+				);
+				assert.equal(result.url, 'https://staging.myapp.com/');
+			});
+		});
+
+		describe('host syntax', () => {
+			// Only a plain `hostname[:port]` is a valid host. Other syntax is rejected before
+			// matching, so the host that is matched is the host that is used.
+			const invalidHosts = [
+				'evil.com:443@example.com',
+				'evil.com:@example.com',
+				'evil.com@example.com',
+				'example.com?',
+				'example.com#',
+				'example.com%2f',
+				'example.com ',
+				'exa mple.com',
+			];
+
+			for (const host of invalidHosts) {
+				it(`ignores x-forwarded-host "${host}"`, () => {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							headers: { host: 'example.com', 'x-forwarded-host': host },
+						},
+						{ allowedDomains: [{ hostname: 'example.com' }] },
+					);
+					assert.equal(result.url, 'https://example.com/');
+				});
+
+				it(`ignores Host header "${host}"`, () => {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							headers: { host },
+						},
+						{ allowedDomains: [{ hostname: 'example.com' }] },
+					);
+					assert.equal(result.url, 'https://localhost/');
+				});
+			}
+
+			it('accepts an upper-case x-forwarded-host', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: { 'x-forwarded-host': 'EXAMPLE.com' },
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('accepts an x-forwarded-host with a port', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: { 'x-forwarded-host': 'example.com:8443' },
+					},
+					{ allowedDomains: [{ hostname: 'example.com', port: '8443' }] },
+				);
+				assert.equal(result.url, 'https://example.com:8443/');
+			});
+		});
+
 		describe('x-forwarded-proto', () => {
 			it('parses protocol from single-value x-forwarded-proto header', () => {
 				const result = createRequest(
@@ -772,6 +887,48 @@ describe('node', () => {
 					{ allowedDomains: [{ protocol: 'https', hostname: '**.example.com' }] },
 				);
 				assert.equal(result.url, 'https://myapp.example.com/');
+			});
+
+			it('ignores non-http(s) x-forwarded-proto when allowedDomains mixes patterns with and without protocol', () => {
+				const allowedDomains = [
+					{ hostname: 'localhost' },
+					{ hostname: 'example.com', protocol: 'https' },
+				];
+				for (const forwardedProto of ['ftp', 'ws', 'file', 'evil']) {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+							headers: {
+								host: 'localhost',
+								'x-forwarded-proto': forwardedProto,
+							},
+						},
+						{ allowedDomains },
+					);
+					assert.equal(result.url, 'http://localhost/', `x-forwarded-proto: ${forwardedProto}`);
+				}
+			});
+
+			it('accepts http(s) x-forwarded-proto when allowedDomains mixes patterns with and without protocol', () => {
+				const allowedDomains = [
+					{ hostname: 'localhost' },
+					{ hostname: 'example.com', protocol: 'https' },
+				];
+				for (const forwardedProto of ['http', 'https']) {
+					const result = createRequest(
+						{
+							...mockNodeRequest,
+							socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+							headers: {
+								host: 'localhost',
+								'x-forwarded-proto': forwardedProto,
+							},
+						},
+						{ allowedDomains },
+					);
+					assert.equal(result.url, `${forwardedProto}://localhost/`);
+				}
 			});
 
 			it('constructs correct URL behind reverse proxy with all forwarded headers', () => {
