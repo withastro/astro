@@ -138,17 +138,49 @@ jobs:
           done
           mv ./astro-ts-plugin-bundle ./node_modules/astro-ts-plugin-bundle
 
+      - name: Package VS Code extension
+        if: steps.release.outputs.has_vscode == 'true'
+        working-directory: ./packages/language-tools/vscode
+        run: |
+          targets=(win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64)
+          for target in "${targets[@]}"; do
+            case "$target" in
+              win32-x64) os=win32; cpu=x64 ;;
+              win32-arm64) os=win32; cpu=arm64 ;;
+              linux-x64) os=linux; cpu=x64 ;;
+              linux-arm64) os=linux; cpu=arm64 ;;
+              linux-armhf) os=linux; cpu=arm ;;
+              darwin-x64) os=darwin; cpu=x64 ;;
+              darwin-arm64) os=darwin; cpu=arm64 ;;
+              alpine-x64) os=linux; cpu=x64; libc=musl ;;
+              alpine-arm64) os=linux; cpu=arm64; libc=musl ;;
+            esac
+            if [ "$target" = linux-armhf ]; then
+              npm i --no-save --package-lock=false @astrojs/compiler-binding-wasm32-wasi
+            elif [ -n "${libc:-}" ]; then
+              npm i --no-save --package-lock=false --os="$os" --cpu="$cpu" --libc="$libc"
+              unset libc
+            else
+              npm i --no-save --package-lock=false --os="$os" --cpu="$cpu"
+            fi
+            npx vsce package --target "$target" --out "$RUNNER_TEMP/astro-vscode-$target.vsix"
+          done
+
       - name: Publish to VSCode Marketplace
         if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
-          npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --skip-duplicate --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
+          for target in win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64; do
+            npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --skip-duplicate --packagePath "$RUNNER_TEMP/astro-vscode-$target.vsix"
+          done
 
       - name: Publish to OpenVSX
         if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
-          npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --skip-duplicate --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
+          for target in win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64; do
+            npx ovsx publish "$RUNNER_TEMP/astro-vscode-$target.vsix" -p ${{ secrets.OVSX_TOKEN }} --skip-duplicate
+          done
           
       - name: Restore root package.json and node_modules
         if: steps.release.outputs.has_vscode == 'true'
