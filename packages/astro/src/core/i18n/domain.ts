@@ -41,26 +41,31 @@ export function computePathnameFromDomain(
 			i18n.strategy === 'domains-prefix-other-locales' ||
 			i18n.strategy === 'domains-prefix-always-no-redirect')
 	) {
+		const requestHost = request.headers.get('Host') ?? undefined;
 		const validated = validateForwardedHeaders(
 			getFirstForwardedValue(request.headers.get('X-Forwarded-Proto') ?? undefined),
 			getFirstForwardedValue(request.headers.get('X-Forwarded-Host') ?? undefined),
 			getFirstForwardedValue(request.headers.get('X-Forwarded-Port') ?? undefined),
 			allowedDomains,
+			{ protocol: url.protocol.slice(0, -1), host: requestHost ?? url.host },
 		);
 		const protocol = validated.protocol ? `${validated.protocol}:` : url.protocol;
-		const requestHost = request.headers.get('Host') ?? undefined;
 		const validatedRequestHost = allowedDomains?.length
 			? validateHost(requestHost, protocol.slice(0, -1), allowedDomains)
 			: requestHost;
 		// Forwarded and original hosts are validated against security.allowedDomains when configured.
-		let host = validated.host ?? validatedRequestHost;
+		const host = validated.host ?? validatedRequestHost;
 		// If we don't have a host and a protocol, it's impossible to proceed
 		if (host && protocol) {
-			// The header might have a port in their name, so we remove it
-			host = host.split(':')[0];
 			try {
 				let locale;
+				// Parse the host with the URL parser rather than splitting the string. The header
+				// might have a port in it, which the domain lookup ignores.
 				const hostAsUrl = new URL(`${protocol}//${host}`);
+				if (hostAsUrl.username || hostAsUrl.password) {
+					return undefined;
+				}
+				hostAsUrl.port = '';
 				for (const [domainKey, localeValue] of Object.entries(i18n.domainLookupTable)) {
 					// This operation should be safe because we force the protocol via zod inside the configuration
 					// If not, then it means that the manifest was tampered

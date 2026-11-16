@@ -227,7 +227,9 @@ async function buildEnvironments(opts: StaticBuildOptionsInput, internals: Build
 						settings.timer.end('Server generate');
 					}
 				} finally {
-					await removeViteManifestDirectories(Object.values(resolvedOpts.outputDirectories));
+					await removeViteManifestDirectories(
+						Array.from(internals.astroViteManifestDirectories, (href) => new URL(href)),
+					);
 				}
 			},
 		},

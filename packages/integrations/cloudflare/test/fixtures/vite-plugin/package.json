@@ -13,7 +13,7 @@
     "@astrojs/vue": "workspace:*",
 		"@astrojs/svelte": "workspace:*",
 		"svelte":"^5.57.3",
-    "vue": "^3.5.44",
+    "vue": "^3.5.45",
     "@vitejs/plugin-vue": "^6.0.10",
 		"@types/react": "^19.3.0",
 		"@types/react-dom": "^19.3.0",

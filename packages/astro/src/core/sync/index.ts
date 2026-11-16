@@ -29,7 +29,7 @@ import {
 	createSafeError,
 	type ErrorWithMetadata,
 	isAstroError,
-} from '../errors/index.js';
+} from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { ensureProcessNodeEnv } from '../util.js';
@@ -177,7 +177,7 @@ export async function syncInternal({
 			await contentLayer.sync();
 			if (!skip?.cleanup) {
 				// Free up memory (usually in builds since we only need to use this once)
-				contentLayer.dispose();
+				globalContentLayer.dispose();
 			}
 			settings.timer.end('Sync content layer');
 		} finally {

@@ -93,6 +93,13 @@ export interface RenderEnvironment {
 	/** Dev-only CSP meta-tag injection flag for error pages. */
 	readonly injectCspMetaTagsOnErrorPages: boolean;
 	/**
+	 * Whether the page renderer logs errors thrown after a streamed body has started through the
+	 * configured logger. Only production answers `true`: its HTTP consumers can no longer change the
+	 * response, while dev (`recordServerError`), build, and the container report the rejected body
+	 * read themselves.
+	 */
+	readonly logsStreamErrors: boolean;
+	/**
 	 * Request logging as environment behavior: prod/build/container are
 	 * no-ops; both dev environments emit the request lines. This is the
 	 * fallback for states not built by a facade; the facade fast path's

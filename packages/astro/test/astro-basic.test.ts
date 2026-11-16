@@ -27,15 +27,21 @@ describe('Astro basic build', () => {
 	it('Allows scoped classes with spread', async () => {
 		const html = await fixture.readFile('/spread-scope/index.html');
 		const $ = cheerio.load(html);
+		const hasScopeAttribute = (selector: string) =>
+			Object.keys($(selector).attr() ?? {}).some((name) => name.startsWith('data-astro-cid-'));
 
 		assert.equal($('#spread-plain').length, 1);
 		assert.match($('#spread-plain').attr('class')!, /astro-.*/);
+		assert.ok(hasScopeAttribute('#spread-plain'));
 
+		// Each element only gets its own class, not one left on the spread object by the element before it.
 		assert.equal($('#spread-class').length, 1);
-		assert.match($('#spread-class').attr('class')!, /astro-.*/);
+		assert.equal($('#spread-class').attr('class'), 'has-class');
+		assert.ok(hasScopeAttribute('#spread-class'));
 
 		assert.equal($('#spread-class-list').length, 1);
-		assert.match($('#spread-class-list').attr('class')!, /astro-.*/);
+		assert.equal($('#spread-class-list').attr('class'), 'has-class-list');
+		assert.ok(hasScopeAttribute('#spread-class-list'));
 	});
 
 	it('supports special chars in filename', async () => {

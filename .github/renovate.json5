@@ -45,7 +45,11 @@
     "actions/labeler",
 
     // pinned in .github/workflows/ci.yml while Deno 2.9.6 breaks @netlify/edge-functions-dev
-    "deno"
+    "deno",
+
+    // flue
+    "@earendil-works/pi-ai",
+    "@flue/runtime"
   ],
   "minimumReleaseAge": "3 days"
 }

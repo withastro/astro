@@ -180,7 +180,7 @@
       }
     },
     {
-      "includes": ["**/packages/integrations/**/*.ts"],
+      "includes": ["**/packages/integrations/**/*.ts", "**/packages/renderers/**/*.ts"],
       "linter": {
         "rules": {
           "suspicious": {

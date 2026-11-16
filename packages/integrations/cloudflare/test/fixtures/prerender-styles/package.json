@@ -5,8 +5,8 @@
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
     "@astrojs/mdx": "workspace:*",
-    "@tailwindcss/vite": "^4.3.3",
+    "@tailwindcss/vite": "^4.3.4",
     "astro": "workspace:*",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.4"
   }
 }

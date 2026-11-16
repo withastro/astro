@@ -8,6 +8,6 @@
   },
   "devDependencies": {
     "astro": "workspace:*",
-    "sass": "^1.107.1"
+    "sass": "^1.108.0"
   }
 }

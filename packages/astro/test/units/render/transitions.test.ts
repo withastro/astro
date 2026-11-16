@@ -8,7 +8,7 @@ import {
 	stringifyAnimation,
 	stringifyAnimations,
 	toTimeValue,
-} from '../../../dist/runtime/server/transition.js';
+} from '@astrojs/runtime/_internal/server/transition.js';
 import type { SSRResult } from '../../../dist/types/public/internal.js';
 
 describe('reEncode', () => {

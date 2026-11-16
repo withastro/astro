@@ -29,6 +29,49 @@ function createLogger() {
 }
 
 describe('copyDependenciesToFunction', () => {
+	it('ignores broad globs when the project root is the trace base', async () => {
+		const root = await fs.mkdtemp(join(tmpdir(), 'astro-vercel-nft-'));
+		try {
+			const entryPath = join(root, 'entry.mjs');
+			await fs.writeFile(entryPath, '');
+			let ignoresRootGlob = false;
+			let ignoresPackageGlob = false;
+			let traceBase: string | undefined;
+
+			await copyDependenciesToFunction(
+				{
+					entry: pathToFileURL(entryPath),
+					outDir: pathToFileURL(join(root, 'out') + sep),
+					includeFiles: [],
+					excludeFiles: [],
+					logger: createLogger().logger,
+					root: pathToFileURL(root + sep),
+				},
+				{},
+				async (_entryPoints, options) => {
+					traceBase = options?.base;
+					const ignore = options?.ignore;
+					if (typeof ignore === 'function') {
+						ignoresRootGlob = ignore('**/src/pages/index.astro');
+						ignoresPackageGlob = ignore('node_modules/shared-package/data/**/*');
+					}
+					return {
+						fileList: new Set(['entry.mjs']),
+						esmFileList: new Set(),
+						reasons: new Map(),
+						warnings: new Set(),
+					};
+				},
+			);
+
+			assert.equal(traceBase, root + sep);
+			assert.equal(ignoresRootGlob, true);
+			assert.equal(ignoresPackageGlob, false);
+		} finally {
+			await fs.rm(root, { recursive: true, force: true });
+		}
+	});
+
 	it('logs unrecognized dependency-resolution warnings and continues tracing', async () => {
 		const root = await fs.mkdtemp(join(tmpdir(), 'astro-vercel-nft-'));
 		try {
