@@ -52,9 +52,11 @@ describe('serialize', () => {
 	});
 	it('serializes array indices rather than a custom iterator', () => {
 		const input: any[] = [1];
-		input[Symbol.iterator] = function* () {
-			yield 2;
-		};
+		Object.defineProperty(input, Symbol.iterator, {
+			value: function* () {
+				yield 2;
+			},
+		});
 		const output = `{"a":[1,[[0,1]]]}`;
 		assert.equal(serializeProps({ a: input }), output);
 	});
