@@ -75,7 +75,7 @@ describe('shared unhandledRejection listener', () => {
 		);
 
 		const slice = output.slice(outputStart);
-		assert.match(slice, /Unhandled rejection while rendering/);
+		assert.equal((slice.match(/Unhandled rejection while rendering/g) ?? []).length, 1);
 		assert.match(slice, /\/boom/);
 		assert.doesNotMatch(slice, /outside request context/);
 
