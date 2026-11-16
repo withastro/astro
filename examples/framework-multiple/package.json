@@ -21,10 +21,10 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "astro": "^7.4.12",
-    "preact": "^11.1.1",
+    "preact": "^11.2.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "solid-js": "^1.9.18",
+    "solid-js": "^1.9.19",
     "svelte": "^5.57.3",
     "vue": "^3.5.45"
   }

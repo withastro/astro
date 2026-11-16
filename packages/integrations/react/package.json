@@ -41,18 +41,18 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:^",
     "@astrojs/react-renderer": "workspace:^",
-    "@vitejs/plugin-react": "^6.2.1"
+    "@vitejs/plugin-react": "^6.3.0"
   },
   "devDependencies": {
-    "@babel/core": "^8.1.0",
-    "@rolldown/plugin-babel": "^0.3.0",
+    "@babel/core": "^8.1.2",
+    "@rolldown/plugin-babel": "^0.3.1",
     "@types/babel__core": "^7.20.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
-    "oxc-transform-react": "^0.157.0",
+    "oxc-transform-react": "^0.158.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

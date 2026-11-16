@@ -8,8 +8,8 @@
     "@astrojs/solid-js-renderer": "workspace:*",
     "@astrojs/vite-plugin-astro": "workspace:*",
     "@test/solid-renderer-lib": "workspace:*",
-    "solid-js": "^1.9.17",
-    "vite": "^8.3.4",
-    "vite-plugin-solid": "^2.11.14"
+    "solid-js": "^1.9.19",
+    "vite": "^8.3.8",
+    "vite-plugin-solid": "^2.11.16"
   }
 }
