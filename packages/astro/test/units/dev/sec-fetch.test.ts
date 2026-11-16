@@ -201,6 +201,18 @@ describe('secFetchMiddleware', () => {
 			assert.equal(result.nextCalled, true);
 		});
 
+		it('allows cross-site request when Origin matches an allowed domain with the HTTP default port', async () => {
+			const result = await runMiddleware(
+				{
+					'sec-fetch-site': 'cross-site',
+					'sec-fetch-mode': 'cors',
+					origin: 'http://staging.myapp.com',
+				},
+				[{ hostname: 'staging.myapp.com', protocol: 'http', port: '80' }],
+			);
+			assert.equal(result.nextCalled, true);
+		});
+
 		it('blocks cross-site request when Origin port differs from the allowed domain port', async () => {
 			const result = await runMiddleware(
 				{
