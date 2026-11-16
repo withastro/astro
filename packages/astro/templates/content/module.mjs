@@ -32,7 +32,10 @@ export const getEntry = createGetEntry({
 	logger,
 });
 
-export const render = createRenderEntry({ logger });
+// `renderEntry` dynamically imports every renderable entry. Marked pure so the bundler can
+// drop it from server bundles whose routes never call `render()`; otherwise each entry
+// that only prerendered pages render is compiled into the server output.
+export const render = /* @__PURE__ */ createRenderEntry({ logger });
 
 export const getEntries = createGetEntries(getEntry);
 

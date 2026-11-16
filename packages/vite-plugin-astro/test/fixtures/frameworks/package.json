@@ -13,15 +13,15 @@
     "@astrojs/vue-renderer": "workspace:*",
     "@preact/preset-vite": "^2.10.6",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
-    "@vitejs/plugin-react": "^6.1.2",
-    "@vitejs/plugin-vue": "^6.0.10",
-    "preact": "^11.0.1",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "solid-js": "^1.9.17",
-    "svelte": "^5.57.2",
-    "vite": "^8.3.4",
-    "vite-plugin-solid": "^2.11.14",
-    "vue": "^3.5.43"
+    "@vitejs/plugin-react": "^6.3.0",
+    "@vitejs/plugin-vue": "^6.0.11",
+    "preact": "^11.2.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "solid-js": "^1.9.19",
+    "svelte": "^5.57.3",
+    "vite": "^8.3.8",
+    "vite-plugin-solid": "^2.11.16",
+    "vue": "^3.5.45"
   }
 }

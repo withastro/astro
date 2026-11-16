@@ -38,7 +38,7 @@
     "clsx": "^2.1.1"
   },
   "devDependencies": {
-    "@astrojs/compiler-rs": "^0.5.1",
+    "@astrojs/compiler-rs": "^0.5.3",
     "astro-scripts": "workspace:*"
   },
   "keywords": [
