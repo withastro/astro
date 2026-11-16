@@ -6,6 +6,6 @@
     "@astrojs/preact": "workspace:*",
     "@e2e/astro-linked-lib": "link:../_deps/astro-linked-lib",
     "astro": "workspace:*",
-    "preact": "^11.0.1"
+    "preact": "^11.1.1"
   }
 }

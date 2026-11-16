@@ -1,0 +1,12 @@
+---
+import FailsLater from '../components/FailsLater.astro';
+
+export const prerender = true;
+---
+<html>
+	<head><title>Fails mid-stream while prerendering</title></head>
+	<body>
+		<h1>Already sent</h1>
+		<FailsLater />
+	</body>
+</html>

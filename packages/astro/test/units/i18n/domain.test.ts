@@ -77,6 +77,31 @@ describe('computePathnameFromDomain', () => {
 		);
 	});
 
+	it('ignores an X-Forwarded-Host that is not a plain host', () => {
+		const i18n = makeI18n({
+			domainLookupTable: { 'https://example.fr': 'fr', 'https://example.com': 'en' },
+		});
+		assert.equal(
+			run(
+				'https://example.com/about',
+				{ 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'example.fr:@example.com' },
+				{ i18n, allowedDomains: [{ hostname: 'example.com' }] },
+			),
+			undefined,
+		);
+	});
+
+	it('maps an X-Forwarded-Host with a port to its locale', () => {
+		assert.equal(
+			run(
+				'https://example.fr/about',
+				{ 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'example.fr:8443' },
+				{ allowedDomains: [{ hostname: 'example.fr' }] },
+			),
+			'/fr/about',
+		);
+	});
+
 	it('returns undefined when the host is not mapped to a locale', () => {
 		assert.equal(
 			run('https://example.com/about', { 'X-Forwarded-Host': 'example.com' }),

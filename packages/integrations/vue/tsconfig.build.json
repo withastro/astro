@@ -4,6 +4,10 @@
     // `"verbatimModuleSyntax": false` is required to support import/export statements in `src/editor.cts` file.
     "verbatimModuleSyntax": false
   },
-  "include": ["./src/**/*.ts", "./src/**/*.cts", "./env.d.ts"],
-  "references": [{ "path": "../../astro/tsconfig.json" }]
+  "include": ["./src/**/*.ts", "./src/**/*.cts"],
+  "references": [
+    { "path": "../../astro/tsconfig.json" },
+    { "path": "../../renderers/vue/tsconfig.json" },
+    { "path": "../../internal-helpers/tsconfig.json" }
+  ]
 }

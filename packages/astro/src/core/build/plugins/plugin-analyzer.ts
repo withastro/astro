@@ -1,5 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types.js';
+import type { PluginMetadata as AstroPluginMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/types.js';
 import { removeQueryString } from '../../path.js';
 import { getTopLevelPageModuleInfos } from '../graph.js';
 import type { BuildInternals } from '../internal.js';
@@ -41,6 +41,13 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 							internals.discoveredHydratedComponents.set(rid, [c.exportName]);
 						}
 						hydratedComponents.push(rid);
+
+						// `resolvedPath` is the raw specifier for aliased imports (e.g. `~/islands/Foo`),
+						// so also track the resolved module id to match the component against chunk modules.
+						const resolvedId = await this.resolve(c.specifier, id);
+						if (resolvedId && resolvedId.id !== rid) {
+							hydratedComponents.push(resolvedId.id);
+						}
 					}
 
 					// Track which pages use each hydrated component

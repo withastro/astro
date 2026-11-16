@@ -1,4 +1,1 @@
-import 'preact/debug';
-import clientFn from './client.js';
-
-export default clientFn;
+export { default } from '@astrojs/preact-renderer/client-dev.js';

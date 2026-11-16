@@ -22,6 +22,7 @@ function buildDevUrl({
 		getFirstForwardedValue(headers['x-forwarded-host']),
 		getFirstForwardedValue(headers['x-forwarded-port']),
 		allowedDomains,
+		{ protocol: isHttps ? 'https' : 'http', host: headers[':authority'] ?? headers['host'] },
 	);
 
 	const protocol = validated.protocol ?? (isHttps ? 'https' : 'http');
@@ -85,21 +86,16 @@ describe('Dev server URL construction — X-Forwarded-Proto handling', () => {
 		assert.equal(url.origin, 'https://app.example.com');
 	});
 
-	it('trusts X-Forwarded-Proto even when host does not match allowedDomains pattern', () => {
-		// validateForwardedHeaders validates protocol and host independently.
-		// When allowedDomains is non-empty but has no `protocol` property,
-		// any http/https value is accepted for the protocol. The host match is
-		// only required for the X-Forwarded-Host to be trusted; the fallback
-		// host header is used instead. This mirrors production (node.ts) behaviour.
+	it('ignores X-Forwarded-Proto when the host does not match allowedDomains', () => {
+		// Protocol and host are validated together: a forwarded protocol is only
+		// trusted for a host that an allowedDomains entry allows.
 		const url = buildDevUrl({
 			headers: { host: 'localhost:4321', 'x-forwarded-proto': 'https' },
 			isHttps: false,
 			allowedDomains: [{ hostname: 'mre.local' }],
 		});
-		// Protocol is trusted (allowedDomains is non-empty); host falls back to
-		// the Host header value.
-		assert.equal(url.protocol, 'https:');
-		assert.equal(url.origin, 'https://localhost:4321');
+		assert.equal(url.protocol, 'http:');
+		assert.equal(url.origin, 'http://localhost:4321');
 	});
 
 	it('rejects X-Forwarded-Proto that does not match explicit protocol in allowedDomains', () => {

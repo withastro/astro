@@ -124,6 +124,13 @@ export interface BuildInternals {
 	ssrAssetsPerEnvironment: Map<AstroEnvironmentNames, Set<string>>;
 
 	/**
+	 * Output directory hrefs whose `.vite/manifest.json` was written only because Astro forced
+	 * `build.manifest` on that environment. Populated by vitePluginSSRAssets and cleaned up
+	 * after the build.
+	 */
+	astroViteManifestDirectories: Set<string>;
+
+	/**
 	 * Chunks extracted during build that need post-build injection (manifest, content).
 	 * Populated by top-level buildApp, consumed by post plugin.
 	 */
@@ -196,6 +203,7 @@ export function createBuildInternals(): BuildInternals {
 		loggerEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
 		ssrAssetsPerEnvironment: new Map(),
+		astroViteManifestDirectories: new Set(),
 	};
 }
 

@@ -1,6 +1,11 @@
 import type { StdioOptions } from 'node:child_process';
 import type { AnyCommand } from './domain/command.js';
 import type { HelpPayload } from './domain/help-payload.js';
+import type { Flags } from './flags.js';
+
+export interface CliArgumentParser {
+	parse: (args: string[]) => Flags;
+}
 
 export interface HelpDisplay {
 	shouldFire: () => boolean;
