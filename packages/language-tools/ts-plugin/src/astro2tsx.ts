@@ -54,11 +54,10 @@ function usePublicComponentName(tsx: ConvertToTsxResult): ConvertToTsxResult {
 			length: generatedName.length,
 			text: publicName,
 		},
-		{
-			start: range.start + exportStatement.indexOf(generatedName),
-			length: generatedName.length,
-			text: publicName,
-		},
+		// tsserver has no equivalent of the language server's rewrite of named imports from `.astro`
+		// files, so the alias would let TypeScript suggest and accept `import { Footer }`, which fails at
+		// build time (#18749). The renamed default export is enough for auto-import to match the public name.
+		{ start: range.start, length: exportStatement.length, text: '' },
 	].sort((a, b) => a.start - b.start);
 
 	let code = tsx.code;
@@ -92,10 +91,7 @@ function usePublicComponentName(tsx: ConvertToTsxResult): ConvertToTsxResult {
 			const end = mapOffset(generatedOffset + generatedLength);
 			return [start, end - start, ...rest] as ConvertToTsxResult['mappings'][number];
 		}),
-		generatedComponentExport: {
-			start: mapOffset(range.start),
-			end: mapOffset(range.end),
-		},
+		generatedComponentExport: undefined,
 	};
 }
 
