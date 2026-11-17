@@ -1,5 +1,11 @@
 # @astrojs/vite-plugin-astro
 
+## 0.1.3
+
+### Patch Changes
+
+- [#18713](https://github.com/withastro/astro/pull/18713) [`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5) Thanks [@delucis](https://github.com/delucis)! - Unpins `@astrojs/*` dependencies to allow versions matching the `^` range to be installed
+
 ## 0.1.2
 
 ### Patch Changes
