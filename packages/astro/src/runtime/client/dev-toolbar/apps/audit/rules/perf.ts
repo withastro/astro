@@ -5,16 +5,17 @@ const EXTERNAL_URL_REGEX = /^(?:[a-z+]+:)?\/\//i;
 
 /**
  * Reads the image's size from the resource timing entry of the request that loaded it, waiting for
- * an eager image to finish loading first. Returns 0 when the size is unknown: a lazy image that hasn't
- * loaded yet, or a browser reporting no size (WebKit does for `loading="lazy"` images).
+ * an eager or in-viewport lazy image to finish loading first. Returns 0 when the size is unknown: an
+ * off-screen lazy image that hasn't loaded yet, or a browser reporting no size (WebKit does for `loading="lazy"` images).
  *
  * The image is never fetched again: fetching an animated SVG freezes its CSS animations in WebKit,
  * and fetching a lazy image forces a download the page deferred (https://github.com/withastro/astro/issues/18700).
  */
 async function getImageSize(image: HTMLImageElement): Promise<number> {
 	if (!image.complete) {
-		// A lazy image may not load until the user scrolls to it, and the audit awaits each rule in turn
-		if (image.loading === 'lazy') return 0;
+		// An off-screen lazy image may not load until the user scrolls to it, and the audit awaits each
+		// rule in turn. A lazy image inside the viewport is already being loaded by the browser.
+		if (image.loading === 'lazy' && !isInViewport(image)) return 0;
 		await new Promise<void>((resolve) => {
 			image.addEventListener('load', () => resolve(), { once: true });
 			image.addEventListener('error', () => resolve(), { once: true });
@@ -24,6 +25,16 @@ async function getImageSize(image: HTMLImageElement): Promise<number> {
 	const entries = performance.getEntriesByName(image.currentSrc, 'resource');
 	const entry = entries.at(-1) as PerformanceResourceTiming | undefined;
 	return entry?.decodedBodySize || entry?.encodedBodySize || entry?.transferSize || 0;
+}
+
+function isInViewport(element: Element): boolean {
+	const rect = element.getBoundingClientRect();
+	return (
+		rect.bottom > 0 &&
+		rect.right > 0 &&
+		rect.top < window.innerHeight &&
+		rect.left < window.innerWidth
+	);
 }
 
 export const perf: AuditRuleWithSelector[] = [

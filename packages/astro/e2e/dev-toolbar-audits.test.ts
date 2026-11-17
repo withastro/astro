@@ -161,7 +161,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
 		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
 
-		// Only the loaded image above the fold is reported, the one below the fold hasn't loaded
+		// Only the image above the fold is measured, the one below the fold hasn't loaded
 		await expect(auditHighlights).toHaveCount(1);
 		expect(await auditHighlights.first().getAttribute('data-audit-code')).toBe(
 			'perf-use-image-component',
