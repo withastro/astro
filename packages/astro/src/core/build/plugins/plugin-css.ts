@@ -640,8 +640,9 @@ function getHydratedComponentIds(internals: BuildInternals): Set<string> {
  * transitively, by chunks of hydrated components, and by no other entry chunk.
  *
  * Hydrated components are rendered on the server, so the CSS of their static imports is
- * already on every page that loads them. Chunks reached only through dynamic imports are
- * excluded because their CSS may not be on the page. Chunks also reached, statically or
+ * already on every page that loads them. Chunks that any island reaches only through dynamic
+ * imports are excluded because their CSS may not be on that island's page, even when another
+ * island imports them statically. Chunks also reached, statically or
  * dynamically, from other entries (`client:only` components, scripts, renderers) are excluded
  * because those pages may rely on the client copy of the CSS.
  * https://github.com/withastro/astro/issues/18677
@@ -674,11 +675,29 @@ function getChunksSharedByIslands(
 	const islandChunks = new Set<string>();
 	const reachedFromIslands = new Set<string>();
 	const reachedFromOtherEntries = new Set<string>();
+	// Chunks an island loads only through `import()`: another island may import them
+	// statically, but this island's page has no server-rendered copy of their CSS.
+	// https://github.com/withastro/astro/issues/18767
+	const reachedOnlyDynamically = new Set<string>();
 	for (const chunk of Object.values(bundle)) {
 		if (chunk.type !== 'chunk' || !chunk.isEntry) continue;
 		if (containsAny(chunk, hydratedIds) && !containsAny(chunk, clientOnlyIds)) {
 			islandChunks.add(chunk.fileName);
-			collectImports(chunk.fileName, reachedFromIslands, false);
+			const staticImports = new Set([chunk.fileName]);
+			collectImports(chunk.fileName, staticImports, false);
+			const dynamicImports = new Set<string>();
+			for (const fileName of staticImports) {
+				reachedFromIslands.add(fileName);
+				const imported = bundle[fileName];
+				if (imported?.type !== 'chunk') continue;
+				for (const dynamicImport of imported.dynamicImports) {
+					dynamicImports.add(dynamicImport);
+					collectImports(dynamicImport, dynamicImports, true);
+				}
+			}
+			for (const fileName of dynamicImports) {
+				if (!staticImports.has(fileName)) reachedOnlyDynamically.add(fileName);
+			}
 		} else {
 			reachedFromOtherEntries.add(chunk.fileName);
 			collectImports(chunk.fileName, reachedFromOtherEntries, true);
@@ -687,7 +706,11 @@ function getChunksSharedByIslands(
 
 	const shared = new Set<string>();
 	for (const fileName of reachedFromIslands) {
-		if (!islandChunks.has(fileName) && !reachedFromOtherEntries.has(fileName)) {
+		if (
+			!islandChunks.has(fileName) &&
+			!reachedFromOtherEntries.has(fileName) &&
+			!reachedOnlyDynamically.has(fileName)
+		) {
 			shared.add(fileName);
 		}
 	}

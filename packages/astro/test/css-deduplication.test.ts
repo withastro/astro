@@ -78,6 +78,20 @@ describe('CSS deduplication for hydrated components', () => {
 			const linked = await fixture.readFile(`/_astro/${linkedCss[0]}`);
 			assert.match(linked, /\.shared-badge/);
 		});
+
+		it('keeps client CSS of chunks an island imports dynamically and another island imports statically', async () => {
+			const html = await fixture.readFile('/lazy-lightbox/index.html');
+			const cssFiles = new Set(
+				[...html.matchAll(/href="\/_astro\/([^"]+\.css)"/g)].map((m) => m[1]),
+			);
+			const assets = await fixture.readdir('/_astro');
+			for (const fileName of assets.filter((f) => f.endsWith('.js'))) {
+				const js = await fixture.readFile(`/_astro/${fileName}`);
+				for (const [, cssFile] of js.matchAll(/_astro\/([^"'`]+\.css)/g)) cssFiles.add(cssFile);
+			}
+			const css = await Promise.all([...cssFiles].map((f) => fixture.readFile(`/_astro/${f}`)));
+			assert.match(css.join(''), /\.shared-lightbox/);
+		});
 	});
 
 	describe('inlineStylesheets: always', () => {
@@ -92,9 +106,12 @@ describe('CSS deduplication for hydrated components', () => {
 			await fixture.build();
 		});
 
-		it('should not emit any .css file when inlineStylesheets is always', async () => {
+		it('should only emit .css files for dynamic imports when inlineStylesheets is always', async () => {
 			const assets = await fixture.readdir('/_astro');
-			assert.ok(!assets.some((f) => f.endsWith('.css')));
+			// `/lazy-lightbox` loads Lightbox through a client-only `import()`, which preloads its CSS file
+			const cssFiles = assets.filter((f) => f.endsWith('.css'));
+			assert.equal(cssFiles.length, 1);
+			assert.match(cssFiles[0], /^Lightbox\./);
 		});
 	});
 });
