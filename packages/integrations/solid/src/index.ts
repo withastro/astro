@@ -14,9 +14,7 @@ function getViteConfiguration(
 	{ include, exclude, compiler, serverFunctions }: Options,
 	manifestSource: ManifestSource,
 ) {
-	const [hideManifest, restoreManifest] = astroOwnsBuildOrder();
 	const plugins: PluginOption[] = [
-		hideManifest,
 		solid({
 			include,
 			exclude,
@@ -30,8 +28,6 @@ function getViteConfiguration(
 				? { ...(serverFunctions === true ? {} : serverFunctions), devMiddleware: false }
 				: undefined,
 		}),
-		// Must follow solid(): normal-order buildApp hooks run in list order.
-		restoreManifest,
 		configEnvironmentPlugin(manifestSource),
 	];
 
@@ -152,42 +148,6 @@ export type ManifestSource = {
 	base: string;
 	serverComponents: boolean;
 };
-
-// Astro orders the environment builds itself (server and prerender first, the
-// client last, once the islands are known), and the manifest handoff below
-// expects that order. @solidjs/vite-plugin's `solid:client-build-first`
-// (enabled by `ssr: true`) would build the client ahead of Astro whenever the
-// client has a manifest and an input — the input it sees then is Astro's
-// placeholder (e.g. `virtual:astro:legacy-ssr-entry`), which fails. Hide the
-// manifest flag from that hook only: the first plugin clears it before any
-// normal-order buildApp hook runs, the second restores it after
-// @solidjs/vite-plugin's, before Astro's own buildApp starts building.
-function astroOwnsBuildOrder(): [Plugin, Plugin] {
-	let manifest: boolean | string | undefined;
-	return [
-		{
-			name: '@astrojs/solid:build-order',
-			apply: 'build',
-			buildApp: {
-				order: 'pre',
-				async handler(builder) {
-					const client = builder.environments.client;
-					if (!client) return;
-					manifest = client.config.build.manifest;
-					client.config.build.manifest = false;
-				},
-			},
-		},
-		{
-			name: '@astrojs/solid:build-order/restore',
-			apply: 'build',
-			async buildApp(builder) {
-				const client = builder.environments.client;
-				if (client && manifest !== undefined) client.config.build.manifest = manifest;
-			},
-		},
-	];
-}
 
 const VIRTUAL_MANIFEST_ID = 'virtual:astro-solid-manifest';
 const RESOLVED_VIRTUAL_MANIFEST_ID = '\0' + VIRTUAL_MANIFEST_ID;

@@ -37,7 +37,7 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:^",
     "@astrojs/solid-js-renderer": "workspace:^",
-    "@solidjs/vite-plugin": "^3.0.0",
+    "@solidjs/vite-plugin": "^3.0.1",
     "vite": "^8.3.8"
   },
   "devDependencies": {

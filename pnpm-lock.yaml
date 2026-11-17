@@ -6438,8 +6438,8 @@ importers:
         specifier: workspace:^
         version: link:../../renderers/solid-js
       '@solidjs/vite-plugin':
-        specifier: ^3.0.0
-        version: 3.0.0(@babel/core@8.1.2)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)
+        specifier: ^3.0.1
+        version: 3.0.1(@babel/core@8.1.2)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)
       vite:
         specifier: ^8.3.8
         version: 8.3.8(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.108.2)(tsx@4.23.15)(yaml@2.9.1)
@@ -7541,8 +7541,8 @@ importers:
         specifier: workspace:*
         version: link:../../vite-plugin-astro
       '@solidjs/vite-plugin':
-        specifier: ^3.0.0
-        version: 3.0.0(@babel/core@8.1.2)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)
+        specifier: ^3.0.1
+        version: 3.0.1(@babel/core@8.1.2)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)
       '@solidjs/web':
         specifier: ^2.0.0
         version: 2.0.0(solid-js@2.0.0)
@@ -7568,8 +7568,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../vite-plugin-astro
       '@solidjs/vite-plugin':
-        specifier: ^3.0.0
-        version: 3.0.0(@babel/core@8.1.2)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)
+        specifier: ^3.0.1
+        version: 3.0.1(@babel/core@8.1.2)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)
       '@solidjs/web':
         specifier: ^2.0.0
         version: 2.0.0(solid-js@2.0.0)
@@ -7812,8 +7812,8 @@ importers:
         specifier: ^2.10.6
         version: 2.10.6(@babel/core@7.29.7)(preact@11.2.0)(supports-color@10.2.2)(vite@8.3.8)
       '@solidjs/vite-plugin':
-        specifier: ^3.0.0
-        version: 3.0.0(@babel/core@7.29.7)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)
+        specifier: ^3.0.1
+        version: 3.0.1(@babel/core@7.29.7)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)
       '@solidjs/web':
         specifier: ^2.0.0
         version: 2.0.0(solid-js@2.0.0)
@@ -11463,8 +11463,8 @@ packages:
     resolution: {integrity: sha512-jrcT6XTVvsYRpesRp0At/mSUnsWr6jiprK8C93Oat56B8n7X9BMSe58Rxl6qSZUhBN0L+sxm8GzeO7HdhBXvDw==}
     engines: {node: '>=22.12.0'}
 
-  '@solidjs/vite-plugin@3.0.0':
-    resolution: {integrity: sha512-JXFEewd+vKxbAuqc2+gtf0cnsc4esDq+lax6KKGRvP3D5np49rhF1V6mCLtiOEfeVEcSrBP6MRlArObiTaCQfA==}
+  '@solidjs/vite-plugin@3.0.1':
+    resolution: {integrity: sha512-dyRU4LJXhzEEgtF32AtUdjqaUuMVYTVLQvhYlT6HcYBvf10yIVmKgW9cg42b5YDxkl6BgAJ9o0OjUnAy3qKb9A==}
     engines: {node: '>=22.12.0'}
     peerDependencies:
       '@babel/core': ^7.23.3 || ^8.0.0
@@ -21063,7 +21063,7 @@ snapshots:
 
   '@solidjs/signals@2.0.0': {}
 
-  '@solidjs/vite-plugin@3.0.0(@babel/core@7.29.7)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)':
+  '@solidjs/vite-plugin@3.0.1(@babel/core@7.29.7)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@solidjs/compiler': 2.0.0
@@ -21076,7 +21076,7 @@ snapshots:
     optionalDependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
 
-  '@solidjs/vite-plugin@3.0.0(@babel/core@8.1.2)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)':
+  '@solidjs/vite-plugin@3.0.1(@babel/core@8.1.2)(@solidjs/web@2.0.0)(solid-js@2.0.0)(vite@8.3.8)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@solidjs/compiler': 2.0.0

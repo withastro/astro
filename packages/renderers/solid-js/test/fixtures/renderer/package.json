@@ -7,7 +7,7 @@
     "@astrojs/runtime": "workspace:*",
     "@astrojs/solid-js-renderer": "workspace:*",
     "@astrojs/vite-plugin-astro": "workspace:*",
-    "@solidjs/vite-plugin": "^3.0.0",
+    "@solidjs/vite-plugin": "^3.0.1",
     "@solidjs/web": "^2.0.0",
     "@test/solid-renderer-lib": "workspace:*",
     "solid-js": "^2.0.0",

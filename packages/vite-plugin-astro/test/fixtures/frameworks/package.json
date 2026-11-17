@@ -12,7 +12,7 @@
     "@astrojs/vite-plugin-astro": "workspace:*",
     "@astrojs/vue-renderer": "workspace:*",
     "@preact/preset-vite": "^2.10.6",
-    "@solidjs/vite-plugin": "^3.0.0",
+    "@solidjs/vite-plugin": "^3.0.1",
     "@solidjs/web": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@vitejs/plugin-react": "^6.3.0",
