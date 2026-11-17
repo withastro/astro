@@ -1,10 +1,11 @@
 ---
 '@astrojs/solid-js': major
+'@astrojs/solid-js-renderer': minor
 ---
 
 Adds support for Solid 2.0 (requires `solid-js@^2.0.0` and `@solidjs/web@^2.0.0`)
 
-This major version supports Solid 2.0 only; use `@astrojs/solid-js@7` for Solid 1.x projects.
+This major version supports Solid 2.0 only; use `@astrojs/solid-js@7` (and `@astrojs/solid-js-renderer@0.1`) for Solid 1.x projects. The Solid 2.0 renderer lives in `@astrojs/solid-js-renderer`, which the integration re-exports.
 
 Highlights:
 

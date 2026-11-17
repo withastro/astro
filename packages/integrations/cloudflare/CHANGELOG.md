@@ -1,5 +1,51 @@
 # @astrojs/cloudflare
 
+## 14.4.8
+
+### Patch Changes
+
+- [#18713](https://github.com/withastro/astro/pull/18713) [`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5) Thanks [@delucis](https://github.com/delucis)! - Unpins `@astrojs/*` dependencies to allow versions matching the `^` range to be installed
+
+## 14.4.7
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.6
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.5
+
+### Patch Changes
+
+- [#18562](https://github.com/withastro/astro/pull/18562) [`9055de2`](https://github.com/withastro/astro/commit/9055de2295c8a3b7503e39252cbb97e4bcbed095) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the passthrough `/_image` endpoint returning a 404 instead of `304 Not Modified` when the browser revalidates a cached local image with `If-None-Match`. Revalidation supports weak ETags, tag lists, and wildcard conditions for local and allowed remote images while preserving image-type validation.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.4
+
+### Patch Changes
+
+- [#18552](https://github.com/withastro/astro/pull/18552) [`549f88e`](https://github.com/withastro/astro/commit/549f88e7ca7fd427d04d4288f887b139a4892294) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a dev dependency scan error caused by object keys named `import` in frontmatter, such as the `import` option of `import.meta.glob()`
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.3
+
+### Patch Changes
+
+- [#18526](https://github.com/withastro/astro/pull/18526) [`d0504c2`](https://github.com/withastro/astro/commit/d0504c272deadc02a97a1078504f9a4698c09553) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `process is not defined` errors in client-side scripts and islands that reference `process.env`. The adapter's `process.env` define now applies only to the server output, so browser builds get Vite's default replacement.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.4.2
 
 ### Patch Changes

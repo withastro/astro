@@ -1,5 +1,17 @@
 # @astrojs/internal-helpers
 
+## 0.13.2
+
+### Patch Changes
+
+- [#18695](https://github.com/withastro/astro/pull/18695) [`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005) Thanks [@matthewp](https://github.com/matthewp)! - Adds the `@astrojs/internal-helpers/renderer` export used by `@astrojs/react`, `@astrojs/preact`, `@astrojs/solid-js`, `@astrojs/svelte` and `@astrojs/vue`, which fail to load without it
+
+## 0.13.1
+
+### Patch Changes
+
+- [`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the image endpoint treating directories whose names differ only by letter case as being inside the build output directory on case-sensitive filesystems
+
 ## 0.13.0
 
 ### Minor Changes

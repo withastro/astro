@@ -38,7 +38,7 @@ describe('normalizeRewritePathname', () => {
 	describe('with base path', () => {
 		it('strips base from pathname', () => {
 			const result = normalizeRewritePathname('/docs/about', '/docs/', 'never', 'directory');
-			assert.equal(result.pathname, 'about');
+			assert.equal(result.pathname, '/about');
 			assert.equal(result.resolvedUrlPathname, '/docs/about');
 		});
 
@@ -56,14 +56,13 @@ describe('normalizeRewritePathname', () => {
 
 		it('strips base from nested path (never)', () => {
 			const result = normalizeRewritePathname('/docs/guide/intro', '/docs/', 'never', 'directory');
-			assert.equal(result.pathname, 'guide/intro');
+			assert.equal(result.pathname, '/guide/intro');
 			assert.equal(result.resolvedUrlPathname, '/docs/guide/intro');
 		});
 
 		it('strips base from nested path (always)', () => {
 			const result = normalizeRewritePathname('/docs/guide/intro', '/docs/', 'always', 'directory');
-			// After base stripping: 'guide/intro/', no leading slash (base was stripped)
-			assert.equal(result.pathname, 'guide/intro/');
+			assert.equal(result.pathname, '/guide/intro/');
 			assert.equal(result.resolvedUrlPathname, '/docs/guide/intro/');
 		});
 	});
@@ -114,27 +113,26 @@ describe('normalizeRewritePathname', () => {
 
 		it('strips .html with base path', () => {
 			const result = normalizeRewritePathname('/docs/about.html', '/docs/', 'ignore', 'file');
-			assert.equal(result.pathname, 'about');
+			assert.equal(result.pathname, '/about');
 		});
 	});
 
 	describe('combined: base + trailingSlash + buildFormat', () => {
 		it('base + never + file format strips both .html and trailing slash', () => {
 			const result = normalizeRewritePathname('/docs/about.html', '/docs/', 'never', 'file');
-			assert.equal(result.pathname, 'about');
+			assert.equal(result.pathname, '/about');
 			assert.equal(result.resolvedUrlPathname, '/docs/about');
 		});
 
 		it('base + never + directory format strips base', () => {
 			const result = normalizeRewritePathname('/docs/about/', '/docs/', 'never', 'directory');
-			assert.equal(result.pathname, 'about');
+			assert.equal(result.pathname, '/about');
 			assert.equal(result.resolvedUrlPathname, '/docs/about');
 		});
 
 		it('base + always + directory format appends slash after base strip', () => {
 			const result = normalizeRewritePathname('/docs/about', '/docs/', 'always', 'directory');
-			// After base stripping: 'about/', no leading slash
-			assert.equal(result.pathname, 'about/');
+			assert.equal(result.pathname, '/about/');
 			assert.equal(result.resolvedUrlPathname, '/docs/about/');
 		});
 	});

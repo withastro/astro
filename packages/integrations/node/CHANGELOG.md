@@ -1,5 +1,31 @@
 # @astrojs/node
 
+## 11.1.13
+
+### Patch Changes
+
+- [#18713](https://github.com/withastro/astro/pull/18713) [`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5) Thanks [@delucis](https://github.com/delucis)! - Unpins `@astrojs/*` dependencies to allow versions matching the `^` range to be installed
+
+## 11.1.12
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+
+## 11.1.11
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+
+## 11.1.10
+
+### Patch Changes
+
+- [#18563](https://github.com/withastro/astro/pull/18563) [`8a92f7c`](https://github.com/withastro/astro/commit/8a92f7c7cc2df893a23ba0d75e40d2825741761d) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes on-demand routes receiving an empty request body on Node.js 26 when `staticHeaders` is enabled
+
 ## 11.1.9
 
 ### Patch Changes

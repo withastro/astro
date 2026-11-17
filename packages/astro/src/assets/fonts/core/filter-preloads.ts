@@ -36,16 +36,18 @@ export function filterPreloads(
 }
 
 function checkWeight(input: string, target: string): boolean {
-	// If the input looks like "100 900", we check it as is
 	const trimmedInput = input.trim();
-	if (trimmedInput.includes(' ')) {
-		return trimmedInput === target;
+	const trimmedTarget = target.trim();
+	if (trimmedInput === trimmedTarget) {
+		return true;
 	}
-	// If the target looks like "100 900", we check if the input is between the values
-	if (target.includes(' ')) {
-		const [a, b] = target.split(' ');
-		const parsedInput = Number.parseInt(input);
-		return parsedInput >= Number.parseInt(a) && parsedInput <= Number.parseInt(b);
-	}
-	return input === target;
+	// A weight like "400" or a range like "400 700" matches a file whose range contains it, e.g. "100 900"
+	const [inputMin, inputMax] = parseWeightRange(trimmedInput);
+	const [targetMin, targetMax] = parseWeightRange(trimmedTarget);
+	return inputMin >= targetMin && inputMax <= targetMax;
+}
+
+function parseWeightRange(weight: string): [number, number] {
+	const [min, max = min] = weight.split(/\s+/).map((value) => Number.parseFloat(value));
+	return [min, max];
 }

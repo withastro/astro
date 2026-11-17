@@ -1,5 +1,33 @@
 # @astrojs/markdoc
 
+## 2.1.5
+
+### Patch Changes
+
+- [#18713](https://github.com/withastro/astro/pull/18713) [`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5) Thanks [@delucis](https://github.com/delucis)! - Unpins `@astrojs/*` dependencies to allow versions matching the `^` range to be installed
+
+## 2.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+
+## 2.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+
+## 2.1.2
+
+### Patch Changes
+
+- [`edfbf4a`](https://github.com/withastro/astro/commit/edfbf4ab34ff007ae8f7188af76a023a15c9443d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Prism code blocks for languages Prism doesn't support, such as `vue` or `svelte`. Their code is now displayed as plain text instead of being rendered as HTML. Also correctly escapes the code block language in the generated `class` and `data-language` attributes.
+- Updated dependencies [[`edfbf4a`](https://github.com/withastro/astro/commit/edfbf4ab34ff007ae8f7188af76a023a15c9443d)]:
+  - @astrojs/prism@4.1.2
+
 ## 2.1.1
 
 ### Patch Changes

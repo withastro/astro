@@ -16,7 +16,7 @@ describe('Custom entry file using astro/fetch', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-entryfile-fetch-state/',
-			server: { port: 48082 },
+			server: { port: 48100 },
 		});
 		await fixture.build();
 		await writeFile(
@@ -112,7 +112,7 @@ describe('Custom entry file using astro/fetch in dev', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-entryfile-fetch-state/',
-			server: { port: 48082 },
+			server: { port: 0 },
 		});
 		// Optimizer plugins are not included in Vite's cache key.
 		const viteCacheDir = new URL('./node_modules/.vite/', fixture.config.root);

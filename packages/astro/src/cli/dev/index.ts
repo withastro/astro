@@ -12,14 +12,12 @@ import { resolveRoot } from '../../core/config/config.js';
 import { printHelp } from '../../core/messages/runtime.js';
 import { isRunByAgent, supportsAgentAutoBackgrounding } from '../agent.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import { devServerCommand, isBackgroundServerProcess } from '../server.js';
 
 interface DevOptions {
 	flags: Flags;
 }
 
-/**
- * `yargs-parser` camel-cases `--ignore-lock` to `flags.ignoreLock`.
- */
 export function isIgnoreLock(flags: Flags): boolean {
 	return flags.ignoreLock === true;
 }
@@ -228,7 +226,7 @@ export async function dev({ flags }: DevOptions) {
 			port: server.address.port,
 			url: serverUrl,
 			urls: server.resolvedUrls,
-			background: !!process.env.ASTRO_DEV_BACKGROUND,
+			background: isBackgroundServerProcess(devServerCommand),
 			startedAt: new Date().toISOString(),
 		});
 

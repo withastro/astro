@@ -26,19 +26,24 @@
 
 'pkg: preact':
 - packages/integrations/preact/**
+- packages/renderers/preact/**
 
 'pkg: react':
 - packages/integrations/react/**
+- packages/renderers/react/**
 
 'pkg: solid':
 - packages/integrations/solid/**
+- packages/renderers/solid-js/**
 
 'pkg: svelte':
 - packages/integrations/svelte/**
+- packages/renderers/svelte/**
 
 'pkg: vue':
 - packages/integrations/vue/**
+- packages/renderers/vue/**
 
 'docs pr':
 - packages/astro/src/types/public/**
-- packages/astro/src/core/errors/errors-data.ts
+- packages/runtime/src/core/errors/errors-data.ts

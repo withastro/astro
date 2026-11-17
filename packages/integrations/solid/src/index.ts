@@ -1,17 +1,22 @@
 import { fileURLToPath } from 'node:url';
+import { reexportRenderer } from '@astrojs/internal-helpers/renderer';
+import solidRenderer from '@astrojs/solid-js-renderer';
 import type { Options as ViteSolidPluginOptions } from '@solidjs/vite-plugin';
 import solid from '@solidjs/vite-plugin';
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import type { Plugin, PluginOption } from 'vite';
-import { crawlFrameworkPkgs } from 'vitefu';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
+
+const fromRendererPackage = (renderer: AstroRenderer) =>
+	reexportRenderer(renderer, '@astrojs/solid-js-renderer', '@astrojs/solid-js');
 
 function getViteConfiguration(
 	{ include, exclude, compiler, serverFunctions }: Options,
-	solidNoExternal: string[],
 	manifestSource: ManifestSource,
 ) {
+	const [hideManifest, restoreManifest] = astroOwnsBuildOrder();
 	const plugins: PluginOption[] = [
+		hideManifest,
 		solid({
 			include,
 			exclude,
@@ -25,15 +30,16 @@ function getViteConfiguration(
 				? { ...(serverFunctions === true ? {} : serverFunctions), devMiddleware: false }
 				: undefined,
 		}),
-		configEnvironmentPlugin(solidNoExternal, manifestSource),
+		// Must follow solid(): normal-order buildApp hooks run in list order.
+		restoreManifest,
+		configEnvironmentPlugin(manifestSource),
 	];
 
 	return { plugins };
 }
 
 function serverFunctionsEndpoint(serverFunctions: Options['serverFunctions']): string {
-	const endpoint =
-		(typeof serverFunctions === 'object' && serverFunctions.endpoint) || '/_server';
+	const endpoint = (typeof serverFunctions === 'object' && serverFunctions.endpoint) || '/_server';
 	return endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
 }
 
@@ -70,7 +76,6 @@ export default function (options: Options = {}): AstroIntegration {
 		hooks: {
 			'astro:config:setup': async ({
 				command,
-				config,
 				addRenderer,
 				updateConfig,
 				injectRoute,
@@ -99,26 +104,11 @@ export default function (options: Options = {}): AstroIntegration {
 						`import { installServerComponents } from '@solidjs/web/frames';\ninstallServerComponents();`,
 					);
 				}
-				// Solid component libraries that ship pre-compiled browser
-				// artifacts via the `exports.solid` condition must go through
-				// Vite's transform pipeline in non-client environments.
-				// Without this, Node resolves those packages via the `default`
-				// condition, which picks up browser-only code that crashes
-				// during prerendering.
-				const solidPackages = await crawlFrameworkPkgs({
-					root: fileURLToPath(config.root),
-					isBuild: false,
-					isFrameworkPkgByJson(pkgJson) {
-						return !!(
-							pkgJson.peerDependencies?.['solid-js'] ||
-							pkgJson.peerDependencies?.['@solidjs/web']
-						);
-					},
-				});
-
-				addRenderer(getContainerRendererImpl());
+				// The renderer (from @astrojs/solid-js-renderer) also brings the
+				// optimizeDeps entries and the `noExternal` crawl of Solid libraries.
+				addRenderer(fromRendererPackage(solidRenderer()));
 				updateConfig({
-					vite: getViteConfiguration(options, solidPackages.ssr.noExternal, manifestSource),
+					vite: getViteConfiguration(options, manifestSource),
 				});
 			},
 			'astro:config:done': ({ logger, config }) => {
@@ -163,6 +153,42 @@ export type ManifestSource = {
 	serverComponents: boolean;
 };
 
+// Astro orders the environment builds itself (server and prerender first, the
+// client last, once the islands are known), and the manifest handoff below
+// expects that order. @solidjs/vite-plugin's `solid:client-build-first`
+// (enabled by `ssr: true`) would build the client ahead of Astro whenever the
+// client has a manifest and an input — the input it sees then is Astro's
+// placeholder (e.g. `virtual:astro:legacy-ssr-entry`), which fails. Hide the
+// manifest flag from that hook only: the first plugin clears it before any
+// normal-order buildApp hook runs, the second restores it after
+// @solidjs/vite-plugin's, before Astro's own buildApp starts building.
+function astroOwnsBuildOrder(): [Plugin, Plugin] {
+	let manifest: boolean | string | undefined;
+	return [
+		{
+			name: '@astrojs/solid:build-order',
+			apply: 'build',
+			buildApp: {
+				order: 'pre',
+				async handler(builder) {
+					const client = builder.environments.client;
+					if (!client) return;
+					manifest = client.config.build.manifest;
+					client.config.build.manifest = false;
+				},
+			},
+		},
+		{
+			name: '@astrojs/solid:build-order/restore',
+			apply: 'build',
+			async buildApp(builder) {
+				const client = builder.environments.client;
+				if (client && manifest !== undefined) client.config.build.manifest = manifest;
+			},
+		},
+	];
+}
+
 const VIRTUAL_MANIFEST_ID = 'virtual:astro-solid-manifest';
 const RESOLVED_VIRTUAL_MANIFEST_ID = '\0' + VIRTUAL_MANIFEST_ID;
 
@@ -180,7 +206,7 @@ function manifestRegistryKey(manifestSource: ManifestSource): string {
 	return `${MANIFEST_REGISTRY_KEY}:${manifestSource.clientDirs[0] ?? ''}`;
 }
 
-function configEnvironmentPlugin(solidNoExternal: string[], manifestSource: ManifestSource): Plugin {
+function configEnvironmentPlugin(manifestSource: ManifestSource): Plugin {
 	return {
 		name: '@astrojs/solid:config-environment',
 		configEnvironment(environmentName) {
@@ -189,20 +215,13 @@ function configEnvironmentPlugin(solidNoExternal: string[], manifestSource: Mani
 					// Emit .vite/manifest.json in the client build so the server
 					// render can resolve lazy boundary module assets at runtime.
 					build: { manifest: true },
-					optimizeDeps: {
-						include: ['@astrojs/solid-js/client.js'],
-						exclude: ['@astrojs/solid-js/server.js'],
-					},
 				};
 			}
 			return {
-				// The integration itself must go through Vite in server
-				// environments so `virtual:astro-solid-manifest` resolves inside
-				// server.js (a bare Node import of it degrades gracefully).
-				resolve: { noExternal: [...solidNoExternal, '@astrojs/solid-js'] },
-				optimizeDeps: {
-					exclude: ['@astrojs/solid-js/server.js'],
-				},
+				// The renderer must go through Vite in server environments so
+				// `virtual:astro-solid-manifest` resolves inside its server.js (a
+				// bare Node import of it degrades gracefully).
+				resolve: { noExternal: ['@astrojs/solid-js', '@astrojs/solid-js-renderer'] },
 			};
 		},
 		resolveId(id) {
@@ -232,7 +251,7 @@ function configEnvironmentPlugin(solidNoExternal: string[], manifestSource: Mani
 					: []),
 				`new URL(${JSON.stringify('./' + PERSISTED_MANIFEST_NAME)}, import.meta.url)`,
 				`new URL(${JSON.stringify('../' + PERSISTED_MANIFEST_NAME)}, import.meta.url)`,
-			];
+			].map((candidate) => `() => ${candidate}`);
 			return (
 				flags +
 				`import { readFileSync } from 'node:fs';\n` +
@@ -244,7 +263,9 @@ function configEnvironmentPlugin(solidNoExternal: string[], manifestSource: Mani
 				`  if (manifest === undefined) {\n` +
 				`    for (const candidate of [${fileCandidates.join(', ')}]) {\n` +
 				`      try {\n` +
-				`        manifest = JSON.parse(readFileSync(candidate, 'utf-8'));\n` +
+				// Candidates are thunks: runtimes without a file system (e.g.
+				// workerd) may not give a usable `import.meta.url` either.
+				`        manifest = JSON.parse(readFileSync(candidate(), 'utf-8'));\n` +
 				`        break;\n` +
 				`      } catch {}\n` +
 				`    }\n` +

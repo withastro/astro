@@ -38,6 +38,7 @@ export async function copyDependenciesToFunction(
 	const { nodeFileTrace } = await import('@vercel/nft');
 	const result = await nodeFileTrace([entryPath], {
 		base: fileURLToPath(base),
+		ignore: (glob) => glob.startsWith('**'),
 		cache,
 	});
 
