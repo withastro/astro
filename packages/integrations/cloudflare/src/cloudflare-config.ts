@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseEnv } from 'node:util';
-import type { ParsedInputConfigWithWorker, PluginConfig } from '@cloudflare/vite-plugin';
+import type { PluginConfig, WorkerConfig } from '@cloudflare/vite-plugin';
 
 export const DEFAULT_SESSION_KV_BINDING_NAME = 'SESSION';
 export const DEFAULT_IMAGES_BINDING_NAME = 'IMAGES';
@@ -57,10 +57,8 @@ interface CloudflareConfigOptions {
 	needsWorkerCache?: boolean;
 }
 
-type CloudflareWorkerConfig = ParsedInputConfigWithWorker['worker'];
-
 function setProcessEnvFromBindings(
-	config: CloudflareWorkerConfig,
+	config: WorkerConfig,
 	envDir: string | undefined,
 	mode: string | undefined,
 ): void {

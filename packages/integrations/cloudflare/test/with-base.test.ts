@@ -111,12 +111,12 @@ describe('base', () => {
 
 	it('emits base-prefixed assets and the ASSETS binding in Build Output', async () => {
 		const raw = await fixture.readFile(
-			'../.cloudflare/output/v0/workers/default/worker.config.json',
+			'../.cloudflare/output/v1/workers/default/worker.config.json',
 		);
 		const config = JSON.parse(raw);
 		assert.deepEqual(config.env.ASSETS, { type: 'assets' });
 		assert.ok(
-			fixture.pathExists('../.cloudflare/output/v0/workers/default/assets/blog/favicon.ico'),
+			fixture.pathExists('../.cloudflare/output/v1/workers/default/assets/blog/favicon.ico'),
 			'Build Output should contain public files under the base prefix',
 		);
 	});

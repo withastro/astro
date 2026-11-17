@@ -23,7 +23,7 @@ const createPreviewServer: CreatePreviewServer = async ({
 	allowedHosts,
 	root,
 }) => {
-	const buildOutputConfigPath = new URL('./.cloudflare/output/v0/config.json', root);
+	const buildOutputConfigPath = new URL('./.cloudflare/output/v1/config.json', root);
 	if (!existsSync(buildOutputConfigPath)) {
 		logger.error('No build output found. Run `astro build` before running `astro preview`.');
 		process.exit(1);

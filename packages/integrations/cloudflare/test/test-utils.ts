@@ -13,10 +13,10 @@ export type { AstroInlineConfig, DevServer, Fixture, PreviewServer };
 
 export function getBuildOutputDirectory(root: URL, target: 'client' | 'server' | 'prerender'): URL {
 	if (target === 'client') {
-		return new URL('./.cloudflare/output/v0/workers/default/assets/', root);
+		return new URL('./.cloudflare/output/v1/workers/default/assets/', root);
 	}
 	const worker = target === 'server' ? 'default' : 'prerender';
-	return new URL(`./.cloudflare/output/v0/workers/${worker}/bundle/`, root);
+	return new URL(`./.cloudflare/output/v1/workers/${worker}/bundle/`, root);
 }
 
 export async function loadFixture(inlineConfig: AstroInlineConfig): Promise<Fixture> {

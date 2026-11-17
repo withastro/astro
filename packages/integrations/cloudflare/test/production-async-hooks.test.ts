@@ -60,7 +60,7 @@ describe('production worker async_hooks scan', () => {
 	it('does not append nodejs_als to the deployed Cloudflare config', () => {
 		// The auto-appended flag shapes only the transient build-time prerender
 		// worker; the user's deployable config must be untouched.
-		const configPath = new URL('.cloudflare/output/v0/workers/default/worker.config.json', root);
+		const configPath = new URL('.cloudflare/output/v1/workers/default/worker.config.json', root);
 		const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 		assert.ok(
 			!(config.compatibilityFlags ?? []).includes('nodejs_als'),

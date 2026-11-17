@@ -131,7 +131,7 @@ for (const output of ['server', undefined] as const) {
 			const config = JSON.parse(
 				await readFile(
 					new URL(
-						'./.cloudflare/output/v0/workers/default/worker.config.json',
+						'./.cloudflare/output/v1/workers/default/worker.config.json',
 						fixture.config.root,
 					),
 					'utf-8',
