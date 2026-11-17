@@ -1,6 +1,6 @@
 /**
  * Posts a review comment on each release PR, listing the open docs PRs labeled
- * for its release line.
+ * for its release line and the umbrellas that ship with it.
  *
  * Usage: `node .github/scripts/release-docs-prs.ts [--pr <number>] [--dry-run]`.
  * Without `--pr`, it updates every open release PR.
@@ -123,12 +123,14 @@ function buildComment(
 	openDocsPrs: DocsPullRequest[],
 ) {
 	const labels = getReleaseLabels(releasePr);
-	const docsPrs = openDocsPrs.filter((pr) => pr.labels.some((label) => labels.includes(label)));
-	const umbrellas = docsPrs.filter(isUmbrella).map((umbrella) => ({
-		...umbrella,
-		otherReleasePr: getOtherReleasePr(repository, umbrella.body, releasePr.number),
-	}));
-	const possibleMatches = docsPrs.filter((pr) => !isUmbrella(pr));
+	const hasReleaseLabel = (pr: DocsPullRequest) => pr.labels.some((label) => labels.includes(label));
+	const umbrellas = openDocsPrs
+		.filter((pr) => isUmbrella(pr) && (hasReleaseLabel(pr) || isUmbrellaOf(pr, releasePr)))
+		.map((umbrella) => ({
+			...umbrella,
+			otherReleasePr: getOtherReleasePr(repository, umbrella.body, releasePr.number),
+		}));
+	const possibleMatches = openDocsPrs.filter((pr) => !isUmbrella(pr) && hasReleaseLabel(pr));
 	return renderComment({ labels, umbrellas, possibleMatches });
 }
 
@@ -198,6 +200,27 @@ function isUmbrella({ headRepository, headBranch }: DocsPullRequest) {
 }
 
 /**
+ * Tells whether an umbrella ships with a release PR: the release PR it records,
+ * or else the release PR of the line its base branch documents.
+ */
+function isUmbrellaOf(
+	{ baseBranch, body }: DocsPullRequest,
+	{ number, headBranch }: ReleasePullRequest,
+) {
+	// The docs release assistant only records the release PR and its label when it
+	// runs, after a docs PR is accepted. An umbrella opened while no release PR was
+	// open has neither until then.
+	const recordedNumber = readRecordedReleasePr(body);
+	if (recordedNumber !== null) return recordedNumber === number;
+	return (baseBranch === DOCS_STABLE_BRANCH) === (headBranch === RELEASE_BRANCHES.stable);
+}
+
+function readRecordedReleasePr(umbrellaBody: string | null) {
+	const value = umbrellaBody?.match(UMBRELLA_RELEASE_PR_MARKER)?.[1];
+	return value === undefined ? null : Number(value);
+}
+
+/**
  * Gets the release PR an umbrella records in its description, and whether it is merged.
  *
  * @returns `null` when the umbrella records no release PR, or records `releasePrNumber`.
@@ -207,8 +230,8 @@ function getOtherReleasePr(
 	umbrellaBody: string | null,
 	releasePrNumber: number,
 ): OtherReleasePr | null {
-	const recordedNumber = Number(umbrellaBody?.match(UMBRELLA_RELEASE_PR_MARKER)?.[1]);
-	if (!recordedNumber || recordedNumber === releasePrNumber) return null;
+	const recordedNumber = readRecordedReleasePr(umbrellaBody);
+	if (recordedNumber === null || recordedNumber === releasePrNumber) return null;
 
 	const [isMerged] = callGitHubApi<boolean>([
 		`repos/${repository}/pulls/${recordedNumber}`,
@@ -230,7 +253,7 @@ function renderComment({
 	const header = [
 		COMMENT_MARKER,
 		'## Docs PRs',
-		`Open PRs in \`${DOCS_REPOSITORY}\` labeled ${formatList(labels.map((label) => `\`${label}\``))}.`,
+		`Open PRs in \`${DOCS_REPOSITORY}\` labeled ${formatList(labels.map((label) => `\`${label}\``))}, and the umbrellas of this release.`,
 	];
 	if (umbrellas.length === 0 && possibleMatches.length === 0) {
 		return [...header, 'None.'].join('\n\n');
