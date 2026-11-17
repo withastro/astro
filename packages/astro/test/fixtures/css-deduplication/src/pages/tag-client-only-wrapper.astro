@@ -1,0 +1,13 @@
+---
+// A `client:only` component rendering a component that `/tag-island` hydrates
+import { TagWrapper } from '../islands/TagWrapper';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<TagWrapper client:only="react" />
+	</body>
+</html>

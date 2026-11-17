@@ -1,0 +1,13 @@
+---
+// Svelte drops the click handler, and its `import()`, from the server build
+import DynamicIsland from '../../svelte/DynamicIsland.svelte';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<DynamicIsland client:load />
+	</body>
+</html>

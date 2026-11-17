@@ -1,0 +1,15 @@
+---
+// One island imports Lightbox statically, the other only with `import()`
+import { Gallery } from '../islands/Gallery';
+import { LazyLightbox } from '../islands/LazyLightbox';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<Gallery client:load />
+		<LazyLightbox client:load />
+	</body>
+</html>
