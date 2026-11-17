@@ -195,9 +195,10 @@ async function renderToStaticMarkup(
 
 	// Buffered stream render: awaiting the renderToStream thenable resolves
 	// with the complete HTML once every boundary settles. The stream never
-	// rejects — uncontained render errors surface through onError (errors
-	// handled by an Errored boundary do not reach it) and are rethrown below
-	// for real renders so Astro can report them.
+	// rejects — uncontained render errors surface through onError (with
+	// `handling: "failed"`; errors an Errored boundary handled are reported
+	// there too and are skipped) and are rethrown below for real renders so
+	// Astro can report them.
 	let errored = false;
 	let renderError: unknown;
 	let head = '';
@@ -208,7 +209,11 @@ async function renderToStaticMarkup(
 			noScripts: !needsHydrate || isProbe,
 			manifest: loadManifest?.() as any,
 			plugins: plugins as any,
-			onError(err: unknown) {
+			onError(err: unknown, context?: { handling?: string }) {
+				// Solid 2.0's onError also hears every failure the render handled
+				// (an <Errored> fallback, a <Loading> fragment the client re-renders).
+				// Only `handling: "failed"` fails the render.
+				if (context?.handling !== undefined && context.handling !== 'failed') return;
 				if (isProbe) {
 					metadata!.onProbeError();
 				} else if (!errored) {
