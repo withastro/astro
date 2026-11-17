@@ -141,7 +141,13 @@ jobs:
       - name: Package VS Code extension
         if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
-        run: node scripts/package-vsix.mjs
+        run: |
+          # `--cpu=wasm32` swaps the runner's native `@astrojs/compiler-binding` for its WASI build,
+          # so the universal VSIX works on every platform.
+          npm i --workspaces=false --cpu=wasm32
+          npx vsce package --out astro-vscode.vsix
+          # ovsx needs the native `@node-rs/crc32`, which has no WASI build.
+          npm i --workspaces=false
 
       - name: Publish to VSCode Marketplace
         if: steps.release.outputs.has_vscode == 'true'
