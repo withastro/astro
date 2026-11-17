@@ -3,7 +3,7 @@ import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
-import type { ParsedInputConfigWithWorker } from '@cloudflare/vite-plugin';
+import type { CloudflareConfig, WorkerConfig } from '@cloudflare/vite-plugin';
 import {
 	assertWranglerConfigMigrated,
 	cloudflareConfigCustomizer,
@@ -13,9 +13,7 @@ import {
 	withNodejsAlsFlag,
 } from '../dist/cloudflare-config.js';
 
-function createConfig(
-	worker: Partial<ParsedInputConfigWithWorker['worker']> = {},
-): ParsedInputConfigWithWorker {
+function createConfig(worker: Partial<WorkerConfig> = {}): CloudflareConfig {
 	return {
 		worker: { name: 'test-worker', compatibilityDate: '2026-10-01', env: {}, ...worker },
 		containers: [],
@@ -24,7 +22,7 @@ function createConfig(
 
 describe('cloudflareConfigCustomizer', () => {
 	it('preserves account settings, Containers, and Worker configuration without mutating the input', () => {
-		const config: ParsedInputConfigWithWorker = {
+		const config: CloudflareConfig = {
 			...createConfig({
 				compatibilityFlags: ['nodejs_compat'],
 				assets: { runWorkerFirst: true },

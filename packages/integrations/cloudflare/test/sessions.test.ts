@@ -156,7 +156,7 @@ describe('session Cloudflare config', () => {
 		await fixture.build(config);
 
 		const cloudflareConfig = JSON.parse(
-			await fixture.readFile('../.cloudflare/output/v0/workers/default/worker.config.json'),
+			await fixture.readFile('../.cloudflare/output/v1/workers/default/worker.config.json'),
 		) as {
 			env?: Record<string, { type: string }>;
 		};
@@ -179,7 +179,7 @@ describe('session Cloudflare config', () => {
 		await fixture.build(config);
 
 		const cloudflareConfig = JSON.parse(
-			await fixture.readFile('../.cloudflare/output/v0/workers/default/worker.config.json'),
+			await fixture.readFile('../.cloudflare/output/v1/workers/default/worker.config.json'),
 		) as {
 			env?: Record<string, { type: string }>;
 		};

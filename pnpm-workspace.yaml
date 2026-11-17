@@ -39,8 +39,7 @@ overrides:
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
-  # TODO: remove before merging once cf@0.13.0 satisfies minimumReleaseAge
-  - 'cf@0.13.0'
+  - 'cf@1.0.0-rc.0'
   - '@biomejs/*'
   - 'sharp@0.35.4'
   - '@img/sharp-*'
