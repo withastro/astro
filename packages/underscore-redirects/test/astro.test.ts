@@ -119,6 +119,75 @@ describe('Astro', () => {
 
 		assert.equal(redirects.definitions[0].status, 301);
 	});
+
+	it('Dynamic redirect targets use :splat for rest params without an HTML suffix', () => {
+		const route = {
+			pattern: '/blog/[...slug]',
+			pathname: undefined,
+			segments: [
+				[{ content: 'blog', dynamic: false, spread: false }],
+				[{ content: '...slug', dynamic: true, spread: true }],
+			],
+			type: 'redirect',
+			redirect: '/articles/[...slug]',
+			redirectRoute: {
+				pattern: '/articles/[...slug]',
+				segments: [
+					[{ content: 'articles', dynamic: false, spread: false }],
+					[{ content: '...slug', dynamic: true, spread: true }],
+				],
+			},
+			entrypoint: '/blog/[...slug]',
+			isPrerendered: true,
+			origin: 'internal',
+		} as unknown as IntegrationResolvedRoute;
+
+		for (const format of ['directory', 'file'] as const) {
+			const redirects = createRedirectsFromAstroRoutes({
+				config: { build: { format } } as AstroConfig,
+				routeToDynamicTargetMap: new Map([[route, '']]),
+				dir: new URL(import.meta.url),
+				buildOutput: 'static',
+				assets: new Map([['/blog/[...slug]', [new URL('./articles/index.html', import.meta.url)]]]),
+			});
+
+			assert.equal(redirects.definitions[0].input, '/blog/*');
+			assert.equal(redirects.definitions[0].target, '/articles/:splat');
+		}
+	});
+
+	it('Dynamic redirect targets keep named params without an HTML suffix', () => {
+		const route = {
+			pattern: '/old/[id]',
+			pathname: undefined,
+			segments: [
+				[{ content: 'old', dynamic: false, spread: false }],
+				[{ content: 'id', dynamic: true, spread: false }],
+			],
+			type: 'redirect',
+			redirect: '/new/[id]',
+			redirectRoute: {
+				pattern: '/new/[id]',
+				segments: [
+					[{ content: 'new', dynamic: false, spread: false }],
+					[{ content: 'id', dynamic: true, spread: false }],
+				],
+			},
+			entrypoint: '/old/[id]',
+			isPrerendered: true,
+			origin: 'internal',
+		} as unknown as IntegrationResolvedRoute;
+
+		const redirects = createRedirectsFromAstroRoutes({
+			config: { build: { format: 'directory' } } as AstroConfig,
+			routeToDynamicTargetMap: new Map([[route, '']]),
+			dir: new URL(import.meta.url),
+			buildOutput: 'static',
+			assets: new Map([['/old/[id]', [new URL('./old/index.html', import.meta.url)]]]),
+		});
+
+		assert.equal(redirects.definitions[0].target, '/new/:id');
+	});
 });
 
 function createIntegrationRoute(pattern: string, pathname = pattern): IntegrationResolvedRoute {
