@@ -138,17 +138,24 @@ jobs:
           done
           mv ./astro-ts-plugin-bundle ./node_modules/astro-ts-plugin-bundle
 
+      # Each target needs its own native dependencies, so the script installs and packages the
+      # targets one at a time, and fails if a VSIX is missing its `@astrojs/compiler-binding-*`.
+      - name: Package VS Code extension
+        if: steps.release.outputs.has_vscode == 'true'
+        working-directory: ./packages/language-tools/vscode
+        run: node scripts/package-targets.mjs
+
       - name: Publish to VSCode Marketplace
         if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
-          npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --skip-duplicate --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
+          npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --skip-duplicate --packagePath vsix/*.vsix
 
       - name: Publish to OpenVSX
         if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
-          npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --skip-duplicate --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
+          npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --skip-duplicate --packagePath vsix/*.vsix
           
       - name: Restore root package.json and node_modules
         if: steps.release.outputs.has_vscode == 'true'
