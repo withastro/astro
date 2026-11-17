@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 15.0.0-beta.6
+
+### Patch Changes
+
+- [#18754](https://github.com/withastro/astro/pull/18754) [`d342812`](https://github.com/withastro/astro/commit/d3428125e210c21f43b9732316644622a14e7a9e) Thanks [@edmundhung](https://github.com/edmundhung)! - Updates `@cloudflare/vite-plugin` to `2.0.0-rc.0`. Build output is now written to `.cloudflare/output/v1/`. Rebuild existing projects before running `astro preview` or deploying with `cf`.
+
 ## 15.0.0-beta.5
 
 ### Patch Changes
