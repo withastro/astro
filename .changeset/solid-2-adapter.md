@@ -2,7 +2,7 @@
 '@astrojs/solid-js': major
 ---
 
-Adds support for Solid 2.0 (requires `solid-js@^2.0.0-rc.5` and `@solidjs/web@^2.0.0-rc.5`)
+Adds support for Solid 2.0 (requires `solid-js@^2.0.0` and `@solidjs/web@^2.0.0`)
 
 This major version supports Solid 2.0 only; use `@astrojs/solid-js@7` for Solid 1.x projects.
 
