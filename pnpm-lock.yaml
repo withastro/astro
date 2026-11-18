@@ -292,6 +292,9 @@ importers:
       '@astrojs/vue':
         specifier: ^7.1.6
         version: link:../../packages/integrations/vue
+      '@solidjs/web':
+        specifier: ^2.0.0
+        version: 2.0.0(solid-js@2.0.0)
       '@types/react':
         specifier: ^19.3.0
         version: 19.3.0
@@ -311,8 +314,8 @@ importers:
         specifier: ^19.3.1
         version: 19.3.1(react@19.3.1)
       solid-js:
-        specifier: ^1.9.19
-        version: 1.9.19
+        specifier: ^2.0.0
+        version: 2.0.0
       svelte:
         specifier: ^5.57.3
         version: 5.57.3(@typescript-eslint/types@8.72.2)
@@ -361,12 +364,15 @@ importers:
       '@astrojs/solid-js':
         specifier: ^7.1.6
         version: link:../../packages/integrations/solid
+      '@solidjs/web':
+        specifier: ^2.0.0
+        version: 2.0.0(solid-js@2.0.0)
       astro:
         specifier: ^7.4.12
         version: link:../../packages/astro
       solid-js:
-        specifier: ^1.9.19
-        version: 1.9.19
+        specifier: ^2.0.0
+        version: 2.0.0
 
   examples/framework-svelte:
     dependencies:
@@ -16083,21 +16089,11 @@ packages:
     resolution: {integrity: sha512-k3CMsaIvvdSwm8oLB4MXSl0wH2/cwlH7xGcnRd2DaeRmBkbzYmyT8j0tsX60DwD1eRwHTpNpH8ljKu9oUT1MeQ==}
     engines: {node: '>=20.0.0'}
 
-  seroval-plugins@1.6.9:
-    resolution: {integrity: sha512-kiDK/Tb8IWZ61WEU8pA2PDmAuw37gKph9Y77OZlD56mg0Y2g0Bg7gZ1HeHhs5d40w+nRoUq/wj08V26ilbez9g==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      seroval: ^1.0
-
   seroval-plugins@1.8.0:
     resolution: {integrity: sha512-96vBb12rDvPPwdKUgWw1op3fGq8AVBFOr0IllbnM72yR5J9WWXF18cQ4g1XfDO7HCyh2dt70P3XdtyRayP8FWg==}
     engines: {node: '>=20'}
     peerDependencies:
       seroval: ^1.8.0
-
-  seroval@1.6.12:
-    resolution: {integrity: sha512-CqbIVfk/7GL3ITwZI55lcPbpQbjHZ2DD5cUj4iH7E9YsCfHNJV1mx7yNp86Z84w5IpmkZZS/2s5vPOWmVWSdQg==}
-    engines: {node: '>=10'}
 
   seroval@1.8.1:
     resolution: {integrity: sha512-7z9x1flFYfZBz+LfDkXNfm5UIhZJ/97ASaV8Q1wctoVkeqVfv+tLPsWebeMXBNw6XprvwxDE5wC5Ylqmr+iSrA==}
@@ -16211,9 +16207,6 @@ packages:
   smol-toml@1.9.1:
     resolution: {integrity: sha512-j7WyPdf0CJoutMzMoPLF/bVXHtKZIT9Rb4eGeEbWw8X2t5oirjPgpL+OpaENZrILYaXqYwnVH+qgUwVbl+pUJQ==}
     engines: {node: '>= 18'}
-
-  solid-js@1.9.19:
-    resolution: {integrity: sha512-NIrV/6o1FtmrA9iuAAYvnQJZaHrGcaH3LKSVj4kCiZfwqjCtJNDgIgR9XcqYl6KR/Lb3oRx1HrlyswPWR8SRvw==}
 
   solid-js@2.0.0:
     resolution: {integrity: sha512-9zN4uH2OQeQAYbF4BmIzoaa+L5Hb8Dp6kkP6ZXobHQ1FZVICdmzREPDVDBJY7umzdAE8D6zbFfWhxGtagkyslA==}
@@ -26477,15 +26470,9 @@ snapshots:
 
   serialize-javascript@7.1.1: {}
 
-  seroval-plugins@1.6.9(seroval@1.6.12):
-    dependencies:
-      seroval: 1.6.12
-
   seroval-plugins@1.8.0(seroval@1.8.1):
     dependencies:
       seroval: 1.8.1
-
-  seroval@1.6.12: {}
 
   seroval@1.8.1: {}
 
@@ -26655,12 +26642,6 @@ snapshots:
   smartypants@0.2.2: {}
 
   smol-toml@1.9.1: {}
-
-  solid-js@1.9.19:
-    dependencies:
-      csstype: 3.2.3
-      seroval: 1.6.12
-      seroval-plugins: 1.6.9(seroval@1.6.12)
 
   solid-js@2.0.0:
     dependencies:
