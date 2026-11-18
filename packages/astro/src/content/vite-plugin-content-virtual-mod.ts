@@ -10,7 +10,6 @@ import type { AstroSettings } from '../types/astro.js';
 import type { AstroPluginMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/index.js';
 import { createDefaultAstroMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/metadata.js';
 import {
-	ASSET_IMPORTS_FILE,
 	ASSET_IMPORTS_RESOLVED_STUB_ID,
 	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_MODULE_FLAG,
@@ -19,7 +18,6 @@ import {
 	DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
 	DATA_STORE_MANIFEST_FILE,
 	DATA_STORE_VIRTUAL_ID,
-	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
 	MODULES_MJS_VIRTUAL_ID,
 	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
@@ -29,7 +27,13 @@ import {
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import type { MutableDataStore } from './mutable-data-store.js';
-import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
+import {
+	getAssetImportsFile,
+	getDataStoreChunkSize,
+	getDataStoreDir,
+	getDataStoreFile,
+	getModulesImportsFile,
+} from './paths.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -146,7 +150,7 @@ export function attachDataStoreInvalidation(
 	{ shouldNotifyClient = () => true }: { shouldNotifyClient?: () => boolean } = {},
 ) {
 	const dataStorePath = fileURLToPath(getDevDataStoreFile(settings));
-	const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
+	const assetImportsPath = fileURLToPath(getAssetImportsFile(settings, true));
 	store.onFileWritten((path) => {
 		if (path === dataStorePath) {
 			markDirectInvalidation(dataStorePath);
@@ -190,7 +194,7 @@ export function astroContentVirtualModPlugin({
 		},
 		buildStart() {
 			if (devServer) {
-				const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
+				const assetImportsPath = fileURLToPath(getAssetImportsFile(settings, isDev));
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
 				devServer.watcher.add(assetImportsPath);
@@ -243,7 +247,7 @@ export function astroContentVirtualModPlugin({
 				}
 
 				if (id === MODULES_MJS_ID) {
-					const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
+					const modules = getModulesImportsFile(settings, isDev);
 					if (fs.existsSync(modules)) {
 						return {
 							id: fileURLToPath(modules),
@@ -254,7 +258,7 @@ export function astroContentVirtualModPlugin({
 				}
 
 				if (id === ASSET_IMPORTS_VIRTUAL_ID) {
-					const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
+					const assetImportsFile = getAssetImportsFile(settings, isDev);
 					if (fs.existsSync(assetImportsFile)) {
 						return {
 							id: fileURLToPath(assetImportsFile),
@@ -375,7 +379,7 @@ export function astroContentVirtualModPlugin({
 				}
 
 				if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
-					const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
+					const assetImportsFile = getAssetImportsFile(settings, isDev);
 					return {
 						code: fs.existsSync(assetImportsFile)
 							? fs.readFileSync(assetImportsFile, 'utf-8')
@@ -385,7 +389,7 @@ export function astroContentVirtualModPlugin({
 				}
 
 				if (id === MODULES_MJS_VIRTUAL_ID) {
-					const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
+					const modules = getModulesImportsFile(settings, isDev);
 					return {
 						code: fs.existsSync(modules)
 							? fs.readFileSync(modules, 'utf-8')
@@ -399,7 +403,7 @@ export function astroContentVirtualModPlugin({
 		configureServer(server) {
 			devServer = server;
 			const dataStorePath = fileURLToPath(dataStoreFile);
-			const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
+			const assetImportsPath = fileURLToPath(getAssetImportsFile(settings, isDev));
 
 			server.watcher.on('add', (addedPath) => {
 				if (addedPath === dataStorePath && !isDirectInvalidationEcho(dataStorePath)) {

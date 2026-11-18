@@ -9,15 +9,11 @@ import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/erro
 import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
-import {
-	ASSET_IMPORTS_FILE,
-	COLLECTIONS_MANIFEST_FILE,
-	CONTENT_LAYER_TYPE,
-	MODULES_IMPORTS_FILE,
-} from './consts.js';
+import { COLLECTIONS_MANIFEST_FILE, CONTENT_LAYER_TYPE } from './consts.js';
 import type { RenderedContent } from './data-store.js';
 import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
+import { getAssetImportsFile, getModulesImportsFile } from './paths.js';
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
@@ -34,6 +30,8 @@ export interface ContentLayerOptions {
 	logger: AstroLogger;
 	watcher?: FSWatcher;
 	contentConfigObserver?: ContentObservable;
+	/** Whether to write the development import maps. Defaults to `false`. */
+	isDev?: boolean;
 }
 
 type CollectionLoader<TData> = () =>
@@ -46,6 +44,7 @@ export class ContentLayer {
 	#logger: AstroLogger;
 	#store: MutableDataStore;
 	#settings: AstroSettings;
+	#isDev: boolean;
 	#watcher?: WrappedWatcher;
 	#lastConfigDigest?: string;
 	#unsubscribe?: () => void;
@@ -61,8 +60,10 @@ export class ContentLayer {
 		store,
 		watcher,
 		contentConfigObserver = globalContentConfigObserver,
+		isDev = false,
 	}: ContentLayerOptions) {
 		this.#logger = logger;
+		this.#isDev = isDev;
 		this.#store = store;
 		this.#settings = settings;
 		this.#contentConfigObserver = contentConfigObserver;
@@ -354,9 +355,9 @@ export class ContentLayer {
 		this.#validateReferences(contentConfig.config.collections, logger);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
-		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
+		const assetImportsFile = getAssetImportsFile(this.#settings, this.#isDev);
 		await this.#store.writeAssetImports(assetImportsFile);
-		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
+		const modulesImportsFile = getModulesImportsFile(this.#settings, this.#isDev);
 		await this.#store.writeModuleImports(modulesImportsFile);
 		await this.#store.waitUntilSaveComplete();
 		logger.info('Synced content');

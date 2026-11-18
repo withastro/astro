@@ -170,6 +170,7 @@ export async function syncInternal({
 				logger,
 				store,
 				watcher,
+				isDev,
 			});
 			if (watcher) {
 				contentLayer.watchContentConfig();

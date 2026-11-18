@@ -9,6 +9,7 @@ interface ContentLayerOptions {
 	settings: AstroSettings;
 	logger: AstroLogger;
 	watcher?: FSWatcher;
+	isDev?: boolean;
 }
 
 function contentLayerSingleton() {
