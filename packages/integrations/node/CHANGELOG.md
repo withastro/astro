@@ -1,5 +1,13 @@
 # @astrojs/node
 
+## 11.1.14
+
+### Patch Changes
+
+- [#18636](https://github.com/withastro/astro/pull/18636) [`b4de3b5`](https://github.com/withastro/astro/commit/b4de3b5e229c3ea5fb0c651c9a9953240b54d0ed) Thanks [@umeraamir69](https://github.com/umeraamir69)! - Shares one process `unhandledRejection` listener across app handlers so standalone mode no longer treats in-request rejections as outside request context
+
+- [#18743](https://github.com/withastro/astro/pull/18743) [`7c8dad5`](https://github.com/withastro/astro/commit/7c8dad5fa900261d79c240e68d95ae93ad491f3d) Thanks [@EnesKartal](https://github.com/EnesKartal)! - Adds `Content-Type: text/plain; charset=utf-8` header to `400` responses for undecodable URLs in standalone mode.
+
 ## 11.1.13
 
 ### Patch Changes
