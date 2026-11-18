@@ -1,0 +1,7 @@
+---
+export const prerender = false;
+if(Astro.url.searchParams.has('error')) {
+	throw 'This is a test error'
+}
+---
+<h1>Error page</h1>

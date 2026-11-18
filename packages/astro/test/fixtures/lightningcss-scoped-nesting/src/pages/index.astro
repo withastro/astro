@@ -1,0 +1,29 @@
+---
+// Reproduction for https://github.com/withastro/astro/issues/16524.
+// The bug appears when a scoped style nests `:where(& > ...)` under a class
+// selector. With `vite.css.transformer: 'lightningcss'`, lightningcss flattens
+// the nesting BEFORE the Astro compiler injects the scope attribute, which
+// (without the fix) causes `[data-astro-cid-...]` to bind to the matched
+// child instead of the parent.
+---
+<html>
+	<head>
+		<title>lightningcss-scoped-nesting</title>
+	</head>
+	<body>
+		<div class="parent">
+			<span>a</span>
+			<span>b</span>
+			<span>c</span>
+		</div>
+	</body>
+</html>
+
+<style>
+	.parent {
+		display: flex;
+		:where(& > :not(:last-child)) {
+			margin-inline-end: 24px;
+		}
+	}
+</style>

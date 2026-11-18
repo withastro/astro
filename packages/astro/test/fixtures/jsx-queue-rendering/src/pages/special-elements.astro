@@ -1,0 +1,19 @@
+---
+// Special elements like script and style
+const jsCode = `console.log('Hello from JSX');`;
+const cssCode = `body { margin: 0; padding: 20px; }`;
+---
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Special Elements Test</title>
+	<style set:html={cssCode}></style>
+</head>
+<body>
+	<h1>Special Elements</h1>
+	<script set:html={jsCode}></script>
+	<div>
+		<p>This page tests script and style tags</p>
+	</div>
+</body>
+</html>

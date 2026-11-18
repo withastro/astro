@@ -1,0 +1,10 @@
+{
+  "name": "@test/astro-vercel-integration-assets",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/sitemap": "workspace:*",
+    "@astrojs/vercel": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

@@ -1,0 +1,50 @@
+<style
+	lang="sass"
+	define:vars={{
+		foo: '#fff',
+	}}
+>
+	.bar
+		color: var(--foo)
+</style>
+
+<style data-lang="less" title="use lang=scss" lang=sass>
+	.button
+		color: red
+</style>
+
+<style
+	class="theme"
+	lang='scss'
+>
+	.button {
+		color: red;
+	}
+</style>
+
+<style
+	data-lang="less"
+	title="use lang=sass"
+>
+	.button {
+		color: red;
+	}
+</style>
+
+<style
+	define:vars={{
+		foo: '#fff',
+	}}
+>
+	.button {
+		color: var(--foo);
+	}
+</style>
+
+<style
+	lang={language}
+>
+	.button {
+		color: red;
+	}
+</style>

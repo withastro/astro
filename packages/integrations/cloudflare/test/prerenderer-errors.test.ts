@@ -1,0 +1,90 @@
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import { type Fixture, loadFixture } from './test-utils.ts';
+import cloudflare from '../dist/index.js';
+
+describe('Cloudflare prerenderer errors', () => {
+	let fixture: Fixture;
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/prerenderer-errors/', import.meta.url).toString(),
+			adapter: cloudflare(),
+		});
+	});
+
+	after(async () => {
+		await fixture.clean();
+	});
+
+	it('includes workerd error details when getStaticPaths fails', async () => {
+		await assert.rejects(
+			async () => {
+				await fixture.build({});
+			},
+			(error) => {
+				assert.ok(error instanceof Error);
+				assert.match(
+					error.message,
+					/Failed to get static paths from the Cloudflare prerender server/,
+				);
+				assert.match(error.message, /getStaticPaths\(\).*required for dynamic routes/);
+				return true;
+			},
+		);
+	});
+});
+
+describe('Cloudflare prerenderer render errors', () => {
+	let fixture: Fixture;
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/prerenderer-render-error/', import.meta.url).toString(),
+			adapter: cloudflare(),
+		});
+	});
+
+	after(async () => {
+		await fixture.clean();
+	});
+
+	it('fails the build when a page throws during prerendering', async () => {
+		await assert.rejects(
+			async () => {
+				await fixture.build({});
+			},
+			(error) => {
+				assert.ok(error instanceof Error);
+				assert.match(error.message, /Failed to prerender/);
+				return true;
+			},
+		);
+	});
+});
+
+describe('Cloudflare prerenderer render errors with a custom fetch handler', () => {
+	let fixture: Fixture;
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/prerenderer-render-error-fetch/', import.meta.url).toString(),
+			adapter: cloudflare(),
+		});
+	});
+
+	after(async () => {
+		await fixture.clean();
+	});
+
+	it('fails the build instead of writing an empty page', async () => {
+		await assert.rejects(
+			async () => {
+				await fixture.build({});
+			},
+			(error) => {
+				assert.ok(error instanceof Error);
+				assert.match(error.message, /Failed to prerender/);
+				assert.match(error.message, /Intentional module evaluation error for testing/);
+				return true;
+			},
+		);
+	});
+});

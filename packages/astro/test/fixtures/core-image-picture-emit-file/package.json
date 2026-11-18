@@ -1,0 +1,11 @@
+{
+  "name": "@test/core-image-picture-emit-file",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*"
+  },
+  "scripts": {
+    "dev": "astro dev"
+  }
+}

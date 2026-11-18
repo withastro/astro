@@ -1,0 +1,5 @@
+{
+  "name": "astro-actions-vitest",
+  "main": "./src/testWorker.ts",
+  "compatibility_date": "2026-07-15"
+}

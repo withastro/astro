@@ -1,0 +1,13 @@
+---
+import { getEntry, render } from "astro:content";
+
+const entry = await getEntry("posts", "slotted-island");
+const { Content } = await render(entry!);
+---
+
+<html>
+<head><title>Content collection server island in slot</title></head>
+<body>
+  <Content />
+</body>
+</html>

@@ -1,0 +1,16 @@
+---
+// An SSR page that renders a content entry, so the content runtime — the
+// module hosting the `recordContentEntryRender` record site — is part of the
+// production worker bundle this fixture's test scans for `async_hooks`.
+import { getEntry, render } from 'astro:content';
+
+const entry = await getEntry('docs', 'one');
+const { Content } = await render(entry);
+---
+
+<html>
+	<body>
+		<h1>SSR</h1>
+		<Content />
+	</body>
+</html>

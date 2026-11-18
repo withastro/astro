@@ -1,0 +1,10 @@
+{
+  "name": "@fixture/react-19-preloads",
+  "type": "module",
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/react": "workspace:*",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}

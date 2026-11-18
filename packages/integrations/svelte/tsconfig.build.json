@@ -1,0 +1,13 @@
+{
+  "extends": "../../../configs/tsconfig.build.json",
+  "compilerOptions": {
+    // `"verbatimModuleSyntax": false` is required to support import/export statements in `src/editor.cts` file.
+    "verbatimModuleSyntax": false
+  },
+  "include": ["./src/**/*.ts", "./src/**/*.cts"],
+  "references": [
+    { "path": "../../astro/tsconfig.json" },
+    { "path": "../../renderers/svelte/tsconfig.json" },
+    { "path": "../../internal-helpers/tsconfig.json" }
+  ]
+}

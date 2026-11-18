@@ -1,0 +1,68 @@
+><div is:raw>
+#^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.start.astro entity.name.tag.astro
+#    ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro
+#     ^^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.is:raw.astro entity.other.attribute-name.astro
+#           ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro punctuation.definition.tag.end.astro
+>	Hello
+#^^^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown
+></div>
+#^^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.end.astro entity.name.tag.astro
+#     ^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><div aria-busy class="hello" is:raw>
+#^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.start.astro entity.name.tag.astro
+#    ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro
+#     ^^^^^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.aria-busy.astro entity.other.attribute-name.astro
+#              ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro
+#               ^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.class.astro entity.other.attribute-name.astro
+#                    ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.class.astro punctuation.separator.key-value.astro
+#                     ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.class.astro string.quoted.astro punctuation.definition.string.begin.astro
+#                      ^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.class.astro string.quoted.astro
+#                           ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.class.astro string.quoted.astro punctuation.definition.string.end.astro
+#                            ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro
+#                             ^^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.is:raw.astro entity.other.attribute-name.astro
+#                                   ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro punctuation.definition.tag.end.astro
+>	Hello
+#^^^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown
+></div>
+#^^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.end.astro entity.name.tag.astro
+#     ^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><div class="hello" is:raw aria-busy>
+#^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.start.astro entity.name.tag.astro
+#    ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro
+#     ^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.class.astro entity.other.attribute-name.astro
+#          ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.class.astro punctuation.separator.key-value.astro
+#           ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.class.astro string.quoted.astro punctuation.definition.string.begin.astro
+#            ^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.class.astro string.quoted.astro
+#                 ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.class.astro string.quoted.astro punctuation.definition.string.end.astro
+#                  ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro
+#                   ^^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.is:raw.astro entity.other.attribute-name.astro
+#                         ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro
+#                          ^^^^^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.aria-busy.astro entity.other.attribute-name.astro
+#                                   ^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown meta.tag.start.astro punctuation.definition.tag.end.astro
+>	Hello
+#^^^^^^^ source.astro meta.scope.tag.div.astro meta.raw.astro source.unknown
+></div>
+#^^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.end.astro entity.name.tag.astro
+#     ^ source.astro meta.scope.tag.div.astro meta.raw.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><Component is:raw>
+#^ source.astro meta.scope.tag.Component.astro meta.raw.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^^^^^ source.astro meta.scope.tag.Component.astro meta.raw.astro meta.tag.start.astro support.class.component.astro
+#          ^ source.astro meta.scope.tag.Component.astro meta.raw.astro source.unknown meta.tag.start.astro
+#           ^^^^^^ source.astro meta.scope.tag.Component.astro meta.raw.astro source.unknown meta.tag.start.astro meta.attribute.is:raw.astro entity.other.attribute-name.astro
+#                 ^ source.astro meta.scope.tag.Component.astro meta.raw.astro source.unknown meta.tag.start.astro punctuation.definition.tag.end.astro
+>	Hello
+#^^^^^^^ source.astro meta.scope.tag.Component.astro meta.raw.astro source.unknown
+></Component>
+#^^ source.astro meta.scope.tag.Component.astro meta.raw.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^^^^^ source.astro meta.scope.tag.Component.astro meta.raw.astro meta.tag.end.astro support.class.component.astro
+#           ^ source.astro meta.scope.tag.Component.astro meta.raw.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>

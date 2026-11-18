@@ -1,0 +1,49 @@
+# See https://github.com/actions/labeler
+
+'pkg: example':
+- examples/**/*
+
+'🚨 action':
+- .github/workflows/**
+
+'pkg: astro':
+- packages/astro/**
+
+'pkg: create-astro':
+- packages/create-astro/**
+
+'pkg: db':
+- packages/integrations/db/**
+
+'feat: markdown':
+- packages/markdown/**
+
+'pkg: integration':
+- packages/integrations/**
+
+'pkg: lit':
+- packages/integrations/lit/**
+
+'pkg: preact':
+- packages/integrations/preact/**
+- packages/renderers/preact/**
+
+'pkg: react':
+- packages/integrations/react/**
+- packages/renderers/react/**
+
+'pkg: solid':
+- packages/integrations/solid/**
+- packages/renderers/solid-js/**
+
+'pkg: svelte':
+- packages/integrations/svelte/**
+- packages/renderers/svelte/**
+
+'pkg: vue':
+- packages/integrations/vue/**
+- packages/renderers/vue/**
+
+'docs pr':
+- packages/astro/src/types/public/**
+- packages/runtime/src/core/errors/errors-data.ts

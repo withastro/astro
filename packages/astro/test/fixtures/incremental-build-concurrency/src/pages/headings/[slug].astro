@@ -1,0 +1,18 @@
+---
+import { getEntry, render } from 'astro:content';
+
+export function getStaticPaths() {
+	return [{ params: { slug: 'h' }, cacheKey: 'v1' }];
+}
+
+// Calls render(entry) only for headings, never rendering Content. The entry
+// must still be tracked for this path.
+const entry = await getEntry('docs', 'headings');
+const { headings } = await render(entry);
+---
+
+<html>
+	<body>
+		<ul>{headings.map((h) => <li>{h.text}</li>)}</ul>
+	</body>
+</html>

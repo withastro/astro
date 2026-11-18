@@ -1,0 +1,23 @@
+---
+import Counter from './Counter.tsx';
+
+const { name } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Hello, {name}</title>
+	</head>
+	<body>
+		<h1>Hello, {name}!</h1>
+		<p>An Astro component, rendered by a Hono route.</p>
+		<Counter client:load />
+	</body>
+</html>
+
+<style>
+	h1 {
+		color: rebeccapurple;
+	}
+</style>

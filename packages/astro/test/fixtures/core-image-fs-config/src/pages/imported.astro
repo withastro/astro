@@ -1,0 +1,14 @@
+---
+import { Image } from 'astro:assets';
+import siblingImage from '../sibling/penguin-sibling.jpg';
+---
+
+<html>
+	<head>
+		<title>Imported Image</title>
+	</head>
+	<body>
+		<h1>Imported Sibling Image</h1>
+		<Image id="sibling-image" src={siblingImage} width={300} height={200} format="webp" alt="Penguin from sibling directory" />
+	</body>
+</html>

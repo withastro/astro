@@ -1,0 +1,9 @@
+{
+  "name": "astro-env",
+  "compatibility_date": "2026-01-28",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "vars": {
+    "API_URL": "https://google.de",
+    "PORT": 4322
+  }
+}

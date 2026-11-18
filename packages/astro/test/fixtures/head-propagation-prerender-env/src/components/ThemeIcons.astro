@@ -1,0 +1,13 @@
+---
+// Mirrors Starlight's `ThemeProvider.astro`: a `<template id="theme-icons">`
+// lives inside `<head>` and holds several child components that each own
+// scoped CSS. When head propagation is missing the hoisted style blocks
+// get emitted between the template's opening tag and its first child,
+// trapping the styles inside the inert `<template>`.
+import Icon from './Icon.astro';
+---
+<template id="theme-icons">
+	<Icon name="sun" />
+	<Icon name="moon" />
+	<Icon name="laptop" />
+</template>

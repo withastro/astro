@@ -1,0 +1,8 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="myGrad">
+      <stop offset="0" stop-color="red" />
+    </linearGradient>
+  </defs>
+  <rect width="24" height="24" fill="url(#myGrad)" />
+</svg>

@@ -1,0 +1,18 @@
+---
+import type { GetStaticPaths } from "astro";
+export const getStaticPaths = (() => {
+	return [
+		{ params: { slug: "one" } },
+		{ params: { slug: "two" } },
+		{ params: { slug: "three" }},
+	];
+}) satisfies GetStaticPaths;
+
+export const prerender = true;
+---
+<html>
+<head><title>{Astro.params.slug}</title></head>
+<body>
+<h1>Index</h1>
+</body>
+</html>

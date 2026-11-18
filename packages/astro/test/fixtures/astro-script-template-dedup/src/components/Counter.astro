@@ -1,0 +1,21 @@
+<div class="counter">
+	<button class="decrement">-</button>
+	<span class="count">0</span>
+	<button class="increment">+</button>
+</div>
+
+<script>
+	document.addEventListener('click', (e) => {
+		const target = e.target;
+		if (!(target instanceof HTMLElement)) return;
+		const counter = target.closest('.counter');
+		if (!counter) return;
+		const count = counter.querySelector('.count');
+		if (!count) return;
+		if (target.closest('.increment')) {
+			count.textContent = String(Number(count.textContent) + 1);
+		} else if (target.closest('.decrement')) {
+			count.textContent = String(Number(count.textContent) - 1);
+		}
+	});
+</script>

@@ -1,0 +1,10 @@
+---
+import Tabs from '../components/Tabs.jsx';
+
+const name = 'tab"><b id="injected">x</b><i title="';
+---
+
+<main>
+	<Tabs id="static" active={name}><p id="static-content" slot={name}>content</p></Tabs>
+	<Tabs id="hydrated" client:load active={name}><p id="hydrated-content" slot={name}>content</p></Tabs>
+</main>

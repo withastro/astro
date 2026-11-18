@@ -1,0 +1,62 @@
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { createSatteriMarkdownProcessor } from '../dist/index.js';
+
+describe('satteri highlight', () => {
+	it('highlights using shiki by default', async () => {
+		const processor = await createSatteriMarkdownProcessor();
+		const { code } = await processor.render('```js\nconsole.log("Hello, world!");\n```');
+		assert.match(code, /background-color:/);
+	});
+
+	it('preserves fence languages when raw HTML is enabled', async () => {
+		for (const rawHtml of [false, true]) {
+			const processor = await createSatteriMarkdownProcessor({
+				features: { rawHtml },
+			});
+			const { code } = await processor.render('```ts\nconst x = 1\n```');
+			assert.match(code, /data-language="ts"/);
+		}
+	});
+
+	it('does not highlight math code blocks by default', async () => {
+		const processor = await createSatteriMarkdownProcessor();
+		const { code } = await processor.render('```math\n\\frac{1}{2}\n```');
+		assert.ok(!code.includes('background-color:'));
+	});
+
+	it('supports excludeLangs', async () => {
+		const processor = await createSatteriMarkdownProcessor({
+			syntaxHighlight: { type: 'shiki', excludeLangs: ['mermaid'] },
+		});
+		const { code } = await processor.render('```mermaid\ngraph TD\nA --> B\n```');
+		assert.ok(!code.includes('background-color:'));
+	});
+
+	it('highlights using prism', async () => {
+		const processor = await createSatteriMarkdownProcessor({
+			syntaxHighlight: { type: 'prism' },
+		});
+		const { code } = await processor.render('```js\nconsole.log("Hello, world!");\n```');
+		assert.match(code, /<pre class="language-js" data-language="js">/);
+		assert.match(code, /class="token /);
+	});
+
+	it('displays prism code for unsupported languages as text', async () => {
+		const processor = await createSatteriMarkdownProcessor({
+			syntaxHighlight: { type: 'prism' },
+		});
+		const { code } = await processor.render('```vue\n<template><b>hi</b></template>\n```');
+		assert.match(code, /<pre class="language-vue" data-language="vue">/);
+		assert.ok(!code.includes('<template>'), code);
+		assert.ok(!code.includes('<b>'), code);
+	});
+
+	it('supports prism excludeLangs', async () => {
+		const processor = await createSatteriMarkdownProcessor({
+			syntaxHighlight: { type: 'prism', excludeLangs: ['js'] },
+		});
+		const { code } = await processor.render('```js\nconsole.log("Hello, world!");\n```');
+		assert.ok(!code.includes('class="token '));
+	});
+});

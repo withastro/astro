@@ -1,0 +1,9 @@
+---
+import penguin from '../../assets/penguin.jpg';
+
+export function getStaticPaths() {
+	return [{ params: { slug: 'x' }, cacheKey: 'v1' }];
+}
+---
+
+<img src={penguin.src} alt="Cached penguin" />

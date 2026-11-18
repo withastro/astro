@@ -1,0 +1,8 @@
+{
+  "extends": "../../../configs/tsconfig.build.json",
+  "references": [
+    { "path": "../../astro/tsconfig.json" },
+    { "path": "../../renderers/solid-js/tsconfig.json" },
+    { "path": "../../internal-helpers/tsconfig.json" }
+  ]
+}

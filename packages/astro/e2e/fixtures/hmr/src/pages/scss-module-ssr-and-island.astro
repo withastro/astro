@@ -1,0 +1,17 @@
+---
+import ScssModuleHeading from '../components/ScssModuleHeading.jsx';
+---
+
+<html>
+	<head>
+		<title>Test</title>
+	</head>
+	<body>
+		<div id="ssr">
+			<ScssModuleHeading />
+		</div>
+		<div id="island">
+			<ScssModuleHeading client:load />
+		</div>
+	</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "${configDir}/src",
+    "outDir": "${configDir}/dist",
+    // `._cache/` is ignored when publishing to NPM registry, so it's a safe place to put build artifacts that we don't want to publish.
+    // See https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
+    "tsBuildInfoFile": "${configDir}/dist/._cache/ts_build/build.tsbuildinfo"
+  },
+  "include": ["${configDir}/src"]
+}

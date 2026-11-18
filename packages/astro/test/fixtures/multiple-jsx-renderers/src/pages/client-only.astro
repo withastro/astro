@@ -1,0 +1,16 @@
+---
+import WoofCounter from '../components/WoofCounter.woof.jsx';
+import MeowCounter from '../components/MeowCounter.meow.jsx';
+---
+
+<html>
+  <head><title>Client Only Test</title></head>
+  <body>
+    <div id="woof-root">
+      <WoofCounter client:only="woof" />
+    </div>
+    <div id="meow-root">
+      <MeowCounter client:only="meow" />
+    </div>
+  </body>
+</html>

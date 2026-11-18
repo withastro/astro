@@ -1,0 +1,13 @@
+---
+import {ClientRouter} from 'astro:transitions';
+import ServerIsland from '../components/ServerIsland.astro';
+---
+<head>
+  <link rel="stylesheet" href="before"/>
+  <ClientRouter />
+  <ServerIsland server:defer />
+  <link rel="stylesheet" href="after"/>
+</head>
+<body>
+  <a id="deferred" href="/deferred">Click</a>
+</body>

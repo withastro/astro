@@ -1,0 +1,38 @@
+><style lang="styl">
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.styl.astro meta.tag.start.astro
+#       ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.styl.astro meta.tag.start.astro meta.attribute.lang.astro entity.other.attribute-name.astro
+#           ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.styl.astro meta.tag.start.astro meta.attribute.lang.astro punctuation.separator.key-value.astro
+#            ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.styl.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.begin.astro
+#             ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.styl.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro
+#                 ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.styl.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.end.astro
+#                  ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.styl.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>	body
+#^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.styl.astro
+>		font: 12px Helvetica, Arial, sans-serif
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.styl.astro
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><style lang="stylus">
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.stylus.astro meta.tag.start.astro
+#       ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.stylus.astro meta.tag.start.astro meta.attribute.lang.astro entity.other.attribute-name.astro
+#           ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.stylus.astro meta.tag.start.astro meta.attribute.lang.astro punctuation.separator.key-value.astro
+#            ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.stylus.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.begin.astro
+#             ^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.stylus.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro
+#                   ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.stylus.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.end.astro
+#                    ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.stylus.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>	body
+#^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.stylus.astro meta.embedded.block.astro source.stylus
+>		font: 12px Helvetica, Arial, sans-serif
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.stylus.astro meta.embedded.block.astro source.stylus
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>

@@ -1,0 +1,7 @@
+---
+import { experimental_getFontFileURL, fontData } from 'astro:assets'
+
+const buffer = await fetch(experimental_getFontFileURL(fontData['--font-test'][0].src[0].url, Astro.url)).then(async (res) => res.arrayBuffer());
+---
+
+<pre id="length">{buffer.byteLength}</pre>
