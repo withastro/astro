@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 7.3.10
+
+### Patch Changes
+
+- [#18759](https://github.com/withastro/astro/pull/18759) [`387105b`](https://github.com/withastro/astro/commit/387105be28cb3a3c062c3390b551cc9e51a2bfb1) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `getHeadings()` and `render().headings` reporting `{` as `${` in Markdown heading text when using the `unified()` processor
+
 ## 7.3.9
 
 ### Patch Changes

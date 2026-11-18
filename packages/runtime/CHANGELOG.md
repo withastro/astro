@@ -1,5 +1,11 @@
 # @astrojs/runtime
 
+## 0.1.2
+
+### Patch Changes
+
+- [#18733](https://github.com/withastro/astro/pull/18733) [`c6ab3c5`](https://github.com/withastro/astro/commit/c6ab3c583a98dc2033cfa41085546f88979cbf7f) Thanks [@Marve10s](https://github.com/Marve10s)! - Fixes hydration of framework components receiving sparse array props by serializing holes as undefined
+
 ## 0.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 14.4.9
+
+### Patch Changes
+
+- [#18720](https://github.com/withastro/astro/pull/18720) [`d116e3d`](https://github.com/withastro/astro/commit/d116e3d6897c03d6749f35acdfc42a1b4edb1745) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a spurious `No environment found in configuration` warning for the prerender worker when building with `CLOUDFLARE_ENV` set
+
 ## 14.4.8
 
 ### Patch Changes
