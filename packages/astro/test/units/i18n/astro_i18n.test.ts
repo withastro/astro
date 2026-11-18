@@ -872,6 +872,223 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/some-name/first-post/',
 			);
 		});
+
+		it('should correctly return the URL without base', () => {
+			const config = {
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: [
+							'en',
+							'es',
+							{
+								path: 'italiano',
+								codes: ['it', 'it-VA'],
+							},
+						],
+						routingStrategy: 'prefix-other-locales',
+					},
+				},
+			};
+
+			assert.equal(
+				absoluteUrl({
+					locale: 'en',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/',
+			);
+			assert.equal(
+				absoluteUrl({
+					locale: 'es',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/es/',
+			);
+			assert.equal(
+				absoluteUrl({
+					locale: 'it-VA',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/italiano/',
+			);
+			assert.equal(
+				absoluteUrl({
+					locale: 'en',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com',
+			);
+			assert.equal(
+				absoluteUrl({
+					locale: 'es',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/es',
+			);
+			assert.equal(
+				absoluteUrl({
+					locale: 'it-VA',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/italiano',
+			);
+		});
+
+		it('should correctly handle the trailing slash', () => {
+			const config = {
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'es'],
+						routingStrategy: 'prefix-other-locales',
+					},
+				},
+			};
+			// directory format
+			assert.equal(
+				absoluteUrl({
+					locale: 'en',
+					base: '/blog',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/blog',
+			);
+			assert.equal(
+				absoluteUrl({
+					locale: 'es',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/blog/es/',
+			);
+
+			assert.equal(
+				absoluteUrl({
+					locale: 'en',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'ignore',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/blog/',
+			);
+
+			// directory file
+			assert.equal(
+				absoluteUrl({
+					locale: 'en',
+					base: '/blog',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'file',
+					site: 'https://example.com',
+				}),
+				'https://example.com/blog',
+			);
+			assert.equal(
+				absoluteUrl({
+					locale: 'es',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'file',
+					site: 'https://example.com',
+				}),
+				'https://example.com/blog/es/',
+			);
+
+			assert.equal(
+				absoluteUrl({
+					locale: 'en',
+					// ignore + file => no trailing slash
+					base: '/blog',
+					...config.experimental.i18n,
+					trailingSlash: 'ignore',
+					format: 'file',
+					site: 'https://example.com',
+				}),
+				'https://example.com/blog',
+			);
+		});
+
+		it('should normalize locales', () => {
+			const config = {
+				base: '/blog',
+				experimental: {
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'en_US', 'en_AU'],
+						routingStrategy: 'prefix-other-locales',
+					},
+				},
+			};
+
+			assert.equal(
+				absoluteUrl({
+					locale: 'en_US',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+				}),
+				'/blog/en-us/',
+			);
+
+			assert.equal(
+				absoluteUrl({
+					locale: 'en_AU',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+				}),
+				'/blog/en-au/',
+			);
+
+			assert.equal(
+				absoluteUrl({
+					locale: 'en_US',
+					base: '/blog/',
+					...config.experimental.i18n,
+					trailingSlash: 'always',
+					format: 'directory',
+					normalizeLocale: true,
+				}),
+				'/blog/en-us/',
+			);
+		});
 	});
 	describe('with [prefix-always]', () => {
 		it('should correctly return the URL with the base', () => {
@@ -1274,224 +1491,6 @@ describe('getLocaleAbsoluteUrl', () => {
 					strategy: routingStrategy(config.i18n.routing),
 				}),
 				'https://example.com/blog/es/',
-			);
-		});
-	});
-	describe('with [prefix-other-locales]', () => {
-		it('should correctly return the URL without base', () => {
-			const config = {
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: [
-							'en',
-							'es',
-							{
-								path: 'italiano',
-								codes: ['it', 'it-VA'],
-							},
-						],
-						routingStrategy: 'prefix-other-locales',
-					},
-				},
-			};
-
-			assert.equal(
-				absoluteUrl({
-					locale: 'en',
-					base: '/',
-					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
-					site: 'https://example.com',
-				}),
-				'https://example.com/',
-			);
-			assert.equal(
-				absoluteUrl({
-					locale: 'es',
-					base: '/',
-					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
-					site: 'https://example.com',
-				}),
-				'https://example.com/es/',
-			);
-			assert.equal(
-				absoluteUrl({
-					locale: 'it-VA',
-					base: '/',
-					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
-					site: 'https://example.com',
-				}),
-				'https://example.com/italiano/',
-			);
-			assert.equal(
-				absoluteUrl({
-					locale: 'en',
-					base: '/',
-					...config.experimental.i18n,
-					trailingSlash: 'never',
-					format: 'directory',
-					site: 'https://example.com',
-				}),
-				'https://example.com',
-			);
-			assert.equal(
-				absoluteUrl({
-					locale: 'es',
-					base: '/',
-					...config.experimental.i18n,
-					trailingSlash: 'never',
-					format: 'directory',
-					site: 'https://example.com',
-				}),
-				'https://example.com/es',
-			);
-			assert.equal(
-				absoluteUrl({
-					locale: 'it-VA',
-					base: '/',
-					...config.experimental.i18n,
-					trailingSlash: 'never',
-					format: 'directory',
-					site: 'https://example.com',
-				}),
-				'https://example.com/italiano',
-			);
-		});
-
-		it('should correctly handle the trailing slash', () => {
-			const config = {
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: ['en', 'es'],
-						routingStrategy: 'prefix-other-locales',
-					},
-				},
-			};
-			// directory format
-			assert.equal(
-				absoluteUrl({
-					locale: 'en',
-					base: '/blog',
-					...config.experimental.i18n,
-					trailingSlash: 'never',
-					format: 'directory',
-					site: 'https://example.com',
-				}),
-				'https://example.com/blog',
-			);
-			assert.equal(
-				absoluteUrl({
-					locale: 'es',
-					base: '/blog/',
-					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
-					site: 'https://example.com',
-				}),
-				'https://example.com/blog/es/',
-			);
-
-			assert.equal(
-				absoluteUrl({
-					locale: 'en',
-					base: '/blog/',
-					...config.experimental.i18n,
-					trailingSlash: 'ignore',
-					format: 'directory',
-					site: 'https://example.com',
-				}),
-				'https://example.com/blog/',
-			);
-
-			// directory file
-			assert.equal(
-				absoluteUrl({
-					locale: 'en',
-					base: '/blog',
-					...config.experimental.i18n,
-					trailingSlash: 'never',
-					format: 'file',
-					site: 'https://example.com',
-				}),
-				'https://example.com/blog',
-			);
-			assert.equal(
-				absoluteUrl({
-					locale: 'es',
-					base: '/blog/',
-					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'file',
-					site: 'https://example.com',
-				}),
-				'https://example.com/blog/es/',
-			);
-
-			assert.equal(
-				absoluteUrl({
-					locale: 'en',
-					// ignore + file => no trailing slash
-					base: '/blog',
-					...config.experimental.i18n,
-					trailingSlash: 'ignore',
-					format: 'file',
-					site: 'https://example.com',
-				}),
-				'https://example.com/blog',
-			);
-		});
-
-		it('should normalize locales', () => {
-			const config = {
-				base: '/blog',
-				experimental: {
-					i18n: {
-						defaultLocale: 'en',
-						locales: ['en', 'en_US', 'en_AU'],
-						routingStrategy: 'prefix-other-locales',
-					},
-				},
-			};
-
-			assert.equal(
-				absoluteUrl({
-					locale: 'en_US',
-					base: '/blog/',
-					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
-				}),
-				'/blog/en-us/',
-			);
-
-			assert.equal(
-				absoluteUrl({
-					locale: 'en_AU',
-					base: '/blog/',
-					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
-				}),
-				'/blog/en-au/',
-			);
-
-			assert.equal(
-				absoluteUrl({
-					locale: 'en_US',
-					base: '/blog/',
-					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
-					normalizeLocale: true,
-				}),
-				'/blog/en-us/',
 			);
 		});
 	});

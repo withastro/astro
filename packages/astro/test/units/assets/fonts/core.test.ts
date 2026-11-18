@@ -1688,7 +1688,7 @@ describe('fonts core', () => {
 			);
 		});
 
-		it('skips if the last fallback does not have local fonts associated', async () => {
+		it('skips if the family is already a system font', async () => {
 			assert.equal(
 				await optimizeFallbacks({
 					family: {
