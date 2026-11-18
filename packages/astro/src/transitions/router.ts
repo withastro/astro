@@ -13,6 +13,7 @@ import type { Direction, Fallback, Options } from '@astrojs/runtime/_internal/tr
 
 type State = {
 	index: number;
+	sequence?: string;
 	scrollX: number;
 	scrollY: number;
 };
@@ -76,12 +77,16 @@ let parser: DOMParser;
 let currentHistoryIndex = 0;
 
 type ScrollPosition = { scrollX: number; scrollY: number };
-// Scroll positions of the router's history entries, keyed by `State.index`. A position is recorded
-// when its entry is left, not while scrolling: writing `history.state` on every scroll is
-// rate-limited and expensive in Safari (#18761) and brings back the mobile address bar (#12285).
+// Scroll positions of the router's history entries in the current index sequence, keyed by
+// `State.index`. A position is recorded when its entry is left, not while scrolling: writing
+// `history.state` on every scroll is rate-limited and expensive in Safari (#18761) and brings
+// back the mobile address bar (#12285).
 // Entries missing from the map fall back to the position saved in their `history.state`.
 let scrollPositions = new Map<number, ScrollPosition>();
-const SCROLL_POSITIONS_KEY = 'astro:scroll-positions';
+// Identifies the current index sequence. Every document loaded without history state starts
+// counting from 0 again, so indexes are only unique within the sequence stored in `State.sequence`.
+let historySequence = Math.random().toString(36).slice(2);
+const scrollPositionsKey = () => `astro:scroll-positions:${historySequence}`;
 // Whether the current history entry is one of the router's entries.
 // Only read where the Navigation API is unavailable (see `onPopState`).
 let onRouterEntry = false;
@@ -89,16 +94,17 @@ let onRouterEntry = false;
 let lastScrollPosition: ScrollPosition = { scrollX: 0, scrollY: 0 };
 const supportsNavigationApi = inBrowser && 'navigation' in window;
 
-// sessionStorage keeps the map across a reload or a return from another document.
+// sessionStorage keeps the map across a reload or a return from another document, with one key
+// per index sequence.
 // It can be unavailable (e.g. blocked storage), in which case `history.state` is the only fallback.
 function loadScrollPositions() {
 	try {
-		scrollPositions = new Map(JSON.parse(sessionStorage.getItem(SCROLL_POSITIONS_KEY) ?? '[]'));
+		scrollPositions = new Map(JSON.parse(sessionStorage.getItem(scrollPositionsKey()) ?? '[]'));
 	} catch {}
 }
 function saveScrollPositions() {
 	try {
-		sessionStorage.setItem(SCROLL_POSITIONS_KEY, JSON.stringify([...scrollPositions]));
+		sessionStorage.setItem(scrollPositionsKey(), JSON.stringify([...scrollPositions]));
 	} catch {}
 }
 
@@ -107,15 +113,21 @@ if (inBrowser) {
 		// Here we reloaded a page with history state
 		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
-		// A document without history state starts a new index sequence, so it does not load the map
-		// and its `pagehide` replaces the stored one.
-		loadScrollPositions();
+		// States written by older versions of the router have no sequence. They keep the fresh one
+		// and fall back to the positions saved in `history.state`.
+		if (history.state.sequence) {
+			historySequence = history.state.sequence;
+			loadScrollPositions();
+		}
 		const position = scrollPositions.get(currentHistoryIndex) ?? history.state;
 		scrollTo({ left: position.scrollX, top: position.scrollY, behavior: 'instant' });
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser address bar or via a link from extern,
 		// it needs a state in the history
-		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+		history.replaceState(
+			{ index: currentHistoryIndex, sequence: historySequence, scrollX, scrollY },
+			'',
+		);
 	}
 	if (transitionEnabledOnThisPage()) {
 		history.scrollRestoration = 'manual';
@@ -225,6 +237,7 @@ const moveToLocation = (
 				{
 					...options.state,
 					index: current.index,
+					sequence: historySequence,
 					scrollX: current.scrollX,
 					scrollY: current.scrollY,
 				},
@@ -233,7 +246,13 @@ const moveToLocation = (
 			);
 		} else {
 			history.pushState(
-				{ ...options.state, index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
+				{
+					...options.state,
+					index: ++currentHistoryIndex,
+					sequence: historySequence,
+					scrollX: 0,
+					scrollY: 0,
+				},
 				'',
 				to.href,
 			);

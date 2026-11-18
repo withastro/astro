@@ -455,6 +455,34 @@ test.describe('View Transitions', () => {
 		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
 	});
 
+	test('Scroll position restored on back button across a full page load', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/one'));
+		await page.click('#click-longpage');
+		await expect(page.locator('#longpage')).toBeVisible();
+		await page.evaluate(() => scrollTo({ top: 1000, behavior: 'instant' }));
+
+		// A full page load starts a new history index sequence
+		await page.goto(astro.resolveUrl('/one'));
+		await page.click('#click-longpage');
+		await expect(page.locator('#longpage')).toBeVisible();
+		await page.evaluate(() => scrollTo({ top: 300, behavior: 'instant' }));
+
+		await page.goBack();
+		await expect(page.locator('#one')).toBeVisible();
+		await page.goBack();
+		await expect(page.locator('#longpage')).toBeVisible();
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
+
+		await page.goForward();
+		await expect(page.locator('#one')).toBeVisible();
+		await page.goForward();
+		await expect(page.locator('#longpage')).toBeVisible();
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(300);
+	});
+
 	test('Scroll position recorded during a traversal survives a reload', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/long-page'));
 		await expect(page.locator('#longpage')).toBeVisible();
