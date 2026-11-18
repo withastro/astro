@@ -22,7 +22,6 @@ function requestWithHost(host: string, port: number, hostHeader: string): Promis
 	});
 }
 
-
 describe('Static headers', () => {
 	let fixture: Fixture;
 	let server: AdapterServer;
