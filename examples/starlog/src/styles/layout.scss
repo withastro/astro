@@ -1,6 +1,6 @@
-@use 'sass:color';
-@use './colors.scss' as colors;
-@use './type.scss' as type;
+@use "sass:color";
+@use "./colors.scss" as colors;
+@use "./type.scss" as type;
 
 $container: 1040px;
 $tablet: 768px;
@@ -34,7 +34,7 @@ body {
 	overflow: hidden;
 
 	&:after {
-		content: '';
+		content: "";
 		display: block;
 		position: absolute;
 		top: -120px;
@@ -141,7 +141,7 @@ nav {
 			margin-bottom: 0.75em;
 
 			&:before {
-				content: '';
+				content: "";
 				display: block;
 				position: absolute;
 				left: -1em;

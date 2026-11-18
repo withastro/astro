@@ -5,7 +5,7 @@ permissions: {}
 on:
   pull_request: {}
   schedule:
-    - cron: '0 0 * * 6'
+    - cron: "0 0 * * 6"
 jobs:
   semgrep:
     name: semgrep-oss
@@ -15,5 +15,5 @@ jobs:
     container:
       image: semgrep/semgrep@sha256:fb59331f2772da4a9960692ae31961cd58a7c666c014125e9202c96bdfdc38cc # v1.157.0
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: semgrep scan --config=auto

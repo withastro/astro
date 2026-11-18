@@ -17,8 +17,8 @@ Run `pnpm changeset --empty` from the repo root. This creates a randomly-named `
 
 ```md
 ---
-'<package-name>': patch
----
+
+## '<package-name>': patch
 
 <changeset message>
 ```
@@ -52,16 +52,16 @@ One line is usually enough. No end punctuation required unless writing multiple 
 
 ```md
 ---
-'astro': patch
----
+
+## 'astro': patch
 
 Fixes a bug where the toolbar audit would incorrectly flag images as above the fold
 ```
 
 ```md
 ---
-'astro': patch
----
+
+## 'astro': patch
 
 Refactors internal handling of styles and scripts for content collections to improve build performance
 ```
@@ -82,8 +82,8 @@ Start with "Adds", name the new API, and describe what users can now do. Include
 
 ````md
 ---
-'astro': minor
----
+
+## 'astro': minor
 
 Adds a new, optional property `timeout` for the `client:idle` directive
 
@@ -102,8 +102,8 @@ Use verbs like "Removes", "Changes", or "Deprecates". Must include migration gui
 
 ````md
 ---
-'astro': major
----
+
+## 'astro': major
 
 Removes support for Shiki custom language's `path` property. The language JSON file must now be imported and passed to the option instead.
 
@@ -132,8 +132,8 @@ For longer descriptions, use `####` and deeper headings (never `##` or `###`) to
 
 ```md
 ---
-'astro': minor
----
+
+## 'astro': minor
 
 Adds a new Sessions API to store user state between requests for on-demand rendered pages.
 

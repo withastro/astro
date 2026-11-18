@@ -2,7 +2,7 @@ name: "Issue: Needs Repro"
 
 on:
   issues:
-    types: [ labeled ]
+    types: [labeled]
 
 concurrency:
   group: issue-needs-repro-${{ github.event.issue.number }}

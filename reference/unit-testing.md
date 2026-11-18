@@ -81,10 +81,10 @@ import { someFunction } from '../../../dist/core/some-module.js';
 import { createBasicSettings } from '../test-utils.ts';
 
 describe('someFunction', () => {
-  it('handles edge case from issue #1234', async () => {
-    const settings = await createBasicSettings({ root: '/tmp/test' });
-    const result = someFunction(settings, edgeCaseInput);
-    assert.equal(result, expectedOutput);
-  });
+	it('handles edge case from issue #1234', async () => {
+		const settings = await createBasicSettings({ root: '/tmp/test' });
+		const result = someFunction(settings, edgeCaseInput);
+		assert.equal(result, expectedOutput);
+	});
 });
 ```

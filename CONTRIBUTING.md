@@ -361,7 +361,7 @@ The typical package has three tsconfig files:
 // and should mirror the deps in package.json (maintained manually for now).
 {
   "extends": "../../configs/tsconfig.build.json",
-  "references": [{ "path": "../dep1/tsconfig.json" }, { "path": "../dep2/tsconfig.json" }],
+  "references": [{ "path": "../dep1/tsconfig.json" }, { "path": "../dep2/tsconfig.json" }]
 }
 ```
 
@@ -370,7 +370,7 @@ The typical package has three tsconfig files:
 // References the package's own build so dist/ is built before tests typecheck.
 {
   "extends": "../../configs/tsconfig.test.json",
-  "references": [{ "path": "./tsconfig.build.json" }],
+  "references": [{ "path": "./tsconfig.build.json" }]
 }
 ```
 
@@ -381,7 +381,7 @@ The typical package has three tsconfig files:
 {
   "extends": "../../configs/tsconfig.base.json",
   "files": [],
-  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }]
 }
 ```
 
@@ -475,17 +475,17 @@ import { logger, generateKey } from '../utils.js';
 import { encodeBase64 } from '@oslojs/encoding';
 
 export async function createKey() {
-  const encoded = encodeBase64(
-    new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())),
-  );
-  logger.info(`Key created: ${key}`);
+	const encoded = encodeBase64(
+		new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())),
+	);
+	logger.info(`Key created: ${key}`);
 }
 
 // main.ts
 import { createKey } from './create-key.js';
 
 async function main() {
-  await createKey();
+	await createKey();
 }
 ```
 
@@ -503,13 +503,13 @@ One way to refactor this function is to move many of these things to arguments:
 import type { Logger } from '../types.js';
 
 interface Options {
-  generateKey: () => Promise<void>;
-  logger: Logger;
+	generateKey: () => Promise<void>;
+	logger: Logger;
 }
 
 export async function createKey({ generateKey, logger }: Options) {
-  const key = await generateKey();
-  logger.info(`Key created: ${key}`);
+	const key = await generateKey();
+	logger.info(`Key created: ${key}`);
 }
 
 // main.ts
@@ -518,14 +518,14 @@ import { logger, generateKey } from '../utils.js';
 import { encodeBase64 } from '@oslojs/encoding';
 
 async function main() {
-  await createKey({
-    logger,
-    async generateKey() {
-      return encodeBase64(
-        new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())),
-      );
-    },
-  });
+	await createKey({
+		logger,
+		async generateKey() {
+			return encodeBase64(
+				new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())),
+			);
+		},
+	});
 }
 ```
 
@@ -534,20 +534,20 @@ We could take this further by writing some custom abstractions, which can be use
 ```ts
 // types.ts
 export interface KeyGenerator {
-  generate: () => Promise<string>;
+	generate: () => Promise<string>;
 }
 
 // create-key.ts
 import type { KeyGenerator, Logger } from './types.js';
 
 interface Options {
-  keyGenerator: KeyGenerator;
-  logger: Logger;
+	keyGenerator: KeyGenerator;
+	logger: Logger;
 }
 
 export async function createKey({ keyGenerator, logger }: Options) {
-  const key = await keyGenerator.generate();
-  logger.info(`Key created: ${key}`);
+	const key = await keyGenerator.generate();
+	logger.info(`Key created: ${key}`);
 }
 
 // crypto-key-generator.ts
@@ -555,20 +555,20 @@ import type { KeyGenerator } from './types.js';
 import { encodeBase64 } from '@oslojs/encoding';
 
 export class CryptoKeyGenerator implements KeyGenerator {
-  readonly #algorithm = 'AES-GCM';
+	readonly #algorithm = 'AES-GCM';
 
-  async generate(): Promise<string> {
-    const key = await crypto.subtle.generateKey(
-      {
-        name: this.#algorithm,
-        length: 256,
-      },
-      true,
-      ['encrypt', 'decrypt'],
-    );
-    const encoded = encodeBase64(new Uint8Array(await crypto.subtle.exportKey('raw', key)));
-    return encoded;
-  }
+	async generate(): Promise<string> {
+		const key = await crypto.subtle.generateKey(
+			{
+				name: this.#algorithm,
+				length: 256,
+			},
+			true,
+			['encrypt', 'decrypt'],
+		);
+		const encoded = encodeBase64(new Uint8Array(await crypto.subtle.exportKey('raw', key)));
+		return encoded;
+	}
 }
 
 // main.ts
@@ -579,7 +579,7 @@ import { CryptoKeyGenerator } from '../crypto-key-generator.js';
 const keyGenerator = new CryptoKeyGenerator();
 
 async function main() {
-  await createKey({ logger, keyGenerator });
+	await createKey({ logger, keyGenerator });
 }
 ```
 
@@ -594,20 +594,20 @@ import { SpyLogger } from '../test-utils.js';
 import { FakeKeyGenerator } from './utils.js';
 
 describe('CLI create-key', () => {
-  describe('core', () => {
-    describe('createKey()', () => {
-      it('logs the generated key', async () => {
-        const logger = new SpyLogger();
-        const keyGenerator = new FakeKeyGenerator('FOO');
+	describe('core', () => {
+		describe('createKey()', () => {
+			it('logs the generated key', async () => {
+				const logger = new SpyLogger();
+				const keyGenerator = new FakeKeyGenerator('FOO');
 
-        await createKey({ logger, keyGenerator });
+				await createKey({ logger, keyGenerator });
 
-        assert.equal(logger.logs[0].type, 'info');
-        assert.equal(logger.logs[0].label, 'crypto');
-        assert.match(logger.logs[0].message, /ASTRO_KEY=FOO/);
-      });
-    });
-  });
+				assert.equal(logger.logs[0].type, 'info');
+				assert.equal(logger.logs[0].label, 'crypto');
+				assert.match(logger.logs[0].message, /ASTRO_KEY=FOO/);
+			});
+		});
+	});
 });
 ```
 
@@ -622,19 +622,19 @@ It can be useful to create test specific abstractions:
 
 /** @implements {KeyGenerator} */
 export class FakeKeyGenerator {
-  /** @type {string} */
-  #key;
+	/** @type {string} */
+	#key;
 
-  /**
-   * @param {string} key
-   */
-  constructor(key) {
-    this.#key = key;
-  }
+	/**
+	 * @param {string} key
+	 */
+	constructor(key) {
+		this.#key = key;
+	}
 
-  async generate() {
-    return this.#key;
-  }
+	async generate() {
+		return this.#key;
+	}
 }
 ```
 

@@ -95,7 +95,7 @@ jobs:
       - name: Build Packages
         if: ${{ matrix.os == 'ubuntu-latest' && github.repository_owner == 'withastro' }}
         run: pnpm run build
-        
+
   biome-lint:
     runs-on: ubuntu-latest
     permissions:
@@ -109,14 +109,14 @@ jobs:
         uses: biomejs/setup-biome@4c91541eaada48f67d7dbd7833600ce162b68f51 # v2.7.1
       - name: Run Biome
         run: biome ci --formatter-enabled=false --enforce-assist=false --reporter=default --reporter=github
-  
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: read # Checkout only
-    needs: 
+    needs:
       - biome-lint
     steps:
       - name: Disable git crlf
@@ -151,7 +151,7 @@ jobs:
         run: pnpm run typecheck
 
   test:
-    name: 'Test (${{ matrix.TEST_SUITE.name }}): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
+    name: "Test (${{ matrix.TEST_SUITE.name }}): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     permissions:
@@ -162,8 +162,8 @@ jobs:
         OS: [ubuntu-latest, macos-15, windows-2025]
         NODE_VERSION: [22.23.4, 24]
         TEST_SUITE:
-          - { name: astro, script: 'pnpm run test:astro' }
-          - { name: integrations, script: 'pnpm run test:integrations' }
+          - { name: astro, script: "pnpm run test:astro" }
+          - { name: integrations, script: "pnpm run test:integrations" }
         # We only test Node 22 on macOS and Windows to reduce CI usage.
         # This exclude config tells GitHub to skip the items in the matrix that run on macOS or
         # Windows and use one of the older Node versions.
@@ -243,7 +243,7 @@ jobs:
             node_version: 22.23.4
       fail-fast: false
 
-    name: 'Test (language-tools): node-${{ matrix.node_version }}, ${{ matrix.os }}'
+    name: "Test (language-tools): node-${{ matrix.node_version }}, ${{ matrix.os }}"
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

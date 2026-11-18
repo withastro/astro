@@ -1,6 +1,6 @@
 ---
-title: Simple
----
+
+## title: Simple
 
 # Simple post
 

@@ -12,7 +12,7 @@ import viteVue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [astro({ renderers: [vue()] }), viteVue()],
+	plugins: [astro({ renderers: [vue()] }), viteVue()],
 });
 ```
 

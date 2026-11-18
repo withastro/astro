@@ -104,8 +104,8 @@ Add temporary logging to `vite-plugin-environment/index.ts`:
 
 ```ts
 console.log(
-  `[vite-plugin-environment] ${environmentName} entries:`,
-  finalEnvironmentOptions.optimizeDeps?.entries,
+	`[vite-plugin-environment] ${environmentName} entries:`,
+	finalEnvironmentOptions.optimizeDeps?.entries,
 );
 ```
 
@@ -116,12 +116,12 @@ Add logging to Vite's `rolldownScanPlugin` `resolveId` hook (in `node_modules/.p
 ```js
 // Inside the rolldownScanPlugin resolveId hook
 if (moduleListContains(exclude, id)) {
-  console.log(`[dep-scan] EXCLUDED: ${id}`);
+	console.log(`[dep-scan] EXCLUDED: ${id}`);
 }
 if (resolved && isOptimizable(resolved, optimizeDepsOptions)) {
-  console.log(`[dep-scan] FOUND dep: ${id} -> ${resolved}`);
+	console.log(`[dep-scan] FOUND dep: ${id} -> ${resolved}`);
 } else {
-  console.log(`[dep-scan] NOT optimizable: ${id} -> ${resolved}`);
+	console.log(`[dep-scan] NOT optimizable: ${id} -> ${resolved}`);
 }
 ```
 
@@ -154,13 +154,13 @@ Add logging to `computeEntries` in Vite's dep chunk to see what entries actually
 
 ```js
 async function computeEntries(environment) {
-  // ...
-  console.log(
-    `[computeEntries] env=${environment.name} explicitEntryPatterns=${JSON.stringify(explicitEntryPatterns)}`,
-  );
-  // after filter:
-  console.log(`[computeEntries] env=${environment.name} after filter:`, entries);
-  return entries;
+	// ...
+	console.log(
+		`[computeEntries] env=${environment.name} explicitEntryPatterns=${JSON.stringify(explicitEntryPatterns)}`,
+	);
+	// after filter:
+	console.log(`[computeEntries] env=${environment.name} after filter:`, entries);
+	return entries;
 }
 ```
 
@@ -177,8 +177,8 @@ If the problematic dep is only reachable through a `.astro` file in `node_module
 ```ts
 // In vite-plugin-environment, when noDiscovery === false:
 entries: [
-  `${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`,
-  '**/node_modules/**/*.astro', // scans .astro files in installed packages
+	`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`,
+	'**/node_modules/**/*.astro', // scans .astro files in installed packages
 ];
 ```
 
@@ -190,7 +190,7 @@ If the dep is known and specific, add it directly. In the Cloudflare adapter's `
 
 ```ts
 optimizeDeps: {
-  include: ['some-pkg > problematic-cjs-dep'];
+	include: ['some-pkg > problematic-cjs-dep'];
 }
 ```
 

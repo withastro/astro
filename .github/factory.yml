@@ -33,7 +33,7 @@ triage:
   buildCommand: pnpm build
   previewRelease:
     workflow: factory-preview.yml
-    
+
 adversary:
   trigger:
     label: "pr: adversary"

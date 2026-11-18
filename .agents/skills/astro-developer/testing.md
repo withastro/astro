@@ -25,14 +25,14 @@ Comprehensive guide to writing and debugging tests in the Astro monorepo.
 ```javascript
 // BAD - Will cause cache pollution
 await loadFixture({
-  root: './fixtures/my-test/',
-  // No outDir specified - uses default, shared with other tests
+	root: './fixtures/my-test/',
+	// No outDir specified - uses default, shared with other tests
 });
 
 // GOOD - Isolated output
 await loadFixture({
-  root: './fixtures/my-test/',
-  outDir: './dist/my-test/', // Unique per test
+	root: './fixtures/my-test/',
+	outDir: './dist/my-test/', // Unique per test
 });
 ```
 
@@ -85,27 +85,27 @@ pnpm -C packages/astro exec astro-scripts test "test/{actions,css,middleware}.te
 ```typescript
 // BAD - tightly coupled, hard to test
 export function processConfig(configPath) {
-  const fs = require('node:fs');
-  const config = JSON.parse(fs.readFileSync(configPath));
-  const result = transformConfig(config);
-  fs.writeFileSync(configPath, JSON.stringify(result));
+	const fs = require('node:fs');
+	const config = JSON.parse(fs.readFileSync(configPath));
+	const result = transformConfig(config);
+	fs.writeFileSync(configPath, JSON.stringify(result));
 }
 
 // GOOD - pure function, easy to test
 export function transformConfig(config) {
-  // Pure business logic, no side effects
-  return {
-    ...config,
-    transformed: true,
-  };
+	// Pure business logic, no side effects
+	return {
+		...config,
+		transformed: true,
+	};
 }
 
 // Infrastructure layer (test with integration test if needed)
 export function processConfigFile(configPath) {
-  const fs = require('node:fs');
-  const config = JSON.parse(fs.readFileSync(configPath));
-  const result = transformConfig(config); // Unit-tested function
-  fs.writeFileSync(configPath, JSON.stringify(result));
+	const fs = require('node:fs');
+	const config = JSON.parse(fs.readFileSync(configPath));
+	const result = transformConfig(config); // Unit-tested function
+	fs.writeFileSync(configPath, JSON.stringify(result));
 }
 ```
 
@@ -198,35 +198,35 @@ pnpm run test:integrations
 ```typescript
 // BAD - business logic mixed with infrastructure
 export async function processMarkdown(filePath: string) {
-  const fs = await import('node:fs/promises');
-  const content = await fs.readFile(filePath, 'utf-8');
+	const fs = await import('node:fs/promises');
+	const content = await fs.readFile(filePath, 'utf-8');
 
-  // Business logic buried in infrastructure
-  const withFrontmatter = content.split('---')[2];
-  const processed = withFrontmatter.replace(/TODO:/g, 'NOTE:');
+	// Business logic buried in infrastructure
+	const withFrontmatter = content.split('---')[2];
+	const processed = withFrontmatter.replace(/TODO:/g, 'NOTE:');
 
-  await fs.writeFile(filePath, processed);
+	await fs.writeFile(filePath, processed);
 }
 
 // GOOD - business logic extracted (unit testable)
 export function transformMarkdownContent(content: string): string {
-  const withFrontmatter = content.split('---')[2];
-  return withFrontmatter.replace(/TODO:/g, 'NOTE:');
+	const withFrontmatter = content.split('---')[2];
+	return withFrontmatter.replace(/TODO:/g, 'NOTE:');
 }
 
 // Infrastructure layer (integration test if needed)
 export async function processMarkdownFile(filePath: string) {
-  const fs = await import('node:fs/promises');
-  const content = await fs.readFile(filePath, 'utf-8');
-  const processed = transformMarkdownContent(content);
-  await fs.writeFile(filePath, processed);
+	const fs = await import('node:fs/promises');
+	const content = await fs.readFile(filePath, 'utf-8');
+	const processed = transformMarkdownContent(content);
+	await fs.writeFile(filePath, processed);
 }
 
 // Unit test (fast, no file I/O)
 it('transforms markdown content', () => {
-  const input = '---\ntitle: Test\n---\nTODO: Fix this';
-  const result = transformMarkdownContent(input);
-  assert.equal(result, 'NOTE: Fix this');
+	const input = '---\ntitle: Test\n---\nTODO: Fix this';
+	const result = transformMarkdownContent(input);
+	assert.equal(result, 'NOTE: Fix this');
 });
 ```
 
@@ -235,21 +235,21 @@ it('transforms markdown content', () => {
 ```typescript
 // BAD - hardcoded dependency
 export function buildRoutes(config: AstroConfig) {
-  const pages = scanFilesystem('./src/pages'); // Hardcoded
-  return pages.map((page) => createRoute(page, config));
+	const pages = scanFilesystem('./src/pages'); // Hardcoded
+	return pages.map((page) => createRoute(page, config));
 }
 
 // GOOD - inject dependency (unit testable)
 export function buildRoutes(pages: string[], config: AstroConfig): Route[] {
-  return pages.map((page) => createRoute(page, config));
+	return pages.map((page) => createRoute(page, config));
 }
 
 // Unit test (no filesystem access)
 it('builds routes from pages', () => {
-  const pages = ['index.astro', 'about.astro'];
-  const config = { base: '/' };
-  const routes = buildRoutes(pages, config);
-  assert.equal(routes.length, 2);
+	const pages = ['index.astro', 'about.astro'];
+	const config = { base: '/' };
+	const routes = buildRoutes(pages, config);
+	assert.equal(routes.length, 2);
 });
 ```
 
@@ -258,24 +258,24 @@ it('builds routes from pages', () => {
 ```typescript
 // BAD - tight coupling to concrete type
 export function validateConfig(viteConfig: ViteUserConfig) {
-  // Requires full Vite config object
+	// Requires full Vite config object
 }
 
 // GOOD - accept minimal interface
 interface ConfigLike {
-  build?: { outDir?: string };
-  server?: { port?: number };
+	build?: { outDir?: string };
+	server?: { port?: number };
 }
 
 export function validateConfig(config: ConfigLike) {
-  // Only needs what it uses, easy to mock
+	// Only needs what it uses, easy to mock
 }
 
 // Unit test (simple mock)
 it('validates config', () => {
-  const config = { build: { outDir: './dist' } };
-  const result = validateConfig(config);
-  assert.ok(result);
+	const config = { build: { outDir: './dist' } };
+	const result = validateConfig(config);
+	assert.ok(result);
 });
 ```
 
@@ -284,28 +284,28 @@ it('validates config', () => {
 ```typescript
 // BAD - mutation, side effects
 export function updateManifest(manifest: Manifest, route: Route) {
-  manifest.routes.push(route);
-  manifest.version++;
+	manifest.routes.push(route);
+	manifest.version++;
 }
 
 // GOOD - pure function returning new data
 export function addRouteToManifest(manifest: Manifest, route: Route): Manifest {
-  return {
-    ...manifest,
-    routes: [...manifest.routes, route],
-    version: manifest.version + 1,
-  };
+	return {
+		...manifest,
+		routes: [...manifest.routes, route],
+		version: manifest.version + 1,
+	};
 }
 
 // Unit test (predictable, no side effects)
 it('adds route to manifest', () => {
-  const manifest = { routes: [], version: 1 };
-  const route = { path: '/test' };
-  const result = addRouteToManifest(manifest, route);
+	const manifest = { routes: [], version: 1 };
+	const route = { path: '/test' };
+	const result = addRouteToManifest(manifest, route);
 
-  assert.equal(result.routes.length, 1);
-  assert.equal(result.version, 2);
-  assert.equal(manifest.routes.length, 0); // Original unchanged
+	assert.equal(result.routes.length, 1);
+	assert.equal(result.version, 2);
+	assert.equal(manifest.routes.length, 0); // Original unchanged
 });
 ```
 
@@ -332,10 +332,10 @@ Load a test fixture with configuration.
 import { loadFixture } from './test-utils.js';
 
 const fixture = await loadFixture({
-  root: './fixtures/my-test/',
-  outDir: './dist/my-test/', // REQUIRED
-  adapter: testAdapter(),
-  integrations: [react()],
+	root: './fixtures/my-test/',
+	outDir: './dist/my-test/', // REQUIRED
+	adapter: testAdapter(),
+	integrations: [react()],
 });
 ```
 
@@ -405,7 +405,7 @@ Test adapter for SSR testing.
 import testAdapter from './test-adapter.js';
 
 const fixture = await loadFixture({
-  adapter: testAdapter(),
+	adapter: testAdapter(),
 });
 ```
 
@@ -419,42 +419,42 @@ import assert from 'node:assert/strict';
 import { loadFixture } from './test-utils.js';
 
 describe('Feature Name', () => {
-  let fixture;
+	let fixture;
 
-  before(async () => {
-    fixture = await loadFixture({
-      root: './fixtures/feature-name/',
-      outDir: './dist/feature-name/', // Unique!
-    });
-  });
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/feature-name/',
+			outDir: './dist/feature-name/', // Unique!
+		});
+	});
 
-  describe('dev', () => {
-    let devServer;
+	describe('dev', () => {
+		let devServer;
 
-    before(async () => {
-      devServer = await fixture.startDevServer();
-    });
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
 
-    after(async () => {
-      await devServer.stop();
-    });
+		after(async () => {
+			await devServer.stop();
+		});
 
-    it('should work in dev', async () => {
-      const res = await fixture.fetch('/');
-      assert.equal(res.status, 200);
-    });
-  });
+		it('should work in dev', async () => {
+			const res = await fixture.fetch('/');
+			assert.equal(res.status, 200);
+		});
+	});
 
-  describe('build', () => {
-    before(async () => {
-      await fixture.build();
-    });
+	describe('build', () => {
+		before(async () => {
+			await fixture.build();
+		});
 
-    it('should work in build', async () => {
-      const html = await fixture.readFile('/index.html');
-      assert.match(html, /expected content/);
-    });
-  });
+		it('should work in build', async () => {
+			const html = await fixture.readFile('/index.html');
+			assert.match(html, /expected content/);
+		});
+	});
 });
 ```
 
@@ -463,12 +463,12 @@ describe('Feature Name', () => {
 ```javascript
 // Run only this test
 it.only('focused test', async () => {
-  // ...
+	// ...
 });
 
 // Run only this describe block
 describe.only('focused suite', () => {
-  // All tests here will run
+	// All tests here will run
 });
 ```
 
@@ -527,8 +527,8 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 
 export default defineConfig({
-  integrations: [react()],
-  outDir: './dist', // Can be overridden by test
+	integrations: [react()],
+	outDir: './dist', // Can be overridden by test
 });
 ```
 
@@ -579,16 +579,16 @@ pnpm -C packages/astro exec astro-scripts test "test/**/*.test.js" --parallel
 
 ```javascript
 describe('Vite Plugin', () => {
-  it('should transform .astro files', async () => {
-    const fixture = await loadFixture({
-      root: './fixtures/astro-components/',
-      outDir: './dist/astro-components/',
-    });
+	it('should transform .astro files', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/astro-components/',
+			outDir: './dist/astro-components/',
+		});
 
-    await fixture.build();
-    const html = await fixture.readFile('/index.html');
-    assert.match(html, /<h1>.*<\/h1>/);
-  });
+		await fixture.build();
+		const html = await fixture.readFile('/index.html');
+		assert.match(html, /<h1>.*<\/h1>/);
+	});
 });
 ```
 
@@ -596,17 +596,17 @@ describe('Vite Plugin', () => {
 
 ```javascript
 describe('Virtual Modules', () => {
-  it('should load virtual:astro:middleware', async () => {
-    const fixture = await loadFixture({
-      root: './fixtures/middleware/',
-      outDir: './dist/middleware/',
-    });
+	it('should load virtual:astro:middleware', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/middleware/',
+			outDir: './dist/middleware/',
+		});
 
-    const devServer = await fixture.startDevServer();
-    const res = await fixture.fetch('/');
-    assert.equal(res.headers.get('x-middleware'), 'true');
-    await devServer.stop();
-  });
+		const devServer = await fixture.startDevServer();
+		const res = await fixture.fetch('/');
+		assert.equal(res.headers.get('x-middleware'), 'true');
+		await devServer.stop();
+	});
 });
 ```
 
@@ -616,25 +616,25 @@ describe('Virtual Modules', () => {
 import testAdapter from './test-adapter.js';
 
 describe('SSR', () => {
-  let fixture;
+	let fixture;
 
-  before(async () => {
-    fixture = await loadFixture({
-      root: './fixtures/ssr/',
-      outDir: './dist/ssr/',
-      output: 'server',
-      adapter: testAdapter(),
-    });
-    await fixture.build();
-  });
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/ssr/',
+			outDir: './dist/ssr/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+	});
 
-  it('should render dynamically', async () => {
-    const app = await fixture.loadTestAdapterApp();
-    const request = new Request('http://example.com/');
-    const response = await app.render(request);
-    const html = await response.text();
-    assert.match(html, /dynamic content/);
-  });
+	it('should render dynamically', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/');
+		const response = await app.render(request);
+		const html = await response.text();
+		assert.match(html, /dynamic content/);
+	});
 });
 ```
 
@@ -642,23 +642,23 @@ describe('SSR', () => {
 
 ```javascript
 describe('Content Collections', () => {
-  it('should generate types', async () => {
-    const fixture = await loadFixture({
-      root: './fixtures/content-collections/',
-      outDir: './dist/content-collections/',
-    });
+	it('should generate types', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/content-collections/',
+			outDir: './dist/content-collections/',
+		});
 
-    await fixture.build();
+		await fixture.build();
 
-    // Check data store
-    const dataStore = await fixture.readFile('../.astro/data-store.json');
-    const parsed = JSON.parse(dataStore);
-    assert.ok(parsed.collections.blog);
+		// Check data store
+		const dataStore = await fixture.readFile('../.astro/data-store.json');
+		const parsed = JSON.parse(dataStore);
+		assert.ok(parsed.collections.blog);
 
-    // Check types
-    const types = await fixture.readFile('../.astro/types.d.ts');
-    assert.match(types, /declare module 'astro:content'/);
-  });
+		// Check types
+		const types = await fixture.readFile('../.astro/types.d.ts');
+		assert.match(types, /declare module 'astro:content'/);
+	});
 });
 ```
 
@@ -666,14 +666,14 @@ describe('Content Collections', () => {
 
 ```javascript
 describe('Error Handling', () => {
-  it('should throw on invalid config', async () => {
-    await assert.rejects(async () => {
-      await loadFixture({
-        root: './fixtures/invalid-config/',
-        outDir: './dist/invalid-config/',
-      });
-    }, /Expected configuration error/);
-  });
+	it('should throw on invalid config', async () => {
+		await assert.rejects(async () => {
+			await loadFixture({
+				root: './fixtures/invalid-config/',
+				outDir: './dist/invalid-config/',
+			});
+		}, /Expected configuration error/);
+	});
 });
 ```
 
@@ -688,9 +688,9 @@ describe('Error Handling', () => {
 import { logger } from '../utils.js';
 
 export async function createKey() {
-  const key = await crypto.subtle.generateKey(/* ... */);
-  logger.info(`Key: ${key}`);
-  return key;
+	const key = await crypto.subtle.generateKey(/* ... */);
+	logger.info(`Key: ${key}`);
+	return key;
 }
 ```
 
@@ -707,14 +707,14 @@ export async function createKey() {
 import type { Logger, KeyGenerator } from './types.js';
 
 interface Options {
-  logger: Logger;
-  keyGenerator: KeyGenerator;
+	logger: Logger;
+	keyGenerator: KeyGenerator;
 }
 
 export async function createKey({ logger, keyGenerator }: Options) {
-  const key = await keyGenerator.generate();
-  logger.info(`Key: ${key}`);
-  return key;
+	const key = await keyGenerator.generate();
+	logger.info(`Key: ${key}`);
+	return key;
 }
 
 // test/create-key.test.js
@@ -722,12 +722,12 @@ import { SpyLogger } from './test-utils.js';
 import { FakeKeyGenerator } from './test-utils.js';
 
 it('logs the generated key', async () => {
-  const logger = new SpyLogger();
-  const keyGenerator = new FakeKeyGenerator('test-key');
+	const logger = new SpyLogger();
+	const keyGenerator = new FakeKeyGenerator('test-key');
 
-  await createKey({ logger, keyGenerator });
+	await createKey({ logger, keyGenerator });
 
-  assert.equal(logger.logs[0].message, 'Key: test-key');
+	assert.equal(logger.logs[0].message, 'Key: test-key');
 });
 ```
 
@@ -737,25 +737,25 @@ it('logs the generated key', async () => {
 // test/test-utils.js
 
 export class SpyLogger {
-  logs = [];
+	logs = [];
 
-  info(message) {
-    this.logs.push({ level: 'info', message });
-  }
+	info(message) {
+		this.logs.push({ level: 'info', message });
+	}
 
-  error(message) {
-    this.logs.push({ level: 'error', message });
-  }
+	error(message) {
+		this.logs.push({ level: 'error', message });
+	}
 }
 
 export class FakeKeyGenerator {
-  constructor(key) {
-    this.key = key;
-  }
+	constructor(key) {
+		this.key = key;
+	}
 
-  async generate() {
-    return this.key;
-  }
+	async generate() {
+		return this.key;
+	}
 }
 ```
 
@@ -776,12 +776,12 @@ node --test --test-only test/my-test.test.js
 ```javascript
 // Add logging
 before(async () => {
-  console.log('Loading fixture:', fixturePath);
-  fixture = await loadFixture({
-    root: fixturePath,
-    outDir: './dist/unique/',
-  });
-  console.log('Fixture loaded');
+	console.log('Loading fixture:', fixturePath);
+	fixture = await loadFixture({
+		root: fixturePath,
+		outDir: './dist/unique/',
+	});
+	console.log('Fixture loaded');
 });
 ```
 
@@ -883,7 +883,7 @@ pnpm -C packages/astro exec astro-scripts test --timeout 60000 "test/slow.test.j
 ```javascript
 // Always stop servers in after() hook
 after(async () => {
-  await devServer?.stop();
+	await devServer?.stop();
 });
 ```
 
@@ -909,17 +909,17 @@ after(async () => {
 
 ```javascript
 describe('Feature', () => {
-  describe('dev mode', () => {
-    // Dev-specific tests
-  });
+	describe('dev mode', () => {
+		// Dev-specific tests
+	});
 
-  describe('build mode', () => {
-    // Build-specific tests
-  });
+	describe('build mode', () => {
+		// Build-specific tests
+	});
 
-  describe('SSR mode', () => {
-    // SSR-specific tests
-  });
+	describe('SSR mode', () => {
+		// SSR-specific tests
+	});
 });
 ```
 
@@ -927,27 +927,27 @@ describe('Feature', () => {
 
 ```javascript
 describe('Feature', () => {
-  let fixture;
+	let fixture;
 
-  // Shared setup
-  before(async () => {
-    fixture = await loadFixture({
-      root: './fixtures/shared/',
-      outDir: './dist/shared/',
-    });
-    await fixture.build();
-  });
+	// Shared setup
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/shared/',
+			outDir: './dist/shared/',
+		});
+		await fixture.build();
+	});
 
-  // Multiple tests use same fixture
-  it('test 1', async () => {
-    const html = await fixture.readFile('/page1.html');
-    // ...
-  });
+	// Multiple tests use same fixture
+	it('test 1', async () => {
+		const html = await fixture.readFile('/page1.html');
+		// ...
+	});
 
-  it('test 2', async () => {
-    const html = await fixture.readFile('/page2.html');
-    // ...
-  });
+	it('test 2', async () => {
+		const html = await fixture.readFile('/page2.html');
+		// ...
+	});
 });
 ```
 

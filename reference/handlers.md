@@ -10,12 +10,12 @@ Each handler has a corresponding bitmask flag in `PipelineFeatures` (`packages/a
 
 ```ts
 export const PipelineFeatures = {
-  redirects: 1 << 0,
-  sessions: 1 << 1,
-  actions: 1 << 2,
-  middleware: 1 << 3,
-  i18n: 1 << 4,
-  cache: 1 << 5,
+	redirects: 1 << 0,
+	sessions: 1 << 1,
+	actions: 1 << 2,
+	middleware: 1 << 3,
+	i18n: 1 << 4,
+	cache: 1 << 5,
 } as const;
 ```
 
@@ -55,6 +55,7 @@ Features that are always included (like page rendering) or that fail loudly on t
    ```
 
 3. **Add the manifest check** in `BaseApp.#warnMissingFeatures()` in `packages/astro/src/core/app/base.ts`:
+
    ```ts
    if (manifest.myFeatureConfig && !(used & PipelineFeatures.myFeature)) {
      missing.push('myFeature');

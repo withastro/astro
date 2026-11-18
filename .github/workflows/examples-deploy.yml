@@ -5,10 +5,10 @@ name: Redeploy preview.astro.new
 
 on:
   push:
-    branches: 
+    branches:
       - main
-    paths: 
-      - 'examples/**'
+    paths:
+      - "examples/**"
   workflow_dispatch:
 
 jobs:
@@ -20,6 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Send a POST request to Netlify to rebuild preview.astro.new
-        run: 'curl -X POST -d {} ${BUILD_HOOK}'
+        run: "curl -X POST -d {} ${BUILD_HOOK}"
         env:
           BUILD_HOOK: ${{ secrets.NETLIFY_PREVIEWS_BUILD_HOOK }}

@@ -25,7 +25,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           gh extension install actions/gh-actions-cache
-          
+
           REPO=${{ github.repository }}
           BRANCH="refs/pull/${{ github.event.pull_request.number }}/merge"
 

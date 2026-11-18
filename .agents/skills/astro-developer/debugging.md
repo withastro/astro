@@ -312,19 +312,19 @@ Add logging in your loader implementation:
 
 ```typescript
 export function myLoader() {
-  return {
-    name: 'my-loader',
-    async load({ store, logger }) {
-      logger.info('Loading data...');
-      const data = await fetchData();
-      logger.info(`Loaded ${data.length} entries`);
+	return {
+		name: 'my-loader',
+		async load({ store, logger }) {
+			logger.info('Loading data...');
+			const data = await fetchData();
+			logger.info(`Loaded ${data.length} entries`);
 
-      for (const entry of data) {
-        console.log('[LOADER] Setting:', entry.id);
-        store.set({ id: entry.id, data: entry });
-      }
-    },
-  };
+			for (const entry of data) {
+				console.log('[LOADER] Setting:', entry.id);
+				store.set({ id: entry.id, data: entry });
+			}
+		},
+	};
 }
 ```
 

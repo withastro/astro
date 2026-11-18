@@ -32,10 +32,10 @@ The base URL to use when generating RSS item links. We recommend using the [endp
 import rss from '@astrojs/rss';
 
 export const GET = (context) =>
-  rss({
-    site: context.site,
-    // ...
-  });
+	rss({
+		site: context.site,
+		// ...
+	});
 ```
 
 ### items
@@ -48,12 +48,12 @@ An `RSSFeedItem` is a single item in the list of items in your feed. An example 
 
 ```js
 const item = {
-  title: 'Alpha Centauri: so close you can touch it',
-  link: '/blog/alpha-centauri',
-  pubDate: new Date('2023-06-04'),
-  description:
-    'Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.',
-  categories: ['stars', 'space'],
+	title: 'Alpha Centauri: so close you can touch it',
+	link: '/blog/alpha-centauri',
+	pubDate: new Date('2023-06-04'),
+	description:
+		'Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.',
+	categories: ['stars', 'space'],
 };
 ```
 
@@ -115,15 +115,15 @@ An object that defines the `title` and `url` of the original feed for items that
 
 ```js
 const item = {
-  title: 'Alpha Centauri: so close you can touch it',
-  link: '/blog/alpha-centauri',
-  pubDate: new Date('2023-06-04'),
-  description:
-    'Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.',
-  source: {
-    title: 'The Galactic Times',
-    url: 'https://galactictimes.space/feed.xml',
-  },
+	title: 'Alpha Centauri: so close you can touch it',
+	link: '/blog/alpha-centauri',
+	pubDate: new Date('2023-06-04'),
+	description:
+		'Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.',
+	source: {
+		title: 'The Galactic Times',
+		url: 'https://galactictimes.space/feed.xml',
+	},
 };
 ```
 
@@ -135,12 +135,12 @@ An object to specify properties for an included media source (e.g. a podcast) wi
 
 ```js
 const item = {
-  /* ... */
-  enclosure: {
-    url: '/media/alpha-centauri.aac',
-    length: 124568,
-    type: 'audio/aac',
-  },
+	/* ... */
+	enclosure: {
+		url: '/media/alpha-centauri.aac',
+		length: 124568,
+		type: 'audio/aac',
+	},
 };
 ```
 
@@ -183,18 +183,18 @@ This example applies the `itunes` suffix to an RSS feed of podcasts, and uses `c
 
 ```js
 rss({
-  // ...
-  xmlns: {
-    itunes: 'http://www.itunes.com/dtds/podcast-1.0.dtd',
-  },
-  customData: '<itunes:author>MF Doom</itunes:author>',
-  items: episodes.map((episode) => ({
-    // ...
-    customData:
-      `<itunes:episodeType>${episode.frontmatter.type}</itunes:episodeType>` +
-      `<itunes:duration>${episode.frontmatter.duration}</itunes:duration>` +
-      `<itunes:explicit>${episode.frontmatter.explicit || false}</itunes:explicit>`,
-  })),
+	// ...
+	xmlns: {
+		itunes: 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+	},
+	customData: '<itunes:author>MF Doom</itunes:author>',
+	items: episodes.map((episode) => ({
+		// ...
+		customData:
+			`<itunes:episodeType>${episode.frontmatter.type}</itunes:episodeType>` +
+			`<itunes:duration>${episode.frontmatter.duration}</itunes:duration>` +
+			`<itunes:explicit>${episode.frontmatter.explicit || false}</itunes:explicit>`,
+	})),
 });
 ```
 
@@ -209,9 +209,9 @@ By default, trailing slashes will be added to the URLs of your feed entries. To 
 import rss from '@astrojs/rss';
 
 export const GET = () =>
-  rss({
-    trailingSlash: false,
-  });
+	rss({
+		trailingSlash: false,
+	});
 ```
 
 ## The `rssSchema` validator
@@ -223,7 +223,7 @@ import { defineCollection } from 'astro:content';
 import { rssSchema } from '@astrojs/rss';
 
 const blog = defineCollection({
-  schema: rssSchema,
+	schema: rssSchema,
 });
 
 export const collections = { blog };
@@ -236,7 +236,7 @@ import { defineCollection } from 'astro:content';
 import { rssSchema } from '@astrojs/rss';
 
 const blog = defineCollection({
-  schema: rssSchema.extends({ extraProperty: z.string() }),
+	schema: rssSchema.extends({ extraProperty: z.string() }),
 });
 ```
 
@@ -251,12 +251,12 @@ This function assumes, but does not verify, you are globbing for items inside `s
 import rss, { pagesGlobToRssItems } from '@astrojs/rss';
 
 export async function GET(context) {
-  return rss({
-    title: 'Buzz’s Blog',
-    description: 'A humble Astronaut’s guide to the stars',
-    site: context.site,
-    items: await pagesGlobToRssItems(import.meta.glob('./blog/*.{md,mdx}')),
-  });
+	return rss({
+		title: 'Buzz’s Blog',
+		description: 'A humble Astronaut’s guide to the stars',
+		site: context.site,
+		items: await pagesGlobToRssItems(import.meta.glob('./blog/*.{md,mdx}')),
+	});
 }
 ```
 

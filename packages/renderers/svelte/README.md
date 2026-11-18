@@ -12,7 +12,7 @@ import { svelte as viteSvelte } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [astro({ renderers: [svelte()] }), viteSvelte()],
+	plugins: [astro({ renderers: [svelte()] }), viteSvelte()],
 });
 ```
 
