@@ -365,7 +365,7 @@ test.describe('View Transitions', () => {
 		await expect(page.locator('#smooth-scroll')).toBeVisible();
 
 		await page.evaluate(() => window.scrollTo({ top: 2000, behavior: 'instant' }));
-		await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(2000);
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(2000);
 
 		await page.click('#click-one');
 		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
@@ -387,7 +387,7 @@ test.describe('View Transitions', () => {
 		await expect(page.locator('#longpage')).toBeInViewport();
 
 		await page.evaluate(() => window.scrollTo({ top: 1000, behavior: 'instant' }));
-		await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(1000);
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
 		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
 
 		// Capture the mode the browser sees at document start, before the router's module runs
@@ -420,6 +420,105 @@ test.describe('View Transitions', () => {
 		await page.goForward();
 		await expect(page.locator('#one')).toBeVisible();
 		expect(await page.evaluate(() => history.scrollRestoration)).toBe('manual');
+	});
+
+	test('Scroll driven by requestAnimationFrame does not write history and is restored', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/one'));
+		await expect(page.locator('#one')).toBeVisible();
+		await page.click('#click-longpage');
+		await expect(page.locator('#longpage')).toBeVisible();
+
+		const historyWrites = await page.evaluate(async () => {
+			let writes = 0;
+			const { pushState, replaceState } = history;
+			history.pushState = (...args) => (writes++, pushState.apply(history, args));
+			history.replaceState = (...args) => (writes++, replaceState.apply(history, args));
+			for (let frame = 1; frame <= 20; frame++) {
+				await new Promise(requestAnimationFrame);
+				scrollTo({ top: frame * 50, behavior: 'instant' });
+			}
+			await new Promise((resolve) => setTimeout(resolve, 200));
+			history.pushState = pushState;
+			history.replaceState = replaceState;
+			return writes;
+		});
+		expect(historyWrites).toBe(0);
+		expect(await page.evaluate(() => window.scrollY)).toBe(1000);
+
+		await page.goBack();
+		await expect(page.locator('#one')).toBeVisible();
+		await page.goForward();
+		await expect(page.locator('#longpage')).toBeVisible();
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
+	});
+
+	test('Scroll position recorded during a traversal survives a reload', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await expect(page.locator('#longpage')).toBeVisible();
+		await page.evaluate(() => document.querySelector<HTMLElement>('#click-one')!.click());
+		await expect(page.locator('#one')).toBeVisible();
+		await page.goBack();
+		await expect(page.locator('#longpage')).toBeVisible();
+		await page.evaluate(() => scrollTo({ top: 1000, behavior: 'instant' }));
+		await page.goForward();
+		await expect(page.locator('#one')).toBeVisible();
+
+		await page.reload();
+		await expect(page.locator('#one')).toBeVisible();
+		await page.goBack();
+		await expect(page.locator('#longpage')).toBeVisible();
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
+	});
+
+	for (const [name, navigate] of [
+		[
+			'location.hash',
+			() => {
+				location.hash = '#click-one-again';
+			},
+		],
+		['a third-party pushState()', () => history.pushState(null, '', '?q=1')],
+	] as const) {
+		test(`Scroll position restored on back button after ${name}`, async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/long-page'));
+			await expect(page.locator('#longpage')).toBeVisible();
+			test.skip(
+				name !== 'location.hash' && !(await page.evaluate(() => 'navigation' in window)),
+				'Without the Navigation API, the router cannot see a pushState() by another script',
+			);
+			await page.evaluate(() => scrollTo({ top: 1000, behavior: 'instant' }));
+			await page.evaluate(navigate);
+			await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
+
+			await page.goBack();
+			await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
+		});
+	}
+
+	test('Scroll position restored on back button after location.hash without the Navigation API', async ({
+		page,
+		astro,
+	}) => {
+		await page.addInitScript(() => {
+			// Simulate a browser without the Navigation API
+			// @ts-expect-error -- `navigation` is not optional in the DOM types
+			delete window.navigation;
+		});
+		await page.goto(astro.resolveUrl('/long-page'));
+		await expect(page.locator('#longpage')).toBeVisible();
+		expect(await page.evaluate(() => 'navigation' in window)).toBe(false);
+		await page.evaluate(() => scrollTo({ top: 1000, behavior: 'instant' }));
+		// Let the `scroll` event reach the router
+		await page.evaluate(() => new Promise(requestAnimationFrame));
+		await page.evaluate(() => {
+			location.hash = '#click-one-again';
+		});
+
+		await page.goBack();
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
 	});
 
 	test('Fragment scroll position restored on back button', async ({ page, astro }) => {

@@ -75,12 +75,43 @@ let parser: DOMParser;
 // can use that to determine popstate if going forward or back.
 let currentHistoryIndex = 0;
 
+type ScrollPosition = { scrollX: number; scrollY: number };
+// Scroll positions of the router's history entries, keyed by `State.index`. A position is recorded
+// when its entry is left, not while scrolling: writing `history.state` on every scroll is
+// rate-limited and expensive in Safari (#18761) and brings back the mobile address bar (#12285).
+// Entries missing from the map fall back to the position saved in their `history.state`.
+let scrollPositions = new Map<number, ScrollPosition>();
+const SCROLL_POSITIONS_KEY = 'astro:scroll-positions';
+// Whether the current history entry is one of the router's entries.
+// Only read where the Navigation API is unavailable (see `onPopState`).
+let onRouterEntry = false;
+// Last position seen by the `scroll` listener. Only tracked where the Navigation API is unavailable.
+let lastScrollPosition: ScrollPosition = { scrollX: 0, scrollY: 0 };
+const supportsNavigationApi = inBrowser && 'navigation' in window;
+
+// sessionStorage keeps the map across a reload or a return from another document.
+// It can be unavailable (e.g. blocked storage), in which case `history.state` is the only fallback.
+function loadScrollPositions() {
+	try {
+		scrollPositions = new Map(JSON.parse(sessionStorage.getItem(SCROLL_POSITIONS_KEY) ?? '[]'));
+	} catch {}
+}
+function saveScrollPositions() {
+	try {
+		sessionStorage.setItem(SCROLL_POSITIONS_KEY, JSON.stringify([...scrollPositions]));
+	} catch {}
+}
+
 if (inBrowser) {
 	if (history.state) {
 		// Here we reloaded a page with history state
 		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
-		scrollTo({ left: history.state.scrollX, top: history.state.scrollY, behavior: 'instant' });
+		// A document without history state starts a new index sequence, so it does not load the map
+		// and its `pagehide` replaces the stored one.
+		loadScrollPositions();
+		const position = scrollPositions.get(currentHistoryIndex) ?? history.state;
+		scrollTo({ left: position.scrollX, top: position.scrollY, behavior: 'instant' });
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser address bar or via a link from extern,
 		// it needs a state in the history
@@ -89,6 +120,7 @@ if (inBrowser) {
 	if (transitionEnabledOnThisPage()) {
 		history.scrollRestoration = 'manual';
 	}
+	onRouterEntry = history.state !== null;
 }
 
 // returns the contents of the page or null if the router can't deal with it.
@@ -241,6 +273,7 @@ const moveToLocation = (
 		}
 		history.scrollRestoration = 'manual';
 	}
+	onRouterEntry = true;
 };
 
 function preloadStyleLinks(newDocument: Document) {
@@ -374,6 +407,7 @@ async function transition(
 	history.scrollRestoration = 'manual';
 
 	if (navigationType !== 'traverse') {
+		if (history.state) scrollPositions.set(history.state.index, { scrollX, scrollY });
 		updateScrollPosition({ scrollX, scrollY });
 	}
 	if (samePage(from, to) && !options.formData) {
@@ -623,9 +657,25 @@ function onPopState(ev: PopStateEvent) {
 	// Just ignore stateless entries.
 	// The browser will handle navigation fine without our help
 	if (ev.state === null) {
+		// A null-state event while `history.state` is set is the router's own synthetic event
+		// from `moveToLocation()`, not a move to another entry.
+		if (history.state === null) {
+			// The browser may already have scrolled to the fragment, so use the last position seen
+			// while the router's entry was current.
+			if (!supportsNavigationApi && onRouterEntry) {
+				scrollPositions.set(currentHistoryIndex, lastScrollPosition);
+			}
+			onRouterEntry = false;
+		}
 		return;
 	}
-	const state: State = history.state;
+	// With `scrollRestoration = 'manual'` the page has not scrolled yet,
+	// so the current position still belongs to the entry being left.
+	if (!supportsNavigationApi && onRouterEntry) {
+		scrollPositions.set(currentHistoryIndex, { scrollX, scrollY });
+	}
+	onRouterEntry = true;
+	const state: State = { ...history.state, ...scrollPositions.get(history.state.index) };
 	const nextIndex = state.index;
 	const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
 	currentHistoryIndex = nextIndex;
@@ -638,17 +688,6 @@ function onPopState(ev: PopStateEvent) {
 		ev.hasUAVisualTransition,
 	);
 }
-
-const onScrollEnd = () => {
-	// NOTE: our "popstate" event handler may call `pushState()` or
-	// `replaceState()` and then `scrollTo()`, which will fire "scroll" and
-	// "scrollend" events. To avoid redundant work and expensive calls to
-	// `replaceState()`, we simply check that the values are different before
-	// updating.
-	if (history.state && (scrollX !== history.state.scrollX || scrollY !== history.state.scrollY)) {
-		updateScrollPosition({ scrollX, scrollY });
-	}
-};
 
 // initialization
 if (inBrowser) {
@@ -666,38 +705,30 @@ if (inBrowser) {
 		addEventListener('pageshow', (ev) => {
 			if (ev.persisted && transitionEnabledOnThisPage()) history.scrollRestoration = 'manual';
 		});
-		// There's not a good way to record scroll position before a history back
-		// navigation, so we will record it when the user has stopped scrolling.
-		if ('onscrollend' in window) addEventListener('scrollend', onScrollEnd);
-		else {
-			// Keep track of state between intervals
-			let intervalId: number | undefined, lastY: number, lastX: number, lastIndex: State['index'];
-			const scrollInterval = () => {
-				// Check the index to see if a popstate event was fired
-				if (lastIndex !== history.state?.index) {
-					clearInterval(intervalId);
-					intervalId = undefined;
-					return;
+		addEventListener('pagehide', () => {
+			if (history.state?.index === currentHistoryIndex) {
+				scrollPositions.set(currentHistoryIndex, { scrollX, scrollY });
+			}
+			saveScrollPositions();
+		});
+		if (supportsNavigationApi) {
+			// `navigate` fires before every navigation away from the current entry, including
+			// traversals and `pushState()` calls by other scripts. The index check skips entries the
+			// router didn't create and the router's own `pushState()`, which runs after
+			// `currentHistoryIndex` has moved to the new entry.
+			navigation.addEventListener('navigate', () => {
+				if (history.state?.index === currentHistoryIndex) {
+					scrollPositions.set(currentHistoryIndex, { scrollX, scrollY });
 				}
-				// Check if the user stopped scrolling
-				if (lastY === scrollY && lastX === scrollX) {
-					// Cancel the interval and update scroll positions
-					clearInterval(intervalId);
-					intervalId = undefined;
-					onScrollEnd();
-					return;
-				} else {
-					// Update vars with current positions
-					(lastY = scrollY), (lastX = scrollX);
-				}
-			};
-			// We can't know when or how often scroll events fire, so we'll just use them to start intervals
+			});
+		} else {
+			// Without the Navigation API, `popstate` is the only signal that an entry was left.
+			// A `pushState()` by another script fires nothing, so the position of the router entry it
+			// leaves is not recorded and Back restores the one saved in its `history.state`.
 			addEventListener(
 				'scroll',
 				() => {
-					if (intervalId !== undefined) return;
-					(lastIndex = history.state?.index), (lastY = scrollY), (lastX = scrollX);
-					intervalId = window.setInterval(scrollInterval, 50);
+					lastScrollPosition = { scrollX, scrollY };
 				},
 				{ passive: true },
 			);
