@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.17.5
+
+### Patch Changes
+
+- [#18757](https://github.com/withastro/astro/pull/18757) [`3ac5ad3`](https://github.com/withastro/astro/commit/3ac5ad3ae05ddc461bcc7748f0c55fd6da056652) Thanks [@matthewp](https://github.com/matthewp)! - Fixes formatting `.astro` files failing with `Cannot find native binding` on Windows, macOS, and ARM or Alpine Linux
+
 ## 2.17.4
 
 ### Patch Changes

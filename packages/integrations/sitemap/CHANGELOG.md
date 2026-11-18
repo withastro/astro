@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.7.6
+
+### Patch Changes
+
+- [#18622](https://github.com/withastro/astro/pull/18622) [`1dab71a`](https://github.com/withastro/astro/commit/1dab71ac986d078eae9812cbdaf044a48bd14efa) Thanks [@Toyenzo](https://github.com/Toyenzo)! - Fixes i18n locale matching for pages whose first path segment is named like an `Object.prototype` property, such as `/constructor/` or `/toString/`. These were treated as locales, producing invalid alternate links. Also rejects an i18n `defaultLocale` that is only an inherited object property rather than a configured locale.
+
 ## 3.7.5
 
 ### Patch Changes
