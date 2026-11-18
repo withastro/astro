@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
   "files": {
     "includes": [
       "**",
@@ -11,7 +11,8 @@
       "!!**/dist",
       "packages/language-tools/vscode/syntaxes/*.json",
       "!!**/.vscode-test",
-      "!!benchmark/static-projects"
+      "!!benchmark/static-projects",
+      "!!**/CHANGELOG*.md"
     ]
   },
   "vcs": {
@@ -108,6 +109,11 @@
     "formatter": {
       "indentStyle": "space",
       "trailingCommas": "none"
+    }
+  },
+  "markdown": {
+    "parser": {
+      "frontmatter": true
     }
   },
   "overrides": [

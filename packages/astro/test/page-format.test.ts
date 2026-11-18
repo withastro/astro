@@ -94,7 +94,7 @@ describe('build.format', () => {
 		});
 	});
 
-	describe('preserve - i18n', () => {
+	describe('preserve - base', () => {
 		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
@@ -104,7 +104,7 @@ describe('build.format', () => {
 				build: {
 					format: 'preserve',
 				},
-				outDir: './dist/page-format-preserve-i18n/',
+				outDir: './dist/page-format-preserve-base/',
 			});
 		});
 

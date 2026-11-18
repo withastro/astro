@@ -8,21 +8,21 @@ Before:
 
 ```jsx
 function _createMdxContent() {
-  return (
-    <>
-      <h1>My MDX Content</h1>
-      <pre>
-        <code class="language-js">
-          <span class="token function">console</span>
-          <span class="token punctuation">.</span>
-          <span class="token function">log</span>
-          <span class="token punctuation">(</span>
-          <span class="token string">'hello world'</span>
-          <span class="token punctuation">)</span>
-        </code>
-      </pre>
-    </>
-  );
+	return (
+		<>
+			<h1>My MDX Content</h1>
+			<pre>
+				<code class="language-js">
+					<span class="token function">console</span>
+					<span class="token punctuation">.</span>
+					<span class="token function">log</span>
+					<span class="token punctuation">(</span>
+					<span class="token string">'hello world'</span>
+					<span class="token punctuation">)</span>
+				</code>
+			</pre>
+		</>
+	);
 }
 ```
 
@@ -30,7 +30,7 @@ After:
 
 ```jsx
 function _createMdxContent() {
-  return <Fragment set:html="<h1>My MDX Content</h1>\n<code class=...</code>" />;
+	return <Fragment set:html="<h1>My MDX Content</h1>\n<code class=...</code>" />;
 }
 ```
 

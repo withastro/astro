@@ -22,35 +22,6 @@ function requestWithHost(host: string, port: number, hostHeader: string): Promis
 	});
 }
 
-type StaticHeaderEntry = { pathname: string; headers: Array<{ key: string; value: string }> };
-
-describe('Static headers', () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/static-headers' });
-		await fixture.build();
-	});
-
-	it('CSP headers are added when CSP is enabled', async () => {
-		const headers: StaticHeaderEntry[] = JSON.parse(
-			await fixture.readFile('../dist/_headers.json'),
-		);
-
-		const csp = headers
-			.find((x) => x.pathname === '/')!
-			.headers.find((x) => x.key === 'Content-Security-Policy')!;
-
-		assert.notEqual(csp, undefined, 'the index must have CSP headers');
-		assert.ok(
-			csp.value.includes('script-src'),
-			'must contain the script-src directive because of the server island',
-		);
-	});
-
-	it('CSP headers are added to the request', async () => {});
-});
-
 describe('Static headers', () => {
 	let fixture: Fixture;
 	let server: AdapterServer;

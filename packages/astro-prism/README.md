@@ -22,13 +22,13 @@ This package exports a `runHighlighterWithAstro` function to highlight while mak
 import { runHighlighterWithAstro } from '@astrojs/prism';
 
 runHighlighterWithAstro(
-  `
+	`
   ---
     const helloAstro = 'Hello, Astro!';
   ---
 
   <div>{helloAstro}</div>
 `,
-  'astro',
+	'astro',
 );
 ```

@@ -1,6 +1,6 @@
 ---
 name: astro-code-review
-description: 'Perform a static, read-only code review of an Astro pull request or of a local branch, commit range, diff, patch, or working tree being prepared as a pull request. Determine whether the change satisfies its stated business requirements and is good enough to merge, using the PR description, linked requirement issues and roadmap items, and PR or issue discussions when available. Use this skill only for PR review or self-review, not issue triage or bug investigation. It reports only merge-relevant findings and never edits code or runs project code, tests, builds, checks, or scripts.'
+description: "Perform a static, read-only code review of an Astro pull request or of a local branch, commit range, diff, patch, or working tree being prepared as a pull request. Determine whether the change satisfies its stated business requirements and is good enough to merge, using the PR description, linked requirement issues and roadmap items, and PR or issue discussions when available. Use this skill only for PR review or self-review, not issue triage or bug investigation. It reports only merge-relevant findings and never edits code or runs project code, tests, builds, checks, or scripts."
 compatibility: Uses read-only GitHub tools, `gh`, and `git` when available; can review a supplied diff and provided PR context without them.
 ---
 

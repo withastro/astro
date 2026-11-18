@@ -82,18 +82,18 @@ Example fix:
 ```typescript
 // Before (in packages/astro/src/core/render/component.ts)
 export function renderComponent(component: AstroComponent, props: Props) {
-  const html = renderToString(component, props);
-  return html;
+	const html = renderToString(component, props);
+	return html;
 }
 
 // After
 export function renderComponent(component: AstroComponent, props: Props) {
-  // Skip SSR for client:only components
-  if (props['client:only']) {
-    return `<astro-island client="only" component-url="${component.url}"></astro-island>`;
-  }
-  const html = renderToString(component, props);
-  return html;
+	// Skip SSR for client:only components
+	if (props['client:only']) {
+		return `<astro-island client="only" component-url="${component.url}"></astro-island>`;
+	}
+	const html = renderToString(component, props);
+	return html;
 }
 ```
 

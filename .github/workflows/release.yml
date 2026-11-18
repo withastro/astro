@@ -160,13 +160,13 @@ jobs:
         working-directory: ./packages/language-tools/vscode
         run: |
           npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --skip-duplicate --packagePath astro-vscode.vsix
-          
+
       - name: Restore root package.json and node_modules
         if: steps.release.outputs.has_vscode == 'true'
         run: |
           mv ./package.temp.json ./package.json
           pnpm install --frozen-lockfile
-          
+
       # Fail closed: an unverifiable marker read fails the run rather than risking a duplicate
       # announcement; a clean "no such ref" (ls-remote exit 2) is the expected case.
       - name: Check if this release was already announced

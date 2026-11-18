@@ -20,10 +20,10 @@ The emitted file has content similar to:
 
 ```js
 const renderers = [
-  Object.assign(
-    { name: 'astro:framework', serverEntrypoint: '@astrojs/framework/server.js' },
-    { ssr: server_default },
-  ),
+	Object.assign(
+		{ name: 'astro:framework', serverEntrypoint: '@astrojs/framework/server.js' },
+		{ ssr: server_default },
+	),
 ];
 
 export { renderers };
@@ -143,8 +143,8 @@ const _page$0 = () => import('../chunks/<INDEX.ASTRO_CHUNK>.mjs');
 const _page$1 = () => import('../chunks/<ABOUT.ASTRO_CHUNK>.mjs');
 
 const pageMap = new Map([
-  ['src/pages/index.astro', _page$0],
-  ['src/pages/about.astro', _page$1],
+	['src/pages/index.astro', _page$0],
+	['src/pages/about.astro', _page$1],
 ]);
 ```
 

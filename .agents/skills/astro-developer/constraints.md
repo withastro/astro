@@ -81,20 +81,20 @@ import { fileURLToPath } from '@astrojs/internal-helpers/path';
 ```typescript
 // ALLOWED
 export function myVitePlugin() {
-  return {
-    name: 'my-plugin',
-    load: {
-      filter: {
-        id: /\.astro$/,
-      },
-      async handler(id) {
-        // Can use Node.js APIs here
-        const fs = await import('node:fs/promises');
-        const content = await fs.readFile(id, 'utf-8');
-        return { code: content };
-      },
-    },
-  };
+	return {
+		name: 'my-plugin',
+		load: {
+			filter: {
+				id: /\.astro$/,
+			},
+			async handler(id) {
+				// Can use Node.js APIs here
+				const fs = await import('node:fs/promises');
+				const content = await fs.readFile(id, 'utf-8');
+				return { code: content };
+			},
+		},
+	};
 }
 ```
 
@@ -103,23 +103,23 @@ export function myVitePlugin() {
 ```typescript
 // FORBIDDEN
 export function myVitePlugin() {
-  return {
-    name: 'my-plugin',
-    load: {
-      filter: {
-        id: new RegExp(`^\\0virtual:my-module$`),
-      },
-      handler() {
-        // This code runs in runtime/server context
-        return {
-          code: `
+	return {
+		name: 'my-plugin',
+		load: {
+			filter: {
+				id: new RegExp(`^\\0virtual:my-module$`),
+			},
+			handler() {
+				// This code runs in runtime/server context
+				return {
+					code: `
             import fs from 'node:fs';  // FORBIDDEN
             export const data = fs.readFileSync('/data.json');
           `,
-        };
-      },
-    },
-  };
+				};
+			},
+		},
+	};
 }
 ```
 
@@ -169,20 +169,20 @@ If you need file operations, do them in a Vite plugin:
 ```typescript
 // GOOD: In Vite plugin implementation
 export function myVitePlugin() {
-  return {
-    name: 'my-plugin',
-    load: {
-      filter: {
-        id: /\.config\.js$/,
-      },
-      async handler(id) {
-        // Safe to use Node.js APIs here
-        const fs = await import('node:fs/promises');
-        const content = await fs.readFile(id, 'utf-8');
-        return { code: content };
-      },
-    },
-  };
+	return {
+		name: 'my-plugin',
+		load: {
+			filter: {
+				id: /\.config\.js$/,
+			},
+			async handler(id) {
+				// Safe to use Node.js APIs here
+				const fs = await import('node:fs/promises');
+				const content = await fs.readFile(id, 'utf-8');
+				return { code: content };
+			},
+		},
+	};
 }
 ```
 
@@ -196,31 +196,31 @@ const VIRTUAL_MODULE_ID = 'virtual:my-config';
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
 export function myVitePlugin() {
-  return {
-    name: 'my-plugin',
-    resolveId: {
-      filter: {
-        id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
-      },
-      handler() {
-        return RESOLVED_VIRTUAL_MODULE_ID;
-      },
-    },
-    load: {
-      filter: {
-        id: new RegExp(`^${RESOLVED_VIRTUAL_MODULE_ID}$`),
-      },
-      async handler() {
-        // Read at build time (safe here)
-        const fs = await import('node:fs/promises');
-        const config = JSON.parse(await fs.readFile('./config.json', 'utf-8'));
-        // Embed in generated code (no Node.js APIs in output)
-        return {
-          code: `export default ${JSON.stringify(config)}`,
-        };
-      },
-    },
-  };
+	return {
+		name: 'my-plugin',
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
+				return RESOLVED_VIRTUAL_MODULE_ID;
+			},
+		},
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_VIRTUAL_MODULE_ID}$`),
+			},
+			async handler() {
+				// Read at build time (safe here)
+				const fs = await import('node:fs/promises');
+				const config = JSON.parse(await fs.readFile('./config.json', 'utf-8'));
+				// Embed in generated code (no Node.js APIs in output)
+				return {
+					code: `export default ${JSON.stringify(config)}`,
+				};
+			},
+		},
+	};
 }
 ```
 
@@ -311,8 +311,8 @@ import { buildSomething } from '../../core/build/utils.js';
 // GOOD: Data flows from build to runtime via manifest
 // Build time (core/build/)
 const manifest = {
-  routes: processedRoutes,
-  config: runtimeConfig,
+	routes: processedRoutes,
+	config: runtimeConfig,
 };
 
 // Runtime (runtime/server/)
@@ -472,12 +472,12 @@ logger.debug('Processing file:', file);
 ```typescript
 // BAD: Relative to cwd
 const fixture = await loadFixture({
-  root: 'fixtures/my-test/',
+	root: 'fixtures/my-test/',
 });
 
 // GOOD: Relative to test file
 const fixture = await loadFixture({
-  root: './fixtures/my-test/',
+	root: './fixtures/my-test/',
 });
 ```
 
@@ -486,12 +486,12 @@ const fixture = await loadFixture({
 ```typescript
 // BAD: Forgetting await
 before(async () => {
-  fixture.build(); // Missing await
+	fixture.build(); // Missing await
 });
 
 // GOOD: Proper await
 before(async () => {
-  await fixture.build();
+	await fixture.build();
 });
 ```
 
@@ -500,20 +500,20 @@ before(async () => {
 ```typescript
 // BAD: Server not stopped
 describe('dev', () => {
-  before(async () => {
-    devServer = await fixture.startDevServer();
-  });
-  // Missing after() hook
+	before(async () => {
+		devServer = await fixture.startDevServer();
+	});
+	// Missing after() hook
 });
 
 // GOOD: Always cleanup
 describe('dev', () => {
-  before(async () => {
-    devServer = await fixture.startDevServer();
-  });
-  after(async () => {
-    await devServer.stop();
-  });
+	before(async () => {
+		devServer = await fixture.startDevServer();
+	});
+	after(async () => {
+		await devServer.stop();
+	});
 });
 ```
 

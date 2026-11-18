@@ -37,8 +37,8 @@ The config is module state: one per copy of the runtime, so one per Vite server 
 import { createRenderer } from '@astrojs/runtime';
 
 const { renderToString } = createRenderer({
-  renderers,
-  resolve: async (specifier) => urls[specifier],
+	renderers,
+	resolve: async (specifier) => urls[specifier],
 });
 const html = await renderToString(Page, { props });
 ```

@@ -12,7 +12,7 @@ import { preact as vitePreact } from '@preact/preset-vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [astro({ renderers: [preact()] }), vitePreact()],
+	plugins: [astro({ renderers: [preact()] }), vitePreact()],
 });
 ```
 

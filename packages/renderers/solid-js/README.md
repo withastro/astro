@@ -12,7 +12,7 @@ import viteSolid from 'vite-plugin-solid';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [astro({ renderers: [solid()] }), viteSolid({ ssr: true })],
+	plugins: [astro({ renderers: [solid()] }), viteSolid({ ssr: true })],
 });
 ```
 

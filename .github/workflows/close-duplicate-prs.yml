@@ -1,4 +1,4 @@
-name: 'PR: Close Duplicates'
+name: "PR: Close Duplicates"
 
 # pull_request_target gives pull requests from forks a write token. The checkout
 # below reads the base branch only and never runs code from the pull request.
@@ -7,7 +7,7 @@ on:
     types: [closed]
   # The weekly sweep closes duplicates that predate this workflow or were missed.
   schedule:
-    - cron: '0 6 * * 1'
+    - cron: "0 6 * * 1"
   workflow_dispatch:
 
 # Queue runs so that two merges fixing the same issue cannot both act on the

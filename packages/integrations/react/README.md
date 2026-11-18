@@ -21,7 +21,7 @@ import react from '@astrojs/react';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  integrations: [react({ compiler: true })],
+	integrations: [react({ compiler: true })],
 });
 ```
 
@@ -46,7 +46,7 @@ import react from '@astrojs/react';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  integrations: [react({ babel: { plugins: ['babel-plugin-styled-components'] } })],
+	integrations: [react({ babel: { plugins: ['babel-plugin-styled-components'] } })],
 });
 ```
 
@@ -58,14 +58,14 @@ import babel from '@rolldown/plugin-babel';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  integrations: [react()],
-  vite: {
-    plugins: [
-      babel({
-        plugins: ['babel-plugin-styled-components'],
-      }),
-    ],
-  },
+	integrations: [react()],
+	vite: {
+		plugins: [
+			babel({
+				plugins: ['babel-plugin-styled-components'],
+			}),
+		],
+	},
 });
 ```
 

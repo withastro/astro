@@ -84,19 +84,19 @@ jobs:
           PACKAGES: ${{ steps.pnpm-packages.outputs.packages-output }}
         with:
           script: |
-              const { relative } = require('node:path');
-              const changes = JSON.parse(process.env.CHANGES);
-              const packages = JSON.parse(process.env.PACKAGES);
-              const packagesMap = Object.fromEntries(packages.map(p => [p.name, relative(process.cwd(), p.path)]));
-              const affectedPackages = [...new Set(changes.changesets.map(c => c.releases.map(r=> packagesMap[r.name])).flat())]
-              core.setOutput('affected-packages', JSON.stringify(affectedPackages));
+            const { relative } = require('node:path');
+            const changes = JSON.parse(process.env.CHANGES);
+            const packages = JSON.parse(process.env.PACKAGES);
+            const packagesMap = Object.fromEntries(packages.map(p => [p.name, relative(process.cwd(), p.path)]));
+            const affectedPackages = [...new Set(changes.changesets.map(c => c.releases.map(r=> packagesMap[r.name])).flat())]
+            core.setOutput('affected-packages', JSON.stringify(affectedPackages));
 
       # This step doesn't work for forks
       - name: Remove Preview Label
         run: gh pr edit ${{ github.event.number }} --remove-label "pr preview"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
+
       - name: Publish packages
         run: |
           packages=$(echo '${{ steps.compute-affected-packages.outputs.affected-packages }}' | jq -r '.[]' | tr '\n' ' ')

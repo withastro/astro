@@ -12,7 +12,7 @@ import viteReact from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [astro({ renderers: [react()] }), viteReact()],
+	plugins: [astro({ renderers: [react()] }), viteReact()],
 });
 ```
 

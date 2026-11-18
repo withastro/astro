@@ -2,18 +2,18 @@ name: Continuous benchmark
 
 on:
   workflow_dispatch:
-  pull_request: 
+  pull_request:
     branches:
       - main
     paths:
-      - 'packages/astro/src/**/*.ts'
-      - 'benchmark/**'
+      - "packages/astro/src/**/*.ts"
+      - "benchmark/**"
   push:
     branches:
       - main
     paths:
-      - 'packages/astro/src/**/*.ts'
-      - 'benchmark/**'
+      - "packages/astro/src/**/*.ts"
+      - "benchmark/**"
 
 permissions: {}
 
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        shard: [ "1/4", "2/4", "3/4", "4/4" ]
+        shard: ["1/4", "2/4", "3/4", "4/4"]
     permissions:
       contents: read # Checkout only
       pull-requests: write # CodSpeed posts benchmark results as PR comment
@@ -55,12 +55,12 @@ jobs:
 
       - name: Build
         run: pnpm run build
-        
+
       - name: Setup benchmark projects
         working-directory: ./benchmark
         run: pnpm run build:bench
         timeout-minutes: 15
-        
+
       - name: Run the benchmarks
         uses: CodSpeedHQ/action@af75f77f17a054769abefaa42fe8dc2975469b5f # v5.6.3
         timeout-minutes: 30

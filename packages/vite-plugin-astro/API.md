@@ -105,18 +105,18 @@ Read it with `getAstroApi(config: ResolvedConfig): AstroPluginApi`, which throws
 
 ```ts
 interface AstroPluginApi {
-  readonly config: ResolvedSharedConfig; // throws if read before resolution
-  readonly renderers: readonly AstroRenderer[];
-  readonly clientDirectives: readonly ClientDirectiveConfig[];
+	readonly config: ResolvedSharedConfig; // throws if read before resolution
+	readonly renderers: readonly AstroRenderer[];
+	readonly clientDirectives: readonly ClientDirectiveConfig[];
 }
 
 interface ResolvedSharedConfig {
-  root: URL; // absolute, trailing slash
-  publicDir: URL; // absolute, trailing slash
-  base: string; // Vite's resolved base
-  site: string | undefined;
-  compressHTML: boolean | 'jsx';
-  trailingSlash: 'always' | 'never' | 'ignore';
+	root: URL; // absolute, trailing slash
+	publicDir: URL; // absolute, trailing slash
+	base: string; // Vite's resolved base
+	site: string | undefined;
+	compressHTML: boolean | 'jsx';
+	trailingSlash: 'always' | 'never' | 'ignore';
 }
 ```
 
@@ -126,10 +126,10 @@ interface ResolvedSharedConfig {
 import { getAstroApi } from '@astrojs/vite-plugin-astro';
 
 const feature = {
-  name: 'my-feature',
-  configResolved(config) {
-    const { publicDir, base } = getAstroApi(config).config;
-  },
+	name: 'my-feature',
+	configResolved(config) {
+		const { publicDir, base } = getAstroApi(config).config;
+	},
 };
 ```
 
@@ -158,16 +158,16 @@ Users augmenting `AstroClientDirectives` through `declare module 'astro'` keep w
 
 ```ts
 declare module '@astrojs/vite-plugin-astro' {
-  // Repeat both type parameters with the same names and constraints.
-  interface AstroGlobalExtensions<
-    Props extends Record<string, any>,
-    Params extends Record<string, string | undefined>,
-  > {
-    currentLocale: string | undefined;
-  }
-  interface SSRResultExtensions {
-    cookies: AstroCookies | undefined;
-  }
+	// Repeat both type parameters with the same names and constraints.
+	interface AstroGlobalExtensions<
+		Props extends Record<string, any>,
+		Params extends Record<string, string | undefined>,
+	> {
+		currentLocale: string | undefined;
+	}
+	interface SSRResultExtensions {
+		cookies: AstroCookies | undefined;
+	}
 }
 ```
 
