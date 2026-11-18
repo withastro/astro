@@ -10,6 +10,7 @@
     }
   },
   "dependencies": {
-    "solid-js": "^1.9.19"
+    "@solidjs/web": "^2.0.0",
+    "solid-js": "^2.0.0"
   }
 }

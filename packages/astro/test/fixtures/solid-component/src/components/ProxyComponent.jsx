@@ -1,4 +1,4 @@
-import { Dynamic } from 'solid-js/web'
+import { Dynamic } from '@solidjs/web'
 
 const BaseComponent = ({ tag } = {}) => {
   return <Dynamic id="proxy-component" component={tag || 'div'}>Hello world</Dynamic>;

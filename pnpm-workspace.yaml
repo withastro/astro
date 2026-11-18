@@ -47,6 +47,9 @@ minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
   - '@astrojs/*'
+  # Solid 2.0 prereleases (this branch tracks them closely)
+  - '@solidjs/*'
+  - solid-js
   - '@cloudflare/*'
   - rolldown
   - '@rolldown/*'

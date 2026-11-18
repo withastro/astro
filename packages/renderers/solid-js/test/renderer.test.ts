@@ -4,7 +4,7 @@ import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import astro from '@astrojs/vite-plugin-astro';
 import { createBuilder, createServer, type InlineConfig, type ViteDevServer } from 'vite';
-import viteSolid from 'vite-plugin-solid';
+import viteSolid from '@solidjs/vite-plugin';
 import solid from '../dist/index.js';
 
 const root = new URL('./fixtures/renderer/', import.meta.url);

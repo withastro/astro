@@ -23,6 +23,7 @@
     "./container-renderer": "./dist/container-renderer.js",
     "./client.js": "./dist/client.js",
     "./server.js": "./dist/server.js",
+    "./server-function-endpoint.js": "./dist/server-function-endpoint.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -36,22 +37,18 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:^",
     "@astrojs/solid-js-renderer": "workspace:^",
-    "vite": "^8.3.8",
-    "vite-plugin-solid": "^2.11.16"
+    "@solidjs/vite-plugin": "^3.0.1",
+    "vite": "^8.3.8"
   },
   "devDependencies": {
+    "@solidjs/web": "^2.0.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^1.9.19"
+    "solid-js": "^2.0.0"
   },
   "peerDependencies": {
-    "solid-devtools": "^0.34.5",
-    "solid-js": "^1.9.13"
-  },
-  "peerDependenciesMeta": {
-    "solid-devtools": {
-      "optional": true
-    }
+    "@solidjs/web": "^2.0.0",
+    "solid-js": "^2.0.0"
   },
   "engines": {
     "node": ">=22.23.4"

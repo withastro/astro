@@ -9,7 +9,7 @@ import { svelte as viteSvelte } from '@sveltejs/vite-plugin-svelte';
 import viteReact from '@vitejs/plugin-react';
 import viteVue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
-import viteSolid from 'vite-plugin-solid';
+import viteSolid from '@solidjs/vite-plugin';
 
 // One island per framework. The framework plugins come before and after `astro()`: renderers do not
 // depend on plugin order. The three JSX frameworks split the components by directory.

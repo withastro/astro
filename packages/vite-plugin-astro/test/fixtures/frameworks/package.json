@@ -12,16 +12,17 @@
     "@astrojs/vite-plugin-astro": "workspace:*",
     "@astrojs/vue-renderer": "workspace:*",
     "@preact/preset-vite": "^2.10.6",
+    "@solidjs/vite-plugin": "^3.0.1",
+    "@solidjs/web": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@vitejs/plugin-react": "^6.3.0",
     "@vitejs/plugin-vue": "^6.0.11",
     "preact": "^11.2.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "solid-js": "^1.9.19",
+    "solid-js": "^2.0.0",
     "svelte": "^5.57.3",
     "vite": "^8.3.8",
-    "vite-plugin-solid": "^2.11.16",
     "vue": "^3.5.45"
   }
 }
