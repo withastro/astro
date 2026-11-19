@@ -17,6 +17,22 @@ describe('image-size SVG detection', () => {
 		assert.deepEqual(lookup(encoder.encode(svg)), { height: 660, width: 900, type: 'svg' });
 	});
 
+	it('ignores a `>` inside a quoted attribute value after the first kilobyte', async () => {
+		const { lookup } = await import(lookupUrl);
+		const content = `${'x'.repeat(2000)}>`;
+		const svg = `<svg xmlns="http://www.w3.org/2000/svg" content='${content}' width="900" height="660"></svg>`;
+
+		assert.deepEqual(lookup(encoder.encode(svg)), { height: 660, width: 900, type: 'svg' });
+	});
+
+	it('rejects a long input whose root tag is never closed', async () => {
+		const { lookup } = await import(lookupUrl);
+		// Every `<svg` is a candidate root tag, so detection must not rescan the input from each one.
+		const input = encoder.encode('<svg '.repeat(100_000));
+
+		assert.throws(() => lookup(input), TypeError);
+	});
+
 	it('does not detect text that only mentions an SVG tag after the first kilobyte', async () => {
 		const { lookup } = await import(lookupUrl);
 		const input = encoder.encode(`${' '.repeat(1000)}<svg width="1" height="1"></svg>`);
