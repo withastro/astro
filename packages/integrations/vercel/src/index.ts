@@ -103,7 +103,7 @@ const SUPPORTED_NODE_VERSIONS: Record<
 		status: 'deprecated',
 	},
 	20: {
-		status: 'available',
+		status: 'deprecated',
 	},
 	22: {
 		status: 'available',

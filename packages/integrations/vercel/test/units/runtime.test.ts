@@ -27,6 +27,19 @@ describe('getRuntime', () => {
 		});
 	}
 
+	for (const [version, runtime] of [
+		['18.20.0', 'nodejs18.x'],
+		['20.19.0', 'nodejs20.x'],
+	]) {
+		it(`warns that Node.js ${version} is deprecated and uses ${runtime}`, () => {
+			const warnings: string[] = [];
+			const proc = { version: `v${version}`, versions: { node: version } } as any;
+			assert.equal(getRuntime(proc, { warn: (m: string) => warnings.push(m) } as any), runtime);
+			assert.equal(warnings.length, 1);
+			assert.match(warnings[0], /deprecated/);
+		});
+	}
+
 	for (const version of ['23.1.0', '25.2.0', '27.0.0']) {
 		it(`warns and falls back to nodejs26.x when built with Node.js ${version}`, () => {
 			const warnings: string[] = [];
