@@ -10,14 +10,17 @@ import { isActionsFilePresent } from '../actions/actions-file.js';
 import { CONTENT_LAYER_TYPE } from '../content/consts.js';
 import { globalContentLayer } from '../content/instance.js';
 import { globalContentConfigObserver } from '../content/utils.js';
-import type { SerializedSSRManifest } from '../core/app/types.js';
-import type { PageBuildData } from '../core/build/types.js';
+import type { SerializedSSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
+import type { PageBuildData } from '@astrojs/vite-plugin-router/_internal/core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '@astrojs/vite-plugin-astro/_internal/core/client-directive/index.js';
 import { mergeConfig } from '../core/config/merge.js';
 import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
-import type { AstroIntegrationLogger, AstroLogger } from '../core/logger/core.js';
-import { getRouteGenerator } from '../core/routing/generator.js';
+import type {
+	AstroIntegrationLogger,
+	AstroLogger,
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
+import { getRouteGenerator } from '@astrojs/vite-plugin-router/_internal/core/routing/generator.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {

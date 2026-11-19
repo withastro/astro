@@ -3,7 +3,7 @@ import { ActionCalledFromServerError } from '@astrojs/runtime/_internal/core/err
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 // Type-only so `astro:actions` doesn't pull the request core into its
 // import graph.
-import type { FetchState } from '../../../core/fetch/fetch-state.js';
+import type { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import { getAction } from '../../load.js';
 import { createGetActionPath, createActionsProxy } from '../client.js';
 import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';

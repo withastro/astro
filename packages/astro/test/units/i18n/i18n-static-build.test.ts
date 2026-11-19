@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
-import { renderPath } from '../../../dist/core/build/generate.js';
+import type { StaticBuildOptions } from '@astrojs/vite-plugin-router/_internal/core/build/types.js';
+import { renderPath } from '@astrojs/vite-plugin-router/_internal/core/build/generate.js';
 import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.ts';
 import { createMockAstroSource, createRouteData } from '../mocks.ts';
 

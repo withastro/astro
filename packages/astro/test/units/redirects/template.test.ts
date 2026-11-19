@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { hasMetaRefreshTo, redirectTemplate } from '../../../dist/core/routing/3xx.js';
+import {
+	hasMetaRefreshTo,
+	redirectTemplate,
+} from '@astrojs/vite-plugin-router/_internal/core/routing/3xx.js';
 
 describe('redirects/template', () => {
 	it('generates correct HTML structure', () => {

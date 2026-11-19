@@ -1,4 +1,4 @@
-import type { ComponentInstance } from '../../types/astro.js';
+import type { ComponentInstance } from '../../../index.js';
 import type { SSRManifest } from '../app/types.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { createManifestMemo } from '../manifest/memo.js';
@@ -7,7 +7,10 @@ import {
 	SERVER_ISLAND_COMPONENT,
 	SERVER_ISLAND_ROUTE,
 } from '../server-islands/endpoint.js';
-import { DEFAULT_404_ROUTE, default404Instance } from './internal/astro-designed-error-pages.js';
+import {
+	DEFAULT_404_ROUTE,
+	default404Instance,
+} from '../../../core/routing/internal/astro-designed-error-pages.js';
 
 export interface DefaultRouteParams {
 	instance: ComponentInstance;

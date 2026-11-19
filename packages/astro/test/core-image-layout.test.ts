@@ -3,7 +3,7 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { AstroLogger } from '../dist/core/logger/core.js';
+import { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { testImageService } from './test-image-service.ts';
 import { testRemoteImageService } from './test-remote-image-service.ts';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';

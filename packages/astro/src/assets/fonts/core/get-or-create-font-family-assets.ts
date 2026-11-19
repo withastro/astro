@@ -1,4 +1,4 @@
-import type { AstroLogger } from '../../../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { FontFamilyAssetsByUniqueKey, ResolvedFontFamily } from '../types.js';
 
 export function getOrCreateFontFamilyAssets({

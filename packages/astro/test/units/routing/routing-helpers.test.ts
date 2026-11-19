@@ -4,7 +4,7 @@ import type { RouteData } from '../../../dist/types/public/internal.js';
 import {
 	hasNonPrerenderedRoute,
 	isFallbackRouteMatch,
-} from '../../../dist/core/routing/helpers.js';
+} from '@astrojs/vite-plugin-router/_internal/core/routing/helpers.js';
 import { createRouteData } from '../mocks.ts';
 
 function route(overrides: Partial<RouteData>): RouteData {

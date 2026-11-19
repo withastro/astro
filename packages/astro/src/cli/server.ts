@@ -23,7 +23,7 @@ import {
 	type LockFileData,
 	type ServerCommand,
 } from '../core/dev/lockfile.js';
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { Flags } from './flags.js';
 
 const require = createRequire(import.meta.url);

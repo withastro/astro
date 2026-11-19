@@ -5,7 +5,8 @@ import { describe, it } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import { AstroBuilder } from '../../../dist/core/build/index.js';
-import { parseRoute } from '../../../dist/core/routing/parse-route.js';
+import { parseRoute } from '@astrojs/vite-plugin-router/_internal/core/routing/parse-route.js';
+import { toRouterConfig } from '../../../dist/core/router-config.js';
 import { createBasicSettings, defaultLogger } from '../test-utils.ts';
 import { virtualAstroModules } from './test-helpers.ts';
 
@@ -94,7 +95,7 @@ describe('Build: Server islands in prerendered pages', () => {
 
 		const routesList = {
 			routes: [
-				parseRoute('index.astro', settings, {
+				parseRoute('index.astro', toRouterConfig(settings), {
 					component: 'src/pages/index.astro',
 					prerender: true,
 				}),
@@ -103,7 +104,7 @@ describe('Build: Server islands in prerendered pages', () => {
 
 		// Inject the server island route — normally createRoutesList does this
 		const { injectServerIslandRoute } = await import(
-			'../../../dist/core/server-islands/endpoint.js'
+			'@astrojs/vite-plugin-router/_internal/core/server-islands/endpoint.js'
 		);
 		injectServerIslandRoute(settings.config, routesList);
 
@@ -212,7 +213,7 @@ describe('Build: Server islands in prerendered pages', () => {
 
 		const routesList = {
 			routes: [
-				parseRoute('index.astro', settings, {
+				parseRoute('index.astro', toRouterConfig(settings), {
 					component: 'src/pages/index.astro',
 					prerender: true,
 				}),
@@ -220,7 +221,7 @@ describe('Build: Server islands in prerendered pages', () => {
 		};
 
 		const { injectServerIslandRoute } = await import(
-			'../../../dist/core/server-islands/endpoint.js'
+			'@astrojs/vite-plugin-router/_internal/core/server-islands/endpoint.js'
 		);
 		injectServerIslandRoute(settings.config, routesList);
 

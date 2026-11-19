@@ -5,7 +5,7 @@
  * middleware and the Astro Actions dispatch) import from here so the check
  * stays consistent regardless of where it runs.
  */
-import type { MiddlewareHandler } from '../../types/public/common.js';
+import type { MiddlewareHandler } from '../../../index.js';
 import { defineMiddleware } from '../middleware/defineMiddleware.js';
 
 /**

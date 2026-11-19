@@ -5,8 +5,9 @@ import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { AstroBuilder } from '../../../dist/core/build/index.js';
-import { MANIFEST_REPLACE } from '../../../dist/core/build/plugins/plugin-manifest.js';
-import { parseRoute } from '../../../dist/core/routing/parse-route.js';
+import { MANIFEST_REPLACE } from '@astrojs/vite-plugin-router/_internal/core/build/plugins/plugin-manifest.js';
+import { parseRoute } from '@astrojs/vite-plugin-router/_internal/core/routing/parse-route.js';
+import { toRouterConfig } from '../../../dist/core/router-config.js';
 import { createBasicSettings, defaultLogger } from '../test-utils.ts';
 import { virtualAstroModules } from './test-helpers.ts';
 
@@ -94,7 +95,7 @@ describe('Build: Manifest injection', () => {
 
 		const routesList = {
 			routes: [
-				parseRoute('index.astro', settings, {
+				parseRoute('index.astro', toRouterConfig(settings), {
 					component: 'src/pages/index.astro',
 					prerender: false,
 				}),
@@ -180,7 +181,7 @@ describe('Build: Manifest injection', () => {
 
 		const routesList = {
 			routes: [
-				parseRoute('index.astro', settings, {
+				parseRoute('index.astro', toRouterConfig(settings), {
 					component: 'src/pages/index.astro',
 					prerender: false,
 				}),

@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { SSRManifest } from '../../../dist/core/app/types.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import {
 	getFirstForwardedValue,
 	validateForwardedHeaders,
-} from '../../../dist/core/app/validate-headers.js';
+} from '@astrojs/vite-plugin-router/_internal/core/app/validate-headers.js';
 
 function buildDevUrl({
 	headers,

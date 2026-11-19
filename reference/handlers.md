@@ -2,63 +2,36 @@
 
 ## Overview
 
-When a project provides a custom `src/fetch.ts`, the user composes Astro's request pipeline themselves. This means they can accidentally omit a handler for a feature they've configured (e.g. sessions, i18n, actions). To catch this, `BaseApp.#warnMissingFeatures()` runs a one-shot check after the first request and warns about any configured features the custom pipeline doesn't call.
+Astro's request pipeline (`packages/astro/src/core/routing/handler.ts`) runs a few built-in steps (trailing slash, redirects, middleware, route dispatch) plus the fetch handlers and render context extensions registered with `api.astroRouter` from `@astrojs/vite-plugin-router`. Astro registers its own features (sessions, cache, i18n, actions) in `packages/astro/src/core/router-registrations.ts`. The contract is documented in `packages/vite-plugin-router/API.md`.
+
+When a project provides a custom `src/fetch.ts`, the user composes the pipeline themselves and can omit a step their project needs. To catch this, `BaseApp.#warnMissingFeatures()` runs a one-shot check after the first request and warns about every step that did not run.
 
 ## How it works
 
-Each handler has a corresponding bitmask flag in `PipelineFeatures` (`packages/astro/src/core/base-pipeline.ts`):
+Steps are tracked by name (`packages/astro/src/core/fetch/features.ts`):
 
-```ts
-export const PipelineFeatures = {
-  redirects: 1 << 0,
-  sessions: 1 << 1,
-  actions: 1 << 2,
-  middleware: 1 << 3,
-  i18n: 1 << 4,
-  cache: 1 << 5,
-} as const;
-```
+- A step calls `markHandlerUsed(manifest, name)` when it runs. The name matches the `astro/fetch` function users call to run it (`sessions()` marks `'sessions'`).
+- `handleRequest` (the batteries-included pipeline) calls `markAllHandlersUsed(manifest)`.
 
-When a handler runs, it sets its flag on `pipeline.usedFeatures` using a bitwise OR:
+After the first request, `#warnMissingFeatures()` warns for:
 
-```ts
-pipeline.usedFeatures |= PipelineFeatures.sessions;
-```
+- `redirects`, when the route table has redirect routes and the step did not run;
+- `middleware`, when the manifest has middleware and the step did not run;
+- every fetch handler registered with `api.astroRouter.addFetchHandler()` whose name was not marked.
 
-After the first request completes, `#warnMissingFeatures()` in `BaseApp` (`packages/astro/src/core/app/base.ts`) compares the manifest config against the flags that were actually set. If a feature is configured in the manifest but its flag was never set, a warning is logged telling the user their `src/fetch.ts` is missing that handler.
+## Adding a step for a feature
 
-## When to add a new check
-
-Add a new feature check when **all** of the following are true:
-
-1. **The feature has a manifest config** — there's a field on `SSRManifest` (e.g. `manifest.sessionConfig`, `manifest.i18n`, `manifest.actions`) that indicates the user configured it.
-2. **The feature has a dedicated handler** — there's a handler function in `astro/fetch` (e.g. `sessions()`, `actions()`, `i18n()`) that the user must include in their custom pipeline.
-3. **Omitting the handler silently breaks the feature** — if the user forgets to include the handler, the feature just doesn't work with no obvious error.
-
-Features that are always included (like page rendering) or that fail loudly on their own don't need a check.
-
-## How to add a new check
-
-1. **Add a flag to `PipelineFeatures`** in `packages/astro/src/core/base-pipeline.ts`:
+1. Register the step only when the feature is configured, so unconfigured projects get no warning:
 
    ```ts
-   export const PipelineFeatures = {
-     // ... existing flags
-     myFeature: 1 << 6,
-   } as const;
-   ```
-
-2. **Set the flag in your handler** when it runs:
-
-   ```ts
-   pipeline.usedFeatures |= PipelineFeatures.myFeature;
-   ```
-
-3. **Add the manifest check** in `BaseApp.#warnMissingFeatures()` in `packages/astro/src/core/app/base.ts`:
-   ```ts
-   if (manifest.myFeatureConfig && !(used & PipelineFeatures.myFeature)) {
-     missing.push('myFeature');
+   if (config.myFeature) {
+     api.addFetchHandler('myFeature', {
+       entrypoint: new URL('./fetch-handler.js', import.meta.url),
+       order: 'pre',
+     });
    }
    ```
 
-That's it. The warning message is generated automatically from the feature name.
+2. Export a function from `astro/fetch` (`packages/astro/src/core/fetch/index.ts`) that runs the step for custom handlers, and call `markHandlerUsed(state.manifest, 'myFeature')` in it.
+
+The warning message is generated from the handler name.

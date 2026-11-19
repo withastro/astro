@@ -1,18 +1,13 @@
 import colors from 'piccolore';
 import type { ResolvedServerUrls } from 'vite';
 import type { $ZodError } from 'zod/v4/core';
-import { partitionByKind } from '../csp/runtime.js';
-import { getDocsForError, renderErrorMarkdown } from '../errors/dev/runtime.js';
-import {
-	AstroError,
-	AstroUserError,
-	CompilerError,
-	type ErrorWithMetadata,
-} from '@astrojs/runtime/_internal/core/errors/index.js';
-import { padMultilineString } from '../util-runtime.js';
+import { partitionByKind } from '@astrojs/vite-plugin-router/_internal/core/csp/runtime.js';
+import { renderErrorMarkdown } from '@astrojs/vite-plugin-router/_internal/core/errors/dev/runtime.js';
+export { formatErrorMessage } from '@astrojs/vite-plugin-router/_internal/core/messages/error.js';
+export { req } from '@astrojs/vite-plugin-router/_internal/core/messages/request.js';
 import type { AstroVersionProvider, TextStyler } from '../../cli/definitions.js';
 import type { AstroConfig } from '../../types/public/index.js';
-import type { AstroLogger } from '../logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 
 const {
 	bgGreen,
@@ -33,32 +28,6 @@ const {
 /**
  * Prestyled messages for the CLI. Used by astro CLI commands.
  */
-
-/** Display each request being served with the path and the status code.  */
-export function req({
-	url,
-	method,
-	statusCode,
-	reqTime,
-	isRewrite,
-}: {
-	url: string;
-	statusCode: number;
-	method?: string;
-	reqTime?: number;
-	isRewrite?: boolean;
-}): string {
-	const color = statusCode >= 500 ? red : statusCode >= 300 ? yellow : blue;
-	return (
-		color(`[${statusCode}]`) +
-		` ` +
-		`${isRewrite ? color('(rewrite) ') : ''}` +
-		(method && method !== 'GET' ? color(method) + ' ' : '') +
-		url +
-		` ` +
-		(reqTime ? dim(Math.round(reqTime) + 'ms') : '')
-	);
-}
 
 /** Display server host and startup time */
 export function serverStart({
@@ -244,89 +213,6 @@ export function formatConfigErrorMessage(err: $ZodError) {
 	return `${red('[config]')} Astro found issue(s) with your configuration:\n\n${errorList.join(
 		'\n\n',
 	)}`;
-}
-
-// a regex to match the first line of a stack trace
-const STACK_LINE_REGEXP = /^\s+at /g;
-const IRRELEVANT_STACK_REGEXP = /node_modules|astro[/\\]dist/g;
-
-function formatErrorStackTrace(
-	err: Error | ErrorWithMetadata,
-	showFullStacktrace: boolean,
-): string {
-	const stackLines = (err.stack || '').split('\n').filter((line) => STACK_LINE_REGEXP.test(line));
-	// If full details are required, just return the entire stack trace.
-	if (showFullStacktrace) {
-		return stackLines.join('\n');
-	}
-	// Grab every string from the user's codebase, exit when you hit node_modules or astro/dist
-	const irrelevantStackIndex = stackLines.findIndex((line) => IRRELEVANT_STACK_REGEXP.test(line));
-	if (irrelevantStackIndex <= 0) {
-		const errorId = (err as ErrorWithMetadata).id;
-		const errorLoc = (err as ErrorWithMetadata).loc;
-		if (errorId || errorLoc?.file) {
-			const prettyLocation = `    at ${errorId ?? errorLoc?.file}${
-				errorLoc?.line && errorLoc.column ? `:${errorLoc.line}:${errorLoc.column}` : ''
-			}`;
-			return (
-				prettyLocation + '\n    [...] See full stack trace in the browser, or rerun with --verbose.'
-			);
-		} else {
-			return stackLines.join('\n');
-		}
-	}
-	// If the error occurred inside of a dependency, grab the entire stack.
-	// Otherwise, only grab the part of the stack that is relevant to the user's codebase.
-	return (
-		stackLines.splice(0, irrelevantStackIndex).join('\n') +
-		'\n    [...] See full stack trace in the browser, or rerun with --verbose.'
-	);
-}
-
-export function formatErrorMessage(err: ErrorWithMetadata, showFullStacktrace: boolean): string {
-	const isOurError = AstroError.is(err) || CompilerError.is(err) || AstroUserError.is(err);
-	let message = '';
-	if (isOurError) {
-		message += red(`[${err.name}]`) + ' ' + renderErrorMarkdown(err.message, 'cli');
-	} else {
-		message += err.message;
-	}
-	const output = [message];
-
-	if (err.hint) {
-		output.push(`  ${bold('Hint:')}`);
-		output.push(yellow(padMultilineString(renderErrorMarkdown(err.hint, 'cli'), 4)));
-	}
-
-	const docsLink = getDocsForError(err);
-	if (docsLink) {
-		output.push(`  ${bold('Error reference:')}`);
-		output.push(`    ${cyan(underline(docsLink))}`);
-	}
-
-	if (showFullStacktrace && err.loc) {
-		output.push(`  ${bold('Location:')}`);
-		output.push(`    ${underline(`${err.loc.file}:${err.loc.line ?? 0}:${err.loc.column ?? 0}`)}`);
-	}
-
-	if (err.stack) {
-		output.push(`  ${bold('Stack trace:')}`);
-		output.push(dim(formatErrorStackTrace(err, showFullStacktrace)));
-	}
-
-	if (err.cause) {
-		output.push(`  ${bold('Caused by:')}`);
-		let causeMessage = '  ';
-		if (err.cause instanceof Error) {
-			causeMessage +=
-				err.cause.message + '\n' + formatErrorStackTrace(err.cause, showFullStacktrace);
-		} else {
-			causeMessage += JSON.stringify(err.cause);
-		}
-		output.push(dim(causeMessage));
-	}
-
-	return output.join('\n');
 }
 
 /** @deprecated Migrate to HelpDisplay */

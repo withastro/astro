@@ -1,6 +1,9 @@
 import { isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { AstroLogger, type AstroLoggerDestination } from './core.js';
+import {
+	AstroLogger,
+	type AstroLoggerDestination,
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { UnableToLoadLogger } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import type { LoggerHandlerConfig } from './config.js';

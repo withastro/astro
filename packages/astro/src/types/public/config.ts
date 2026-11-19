@@ -1,4 +1,5 @@
 import type { OutgoingHttpHeaders } from 'node:http';
+import type { RedirectConfig } from '@astrojs/vite-plugin-router';
 import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
 	RehypePlugins,
@@ -12,10 +13,9 @@ import type { MarkdownProcessor } from '../../markdown/index.js';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
-import type { AssetsPrefix } from '../../core/app/types.js';
+import type { AssetsPrefix } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
-import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type {
 	CspAlgorithm,
 	CspDirective,
@@ -24,7 +24,10 @@ import type {
 	CspKind,
 	CspResourceEntry,
 } from '../../core/csp/config.js';
-import type { AstroLogger, AstroLoggerLevel } from '../../core/logger/core.js';
+import type {
+	AstroLogger,
+	AstroLoggerLevel,
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type {
 	SessionConfig,
 	SessionDriverConfig,
@@ -69,14 +72,7 @@ export interface ImageServiceTargets {
 
 export type RuntimeMode = 'development' | 'production';
 
-export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
-
-export type RedirectConfig =
-	| string
-	| {
-			status: ValidRedirectStatus;
-			destination: string;
-	  };
+export type { RedirectConfig, ValidRedirectStatus } from '@astrojs/vite-plugin-router';
 
 export type ServerConfig = {
 	/**

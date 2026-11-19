@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { RouterRegistry } from '@astrojs/vite-plugin-router/_internal/registry.js';
 import {
 	serializedManifestPlugin,
 	SERIALIZED_MANIFEST_RESOLVED_ID,
 } from '../../../dist/manifest/serialized.js';
+import type { ResolvedConfig } from 'vite';
+import { toRouterConfig } from '../../../dist/core/router-config.js';
+import { vitePluginRouterRegistrations } from '../../../dist/core/router-registrations.js';
 import { createBasicSettings, type AstroSettings } from '../test-utils.ts';
 
 /**
@@ -11,7 +15,19 @@ import { createBasicSettings, type AstroSettings } from '../test-utils.ts';
  * parsed SerializedSSRManifest that is embedded in the generated module code.
  */
 async function getManifest(settings: AstroSettings) {
-	const plugin = serializedManifestPlugin({ settings, command: 'dev', sync: false });
+	const routerRegistry = new RouterRegistry(() => toRouterConfig(settings));
+	routerRegistry.reset({} as ResolvedConfig);
+	const registrations: any = vitePluginRouterRegistrations({ settings, logger: undefined as any });
+	registrations.configResolved({
+		command: 'serve',
+		plugins: [{ name: '@astrojs/vite-plugin-router', api: { astroRouter: routerRegistry.api } }],
+	});
+	const plugin = serializedManifestPlugin({
+		settings,
+		command: 'dev',
+		sync: false,
+		routerRegistry,
+	});
 	const load = plugin.load;
 	// @ts-expect-error: Property `handler` does not exist on `load`
 	const result = await load.handler.call({}, SERIALIZED_MANIFEST_RESOLVED_ID);

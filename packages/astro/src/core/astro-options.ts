@@ -2,11 +2,11 @@ import { fileURLToPath } from 'node:url';
 import type { AstroPluginOptions } from '@astrojs/vite-plugin-astro';
 import type { AstroPluginCli } from '@astrojs/vite-plugin-astro/_internal/cli.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
-import { getDevCssModuleIdForInvalidatedModule } from '../vite-plugin-css/util.js';
+import { getDevCssModuleIdForInvalidatedModule } from '@astrojs/vite-plugin-router/_internal/vite-plugin-css/util.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import type { AstroLogger } from './logger/core.js';
-import { hasNonPrerenderedRoute } from './routing/helpers.js';
-import type { ServerIslandsState } from './server-islands/shared-state.js';
+import { hasNonPrerenderedRoute } from '@astrojs/vite-plugin-router/_internal/core/routing/helpers.js';
+import type { ServerIslandsState } from '@astrojs/vite-plugin-router/_internal/core/server-islands/shared-state.js';
 
 /** The `astro()` options of an Astro project. */
 export function toAstroOptions(settings: AstroSettings): AstroPluginOptions {

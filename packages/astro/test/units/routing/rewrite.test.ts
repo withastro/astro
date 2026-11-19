@@ -6,10 +6,10 @@ import {
 	normalizeRewritePathname,
 	setOriginPathname,
 	getOriginPathname,
-} from '../../../dist/core/routing/rewrite.js';
-import { createRewriteRouteValidator } from '../../../dist/core/routing/rewrite-validate.js';
-import { setLogger } from '../../../dist/core/logger/manifest-logger.js';
-import type { SSRManifest } from '../../../dist/core/app/types.js';
+} from '@astrojs/vite-plugin-router/_internal/core/routing/rewrite.js';
+import { createRewriteRouteValidator } from '@astrojs/vite-plugin-router/_internal/core/routing/rewrite-validate.js';
+import { setLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/manifest-logger.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import { defaultLogger } from '../test-utils.ts';
 import { dynamicPart, makeRoute, spreadPart } from './test-helpers.ts';

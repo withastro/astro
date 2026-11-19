@@ -6,4 +6,4 @@ export {
 	createRequestFromNodeRequest,
 	writeResponse,
 	getAbortControllerCleanup,
-} from '../node.js';
+} from '@astrojs/vite-plugin-router/_internal/core/app/node.js';

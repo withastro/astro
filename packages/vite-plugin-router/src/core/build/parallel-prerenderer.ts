@@ -1,26 +1,25 @@
 import os from 'node:os';
 import { Worker } from 'node:worker_threads';
-import type { AstroSettings } from '../../types/astro.js';
-import type { RouteData } from '../../types/public/internal.js';
-import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import type { RouteData } from '../../index.js';
 import type {
-	AstroPrerenderer,
+	Prerenderer,
 	PrerenderRenderMetadata,
 	PrerenderResult,
 	StaticPathsMetadata,
 	StaticPathsResult,
-} from '../../types/public/integrations.js';
-import { deserializeRouteData } from '../app/manifest.js';
-import type { AstroLoggerMessage } from '../logger/core.js';
-import { getUrlForPath } from './common.js';
-import type { BuildInternals } from './internal.js';
-import type { PageBuildData, StaticBuildOptions } from './types.js';
+} from '../../index.js';
+import { deserializeRouteData } from '../../internal/core/app/manifest.js';
+import type { AstroLoggerMessage } from '../../internal/core/logger/core.js';
+import { getUrlForPath } from '../../internal/core/build/common.js';
+import type { BuildInternals } from '../../internal/core/build/internal.js';
+import type { PageBuildData, StaticBuildOptions } from '../../internal/core/build/types.js';
 
 export interface ParallelPrerenderWorkerData {
 	entryUrl: string;
 	pagesByKeys: Array<[string, Pick<PageBuildData, 'styles'>]>;
-	pageScript: string | undefined;
-	scripts: AstroSettings['scripts'];
+	/** The build specifiers of the page scripts, with their bundled files. */
+	pageScripts: Array<[specifier: string, bundle: string | undefined]>;
+	headInlineScripts: readonly string[];
 	redirectPage: boolean;
 }
 
@@ -127,13 +126,13 @@ interface ParallelPrerendererOptions {
 	prerenderOutputDir: URL;
 }
 
-export interface ParallelPrerenderer extends AstroPrerenderer {
+export interface ParallelPrerenderer extends Prerenderer {
 	workerCount: number;
 	finish: () => Promise<StaticPathsMetadata>;
 }
 
 function resolveParallelPrerenderWorkers(
-	parallelPrerender: AstroSettings['config']['experimental']['parallelPrerender'],
+	parallelPrerender: StaticBuildOptions['host']['parallelPrerender'],
 ): number {
 	if (typeof parallelPrerender === 'object' && parallelPrerender.workers !== undefined) {
 		return parallelPrerender.workers;
@@ -196,7 +195,7 @@ class PrerenderWorkerPool {
 			this.#routes.set(route, serialized);
 			discoveryWorker.knownRouteIds.add(serialized.id);
 		}
-		const { config } = this.#options.settings;
+		const { config } = this.#options;
 		const paths = result.paths.map((path) => {
 			const route = routes.get(path.routeId)!;
 			if (path.staticPath) {
@@ -388,8 +387,8 @@ export function createParallelPrerenderer({
 	options,
 	prerenderOutputDir,
 }: ParallelPrerendererOptions): ParallelPrerenderer {
-	const { config } = options.settings;
-	const workerCount = resolveParallelPrerenderWorkers(config.experimental.parallelPrerender);
+	const { config, host } = options;
+	const workerCount = resolveParallelPrerenderWorkers(host.parallelPrerender);
 	let pool: PrerenderWorkerPool | undefined;
 	return {
 		name: 'astro:parallel',
@@ -403,9 +402,11 @@ export function createParallelPrerenderer({
 						key,
 						{ styles: page.styles },
 					]),
-					pageScript: internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID),
-					scripts: options.settings.scripts,
-					redirectPage: config.experimental.redirectPage,
+					pageScripts: internals
+						.routerRegistry!.getPageScripts('build')
+						.map((specifier) => [specifier, internals.entrySpecifierToBundleMap.get(specifier)]),
+					headInlineScripts: host.headInlineScripts,
+					redirectPage: host.redirectPage,
 				},
 				options,
 			);

@@ -2,8 +2,11 @@ import assert from 'node:assert/strict';
 import { describe, it, beforeEach } from 'node:test';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
 import { getProps } from '../../../dist/core/render/index.js';
-import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
-import { stringifyParams } from '../../../dist/core/routing/params.js';
+import {
+	RouteCache,
+	callGetStaticPaths,
+} from '@astrojs/vite-plugin-router/_internal/core/render/route-cache.js';
+import { stringifyParams } from '@astrojs/vite-plugin-router/_internal/core/routing/params.js';
 import { SpyLogger } from '../test-utils.ts';
 import { dynamicPart, makeRoute } from './test-helpers.ts';
 

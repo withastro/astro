@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
+import { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import { createRouteData } from '../mocks.ts';
 import { createBasicPipeline, SpyLogger } from '../test-utils.ts';
 

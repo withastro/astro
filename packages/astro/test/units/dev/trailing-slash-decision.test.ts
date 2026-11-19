@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { evaluateTrailingSlash } from '../../../dist/vite-plugin-astro-server/trailing-slash.js';
+import { evaluateTrailingSlash } from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/trailing-slash.js';
 
 // #region internal paths
 describe('evaluateTrailingSlash — internal paths', () => {

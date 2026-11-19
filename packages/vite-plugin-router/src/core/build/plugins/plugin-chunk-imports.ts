@@ -1,7 +1,7 @@
 import { init, type ImportSpecifier, parse } from 'es-module-lexer/minimal';
 import type { Plugin as VitePlugin } from 'vite';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
-import type { StaticBuildOptionsInput } from '../types.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../../internal/core/constants.js';
+import type { StaticBuildOptionsInput } from '../../../internal/core/build/types.js';
 
 /**
  * Returns the static module specifier of an import, or `undefined` if it can't
@@ -42,7 +42,7 @@ function getImportSpecifier(code: string, imp: ImportSpecifier): string | undefi
  * leaving dangling imports to deleted chunks that 404 at runtime.
  */
 export function pluginChunkImports(options: StaticBuildOptionsInput): VitePlugin | undefined {
-	const assetQueryParams = options.settings.adapter?.client?.assetQueryParams;
+	const assetQueryParams = options.host.adapter?.client?.assetQueryParams;
 	if (!assetQueryParams || assetQueryParams.toString() === '') {
 		return undefined;
 	}

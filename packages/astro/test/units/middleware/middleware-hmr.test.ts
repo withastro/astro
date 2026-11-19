@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { RouterRegistry } from '@astrojs/vite-plugin-router/_internal/registry.js';
 import {
 	isMiddlewarePath,
 	vitePluginMiddleware,
@@ -43,7 +44,7 @@ describe('middleware HMR path matching', () => {
 describe('middleware HMR hotUpdate handler', () => {
 	async function getHandler() {
 		const settings = await createBasicSettings();
-		const plugin = vitePluginMiddleware({ settings });
+		const plugin = vitePluginMiddleware({ settings, routerRegistry: new RouterRegistry() });
 		const hook = plugin.hotUpdate;
 		const handler = typeof hook === 'function' ? hook : hook?.handler;
 		assert.ok(handler, 'plugin should expose a hotUpdate handler');

@@ -1,9 +1,8 @@
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import { isLocalizedErrorRoute } from '../../i18n/error-routes.js';
-import type { RouteData } from '../../types/public/internal.js';
-import type { IntegrationResolvedRoute } from '../../types/public/integrations.js';
+import type { RouteData } from '../../../index.js';
 import type { RouteInfo, SSRManifest } from '../app/types.js';
-import type { RoutesList } from '../../types/astro.js';
+import type { RoutesList } from '../../../index.js';
+import { isExtensionErrorRoute } from './extensions.js';
 import {
 	isRoute404,
 	isRoute500,
@@ -82,8 +81,8 @@ export function isFallbackRouteMatch(routeData: RouteData, pathname: string): bo
 
 /**
  * Computes the default HTTP status code a route renders with:
- * `302` for i18n fallback matches, `404`/`500` for (possibly localized)
- * error routes, `200` otherwise.
+ * `302` for fallback route matches, `404`/`500` for error routes (including the ones an
+ * `extendRouting()` module declares), `200` otherwise.
  */
 export function getDefaultStatusCode(
 	manifest: SSRManifest,
@@ -94,11 +93,10 @@ export function getDefaultStatusCode(
 		return 302;
 	}
 	const route = removeTrailingForwardSlash(routeData.route);
-	const locales = manifest.i18n?.locales;
-	if (isRoute404(route) || isLocalizedErrorRoute(route, 404, locales)) {
+	if (isRoute404(route) || isExtensionErrorRoute(manifest, route, 404)) {
 		return 404;
 	}
-	if (isRoute500(route) || isLocalizedErrorRoute(route, 500, locales)) {
+	if (isRoute500(route) || isExtensionErrorRoute(manifest, route, 500)) {
 		return 500;
 	}
 	return 200;
@@ -120,13 +118,13 @@ export function hasNonPrerenderedRoute(
 	options?: { includeEndpoints?: boolean; includeExternal?: boolean },
 ): boolean;
 export function hasNonPrerenderedRoute(
-	routes: Array<Pick<IntegrationResolvedRoute, 'type' | 'origin' | 'isPrerendered'>>,
+	routes: Array<{ type: RouteData['type']; origin: RouteData['origin']; isPrerendered: boolean }>,
 	options?: { includeEndpoints?: boolean; includeExternal?: boolean },
 ): boolean;
 export function hasNonPrerenderedRoute(
 	routes: Array<
 		| Pick<RouteData, 'type' | 'origin' | 'prerender'>
-		| Pick<IntegrationResolvedRoute, 'type' | 'origin' | 'isPrerendered'>
+		| { type: RouteData['type']; origin: RouteData['origin']; isPrerendered: boolean }
 	>,
 	options?: { includeEndpoints?: boolean; includeExternal?: boolean },
 ): boolean {

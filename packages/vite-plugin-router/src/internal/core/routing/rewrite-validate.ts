@@ -1,5 +1,5 @@
-import type { ComponentInstance } from '../../types/astro.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { ComponentInstance } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
 import type { SSRManifest } from '../app/types.js';
 import { NoMatchingStaticPathFound } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import { isAstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';

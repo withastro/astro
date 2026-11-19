@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { generatePaginateFunction } from '../../../dist/core/render/paginate.js';
+import { generatePaginateFunction } from '@astrojs/vite-plugin-router/_internal/core/render/paginate.js';
 import { createRouteData } from '../mocks.ts';
 
 const items = Array.from({ length: 25 }, (_, i) => `item-${i + 1}`);

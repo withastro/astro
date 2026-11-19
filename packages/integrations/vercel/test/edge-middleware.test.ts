@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { before, describe, it } from 'node:test';
 import { type Fixture, loadFixture, getVercelConfig } from './test-utils.ts';
 
@@ -18,6 +19,20 @@ describe('Vercel edge middleware', () => {
 		const contentsJSON = JSON.parse(contents);
 		assert.equal(contentsJSON.runtime, 'edge');
 		assert.equal(contentsJSON.entrypoint, 'middleware.mjs');
+	});
+
+	it('keeps node:module out of the edge function', { timeout: 30000 }, async () => {
+		// The image endpoint bundles sharp, whose `require()` calls make Rolldown's runtime chunk
+		// import `node:module`; the middleware's server chunk imports that runtime chunk.
+		const chunks = new URL('../.vercel/output/_functions/chunks/', build.config.outDir);
+		const runtime = fs.readdirSync(chunks).find((file) => file.startsWith('rolldown-runtime'));
+		assert.ok(runtime);
+		assert.match(fs.readFileSync(new URL(runtime, chunks), 'utf-8'), /from "node:module"/);
+
+		const middleware = await build.readFile(
+			'../.vercel/output/functions/_middleware.func/middleware.mjs',
+		);
+		assert.equal(middleware.includes('node:module'), false);
 	});
 
 	it('deployment config points to the middleware edge function', { timeout: 30000 }, async () => {

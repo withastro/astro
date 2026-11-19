@@ -1,4 +1,4 @@
-import type { AstroLogger } from '../../../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { Clipboard, Prompt } from '../definitions.js';
 import { writeText } from 'tinyclip';
 

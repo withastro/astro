@@ -1,15 +1,15 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { PluginMetadata as AstroPluginMetadata } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/types.js';
-import { removeQueryString } from '../../path.js';
-import { getTopLevelPageModuleInfos } from '../graph.js';
-import type { BuildInternals } from '../internal.js';
+import { removeQueryString } from '@astrojs/internal-helpers/path';
+import { getTopLevelPageModuleInfos } from '../../../internal/core/build/graph.js';
+import type { BuildInternals } from '../../../internal/core/build/internal.js';
 import {
 	getPageDataByViteID,
 	trackClientOnlyPageDatas,
 	trackHydratedComponentPageDatas,
 	trackScriptPageDatas,
-} from '../internal.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
+} from '../../../internal/core/build/internal.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../../internal/core/constants.js';
 
 export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 	return {

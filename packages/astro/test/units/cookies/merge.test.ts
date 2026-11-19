@@ -1,12 +1,12 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { AstroCookies } from '../../../dist/core/cookies/index.js';
+import { AstroCookies } from '@astrojs/vite-plugin-router/_internal/core/cookies/index.js';
 import { mockLogger } from './test-helpers.ts';
 import {
 	attachCookiesToResponse,
 	getSetCookiesFromResponse,
-} from '../../../dist/core/cookies/response.js';
+} from '@astrojs/vite-plugin-router/_internal/core/cookies/response.js';
 
 const req = () => new Request('http://example.com/');
 

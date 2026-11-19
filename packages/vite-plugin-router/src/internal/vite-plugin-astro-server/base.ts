@@ -5,8 +5,8 @@ import colors from 'piccolore';
 import type * as vite from 'vite';
 import type { AstroLogger } from '../core/logger/core.js';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../template/4xx.js';
-import type { AstroSettings } from '../types/astro.js';
-import { writeHtmlResponse } from './response.js';
+import type { RouterConfig } from '../../index.js';
+import { writeHtmlResponse } from '../../vite-plugin-astro-server/response.js';
 
 /**
  * Outcome of the base-URL evaluation for a dev-server request.
@@ -85,10 +85,9 @@ export function evaluateBaseRewrite(
 }
 
 export function baseMiddleware(
-	settings: AstroSettings,
+	config: RouterConfig,
 	logger: AstroLogger,
 ): vite.Connect.NextHandleFunction {
-	const { config } = settings;
 	const { devRoot, devRootReplacement } = resolveDevRoot(config.base, config.site);
 
 	return function devBaseMiddleware(req, res, next) {

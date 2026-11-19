@@ -1,5 +1,5 @@
-import type { RoutesList } from '../../types/astro.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { RoutesList } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
 import { SERVER_ISLAND_COMPONENT } from '../server-islands/endpoint.js';
 import {
 	isRoute404,

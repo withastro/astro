@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
-import { executeRewrite, applyRewriteToState } from '../../../dist/core/rewrites/handler.js';
+import { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
+import {
+	executeRewrite,
+	applyRewriteToState,
+} from '@astrojs/vite-plugin-router/_internal/core/rewrites/handler.js';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createBasicPipeline } from '../test-utils.ts';

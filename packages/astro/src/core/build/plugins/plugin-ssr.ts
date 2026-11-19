@@ -1,7 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter } from '../../../types/public/index.js';
-import type { BuildInternals } from '../internal.js';
-import type { StaticBuildOptionsInput } from '../types.js';
+import type { BuildInternals } from '@astrojs/vite-plugin-router/_internal/core/build/internal.js';
+import type { StaticBuildOptionsInput } from '@astrojs/vite-plugin-router/_internal/core/build/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 type LegacyAdapter = Extract<AstroAdapter, { entrypointResolution?: 'explicit' }>;
@@ -134,11 +134,11 @@ function vitePluginSSR(internals: BuildInternals, adapter: LegacyAdapter): ViteP
 }
 
 export function pluginSSR(
-	options: StaticBuildOptionsInput,
+	adapter: AstroAdapter | undefined,
+	buildOutput: StaticBuildOptionsInput['buildOutput'],
 	internals: BuildInternals,
 ): VitePlugin[] {
-	const adapter = options.settings.adapter;
-	const ssr = options.settings.buildOutput === 'server';
+	const ssr = buildOutput === 'server';
 
 	const plugins: VitePlugin[] = [];
 

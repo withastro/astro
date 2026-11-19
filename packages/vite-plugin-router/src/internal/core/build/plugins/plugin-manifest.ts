@@ -1,46 +1,18 @@
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
-import { normalizeTheLocale } from '../../../i18n/path.js';
-import { resolveMiddlewareMode } from '../../../integrations/adapter-utils.js';
-import { runHookBuildSsr } from '../../../integrations/hooks.js';
-import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
-import type { ExtractedChunk } from '../static-build.js';
+import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../constants.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-scripts/index.js';
-import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
-import { toFallbackType } from '../../app/common.js';
-import { serializeRouteData, toRoutingStrategy } from '../../app/entrypoints/index.js';
-import type {
-	SerializedRouteInfo,
-	SerializedSSRManifest,
-	SSRManifestCSP,
-	SSRManifestI18n,
-} from '../../app/types.js';
-import {
-	getAlgorithm,
-	getDirectives,
-	getScriptHashes,
-	getScriptResources,
-	getStrictDynamic,
-	getStyleHashes,
-	getStyleResources,
-	shouldTrackCspHashes,
-	trackScriptHashes,
-	trackScriptIntegrity,
-	trackStyleHashes,
-} from '../../csp/common.js';
-import { partitionByKind } from '../../csp/runtime.js';
-import { generateSpeculationRulesContent } from '../../../prefetch/speculation-rules.js';
-import { encodeKey, generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
-import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
+import { serializeRouteData } from '../../app/manifest.js';
+import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types.js';
+import { encodeKey } from '@astrojs/runtime/_internal/core/encryption.js';
+import { fileExtension, joinPaths, prependForwardSlash } from '@astrojs/internal-helpers/path';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import type { BuildInternals } from '../internal.js';
 import { cssOrder, mergeInlineCss } from '../runtime.js';
-import type { StaticBuildOptions } from '../types.js';
-import { makePageDataKey } from './util.js';
-import { cacheConfigToManifest } from '../../cache/utils.js';
-import { sessionConfigToManifest } from '../../session/utils.js';
+import type { ExtractedChunk, StaticBuildOptions } from '../types.js';
+import { makePageDataKey } from '../../../../core/build/plugins/util.js';
 
 /**
  * Unified manifest system architecture:
@@ -63,7 +35,9 @@ import { sessionConfigToManifest } from '../../session/utils.js';
  * after bundling completes.
  */
 
-export const MANIFEST_REPLACE = '@@ASTRO_MANIFEST_REPLACE@@';
+import { MANIFEST_REPLACE } from '../../constants.js';
+
+export { MANIFEST_REPLACE };
 // Backtick included: Rolldown's minifier may rewrite string literals as template literals.
 const replaceExp = new RegExp(`['"\`]${MANIFEST_REPLACE}['"\`]`, 'g');
 
@@ -90,16 +64,7 @@ export async function manifestBuildPostHook(
 	);
 
 	if (ssrManifestChunk) {
-		const middlewareMode = resolveMiddlewareMode(options.settings.adapter?.adapterFeatures);
-		const shouldPassMiddlewareEntryPoint = middlewareMode === 'edge';
-		await runHookBuildSsr({
-			config: options.settings.config,
-			manifest,
-			logger: options.logger,
-			middlewareEntryPoint: shouldPassMiddlewareEntryPoint
-				? internals.middlewareEntryPoint
-				: undefined,
-		});
+		await options.host.onServerManifest(manifest, internals.middlewareEntryPoint);
 		// Prerendered routes' styles are dead weight in the SSR manifest: the static
 		// HTML on disk already has them inlined, and the SSR worker never renders
 		// these routes. Stripping keeps the entry chunk small on platforms like
@@ -210,13 +175,12 @@ async function buildManifest(
 	encodedKey: string,
 	clientFiles: Set<string>,
 ): Promise<SerializedSSRManifest> {
-	const { settings } = opts;
+	const { config, host } = opts;
 
 	const routes: SerializedRouteInfo[] = [];
-	const domainLookupTable: Record<string, string> = {};
 	const rawEntryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
 
-	const assetQueryParams = settings.adapter?.client?.assetQueryParams;
+	const assetQueryParams = host.adapter?.client?.assetQueryParams;
 	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
 
 	const appendAssetQuery = (pth: string) => (assetQueryString ? `${pth}?${assetQueryString}` : pth);
@@ -226,17 +190,18 @@ async function buildManifest(
 			value ? appendAssetQuery(value) : value,
 		]),
 	);
-	if (settings.scripts.some((script) => script.stage === 'page')) {
-		staticFiles.push(rawEntryModules[PAGE_SCRIPT_ID]);
+	const pageScripts = internals.routerRegistry!.getPageScripts('build');
+	for (const specifier of pageScripts) {
+		staticFiles.push(rawEntryModules[specifier]);
 	}
 
 	const prefixAssetPath = (pth: string) => {
 		let result = '';
-		if (settings.config.build.assetsPrefix) {
-			const pf = getAssetsPrefix(fileExtension(pth), settings.config.build.assetsPrefix);
+		if (config.build.assetsPrefix) {
+			const pf = getAssetsPrefix(fileExtension(pth), config.build.assetsPrefix);
 			result = joinPaths(pf, pth);
 		} else {
-			result = prependForwardSlash(joinPaths(settings.config.base, pth));
+			result = prependForwardSlash(joinPaths(config.base, pth));
 		}
 		if (assetQueryString) {
 			result += '?' + assetQueryString;
@@ -256,7 +221,7 @@ async function buildManifest(
 			links: [],
 			scripts: [],
 			styles: [],
-			routeData: serializeRouteData(route, settings.config.trailingSlash),
+			routeData: serializeRouteData(route, config.trailingSlash),
 		});
 	}
 
@@ -265,12 +230,10 @@ async function buildManifest(
 		if (!pageData) continue;
 
 		const scripts: SerializedRouteInfo['scripts'] = [];
-		if (settings.scripts.some((script) => script.stage === 'page')) {
-			const src = rawEntryModules[PAGE_SCRIPT_ID];
-
+		for (const specifier of pageScripts) {
 			scripts.push({
 				type: 'external',
-				value: appendAssetQuery(src),
+				value: appendAssetQuery(rawEntryModules[specifier]),
 			});
 		}
 
@@ -288,40 +251,26 @@ async function buildManifest(
 			links,
 			scripts: [
 				...scripts,
-				...settings.scripts
-					.filter((script) => script.stage === 'head-inline')
-					.map(({ stage, content }) => ({ stage, children: content })),
+				...host.headInlineScripts.map((content) => ({
+					stage: 'head-inline' as const,
+					children: content,
+				})),
 			],
 			styles,
-			routeData: serializeRouteData(route, settings.config.trailingSlash),
+			routeData: serializeRouteData(route, config.trailingSlash),
 		});
 
 		// Add the built .html file as a staticFile
 		if (route.prerender && route.pathname) {
 			const outFolder = getOutFolder({
 				outRoot: opts.outputDirectories.client,
-				buildFormat: opts.settings.config.build.format,
+				buildFormat: config.build.format,
 				pathname: route.pathname,
 				routeData: route,
 			});
-			const outFile = getOutFile(
-				opts.settings.config.build.format,
-				outFolder,
-				route.pathname,
-				route,
-			);
+			const outFile = getOutFile(config.build.format, outFolder, route.pathname, route);
 			const file = outFile.toString().replace(opts.outputDirectories.client.toString(), '');
 			staticFiles.push(file);
-		}
-	}
-
-	/**
-	 * logic meant for i18n domain support, where we fill the lookup table
-	 */
-	const i18n = settings.config.i18n;
-	if (i18n && i18n.domains) {
-		for (const [locale, domainValue] of Object.entries(i18n.domains)) {
-			domainLookupTable[domainValue] = normalizeTheLocale(locale);
 		}
 	}
 
@@ -330,172 +279,46 @@ async function buildManifest(
 		// Set this to an empty string so that the runtime knows not to try and load this.
 		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
 	}
-	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (settings.config.i18n) {
-		i18nManifest = {
-			fallback: settings.config.i18n.fallback,
-			fallbackType: toFallbackType(settings.config.i18n.routing),
-			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
-			locales: settings.config.i18n.locales,
-			defaultLocale: settings.config.i18n.defaultLocale,
-			domainLookupTable,
-			domains: settings.config.i18n.domains,
-		};
-	}
-
-	let csp: SSRManifestCSP | undefined = undefined;
-
-	if (shouldTrackCspHashes(settings.config.security.csp)) {
-		const cspConfig = settings.config.security.csp;
-		const algorithm = getAlgorithm(cspConfig);
-		// Astro's generated hashes are element hashes. They are appended to the directive's `hashes`
-		// as `default`-kind entries (bare strings), so they land on `script-src`/`style-src` and are
-		// folded into the `-elem` directives at render time.
-		const scriptHashes = [
-			...getScriptHashes(cspConfig),
-			...(await trackScriptHashes({
-				internals,
-				settings,
-				algorithm,
-			})),
-		];
-		const styleHashes = [
-			...getStyleHashes(cspConfig),
-			...settings.injectedCsp.styleHashes,
-			...(await trackStyleHashes({
-				internals,
-				settings,
-				algorithm,
-			})),
-		];
-
-		let importMapContent: string | undefined;
-		if (getStrictDynamic(cspConfig)) {
-			const scriptIntegrity = await trackScriptIntegrity({
-				settings,
-				algorithm,
-				clientRoot: opts.outputDirectories.client,
-				clientFiles,
-				assetQueryString,
-			});
-			if (scriptIntegrity) {
-				importMapContent = scriptIntegrity.importMapContent;
-				scriptHashes.push(...scriptIntegrity.hashes);
-			}
-		}
-
-		// When both CSP and clientPrerender are enabled, generate a static speculation rules
-		// script whose hash can be included in the CSP policy. Dynamic per-URL injection would
-		// produce unpredictable hashes that cannot be whitelisted at build time.
-		let speculationRulesContent: string | undefined;
-		if (settings.config.experimental.clientPrerender && settings.config.prefetch) {
-			const prefetchAll =
-				typeof settings.config.prefetch === 'object'
-					? (settings.config.prefetch.prefetchAll ?? false)
-					: false;
-			speculationRulesContent = generateSpeculationRulesContent(prefetchAll);
-			const speculationRulesHash = await generateCspDigest(speculationRulesContent, algorithm);
-			scriptHashes.push(speculationRulesHash);
-		}
-
-		const scriptDirective = {
-			resources: getScriptResources(cspConfig),
-			hashes: scriptHashes,
-			strictDynamic: getStrictDynamic(cspConfig),
-		};
-		const styleDirective = {
-			resources: getStyleResources(cspConfig),
-			hashes: styleHashes,
-		};
-		// Derive the deprecated flat fields from the `default`-kind entries for back-compat.
-		const scriptDefault = partitionByKind(scriptDirective).default;
-		const styleDefault = partitionByKind(styleDirective).default;
-
-		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
-			algorithm,
-			directives: getDirectives(settings),
-			scriptHashes: scriptDefault.hashes,
-			scriptResources: scriptDefault.resources,
-			isStrictDynamic: scriptDirective.strictDynamic,
-			styleHashes: styleDefault.hashes,
-			styleResources: styleDefault.resources,
-			scriptDirective,
-			styleDirective,
-			speculationRulesContent,
-			importMapContent,
-		};
-	}
-
-	// Get internal fetch headers from adapter config
-	let internalFetchHeaders: Record<string, string> | undefined = undefined;
-	if (settings.adapter?.client?.internalFetchHeaders) {
-		const headers =
-			typeof settings.adapter.client.internalFetchHeaders === 'function'
-				? settings.adapter.client.internalFetchHeaders()
-				: settings.adapter.client.internalFetchHeaders;
-		if (Object.keys(headers).length > 0) {
-			internalFetchHeaders = headers;
-		}
-	}
-
-	const middlewareMode = resolveMiddlewareMode(opts.settings.adapter?.adapterFeatures);
+	const serverLike = opts.buildOutput === 'server';
 
 	return {
-		rootDir: opts.settings.config.root.toString(),
-		cacheDir: opts.settings.config.cacheDir.toString(),
-		outDir: opts.settings.config.outDir.toString(),
-		srcDir: opts.settings.config.srcDir.toString(),
-		publicDir: opts.settings.config.publicDir.toString(),
+		...internals.routerRegistry!.serializeManifestData(),
+		...(await host.manifestFields(internals, opts.outputDirectories.client, clientFiles)),
+		rootDir: config.root.toString(),
+		cacheDir: config.cacheDir.toString(),
+		outDir: config.outDir.toString(),
+		srcDir: config.srcDir.toString(),
+		publicDir: config.publicDir.toString(),
 		buildClientDir: opts.outputDirectories.client.toString(),
 		buildServerDir: opts.outputDirectories.server.toString(),
-		adapterName: opts.settings.adapter?.name ?? '',
-		assetsDir: opts.settings.config.build.assets,
+		adapterName: host.adapter?.name ?? '',
+		assetsDir: config.build.assets,
 		routes,
-		serverLike: opts.settings.buildOutput === 'server',
-		middlewareMode,
-		site: settings.config.site,
-		base: settings.config.base,
-		userAssetsBase: settings.config?.vite?.base,
-		trailingSlash: settings.config.trailingSlash,
-		compressHTML: settings.config.compressHTML,
-		assetsPrefix: settings.config.build.assetsPrefix,
+		serverLike,
+		site: config.site,
+		base: config.base,
+		trailingSlash: config.trailingSlash,
+		compressHTML: config.compressHTML,
+		assetsPrefix: config.build.assetsPrefix,
 		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
-		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
 		inlinedScripts: Array.from(internals.inlinedScripts),
 		assets: staticFiles.map(prefixAssetPath).sort(),
-		i18n: i18nManifest,
-		buildFormat: settings.config.build.format,
-		checkOrigin:
-			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
-		actionBodySizeLimit:
-			settings.config.security?.actionBodySizeLimit && settings.buildOutput === 'server'
-				? settings.config.security.actionBodySizeLimit
-				: 1024 * 1024,
+		buildFormat: config.build.format,
+		runtimeMode: 'production',
+		checkOrigin: config.security.checkOrigin && serverLike,
 		serverIslandBodySizeLimit:
-			settings.config.security?.serverIslandBodySizeLimit && settings.buildOutput === 'server'
-				? settings.config.security.serverIslandBodySizeLimit
+			config.security.serverIslandBodySizeLimit && serverLike
+				? config.security.serverIslandBodySizeLimit
 				: 1024 * 1024,
-		allowedDomains: settings.config.security?.allowedDomains,
+		allowedDomains: config.security.allowedDomains,
 		key: encodedKey,
-		sessionConfig: sessionConfigToManifest(settings.config.session),
-		cacheConfig: cacheConfigToManifest(settings.config.cache, settings.config.routeRules),
-		csp,
-		image: {
-			objectFit: settings.config.image.objectFit,
-			objectPosition: settings.config.image.objectPosition,
-			layout: settings.config.image.layout,
-		},
 		devToolbar: {
 			enabled: false,
 			latestAstroVersion: undefined,
 			debugInfoOutput: '',
 			placement: undefined,
 		},
-		internalFetchHeaders,
-		logLevel: settings.logLevel,
-		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config.security.csp),
 	};
 }

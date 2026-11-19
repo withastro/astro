@@ -1,7 +1,7 @@
-import type { ComponentInstance } from '../../types/astro.js';
-import type { Params, Props } from '../../types/public/common.js';
-import type { AstroConfig } from '../../types/public/index.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { TrailingSlash } from '../../../index.js';
+import type { ComponentInstance } from '../../../index.js';
+import type { Params, Props } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
@@ -17,7 +17,7 @@ interface GetParamsAndPropsOptions {
 	logger: AstroLogger;
 	serverLike: boolean;
 	base: string;
-	trailingSlash: AstroConfig['trailingSlash'];
+	trailingSlash: TrailingSlash;
 }
 
 export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
