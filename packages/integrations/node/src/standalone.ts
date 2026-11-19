@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import http from 'node:http';
 import https from 'node:https';
+import type { Socket } from 'node:net';
 import type { PreviewServer } from 'astro';
 import type { BaseApp } from 'astro/app';
-import enableDestroy from 'server-destroy';
 import { logListeningOn } from './log-listening-on.js';
 import { createAppHandler } from './serve-app.js';
 import { createStaticHandler } from './serve-static.js';
@@ -82,7 +82,11 @@ export function createServer(listener: http.RequestListener, host: string, port:
 	} else {
 		httpServer = http.createServer(listener);
 	}
-	enableDestroy(httpServer);
+	const connections = new Set<Socket>();
+	httpServer.on('connection', (socket) => {
+		connections.add(socket);
+		socket.once('close', () => connections.delete(socket));
+	});
 
 	// Resolves once the server is closed
 	const closed = new Promise<void>((resolve, reject) => {
@@ -98,7 +102,8 @@ export function createServer(listener: http.RequestListener, host: string, port:
 		},
 		async stop() {
 			await new Promise((resolve, reject) => {
-				httpServer.destroy((err) => (err ? reject(err) : resolve(undefined)));
+				httpServer.close((err) => (err ? reject(err) : resolve(undefined)));
+				for (const socket of connections) socket.destroy();
 			});
 		},
 	} satisfies PreviewServer;
