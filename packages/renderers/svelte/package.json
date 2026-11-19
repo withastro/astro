@@ -46,7 +46,7 @@
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "astro-scripts": "workspace:*",
     "svelte": "^5.57.3",
-    "vite": "^8.3.5"
+    "vite": "^8.3.8"
   },
   "publishConfig": {
     "provenance": true

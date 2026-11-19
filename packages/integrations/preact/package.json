@@ -42,7 +42,7 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "preact": "^11.1.1"
+    "preact": "^11.2.0"
   },
   "peerDependencies": {
     "preact": "^10.6.5 || ^11.0.0"

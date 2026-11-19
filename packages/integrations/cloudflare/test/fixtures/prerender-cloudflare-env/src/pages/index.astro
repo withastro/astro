@@ -1,0 +1,11 @@
+---
+import { env } from 'cloudflare:workers';
+
+export const prerender = true;
+---
+
+<html>
+	<body>
+		<h1 id="environment">{env.ENVIRONMENT}</h1>
+	</body>
+</html>

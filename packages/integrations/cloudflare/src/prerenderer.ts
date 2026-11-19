@@ -59,22 +59,38 @@ export function createCloudflarePrerenderer({
 				},
 			};
 
-			previewServer = await preview({
-				configFile: false,
-				base,
-				appType: 'mpa',
-				build: {
-					outDir: fileURLToPath(serverDir),
-				},
-				root: fileURLToPath(root),
-				customLogger,
-				preview: {
-					host: 'localhost',
-					port: 0, // Let the OS pick a free port
-					open: false,
-				},
-				plugins: [cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'prerender' } })],
-			});
+			// The prerender worker config emitted by the build is already resolved for
+			// `CLOUDFLARE_ENV`, but the Cloudflare Vite plugin applies it again when reading
+			// that config in preview mode and warns that the environment is missing.
+			// An empty string (rather than `delete`) also overrides any value Vite's
+			// `loadEnv()` would read from `.env` files.
+			// See https://github.com/withastro/astro/issues/18712
+			const cloudflareEnv = process.env.CLOUDFLARE_ENV;
+			process.env.CLOUDFLARE_ENV = '';
+			try {
+				previewServer = await preview({
+					configFile: false,
+					base,
+					appType: 'mpa',
+					build: {
+						outDir: fileURLToPath(serverDir),
+					},
+					root: fileURLToPath(root),
+					customLogger,
+					preview: {
+						host: 'localhost',
+						port: 0, // Let the OS pick a free port
+						open: false,
+					},
+					plugins: [cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'prerender' } })],
+				});
+			} finally {
+				if (cloudflareEnv === undefined) {
+					delete process.env.CLOUDFLARE_ENV;
+				} else {
+					process.env.CLOUDFLARE_ENV = cloudflareEnv;
+				}
+			}
 
 			const address = previewServer.httpServer.address();
 			if (address && typeof address === 'object') {

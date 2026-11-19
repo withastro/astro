@@ -26,7 +26,7 @@ export const SitemapOptionsSchema = z
 						}),
 				),
 			})
-			.refine((val) => !val || val.locales[val.defaultLocale], {
+			.refine((val) => !val || Object.hasOwn(val.locales, val.defaultLocale), {
 				message: '`defaultLocale` must exist in `locales` keys',
 			})
 			.optional(),

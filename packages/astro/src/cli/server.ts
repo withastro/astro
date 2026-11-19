@@ -46,6 +46,18 @@ export const previewServerCommand: BackgroundCommandConfig = {
 	envVar: 'ASTRO_PREVIEW_BACKGROUND',
 };
 
+/**
+ * Whether the current process is a server spawned by `astro <command> --background`, which sets
+ * the command's env var to `'1'`. Other values, such as the documented opt-out `0`, mean a
+ * foreground server.
+ */
+export function isBackgroundServerProcess(
+	config: BackgroundCommandConfig,
+	env: NodeJS.ProcessEnv = process.env,
+): boolean {
+	return env[config.envVar] === '1';
+}
+
 export interface BackgroundResult {
 	pid: number;
 	url: string;

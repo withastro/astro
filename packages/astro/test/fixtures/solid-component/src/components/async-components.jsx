@@ -1,4 +1,4 @@
-import { ErrorBoundary, Show, createResource, createSignal, createUniqueId } from 'solid-js';
+import { Errored, Show, createMemo, createSignal, createUniqueId } from 'solid-js';
 
 // It may be good to try long and short sleep times.
 // But short is faster for testing.
@@ -9,7 +9,9 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export function AsyncComponent(props) {
 	const id = createUniqueId();
 
-	const [data] = createResource(async () => {
+	// Async is first-class in Solid 2.0: an async memo suspends readers until
+	// it resolves (the createResource equivalent).
+	const data = createMemo(async () => {
 		// console.log("Start rendering async component " + props.title);
 		await sleep(props.delay ?? SLEEP_MS);
 		// console.log("Finish rendering async component " + props.title);
@@ -41,7 +43,7 @@ export function AsyncComponent(props) {
 }
 
 export function AsyncErrorComponent() {
-	const [data] = createResource(async () => {
+	const data = createMemo(async () => {
 		await sleep(SLEEP_MS);
 		throw new Error('Async error thrown!');
 	});
@@ -51,9 +53,9 @@ export function AsyncErrorComponent() {
 
 export function AsyncErrorInErrorBoundary() {
 	return (
-		<ErrorBoundary fallback={<div>Async error boundary fallback</div>}>
+		<Errored fallback={<div>Async error boundary fallback</div>}>
 			<AsyncErrorComponent />
-		</ErrorBoundary>
+		</Errored>
 	);
 }
 
@@ -63,8 +65,8 @@ export function SyncErrorComponent() {
 
 export function SyncErrorInErrorBoundary() {
 	return (
-		<ErrorBoundary fallback={<div>Sync error boundary fallback</div>}>
+		<Errored fallback={<div>Sync error boundary fallback</div>}>
 			<SyncErrorComponent />
-		</ErrorBoundary>
+		</Errored>
 	);
 }

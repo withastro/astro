@@ -42,10 +42,10 @@
   },
   "devDependencies": {
     "@astrojs/vite-plugin-astro": "workspace:*",
-    "@vitejs/plugin-vue": "^6.0.10",
+    "@vitejs/plugin-vue": "^6.0.11",
     "astro-scripts": "workspace:*",
-    "vite": "^8.3.5",
-    "vue": "^3.5.44"
+    "vite": "^8.3.8",
+    "vue": "^3.5.45"
   },
   "publishConfig": {
     "provenance": true
