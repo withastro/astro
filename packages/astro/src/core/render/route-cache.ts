@@ -15,6 +15,7 @@ import { getLogger } from '../logger/manifest-logger.js';
 import { createManifestMemo } from '../manifest/memo.js';
 import { stringifyParams } from '../routing/params.js';
 import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
+import { hasLargeProps } from './large-props.js';
 import { generatePaginateFunction } from './paginate.js';
 
 interface CallGetStaticPathsOptions {
@@ -58,7 +59,13 @@ export async function callGetStaticPaths({
 		return entry;
 	}
 
-	const keyedStaticPaths = await computeStaticPaths(mod, route, base, trailingSlash);
+	const keyedStaticPaths = await computeStaticPaths(
+		mod,
+		route,
+		base,
+		trailingSlash,
+		routeCache.logger,
+	);
 	routeCache.set(route, { mod, staticPaths: keyedStaticPaths });
 	return keyedStaticPaths;
 }
@@ -72,12 +79,16 @@ export function completeStaticPaths({
 }: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> | undefined {
 	const cached = routeCache.get(route);
 	if (!cached?.partial) return undefined;
-	cached.complete ??= computeStaticPaths(cached.mod, route, base, trailingSlash).then(
-		(staticPaths) => {
-			routeCache.set(route, { mod: cached.mod, staticPaths });
-			return staticPaths;
-		},
-	);
+	cached.complete ??= computeStaticPaths(
+		cached.mod,
+		route,
+		base,
+		trailingSlash,
+		routeCache.logger,
+	).then((staticPaths) => {
+		routeCache.set(route, { mod: cached.mod, staticPaths });
+		return staticPaths;
+	});
 	return cached.complete;
 }
 
@@ -86,6 +97,7 @@ async function computeStaticPaths(
 	route: RouteData,
 	base: AstroConfig['base'],
 	trailingSlash: AstroConfig['trailingSlash'],
+	logger: AstroLogger,
 ): Promise<GetStaticPathsResultKeyed> {
 	let staticPaths: GetStaticPathsResult = [];
 	// Add a check here to make TypeScript happy.
@@ -103,6 +115,13 @@ async function computeStaticPaths(
 	});
 
 	validateGetStaticPathsResult(staticPaths, route);
+
+	if (hasLargeProps(staticPaths)) {
+		logger.warn(
+			'router',
+			`\`getStaticPaths()\` in \`${route.component}\` returns very large props. Consider returning smaller props, such as an ID, and loading the rest of the data in the page instead to reduce memory usage.`,
+		);
+	}
 
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
@@ -134,7 +153,7 @@ interface RouteCacheEntry {
  * before rendering, and render-time props resolution may ask for it again.
  */
 export class RouteCache {
-	private logger: AstroLogger;
+	readonly logger: AstroLogger;
 	private cache: Record<string, RouteCacheEntry> = {};
 	private runtimeMode: RuntimeMode;
 
