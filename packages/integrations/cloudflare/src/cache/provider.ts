@@ -5,6 +5,7 @@ import {
 	pathTag,
 	setConditionalHeaders,
 } from 'astro/cache/provider-utils';
+import type { CloudflareCacheOptions } from './index.js';
 
 const VERSION_TAG_PREFIX = 'astro-version:';
 
@@ -34,7 +35,7 @@ async function readVersionId(): Promise<string | undefined> {
 
 const versionId = await readVersionId();
 
-const factory: CacheProviderFactory = () => {
+const factory: CacheProviderFactory<CloudflareCacheOptions> = (config) => {
 	return {
 		name: 'cloudflare',
 
@@ -50,7 +51,7 @@ const factory: CacheProviderFactory = () => {
 				headers.set('Cloudflare-CDN-Cache-Control', directives);
 			}
 
-			// Auto-tag with the request path for path-based invalidation via tag purge.
+			// Auto-tag with the request path for path-based invalidation via cache tags.
 			const tags = [...(options.tags ?? [])];
 			const { pathname } = new URL(request.url);
 			tags.push(pathTag(pathname));
@@ -80,7 +81,19 @@ const factory: CacheProviderFactory = () => {
 			// loaded by Node during prerendering and the `cloudflare:` scheme is rejected.
 			const { cache } = await import('cloudflare:workers');
 			const tags = collectInvalidationTags(options);
-			if (tags.length > 0) {
+			if (tags.length === 0) return;
+			if (config?.invalidation === 'revalidate') {
+				const result = await cache.invalidate({ tags });
+				if (!result.success) {
+					const reasons = result.errors.map((error) => `${error.code} ${error.message}`).join('; ');
+					throw new Error(
+						`Cloudflare did not invalidate the cache tags: ${reasons || 'no reason given'}`,
+						{
+							cause: result.errors,
+						},
+					);
+				}
+			} else {
 				await cache.purge({ tags });
 			}
 		},
