@@ -12,7 +12,11 @@ import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-f
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
 import { validateFamilyProperties } from '../../../../dist/assets/fonts/core/validate-family-properties.js';
 import { fontFileMiddleware } from '../../../../dist/assets/fonts/core/font-file-middleware.js';
-import type { SystemFallbacksProvider } from '../../../../dist/assets/fonts/definitions.js';
+import type { CollectedFontForMetrics } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
+import type {
+	FontMetricsResolver,
+	SystemFallbacksProvider,
+} from '../../../../dist/assets/fonts/definitions.js';
 import type {
 	FontFamilyAssetsByUniqueKey,
 	ResolvedFontFamily,
@@ -1773,6 +1777,45 @@ describe('fonts core', () => {
 					},
 				},
 			]);
+		});
+
+		it('measures the latin, normal, closest-to-400 font regardless of collection order', async () => {
+			const measuredIds: Array<string> = [];
+			const recordingFontMetricsResolver: FontMetricsResolver = {
+				getMetrics: async (_name, font) => {
+					measuredIds.push(font.id);
+					return fontMetricsResolver.getMetrics();
+				},
+				generateFontFace: fontMetricsResolver.generateFontFace,
+			};
+			const collect = (
+				id: string,
+				data: CollectedFontForMetrics['data'],
+			): CollectedFontForMetrics => ({ url: '', id, data, init: undefined });
+
+			await optimizeFallbacks({
+				family,
+				fallbacks: ['sans-serif'],
+				collectedFonts: [
+					collect('cyrillic-italic', {
+						weight: 400,
+						style: 'italic',
+						meta: { subset: 'cyrillic' },
+					}),
+					collect('latin-italic', { weight: 400, style: 'italic', meta: { subset: 'latin' } }),
+					collect('cyrillic-normal', {
+						weight: 400,
+						style: 'normal',
+						meta: { subset: 'cyrillic' },
+					}),
+					collect('latin-bold', { weight: 700, style: 'normal', meta: { subset: 'latin' } }),
+					collect('latin-normal', { weight: 400, style: 'normal', meta: { subset: 'latin' } }),
+				],
+				systemFallbacksProvider,
+				fontMetricsResolver: recordingFontMetricsResolver,
+			});
+
+			assert.deepStrictEqual(measuredIds, ['latin-normal']);
 		});
 
 		describe('variant-aware fallbacks', () => {
