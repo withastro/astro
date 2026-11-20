@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
+import { readPageStyles } from './css-utils.ts';
 
 let fixture: Fixture;
 
@@ -39,11 +40,7 @@ describe('CSS', function () {
 				// get bundled CSS (will be hashed, hence DOM query)
 				html = await fixture.readFile('/index.html');
 				$ = cheerio.load(html);
-				const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href')!;
-				const bundledCSSFilePath = bundledCSSHREF.replace(/^\/?/, '/');
-				bundledCSS = (await fixture.readFile(bundledCSSFilePath))
-					.replace(/\s/g, '')
-					.replace('/n', '');
+				bundledCSS = (await readPageStyles(fixture, html)).replace(/\s/g, '').replace('/n', '');
 			},
 			{
 				timeout: 45000,
@@ -108,9 +105,7 @@ describe('CSS', function () {
 
 			it('Styles through barrel files should only include used Astro scoped styles', async () => {
 				const barrelHtml = await fixture.readFile('/barrel-styles/index.html');
-				const barrel$ = cheerio.load(barrelHtml);
-				const barrelBundledCssHref = barrel$('link[rel=stylesheet][href^=/_astro/]').attr('href')!;
-				const style = await fixture.readFile(barrelBundledCssHref.replace(/^\/?/, '/'));
+				const style = await readPageStyles(fixture, barrelHtml);
 				assert.match(style, /\.comp-a\[data-astro-cid/);
 				assert.match(style, /\.comp-c\{/);
 				assert.doesNotMatch(style, /\.comp-b/);
@@ -119,9 +114,7 @@ describe('CSS', function () {
 
 			it('CSS modules imported in both frontmatter and script should not duplicate', async () => {
 				const duplicateHtml = await fixture.readFile('/css-module-duplicate/index.html');
-				const $duplicate = cheerio.load(duplicateHtml);
-				const cssHref = $duplicate('link[rel=stylesheet][href^=/_astro/]').attr('href')!;
-				const css = await fixture.readFile(cssHref.replace(/^\/?/, '/'));
+				const css = await readPageStyles(fixture, duplicateHtml);
 
 				const normalizedCSS = css.replace(/\s+/g, '');
 

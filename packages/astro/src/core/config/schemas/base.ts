@@ -504,6 +504,7 @@ export const AstroConfigSchema = z.object({
 	routeRules: RouteRulesSchema.optional(),
 	experimental: z
 		.strictObject({
+			lazyAssets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.lazyAssets),
 			clientPrerender: z
 				.boolean()
 				.optional()

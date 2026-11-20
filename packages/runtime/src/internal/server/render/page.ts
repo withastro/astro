@@ -9,6 +9,7 @@ import { renderCspMetaTag } from './head.js';
 import type { AstroComponentFactory } from './index.js';
 import { isDeno, isNode, isWorkerd } from './util.js';
 import { isAstroComponentFactory } from './astro/factory.js';
+import { collectComponentAssets } from './component-assets.js';
 
 // Components rendered after the head can still insert CSP hashes, so for pages rendered to a
 // string the head writes a placeholder that is replaced with the real `<meta>` element once the
@@ -37,6 +38,9 @@ export async function renderPage(
 	streaming: boolean,
 	route?: RenderRouteInfo,
 ): Promise<Response> {
+	if (!result.partial) {
+		collectComponentAssets(result, (componentFactory as AstroComponentFactory).moduleId);
+	}
 	if (!isAstroComponentFactory(componentFactory)) {
 		const nonAstroMeta = result.componentMetadata.get((componentFactory as any).moduleId);
 		result._metadata.headInTree = nonAstroMeta?.containsHead ?? false;

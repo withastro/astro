@@ -74,7 +74,13 @@ declare module 'virtual:astro:dev-css' {
 declare module 'virtual:astro:dev-css-all' {
 	export const devCSSMap: Map<
 		string,
-		() => Promise<{ css: Set<import('./src/types/astro.js').ImportedDevStyles> }>
+		() => Promise<{
+			css: Set<import('./src/types/astro.js').ImportedDevStyles>;
+			componentAssets: [
+				string,
+				NonNullable<import('./src/types/public/internal.js').SSRComponentMetadata['assets']>,
+			][];
+		}>
 	>;
 }
 

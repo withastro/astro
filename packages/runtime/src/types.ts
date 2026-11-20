@@ -26,10 +26,9 @@ import type {
 	CspResourceEntry,
 } from './internal/core/csp/sources.js';
 import type { Slots } from './internal/core/render/slots.js';
-import type { AstroComponentInstance } from './internal/server/render/astro/instance.js';
+import type { HeadPropagator } from './internal/core/head-propagation/buffer.js';
 import type { HeadAndContent, ThinHead } from './internal/server/render/astro/head-and-content.js';
 import type { RenderTemplateResult } from './internal/server/render/astro/render-template.js';
-import type { ServerIslandComponent } from './internal/server/render/server-islands.js';
 
 /* Client Directives */
 type DirectiveHydrate = () => Promise<void>;
@@ -204,6 +203,11 @@ export interface RenderRouteInfo {
 export type PropagationHint = 'none' | 'self' | 'in-tree';
 
 export type SSRComponentMetadata = {
+	assets?: {
+		styles: (StylesheetAsset & { order: number })[];
+		scripts: SSRElement[];
+		order: number;
+	};
 	propagation: PropagationHint;
 	containsHead: boolean;
 };
@@ -223,6 +227,10 @@ export interface AstroComponentFactory {
  * on external configuration
  */
 export interface SSRMetadata {
+	componentAssets?: {
+		emitted: Set<string>;
+		pending: { order: number; html: string }[];
+	};
 	hasHydrationScript: boolean;
 	/**
 	 * Names of renderers that have injected their hydration scripts
@@ -256,7 +264,7 @@ export interface SSRMetadata {
 	 * non-streaming page renders, so hashes inserted by components rendered after the head are included.
 	 */
 	cspMetaPlaceholder?: string;
-	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
+	propagators: Set<HeadPropagator>;
 	/**
 	 * `true` when the page being rendered is on a head-propagation path (its
 	 * component metadata hint is `in-tree`/`self`). Only then do we await async

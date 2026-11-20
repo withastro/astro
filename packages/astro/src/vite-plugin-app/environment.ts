@@ -22,6 +22,7 @@ import {
 } from '../core/redirects/index.js';
 import { loadRenderer } from '../core/render/index.js';
 import { getDefaultRoutes } from '../core/routing/default.js';
+import { SERVER_ISLAND_COMPONENT } from '../core/server-islands/endpoint.js';
 import { routeIsRedirect } from '../core/routing/helpers.js';
 import { createRewriteRouteValidator } from '../core/routing/rewrite-validate.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
@@ -222,6 +223,12 @@ export function createRunnableEnvironment({
 			if (importer) {
 				const cssModule = await importer();
 				css = cssModule.css;
+				for (const [id, assets] of cssModule.componentAssets) {
+					manifest.componentMetadata.set(id, {
+						...(manifest.componentMetadata.get(id) ?? { containsHead: false, propagation: 'none' }),
+						assets,
+					});
+				}
 			} else {
 				getLogger(manifest).warn(
 					'assets',
@@ -244,9 +251,19 @@ export function createRunnableEnvironment({
 			return { scripts, styles, links };
 		},
 
-		componentMetadata(manifest: SSRManifest, routeData: RouteData) {
+		async componentMetadata(manifest: SSRManifest, routeData: RouteData) {
+			if (
+				settings.config.experimental.lazyAssets &&
+				routeData.component === SERVER_ISLAND_COMPONENT
+			) {
+				return manifest.componentMetadata;
+			}
 			const filePath = new URL(`${routeData.component}`, manifest.rootDir);
-			return getComponentMetadata(filePath, loader);
+			const metadata = await getComponentMetadata(filePath, loader);
+			for (const [id, entry] of metadata) {
+				entry.assets = manifest.componentMetadata.get(id)?.assets;
+			}
+			return metadata;
 		},
 
 		getComponentByRoute,

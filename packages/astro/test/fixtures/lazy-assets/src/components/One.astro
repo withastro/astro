@@ -1,0 +1,8 @@
+---
+import './shared.css';
+import Child from './Child.astro';
+import classes from './one.module.css';
+---
+<div class:list={['one', classes.module]}>One<Child /></div>
+<style>.one { color: red; }</style>
+<script>console.log('one-script');</script>
