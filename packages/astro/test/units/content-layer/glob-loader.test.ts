@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { EventEmitter } from 'node:events';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -106,6 +106,49 @@ describe('Glob Loader', () => {
 
 		assert.equal(count1, count2, 'Entry count should be stable across syncs');
 	});
+
+	for (const deferRender of [false, true]) {
+		it(`updates renamed entries with unchanged contents (deferRender: ${deferRender})`, async (t) => {
+			const tempDir = createTempDir();
+			t.after(() => rmSync(tempDir, { recursive: true, force: true }));
+			const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+			mkdirSync(contentDir, { recursive: true });
+			writeFileSync(join(contentDir, 'original.md'), '---\nslug: stable\n---\nUnchanged');
+
+			const store = new MutableDataStore();
+			const settings = createMinimalSettings(tempDir, {
+				contentEntryTypes: [createRenderableMarkdownEntryType()],
+			});
+			const logger = new AstroLogger({
+				destination: { write: () => true },
+				level: 'silent',
+			});
+			const collections = {
+				posts: defineCollection({
+					loader: glob({ pattern: '*.md', base: 'src/content/posts', deferRender }),
+				}),
+			};
+			const contentLayer = new ContentLayer({
+				settings,
+				logger,
+				store,
+				contentConfigObserver: createTestConfigObserver(collections),
+			});
+
+			await contentLayer.sync();
+			assert.equal(store.get('posts', 'stable')?.filePath, 'src/content/posts/original.md');
+			renameSync(join(contentDir, 'original.md'), join(contentDir, 'renamed.md'));
+
+			await contentLayer.sync();
+			assert.equal(store.get('posts', 'stable')?.filePath, 'src/content/posts/renamed.md');
+			assert.equal(store.values('posts').length, 1);
+			if (deferRender) {
+				const imports = readFileSync(new URL('.astro/content-modules.mjs', tempDir), 'utf-8');
+				assert.ok(imports.includes('src/content/posts/renamed.md'));
+				assert.ok(!imports.includes('src/content/posts/original.md'));
+			}
+		});
+	}
 
 	it('handles negative matches in glob pattern', async () => {
 		const store = new MutableDataStore();

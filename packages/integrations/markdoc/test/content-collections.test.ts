@@ -58,7 +58,7 @@ const post1Entry = {
 	body: '## Post 1\n\nThis is the contents of post 1.',
 	deferredRender: true,
 	filePath: 'src/content/blog/post-1.mdoc',
-	digest: '5d5bd98d949e2b9a',
+	digest: 'cdfe502332cab92b',
 };
 
 const post2Entry = {
@@ -71,7 +71,7 @@ const post2Entry = {
 	body: '## Post 2\n\nThis is the contents of post 2.',
 	deferredRender: true,
 	filePath: 'src/content/blog/post-2.mdoc',
-	digest: '595af4b93a4af072',
+	digest: 'da3d5866518fda4a',
 };
 
 const post3Entry = {
@@ -84,5 +84,5 @@ const post3Entry = {
 	body: '## Post 3\n\nThis is the contents of post 3.',
 	deferredRender: true,
 	filePath: 'src/content/blog/post-3.mdoc',
-	digest: 'ef589606e542247e',
+	digest: '7fcf1e8de3feb02b',
 };
