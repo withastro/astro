@@ -1,0 +1,13 @@
+---
+// Reaches the shared `Card` only through a dynamic import of `LazyPanel`
+import { LazyPanelLoader } from '../islands/LazyPanelLoader';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<LazyPanelLoader client:load />
+	</body>
+</html>
