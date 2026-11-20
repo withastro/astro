@@ -2,8 +2,9 @@
  * Posts a review comment on each release PR, listing the open docs PRs labeled
  * for its release line and the umbrellas that ship with it.
  *
- * Usage: `node .github/scripts/release-docs-prs.ts [--pr <number>] [--dry-run]`.
- * Without `--pr`, it updates every open release PR.
+ * Usage: `node .github/scripts/release-docs-prs.ts [--pr <number>]`.
+ * Without `--pr`, it updates every open release PR. Outside GitHub Actions, it
+ * prints the comments instead.
  */
 import { execFileSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
@@ -54,12 +55,13 @@ type OtherReleasePr = { number: number; isMerged: boolean };
 type UmbrellaPullRequest = DocsPullRequest & { otherReleasePr: OtherReleasePr | null };
 
 const { values } = parseArgs({
-	options: { pr: { type: 'string' }, 'dry-run': { type: 'boolean', default: false } },
+	options: { pr: { type: 'string' } },
 });
 listDocsPrsOnReleasePrs({
 	repository: process.env.GITHUB_REPOSITORY ?? 'withastro/astro',
 	releasePrNumber: values.pr === undefined ? null : parsePrNumber(values.pr),
-	isDryRun: values['dry-run'],
+	// Local runs are for testing and debugging, so they write nothing.
+	isDryRun: process.env.GITHUB_ACTIONS !== 'true',
 });
 
 /**
