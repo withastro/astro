@@ -1,5 +1,20 @@
 # @astrojs/vue
 
+## 7.1.6
+
+### Patch Changes
+
+- [#18713](https://github.com/withastro/astro/pull/18713) [`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5) Thanks [@delucis](https://github.com/delucis)! - Unpins `@astrojs/*` dependencies to allow versions matching the `^` range to be installed
+- Updated dependencies [[`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5)]:
+  - @astrojs/vue-renderer@0.1.2
+
+## 7.1.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/vue-renderer@0.1.1
+
 ## 7.1.4
 
 ### Patch Changes

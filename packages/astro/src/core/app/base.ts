@@ -3,7 +3,6 @@ import {
 	removeTrailingForwardSlash,
 	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
-import { matchPattern } from '@astrojs/internal-helpers/remote';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
@@ -25,6 +24,7 @@ import { matchRequest } from '../routing/match-request.js';
 import { getRouteTable, matchRoute, updateRouteTable } from '../routing/route-table.js';
 import { validateAndDecodePathname } from '../util/pathname.js';
 import { setRenderOptions } from './render-options.js';
+import { validateHost } from './validate-headers.js';
 import type { WaitUntilHook } from '../wait-until.js';
 import type { SSRManifest } from './types.js';
 
@@ -260,19 +260,7 @@ export abstract class BaseApp {
 		allowedDomains?: Partial<RemotePattern>[],
 		protocol?: string,
 	): boolean {
-		if (!allowedDomains || allowedDomains.length === 0) {
-			return false;
-		}
-
-		try {
-			const testUrl = new URL(`${protocol || 'https'}://${forwardedHost}`);
-			return allowedDomains.some((pattern) => {
-				return matchPattern(testUrl, pattern);
-			});
-		} catch {
-			// Invalid URL
-			return false;
-		}
+		return validateHost(forwardedHost, protocol || 'https', allowedDomains) !== undefined;
 	}
 
 	set setManifestData(newManifestData: RoutesList) {

@@ -1,5 +1,11 @@
 # @astrojs/runtime
 
+## 0.1.1
+
+### Patch Changes
+
+- [#18629](https://github.com/withastro/astro/pull/18629) [`e9916e1`](https://github.com/withastro/astro/commit/e9916e1bff5f3e740d533a6f504630bd6c528ddf) Thanks [@decrek](https://github.com/decrek)! - Fixes spreading an object onto an element with scoped styles changing that object. When the same object was spread on every render, for example a constant imported from another module, its `class` grew with every request.
+
 ## 0.1.0
 
 ### Minor Changes

@@ -13,6 +13,8 @@ import { getOrCreateSSRAssets, type BuildInternals } from './internal.js';
  * BuildInternals.ssrAssetsPerEnvironment during generateBundle.
  */
 export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
+	// Environments where the manifest exists only because Astro enabled it, so it can be removed after the build.
+	const astroManifestEnvironments = new Set<string>();
 	return {
 		name: 'astro:ssr-assets',
 
@@ -24,13 +26,16 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 			);
 		},
 
-		configEnvironment(name): EnvironmentOptions | undefined {
+		configEnvironment(name, config): EnvironmentOptions | undefined {
 			// Enable manifest generation for SSR and prerender environments
 			// so we can read CSS files from the manifest
 			if (
 				name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			) {
+				if (config.build?.manifest !== true) {
+					astroManifestEnvironments.add(name);
+				}
 				return {
 					build: {
 						manifest: true,
@@ -71,6 +76,9 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 				// Add CSS and assets from manifest (these are always client assets)
 				// Must be done in writeBundle because the manifest is written during the bundle write phase
 				const manifestDir = pathToDirectoryURL(env.config.build.outDir);
+				if (astroManifestEnvironments.has(env.name)) {
+					internals.astroViteManifestDirectories.add(manifestDir.href);
+				}
 				const manifest = loadViteManifest(manifestDir);
 				if (manifest) {
 					const manifestAssets = collectAssetsFromManifest(manifest);
@@ -129,15 +137,24 @@ function collectAssetsFromManifest(manifest: vite.Manifest): Set<string> {
 }
 
 /**
- * Deletes the .vite folder from a directory if it exists.
+ * Deletes `.vite/manifest.json` from each directory, then removes the `.vite` folder
+ * if nothing else is left in it.
  */
 export async function removeViteManifestDirectories(directories: Iterable<URL>): Promise<void> {
 	const viteFolders = new Set(
 		Array.from(directories, (directory) => new URL('.vite/', directory).href),
 	);
 	await Promise.all(
-		Array.from(viteFolders, (viteFolder) =>
-			fs.promises.rm(new URL(viteFolder), { recursive: true, force: true }),
-		),
+		Array.from(viteFolders, async (viteFolder) => {
+			await fs.promises.rm(new URL('manifest.json', viteFolder), { force: true });
+			// Other files written by Vite, such as `build.license` output, must survive the cleanup.
+			// https://github.com/withastro/astro/issues/18685
+			try {
+				await fs.promises.rmdir(new URL(viteFolder));
+			} catch (error) {
+				const code = (error as NodeJS.ErrnoException).code;
+				if (code !== 'ENOENT' && code !== 'ENOTEMPTY' && code !== 'EEXIST') throw error;
+			}
+		}),
 	);
 }

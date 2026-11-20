@@ -17,6 +17,7 @@ import {
 	renderComponent,
 	renderHTMLElement,
 	renderSlot,
+	spreadAttributes,
 	unescapeHTML,
 } from '../../../dist/runtime/server/index.js';
 import { createTestApp, createPage } from '../mocks.ts';
@@ -261,6 +262,22 @@ describe('spreadAttributes rejects invalid attribute keys', () => {
 		assert.ok(result.includes('id="ok"'));
 		assert.ok(!result.includes('onclick'));
 		assert.ok(!result.includes('alert'));
+	});
+});
+
+describe('spreadAttributes with a scoped class', () => {
+	it('does not mutate the spread object', () => {
+		const attrs = { 'data-example': '' };
+		String(spreadAttributes(attrs, 'div', { class: 'astro-abc' }));
+		assert.deepEqual(attrs, { 'data-example': '' });
+	});
+
+	it('adds the scoped class once when the same object is spread again', () => {
+		const attrs = { class: 'card' };
+		const first = String(spreadAttributes(attrs, 'div', { class: 'astro-abc' }));
+		const second = String(spreadAttributes(attrs, 'div', { class: 'astro-abc' }));
+		assert.equal(first, ' class="card astro-abc"');
+		assert.equal(second, first);
 	});
 });
 
