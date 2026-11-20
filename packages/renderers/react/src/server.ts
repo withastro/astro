@@ -131,6 +131,11 @@ async function renderToStaticMarkup(
 	const renderOptions = {
 		identifierPrefix: prefix,
 		formState,
+		// The HTML is buffered before Astro writes it, so React 19 must not outline large
+		// boundaries into hidden segments revealed by inline scripts, which `security.csp`
+		// blocks and which never run without JavaScript.
+		// See https://github.com/withastro/astro/issues/18788
+		progressiveChunkSize: Number.POSITIVE_INFINITY,
 	};
 	let html: string;
 	if (opts.experimentalDisableStreaming) {
@@ -230,7 +235,12 @@ async function readResult(stream: ReactDOM.ReactDOMServerReadableStream) {
 }
 
 async function renderToReadableStreamAsync(vnode: any, options: Record<string, any>) {
-	return await readResult(await ReactDOM.renderToReadableStream(vnode, options));
+	const stream = await ReactDOM.renderToReadableStream(vnode, options);
+	// Waiting for suspended boundaries keeps their content in place instead of behind
+	// fallbacks swapped by inline scripts, matching the `onAllReady` wait in
+	// `renderToPipeableStreamAsync`.
+	await stream.allReady;
+	return await readResult(stream);
 }
 
 const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
