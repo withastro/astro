@@ -1,5 +1,13 @@
 # @astrojs/react-renderer
 
+## 0.1.4
+
+### Patch Changes
+
+- [#18786](https://github.com/withastro/astro/pull/18786) [`f70283d`](https://github.com/withastro/astro/commit/f70283dc70c05ef862bc3c5d115efd273cab8cd7) Thanks [@prkomb](https://github.com/prkomb)! - Fixes text and attribute values in children being escaped twice with `experimentalReactChildren`
+- Updated dependencies [[`db5e3ec`](https://github.com/withastro/astro/commit/db5e3ec560df8bf81fb5a13f01bd7ca23f302107)]:
+  - @astrojs/runtime@0.1.3
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 14.4.10
+
+### Patch Changes
+
+- [#18747](https://github.com/withastro/astro/pull/18747) [`eeea99b`](https://github.com/withastro/astro/commit/eeea99bf43b301c2c086b8870e8bd33f8fc9e8f8) Thanks [@VaibhavBajpaij](https://github.com/VaibhavBajpaij)! - Fixes prerendered pages returning a 404 in `astro dev` when using a custom worker entrypoint with `cf()` from `@astrojs/cloudflare/fetch`
+- Updated dependencies [[`d2b3c96`](https://github.com/withastro/astro/commit/d2b3c9656279d451b5cd831fdb1ca08fff171d72)]:
+  - @astrojs/underscore-redirects@1.0.5
+
 ## 14.4.9
 
 ### Patch Changes

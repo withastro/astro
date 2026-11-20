@@ -1,5 +1,72 @@
 # @astrojs/solid-js
 
+## 8.0.0
+
+### Major Changes
+
+- [#17891](https://github.com/withastro/astro/pull/17891) [`6fb274e`](https://github.com/withastro/astro/commit/6fb274ee5026f00df2b140a5acb3d1aacfab68af) Thanks [@ryansolid](https://github.com/ryansolid)! - Adds support for Solid 2.0 (requires `solid-js@^2.0.0` and `@solidjs/web@^2.0.0`)
+  
+  This major version supports Solid 2.0 only; use `@astrojs/solid-js@7` (and `@astrojs/solid-js-renderer@0.1`) for Solid 1.x projects. The Solid 2.0 renderer lives in `@astrojs/solid-js-renderer`, which the integration re-exports.
+  
+  Highlights:
+  
+  - Compiles through `@solidjs/vite-plugin` (replacing `vite-plugin-solid`), with an optional `compiler` option to select the native or Babel backend.
+  - Islands render through Solid 2.0's first-class async model (`renderToStream`), with no Suspense wrapper: async islands settle fully on the server, and error boundaries (`Errored`) contain both sync and async errors.
+  - Threads an asset manifest into server renders so `lazy()` boundary modules inside islands resolve their module URLs, hydrate through serialized asset maps, and have their CSS inlined into the island markup (deduped per page) — in dev via the plugin's live resolver, in production via the client build manifest.
+  - Component detection (`check()`) now probe-renders through the stream renderer with per-component caching, rejects foreign framework vnodes explicitly, and no longer breaks on Proxy-based components.
+  - Removes the `solid-devtools` integration option (the Solid 2.0 devtools story is not settled yet).
+
+### Minor Changes
+
+- [#17891](https://github.com/withastro/astro/pull/17891) [`6fb274e`](https://github.com/withastro/astro/commit/6fb274ee5026f00df2b140a5acb3d1aacfab68af) Thanks [@ryansolid](https://github.com/ryansolid)! - Adds support for Solid server components (experimental)
+  
+  Enable with `serverFunctions: { components: true }` — `"use server"` functions that return a component, riding the server-function endpoint:
+  
+  ```jsx
+  // src/frames/panel.jsx
+  'use server';
+  
+  export async function getPanel(name) {
+    return (props) => (
+      <section>
+        <h2>panel:{name}</h2>
+        {props.children}
+      </section>
+    );
+  }
+  ```
+  
+  ```jsx
+  // inside an island
+  const Panel = dynamic(() => getPanel(name()));
+  ```
+  
+  Server components render inline during island SSR and are adopted at boot with zero endpoint requests; re-evaluations stream over the endpoint and morph the boundary in place, preserving client slot state and DOM identity. The integration wires all the pieces: the frames render plugin and direct-call transform on the server, the endpoint response transform through the handler, and `installServerComponents()` via Astro's `before-hydration` stage on the client.
+
+- [#17891](https://github.com/withastro/astro/pull/17891) [`6fb274e`](https://github.com/withastro/astro/commit/6fb274ee5026f00df2b140a5acb3d1aacfab68af) Thanks [@ryansolid](https://github.com/ryansolid)! - Adds support for Solid server functions (experimental)
+  
+  Enable with the `serverFunctions` option (requires an adapter — server functions need a server at runtime):
+  
+  ```js
+  import { defineConfig } from 'astro/config';
+  import solid from '@astrojs/solid-js';
+  
+  export default defineConfig({
+    integrations: [solid({ serverFunctions: true })],
+  });
+  ```
+  
+  `"use server"` functions imported by Solid islands are compiled to typed RPC calls. The integration injects the transport endpoint (default `/_server`) as an Astro route, so server-function requests flow through Astro's middleware pipeline — the same auth guards and `locals` decoration pages get — in dev and production alike. Inside a server function, Solid's `getRequestEvent()` exposes the request, Astro's `locals`, and the full Astro API context as `nativeEvent`.
+  
+  Island SSR now also runs inside a Solid request-event scope, so `getRequestEvent()` and direct in-process server function calls work during server rendering.
+  
+  Pass an options object instead of `true` to customize (endpoint path, argument codec, etc.) — it is forwarded to `@solidjs/vite-plugin`.
+
+### Patch Changes
+
+- Updated dependencies [[`6fb274e`](https://github.com/withastro/astro/commit/6fb274ee5026f00df2b140a5acb3d1aacfab68af)]:
+  - @astrojs/solid-js-renderer@0.2.0
+
 ## 7.1.6
 
 ### Patch Changes

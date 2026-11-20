@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 11.1.15
+
+### Patch Changes
+
+- [#18666](https://github.com/withastro/astro/pull/18666) [`88ae47e`](https://github.com/withastro/astro/commit/88ae47e4d05b26e8d6ca620ea5228b6a4b3f0c2a) Thanks [@jp-knj](https://github.com/jp-knj)! - Removes the `server-destroy` dependency from the standalone server
+
 ## 11.1.14
 
 ### Patch Changes

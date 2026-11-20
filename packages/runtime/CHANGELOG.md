@@ -1,5 +1,11 @@
 # @astrojs/runtime
 
+## 0.1.3
+
+### Patch Changes
+
+- [#18776](https://github.com/withastro/astro/pull/18776) [`db5e3ec`](https://github.com/withastro/astro/commit/db5e3ec560df8bf81fb5a13f01bd7ca23f302107) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes an unclear `Cannot find package 'esbuild'` build failure when `vite.build.cssMinify` or `vite.build.minify` is set to `'esbuild'`. Astro now reports that `esbuild` must be installed in your project to use these options.
+
 ## 0.1.2
 
 ### Patch Changes

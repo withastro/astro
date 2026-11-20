@@ -1,5 +1,13 @@
 # @astrojs/sitemap
 
+## 3.7.7
+
+### Patch Changes
+
+- [#18782](https://github.com/withastro/astro/pull/18782) [`c302892`](https://github.com/withastro/astro/commit/c302892e4a2434fb4d8e66702576f5406e63d986) Thanks [@Marve10s](https://github.com/Marve10s)! - Fixes a bug where the default sitemap included the original URL after a `chunks` callback returned a copy of the entry with a rewritten URL
+  
+  Keeps explicitly matched URLs in a custom `pages` chunk alongside unmatched entries.
+
 ## 3.7.6
 
 ### Patch Changes
