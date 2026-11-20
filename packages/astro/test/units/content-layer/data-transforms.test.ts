@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import { z } from 'zod';
 import { defineCollection } from '../../../dist/content/config.js';
 import { createReference } from '../../../dist/content/runtime.js';
+import { reference as referenceField } from '../../../dist/content/fields.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
@@ -704,5 +705,68 @@ describe('Content Layer - Data Transforms', () => {
 		assert.equal(result.data.id, 'beagle');
 		assert.equal(result.data.name, 'Beagle Dog');
 		assert.deepEqual(result.data.favoriteCat, { collection: 'cats', id: '1' });
+	});
+});
+
+describe('Content Layer - reference()', () => {
+	const reference = createReference();
+
+	describe('reference(collection, lookup)', () => {
+		it('resolves a string id', () => {
+			assert.deepEqual(referenceField('cats', 'tabby'), { collection: 'cats', id: 'tabby' });
+		});
+
+		it('resolves a numeric id to a string', () => {
+			assert.deepEqual(referenceField('cats', 1), { collection: 'cats', id: '1' });
+		});
+
+		it('is idempotent, so re-parsing transformed data is a no-op', () => {
+			const resolved = referenceField('cats', 'tabby');
+			assert.deepEqual(referenceField('cats', resolved), resolved);
+		});
+
+		it('passes a legacy `slug` reference through without renaming it', () => {
+			assert.deepEqual(referenceField('cats', { collection: 'cats', slug: 'tabby' }), {
+				collection: 'cats',
+				slug: 'tabby',
+			});
+		});
+
+		it('throws when the reference belongs to another collection', () => {
+			assert.throws(() => referenceField('cats', { collection: 'dogs', id: 'beagle' }), {
+				name: 'InvalidContentReferenceError',
+				message: /expected a reference to `cats`, but received one to `dogs`/,
+			});
+		});
+
+		it('throws on a lookup that is not an id', () => {
+			assert.throws(() => referenceField('cats', true as any), {
+				name: 'InvalidContentReferenceError',
+			});
+			// An explicit `undefined` is a mistake, not a request for the schema form.
+			assert.throws(() => referenceField('cats', undefined as any), {
+				name: 'InvalidContentReferenceError',
+			});
+		});
+	});
+
+	describe('reference(collection) — deprecated', () => {
+		it('still returns a schema that resolves ids', async () => {
+			const schema = reference('cats');
+			assert.deepEqual(await schema.parseAsync('tabby'), { collection: 'cats', id: 'tabby' });
+			assert.deepEqual(await schema.parseAsync(1), { collection: 'cats', id: '1' });
+		});
+
+		it('reports a cross-collection reference as a validation issue, not a throw', async () => {
+			const parsed = await reference('cats').safeParseAsync({
+				collection: 'dogs',
+				id: 'beagle',
+			});
+			assert.equal(parsed.success, false);
+			assert.match(
+				parsed.error.issues[0].message,
+				/expected a reference to `cats`, but received one to `dogs`/,
+			);
+		});
 	});
 });

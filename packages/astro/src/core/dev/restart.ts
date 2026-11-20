@@ -250,6 +250,7 @@ export async function createContainerWithAutomaticRestart({
 			logger,
 			watcher: restart.container.viteServer.watcher,
 			store: previousContentLayer.store,
+			viteServer: restart.container.viteServer,
 		});
 		contentLayer.watchContentConfig();
 		// A loader error must not reject the watcher callback that triggered the

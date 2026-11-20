@@ -1,4 +1,5 @@
 import { defineCollection, reference } from 'astro:content';
+import { reference as referenceField } from 'astro/content/fields';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
@@ -23,9 +24,11 @@ const blog = defineCollection({
 	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
 	schema: z.object({
 		title: z.string(),
+		// Deprecated `reference(collection)` schema form, kept here so both signatures stay
+		// covered.
 		banner: reference('banners'),
-		author: reference('authors'),
-		relatedPosts: z.array(reference('blog')).optional(),
+		author: z.string().transform((id) => referenceField('authors', id)),
+		relatedPosts: z.array(z.string().transform((id) => referenceField('blog', id))).optional(),
 	}),
 });
 
