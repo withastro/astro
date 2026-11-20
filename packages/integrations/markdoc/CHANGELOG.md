@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 2.1.6
+
+### Patch Changes
+
+- [#18780](https://github.com/withastro/astro/pull/18780) [`31a1ce1`](https://github.com/withastro/astro/commit/31a1ce145bd72aa57f5940e72ccc13df5fb385f2) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes imports that use TypeScript `paths` aliases (e.g. `~/markdoc/nodes.js`) in `markdoc.config.*` failing with "Cannot find package"
+
 ## 2.1.5
 
 ### Patch Changes

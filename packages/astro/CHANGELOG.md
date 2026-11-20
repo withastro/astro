@@ -1,5 +1,21 @@
 # astro
 
+## 7.4.14
+
+### Patch Changes
+
+- [#18515](https://github.com/withastro/astro/pull/18515) [`7b40892`](https://github.com/withastro/astro/commit/7b408922e6f0c8c102a9cd028ae5ce15e1396923) Thanks [@ossaidqadri](https://github.com/ossaidqadri)! - Fixes `fontProviders.npm({ remote: false })` failing with `CannotFetchFontFile` by reading font files from the installed package on disk
+
+- [#18765](https://github.com/withastro/astro/pull/18765) [`e549bbf`](https://github.com/withastro/astro/commit/e549bbf7c83c776942ded4eec619b5397251a85c) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a bug on Cloudflare Workers where a request cancelled while Astro was still loading the middleware, session driver, actions, cache provider, or logger caused every later request to fail with "This promise was created by a request that has since ended"
+
+- [#18735](https://github.com/withastro/astro/pull/18735) [`c629a63`](https://github.com/withastro/astro/commit/c629a63220a27ebbfcc74784c01212a38d580022) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `memoryCache()` returning a 500 error when serving a cached 204, 205 or 304 response
+
+- [#17891](https://github.com/withastro/astro/pull/17891) [`6fb274e`](https://github.com/withastro/astro/commit/6fb274ee5026f00df2b140a5acb3d1aacfab68af) Thanks [@ryansolid](https://github.com/ryansolid)! - Updates the Solid tsconfig preset for Solid 2.0: `astro add solid-js` now writes `jsxImportSource: "@solidjs/web"` (renderer packages own their JSX namespaces and `jsx-runtime` type entries in 2.0; `solid-js` no longer exports one)
+
+- [#18776](https://github.com/withastro/astro/pull/18776) [`db5e3ec`](https://github.com/withastro/astro/commit/db5e3ec560df8bf81fb5a13f01bd7ca23f302107) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes an unclear `Cannot find package 'esbuild'` build failure when `vite.build.cssMinify` or `vite.build.minify` is set to `'esbuild'`. Astro now reports that `esbuild` must be installed in your project to use these options.
+- Updated dependencies [[`db5e3ec`](https://github.com/withastro/astro/commit/db5e3ec560df8bf81fb5a13f01bd7ca23f302107)]:
+  - @astrojs/runtime@0.1.3
+
 ## 7.4.13
 
 ### Patch Changes

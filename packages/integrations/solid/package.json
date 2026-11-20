@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/solid-js",
-  "version": "7.1.6",
+  "version": "8.0.0",
   "description": "Use Solid components within Astro",
   "type": "module",
   "author": "withastro",
