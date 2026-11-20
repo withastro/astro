@@ -495,11 +495,20 @@ const memoryProvider = ((config): CacheProvider => {
 										newSwr,
 										newTags,
 									);
-									// Update Vary map if the response changed its Vary headers
 									if (newEntry.vary) {
+										// Update Vary map if the response changed its Vary headers
 										varyMap.set(primaryKey, newEntry.vary);
+										cache.set(key, newEntry);
+									} else {
+										// The response stopped varying: un-learn the previous Vary
+										// headers and store under the primary key, so every variant
+										// hits the revalidated entry.
+										varyMap.delete(primaryKey);
+										if (key !== primaryKey) {
+											cache.delete(key);
+										}
+										cache.set(primaryKey, newEntry);
 									}
-									cache.set(key, newEntry);
 								}
 							})
 							.catch((error) => {
@@ -550,6 +559,11 @@ const memoryProvider = ((config): CacheProvider => {
 				if (entry.vary) {
 					varyMap.set(primaryKey, entry.vary);
 					storeKey = primaryKey + buildVarySuffix(context.request, entry.vary);
+				} else {
+					// The response stopped varying: un-learn the previous Vary
+					// headers, or later requests keep looking up suffixed keys and
+					// miss forever while the entry sits under the primary key.
+					varyMap.delete(primaryKey);
 				}
 
 				cache.set(storeKey, entry);

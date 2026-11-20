@@ -675,3 +675,82 @@ describe('memory-provider response body', () => {
 });
 
 // #endregion
+
+// #region onRequest: Vary un-learning
+
+describe('memory-provider Vary un-learning', () => {
+	it('hits the cache again after a re-rendered response drops its Vary header', async () => {
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+
+		// The first response varies on Accept-Language, so its entry is stored
+		// under a Vary-suffixed key and the Vary learning is remembered.
+		const res1 = await provider.onRequest!(
+			makeContext(makeRequest(url, { 'Accept-Language': 'fr' })),
+			makeNext({ maxAge: 60, body: 'french', headers: { Vary: 'Accept-Language' } }),
+		);
+		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
+
+		// The entries are invalidated (e.g. after a deploy), but the Vary
+		// learning for the path is kept.
+		await provider.invalidate({ path: '/page' });
+
+		// The re-rendered response no longer varies, so it is stored under the
+		// primary key.
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url, { 'Accept-Language': 'fr' })),
+			makeNext({ maxAge: 60, body: 'plain' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'MISS');
+
+		// The next request must hit that entry; keeping the stale Vary learning
+		// would make every later request look up a suffixed key and miss forever.
+		const res3 = await provider.onRequest!(
+			makeContext(makeRequest(url, { 'Accept-Language': 'fr' })),
+			makeNext({ maxAge: 60, body: 'should-not-see' }),
+		);
+		assert.equal(res3.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res3.text(), 'plain');
+	});
+
+	it('serves a revalidated response that dropped its Vary header to other variants', async (t) => {
+		t.mock.timers.enable({ apis: ['Date'], now: 1_000 });
+		t.after(() => mock.timers.reset());
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+
+		// Seed a Vary'd entry and let it go stale.
+		await provider.onRequest!(
+			makeContext(makeRequest(url, { 'Accept-Language': 'fr' })),
+			makeNext({ maxAge: 1, swr: 60, body: 'stale-body', headers: { Vary: 'Accept-Language' } }),
+		);
+		t.mock.timers.tick(2_000);
+
+		// The background revalidation returns a response that no longer varies.
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url, { 'Accept-Language': 'fr' })),
+			makeNext({ maxAge: 60, body: 'plain' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'STALE');
+
+		// A request with a different variant value must hit the revalidated
+		// entry: the response declared it does not vary, so its content is
+		// valid for every variant. The revalidation runs in the background,
+		// so probe (with an uncacheable next() that stores nothing) until the
+		// entry lands; the bounded loop fails the test instead of hanging if
+		// it never does.
+		let res3: Response | undefined;
+		for (let i = 0; i < 100; i++) {
+			res3 = await provider.onRequest!(
+				makeContext(makeRequest(url, { 'Accept-Language': 'en' })),
+				makeNext({ body: 'probe' }),
+			);
+			if (res3.headers.get('X-Astro-Cache') === 'HIT') break;
+			await new Promise((r) => setImmediate(r));
+		}
+		assert.equal(res3!.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res3!.text(), 'plain');
+	});
+});
+
+// #endregion
