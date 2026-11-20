@@ -1,0 +1,21 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<h2 id="source">History activation source</h2>
+	<a id="two" href="/two">Two</a>
+	<a id="seven" href="/seven">Seven</a>
+	<a id="three" href="/three">Full load</a>
+	<a id="replace" href="/two" data-astro-history="replace">Replace</a>
+	<a id="hash" href="#bottom">Fragment</a>
+	<a id="redirect" href="/redirect-two">Redirect</a>
+	<a id="file" href="/history-target.txt">Text file</a>
+	<form action="/two"><button id="get">GET</button></form>
+	<form action="/two" method="post"><button id="post">POST</button></form>
+	<div style="height: 3000px"></div>
+	<div id="bottom">Bottom</div>
+</Layout>
+<script>
+	import { navigate } from 'astro:transitions/client';
+	(window as any).historyAudit.navigate = navigate;
+</script>

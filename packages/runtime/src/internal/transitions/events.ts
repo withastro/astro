@@ -136,6 +136,7 @@ export async function doPreparation(
 	signal: AbortSignal,
 	formData: FormData | undefined,
 	defaultLoader: (event: TransitionBeforePreparationEvent) => Promise<void>,
+	beforeLoad?: (event: TransitionBeforePreparationEvent) => void,
 ) {
 	const event = new TransitionBeforePreparationEvent(
 		from,
@@ -149,7 +150,10 @@ export async function doPreparation(
 		formData,
 		defaultLoader,
 	);
-	if (document.dispatchEvent(event)) {
+	if (document.dispatchEvent(event) && !signal.aborted) {
+		// Run after synchronous cancellation/redirect hooks, but still in the
+		// initiating user event, before even a custom loader can yield.
+		beforeLoad?.(event);
 		await event.loader();
 		if (!event.defaultPrevented) {
 			triggerEvent('astro:after-preparation');
@@ -165,7 +169,7 @@ export async function doPreparation(
 // only update history entries that are managed by us
 // leave other entries alone and do not accidentally add state.
 export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
-	if (history.state) {
+	if (history.state && !history.state.__astroPending) {
 		history.scrollRestoration = 'manual';
 		history.replaceState({ ...history.state, ...positions }, '');
 	}
@@ -181,6 +185,6 @@ export async function doSwap(
 	if (afterDispatch) {
 		await afterDispatch();
 	}
-	event.swap();
+	if (!event.signal.aborted) event.swap();
 	return event;
 }
