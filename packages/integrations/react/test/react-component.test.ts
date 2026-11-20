@@ -141,6 +141,12 @@ describe('React Components', () => {
 			assert.equal($('#four p').attr('title'), "Don't panic & carry on");
 		});
 
+		it('Children keep a space between inline elements', async () => {
+			const html = await fixture.readFile('/children/index.html');
+			const $ = cheerioLoad(html);
+			assert.equal($('#five p').text(), 'Hello world');
+		});
+
 		it('Does not render astro-slot for empty slots', async () => {
 			const html = await fixture.readFile('/slots/index.html');
 			const $ = cheerioLoad(html);

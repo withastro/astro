@@ -1,6 +1,7 @@
 import { decodeHTML, decodeHTMLAttribute } from 'entities';
 import { createElement, Fragment } from 'react';
 import { DOCUMENT_NODE, ELEMENT_NODE, parse, TEXT_NODE } from 'ultrahtml';
+import { isHtmlWhitespace } from './whitespace.js';
 
 // ultrahtml keeps character references such as `&amp;` in text and attribute values as written,
 // and React escapes those strings again, so they are decoded first. Browsers leave references inside
@@ -8,9 +9,13 @@ import { DOCUMENT_NODE, ELEMENT_NODE, parse, TEXT_NODE } from 'ultrahtml';
 // See: https://github.com/withastro/astro/issues/18785
 const RAW_TEXT_ELEMENTS = new Set(['script', 'style']);
 
+// Browsers drop a line break that directly follows these start tags, so the client never receives
+// one before their first element. ultrahtml keeps it.
+const LEADING_LINE_BREAK_ELEMENTS = new Set(['listing', 'pre', 'textarea']);
+
 let ids = 0;
 export default function convert(children: any) {
-	let doc = parse(children.toString().trim());
+	let doc = parse(children.toString());
 	let id = ids++;
 	let key = 0;
 
@@ -30,8 +35,18 @@ export default function convert(children: any) {
 			const { class: className, ...props } = attributes;
 			return createElement(node.name, { ...props, className, key: `${id}-${key++}` }, childVnodes);
 		} else if (node.type === TEXT_NODE) {
-			// 0-length text gets omitted in JSX
-			if (!node.value.trim()) return undefined;
+			if (isHtmlWhitespace(node.value)) {
+				// Whitespace between top-level children is skipped, so a component whose children are
+				// elements written on separate lines receives only those elements. `client.ts` does the same.
+				if (node.parent?.type === DOCUMENT_NODE) return undefined;
+				if (
+					LEADING_LINE_BREAK_ELEMENTS.has(node.parent?.name?.toLowerCase()) &&
+					node.parent.children[0] === node
+				) {
+					return node.value.replace(/^\r?\n/, '');
+				}
+				return node.value;
+			}
 			return RAW_TEXT_ELEMENTS.has(node.parent?.name?.toLowerCase())
 				? node.value
 				: decodeHTML(node.value);
