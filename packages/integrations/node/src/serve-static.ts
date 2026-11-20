@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
-import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
+import {
+	hasFileExtension,
+	isInternalPath,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import type { BaseApp } from 'astro/app';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
@@ -82,13 +86,14 @@ export function createStaticHandler(
 				// keep-alive connections accumulate listeners on every request.
 				getAbortControllerCleanup(req)?.();
 				if (routeData && routeData.prerender) {
-					// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
-					// must strip config.base from the incoming URL before matching, just as
-					// we do for filesystem access above.
-					const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
-					const matchedRoute = headersMap.find((header) =>
-						header.pathname.includes(baselessPathname),
+					// Headers are stored keyed by base-less route paths without a trailing
+					// slash (e.g. "/one"), so we must strip config.base and any trailing slash
+					// from the incoming URL before matching, just as we do for filesystem
+					// access above.
+					const baselessPathname = prependForwardSlash(
+						removeTrailingForwardSlash(app.removeBase(urlPath)),
 					);
+					const matchedRoute = headersMap.find((header) => header.pathname === baselessPathname);
 					if (matchedRoute) {
 						for (const header of matchedRoute.headers) {
 							res.setHeader(header.key, header.value);

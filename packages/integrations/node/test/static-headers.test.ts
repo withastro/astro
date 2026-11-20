@@ -93,6 +93,29 @@ describe('Static headers', () => {
 		);
 	});
 
+	it('CSP headers are matched to the exact page, not a page whose path contains it', async () => {
+		const cspFor = async (path: string) =>
+			(await fetch(`http://${server.host}:${server.port}${path}`)).headers.get(
+				'Content-Security-Policy',
+			) ?? '';
+
+		const index = await cspFor('/');
+		assert.ok(!index.includes('example.com'), `/ received another page's CSP: ${index}`);
+
+		const blog = await cspFor('/blog');
+		assert.ok(blog.includes('https://blog.example.com'), `/blog CSP: ${blog}`);
+		assert.ok(!blog.includes('https://blog-post.example.com'), `/blog CSP: ${blog}`);
+
+		const post = await cspFor('/blog/post');
+		assert.ok(post.includes('https://blog-post.example.com'), `/blog/post CSP: ${post}`);
+	});
+
+	it('CSP headers are added to a page requested with a trailing slash', async () => {
+		const res = await fetch(`http://${server.host}:${server.port}/blog/post/`);
+		const csp = res.headers.get('Content-Security-Policy') ?? '';
+		assert.ok(csp.includes('https://blog-post.example.com'), `/blog/post/ CSP: ${csp}`);
+	});
+
 	it('passes the request body through to on-demand routes', async () => {
 		const res = await fetch(`http://${server.host}:${server.port}/echo`, {
 			method: 'POST',
