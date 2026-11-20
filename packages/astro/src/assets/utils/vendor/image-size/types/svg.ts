@@ -8,6 +8,7 @@ interface IAttributes {
 }
 
 const svgReg = /<svg\s([^>"']|"[^"]*"|'[^']*')*>/
+const svgStartReg = /^<svg\s/
 
 const extractorRegExps = {
   height: /\sheight=(['"])([^%]+?)\1/,
@@ -87,9 +88,54 @@ function calculateByViewbox(attrs: IAttributes, viewbox: IAttributes): ISize {
   }
 }
 
+/**
+ * Returns the byte offset of the first `<svg` followed by whitespace before `end`, or -1.
+ */
+function findSvgStart(input: Uint8Array, end: number): number {
+  const head = input.subarray(0, end)
+  for (let i = head.indexOf(0x3c); i !== -1; i = head.indexOf(0x3c, i + 1)) {
+    if (svgStartReg.test(toUTF8String(input, i, i + 5))) {
+      return i
+    }
+  }
+  return -1
+}
+
+/**
+ * Returns whether the tag opened at byte offset `start` is closed by a `>` outside quoted
+ * attribute values, accepting the same tags as `svgReg` in a single pass over the input.
+ */
+function isTagClosed(input: Uint8Array, start: number): boolean {
+  // `"`, `'` and `>` are ASCII, and UTF-8 never uses ASCII bytes inside multi-byte sequences.
+  let quote = 0
+  for (let i = start; i < input.length; i++) {
+    const byte = input[i]
+    if (quote !== 0) {
+      if (byte === quote) {
+        quote = 0
+      }
+    } else if (byte === 0x22 || byte === 0x27) {
+      quote = byte
+    } else if (byte === 0x3e) {
+      return true
+    }
+  }
+  return false
+}
+
 export const SVG: IImage = {
-  // Scan only the first kilo-byte to speed up the check on larger files
-  validate: (input) => svgReg.test(toUTF8String(input, 0, 1000)),
+  validate: (input) => {
+    // Scan only the first kilo-byte to speed up the check on larger files
+    if (svgReg.test(toUTF8String(input, 0, 1000))) {
+      return true
+    }
+    // The root tag can start within the first kilo-byte but end after it,
+    // e.g. when it carries a large attribute such as draw.io's `content`.
+    // A single pass rather than `svgReg`, which retries from every `<svg` and takes quadratic
+    // time on a long input without a closing `>`.
+    const start = findSvgStart(input, 1000)
+    return start !== -1 && isTagClosed(input, start)
+  },
 
   calculate(input) {
     const root = extractorRegExps.root.exec(toUTF8String(input))
