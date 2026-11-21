@@ -244,6 +244,27 @@ describe('applyCacheHeaders()', () => {
 		);
 	});
 
+	it('generates CDN-Cache-Control when only swr is set', () => {
+		const cache = new AstroCache(null);
+		cache.set({ swr: 600 });
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response, dummyRequest);
+		assert.equal(response.headers.get('CDN-Cache-Control'), 'stale-while-revalidate=600');
+	});
+
+	it('applies validators when no maxAge or tags are set', () => {
+		const cache = new AstroCache(null);
+		const date = new Date('2025-06-01T12:00:00Z');
+		cache.set({ lastModified: date, etag: '"v1"' });
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response, dummyRequest);
+		assert.equal(response.headers.get('Last-Modified'), date.toUTCString());
+		assert.equal(response.headers.get('ETag'), '"v1"');
+		assert.equal(response.headers.get('Cache-Control'), 'no-cache');
+	});
+
 	it('generates correct Cache-Tag', () => {
 		const cache = new AstroCache(null);
 		cache.set({ maxAge: 60, tags: ['product', 'featured'] });
@@ -343,6 +364,18 @@ describe('isCacheActive()', () => {
 	it('true after setting tags', () => {
 		const cache = new AstroCache(null);
 		cache.set({ tags: ['a'] });
+		assert.equal(isCacheActive(cache), true);
+	});
+
+	it('true after setting swr', () => {
+		const cache = new AstroCache(null);
+		cache.set({ swr: 600 });
+		assert.equal(isCacheActive(cache), true);
+	});
+
+	it('true after setting a validator', () => {
+		const cache = new AstroCache(null);
+		cache.set({ lastModified: new Date('2025-06-01T12:00:00Z') });
 		assert.equal(isCacheActive(cache), true);
 	});
 
