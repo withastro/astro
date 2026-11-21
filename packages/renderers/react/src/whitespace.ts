@@ -7,9 +7,9 @@ export function isHtmlWhitespace(text: string): boolean {
 }
 
 /**
- * Whether a text node among a component's top-level children is skipped, as JSX skips it: whitespace
- * at either end of the children, or whitespace that holds a line break. A space between two inline
- * elements on one line, as in `<b>a</b> <i>b</i>`, is kept.
+ * Whether a text node among a component's top-level children is skipped: whitespace at either end
+ * of the children, or whitespace that holds a line break. A space between two inline elements on
+ * one line, as in `<b>a</b> <i>b</i>`, is kept.
  */
 export function isSkippedTopLevelText(text: string, isFirst: boolean, isLast: boolean): boolean {
 	return isHtmlWhitespace(text) && (isFirst || isLast || /[\n\r]/.test(text));

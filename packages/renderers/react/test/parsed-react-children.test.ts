@@ -62,6 +62,11 @@ describe('experimental react children', () => {
 		const [preVNode] = convert('<pre>\n\n<b>A</b></pre>');
 		assert.equal(preVNode.props.children.length, 2);
 		assert.equal(preVNode.props.children[0], '\n');
+		const [textPreVNode] = convert('<pre>\n\nA</pre>');
+		assert.deepEqual(textPreVNode.props.children, ['\nA']);
+		const [crPreVNode] = convert('<pre>\r<b>A</b></pre>');
+		assert.equal(crPreVNode.props.children.length, 1);
+		assert.equal(crPreVNode.props.children[0].type, 'b');
 	});
 
 	it('skips whitespace with a line break between top-level children', () => {
@@ -70,6 +75,7 @@ describe('experimental react children', () => {
 		assert.equal(children[0].type, 'span');
 		assert.equal(children[1].type, 'span');
 		assert.equal(children[2], '\u00a0\n');
+		assert.equal(convert('<b>A</b>&#10;<i>B</i>').length, 2);
 	});
 
 	it('keeps a space between top-level inline elements', () => {

@@ -1,7 +1,7 @@
 import { decodeHTML, decodeHTMLAttribute } from 'entities';
 import { createElement, Fragment } from 'react';
 import { DOCUMENT_NODE, ELEMENT_NODE, parse, TEXT_NODE } from 'ultrahtml';
-import { isHtmlWhitespace, isSkippedTopLevelText } from './whitespace.js';
+import { isSkippedTopLevelText } from './whitespace.js';
 
 // ultrahtml keeps character references such as `&amp;` in text and attribute values as written,
 // and React escapes those strings again, so they are decoded first. Browsers leave references inside
@@ -10,7 +10,8 @@ import { isHtmlWhitespace, isSkippedTopLevelText } from './whitespace.js';
 const RAW_TEXT_ELEMENTS = new Set(['script', 'style']);
 
 // Browsers drop a line break that directly follows these start tags, so the client never receives
-// one before their first element. ultrahtml keeps it.
+// it at the start of their first text. ultrahtml keeps it.
+// See: https://github.com/withastro/astro/issues/18792
 const LEADING_LINE_BREAK_ELEMENTS = new Set(['listing', 'pre', 'textarea']);
 
 let ids = 0;
@@ -35,25 +36,20 @@ export default function convert(children: any) {
 			const { class: className, ...props } = attributes;
 			return createElement(node.name, { ...props, className, key: `${id}-${key++}` }, childVnodes);
 		} else if (node.type === TEXT_NODE) {
+			const parentName = node.parent?.name?.toLowerCase();
+			const text = RAW_TEXT_ELEMENTS.has(parentName) ? node.value : decodeHTML(node.value);
 			if (node.parent?.type === DOCUMENT_NODE) {
-				// A component whose children are elements written on separate lines receives only those
-				// elements. The decoded text is tested because that is what `client.ts` sees.
-				const text = decodeHTML(node.value);
+				// Tested after decoding, because `client.ts` sees decoded text
 				const siblings = node.parent.children;
 				return isSkippedTopLevelText(text, siblings[0] === node, siblings.at(-1) === node)
 					? undefined
 					: text;
 			}
-			if (
-				isHtmlWhitespace(node.value) &&
-				LEADING_LINE_BREAK_ELEMENTS.has(node.parent?.name?.toLowerCase()) &&
-				node.parent.children[0] === node
-			) {
-				return node.value.replace(/^\r?\n/, '');
+			if (LEADING_LINE_BREAK_ELEMENTS.has(parentName) && node.parent.children[0] === node) {
+				// A carriage return, with or without a line feed after it, reaches the client as a line feed
+				return text.replace(/^(\r\n?|\n)/, '');
 			}
-			return RAW_TEXT_ELEMENTS.has(node.parent?.name?.toLowerCase())
-				? node.value
-				: decodeHTML(node.value);
+			return text;
 		}
 	}
 
