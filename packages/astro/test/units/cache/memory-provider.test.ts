@@ -477,6 +477,37 @@ describe('memory-provider invalidate', () => {
 // #region onRequest: SWR (stale-while-revalidate)
 
 describe('memory-provider SWR', () => {
+	it('caches and revalidates a response that only sets stale-while-revalidate', async (t) => {
+		t.mock.timers.enable({ apis: ['Date'], now: 1_000 });
+		t.after(() => mock.timers.reset());
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+
+		const res1 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ swr: 60, body: 'stale-body' }),
+		);
+		assert.equal(res1.headers.get('X-Astro-Cache'), 'MISS');
+
+		t.mock.timers.tick(1_000);
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ swr: 60, body: 'fresh-body' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'STALE');
+		assert.equal(await res2.text(), 'stale-body');
+
+		// Background revalidation of an swr-only entry must replace the stale entry
+		await new Promise((r) => setTimeout(r, 100));
+
+		const res3 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ body: 'unexpected-body' }),
+		);
+		assert.equal(res3.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res3.text(), 'fresh-body');
+	});
+
 	it('serves STALE and triggers background revalidation', async () => {
 		const provider = createProvider();
 		const url = 'http://localhost/page';

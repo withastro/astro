@@ -472,7 +472,7 @@ const memoryProvider = ((config): CacheProvider => {
 							.then(async (freshResponse) => {
 								const cdnCC = freshResponse.headers.get('CDN-Cache-Control');
 								const { maxAge: newMaxAge, swr: newSwr } = parseCdnCacheControl(cdnCC);
-								if (newMaxAge > 0) {
+								if (newMaxAge > 0 || newSwr > 0) {
 									if (isErrorPageReroute(freshResponse)) {
 										cache.delete(key);
 										return;
@@ -526,7 +526,7 @@ const memoryProvider = ((config): CacheProvider => {
 			const cdnCC = response.headers.get('CDN-Cache-Control');
 			const { maxAge, swr } = parseCdnCacheControl(cdnCC);
 
-			if (maxAge > 0) {
+			if (maxAge > 0 || swr > 0) {
 				if (isErrorPageReroute(response)) {
 					return response;
 				}
