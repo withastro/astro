@@ -254,6 +254,10 @@ describe('shared server utilities', () => {
 		assert.deepEqual(buildBackgroundArgs('dev', { _: [], silent: true }), ['dev', '--silent']);
 	});
 
+	it('forwards --force so the background server clears the content layer cache', () => {
+		assert.deepEqual(buildBackgroundArgs('dev', { _: [], force: true }), ['dev', '--force']);
+	});
+
 	it('uses separate dev and preview log files', () => {
 		const root = new URL('file:///project/');
 		assert.equal(getLogFileURL(root).href, 'file:///project/.astro/dev.log');
