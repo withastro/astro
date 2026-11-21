@@ -132,6 +132,21 @@ Consult these guides before working on related tasks:
 `;
 }
 
+/**
+ * Writes the generated AGENTS.md for a new project, unless the template already
+ * ships one. A template's own instructions describe its codebase and must not
+ * be silently replaced.
+ */
+export function writeAgentsMd(cwd: string): void {
+	const agentsPath = path.resolve(cwd, 'AGENTS.md');
+
+	if (fs.existsSync(agentsPath)) {
+		return;
+	}
+
+	fs.writeFileSync(agentsPath, generateAgentsMd());
+}
+
 export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	// Handle Starlight templates
 	if (tmpl === 'starlight' || tmpl.startsWith('starlight/')) {
@@ -213,9 +228,7 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 		}
 
 		if (ctx.ai) {
-			// Generate AGENTS.md for AI coding agents
-			const agentsPath = path.resolve(ctx.cwd, 'AGENTS.md');
-			fs.writeFileSync(agentsPath, generateAgentsMd());
+			writeAgentsMd(ctx.cwd);
 		}
 
 		// Post-process in parallel
