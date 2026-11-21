@@ -145,6 +145,7 @@ describe('React Components', () => {
 			const html = await fixture.readFile('/children/index.html');
 			const $ = cheerioLoad(html);
 			assert.equal($('#five p').text(), 'Hello world');
+			assert.equal($('#six .with-children').text(), 'Hello world');
 		});
 
 		it('Does not render astro-slot for empty slots', async () => {

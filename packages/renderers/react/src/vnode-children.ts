@@ -1,7 +1,7 @@
 import { decodeHTML, decodeHTMLAttribute } from 'entities';
 import { createElement, Fragment } from 'react';
 import { DOCUMENT_NODE, ELEMENT_NODE, parse, TEXT_NODE } from 'ultrahtml';
-import { isHtmlWhitespace } from './whitespace.js';
+import { isHtmlWhitespace, isSkippedTopLevelText } from './whitespace.js';
 
 // ultrahtml keeps character references such as `&amp;` in text and attribute values as written,
 // and React escapes those strings again, so they are decoded first. Browsers leave references inside
@@ -35,17 +35,21 @@ export default function convert(children: any) {
 			const { class: className, ...props } = attributes;
 			return createElement(node.name, { ...props, className, key: `${id}-${key++}` }, childVnodes);
 		} else if (node.type === TEXT_NODE) {
-			if (isHtmlWhitespace(node.value)) {
-				// Whitespace between top-level children is skipped, so a component whose children are
-				// elements written on separate lines receives only those elements. `client.ts` does the same.
-				if (node.parent?.type === DOCUMENT_NODE) return undefined;
-				if (
-					LEADING_LINE_BREAK_ELEMENTS.has(node.parent?.name?.toLowerCase()) &&
-					node.parent.children[0] === node
-				) {
-					return node.value.replace(/^\r?\n/, '');
-				}
-				return node.value;
+			if (node.parent?.type === DOCUMENT_NODE) {
+				// A component whose children are elements written on separate lines receives only those
+				// elements. The decoded text is tested because that is what `client.ts` sees.
+				const text = decodeHTML(node.value);
+				const siblings = node.parent.children;
+				return isSkippedTopLevelText(text, siblings[0] === node, siblings.at(-1) === node)
+					? undefined
+					: text;
+			}
+			if (
+				isHtmlWhitespace(node.value) &&
+				LEADING_LINE_BREAK_ELEMENTS.has(node.parent?.name?.toLowerCase()) &&
+				node.parent.children[0] === node
+			) {
+				return node.value.replace(/^\r?\n/, '');
 			}
 			return RAW_TEXT_ELEMENTS.has(node.parent?.name?.toLowerCase())
 				? node.value

@@ -22,7 +22,13 @@ test('experimentalReactChildren hydrates text children without a mismatch', asyn
 	page.on('pageerror', (error) => errors.push(error.message));
 	await page.goto(astro.resolveUrl('/'));
 	await expect(page.locator('#pre-leading-line-break')).toHaveAttribute('data-hydrated', 'true');
-	const expectedText = { text: 'Hello world', space: 'Hello world', pre: 'A\nB', count: '2' };
+	const expectedText = {
+		text: 'Hello world',
+		space: 'Hello world',
+		'top-level-space': 'Hello world',
+		pre: 'A\nB',
+		count: '2',
+	};
 	for (const [id, text] of Object.entries(expectedText)) {
 		const box = page.locator(`#${id}`);
 		await expect(box).toHaveAttribute('data-hydrated', 'true');
