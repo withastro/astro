@@ -30,11 +30,23 @@ export default function convert(children: any) {
 			const { class: className, ...props } = attributes;
 			return createElement(node.name, { ...props, className, key: `${id}-${key++}` }, childVnodes);
 		} else if (node.type === TEXT_NODE) {
-			// 0-length text gets omitted in JSX
-			if (!node.value.trim()) return undefined;
-			return RAW_TEXT_ELEMENTS.has(node.parent?.name?.toLowerCase())
-				? node.value
-				: decodeHTML(node.value);
+			// Whitespace is kept as the HTML parser keeps it, so the server builds the same tree as
+			// the client (`client.ts` applies the same rules). Only whitespace with a line break between
+			// top-level children is dropped, as JSX drops it between elements.
+			// See: https://github.com/withastro/astro/issues/18792
+			if (!node.value) return undefined;
+			if (node.parent?.type === DOCUMENT_NODE && !node.value.trim() && node.value.includes('\n')) {
+				return undefined;
+			}
+			const parentName = node.parent?.name?.toLowerCase();
+			if (RAW_TEXT_ELEMENTS.has(parentName)) return node.value;
+			// The HTML parser drops a line break right after a `<pre>` start tag, and the client builds
+			// its tree from children parsed by the browser, so the server drops it too.
+			const value =
+				parentName === 'pre' && node.parent.children[0] === node
+					? node.value.replace(/^\n/, '')
+					: node.value;
+			return value ? decodeHTML(value) : undefined;
 		}
 	}
 

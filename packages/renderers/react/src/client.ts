@@ -59,9 +59,14 @@ function getChildren(childString: string, experimentalReactChildren: boolean) {
 	if (experimentalReactChildren && childString) {
 		let children = [];
 		let template = document.createElement('template');
-		template.innerHTML = childString;
-		for (let child of template.content.children) {
-			children.push(createReactElementFromDOMElement(child));
+		// Trimmed and filtered as the server does in `vnode-children.ts`, so hydration builds the same tree.
+		template.innerHTML = childString.trim();
+		for (let child of template.content.childNodes as NodeListOf<any>) {
+			if (child.nodeType === Node.TEXT_NODE) {
+				if (child.data.trim() || !child.data.includes('\n')) children.push(child.data);
+			} else if (child.nodeType === Node.ELEMENT_NODE) {
+				children.push(createReactElementFromDOMElement(child));
+			}
 		}
 		return children;
 	} else if (childString) {
