@@ -1825,6 +1825,31 @@ describe('fonts core', () => {
 				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial', 'sans-serif']);
 			});
 
+			it('caps the weight of faces backed by regular local fonts so bold can be synthesized', async () => {
+				const result = await optimizeFallbacks({
+					family,
+					fallbacks: ['sans-serif'],
+					collectedFonts: [
+						{ url: '', id: '', data: { weight: '100 900', style: 'normal' }, init: undefined },
+						{ url: '', id: '', data: { weight: [200, 800], style: 'normal' }, init: undefined },
+						{ url: '', id: '', data: { weight: 600, style: 'normal' }, init: undefined },
+						{ url: '', id: '', data: { weight: '300', style: 'normal' }, init: undefined },
+					],
+					systemFallbacksProvider: variantProvider,
+					fontMetricsResolver,
+				});
+				const faces = JSON.parse(`[${result?.css.slice(0, -1)}]`);
+				assert.deepStrictEqual(
+					faces.map((face: any) => [face.font, face.properties['font-weight']]),
+					[
+						['Arial', '100 500'],
+						['Arial', '200 500'],
+						['Arial', '500'],
+						['Arial', '300'],
+					],
+				);
+			});
+
 			it('groups bold faces under the normal fallback family and skips italic faces', async () => {
 				const result = await optimizeFallbacks({
 					family,

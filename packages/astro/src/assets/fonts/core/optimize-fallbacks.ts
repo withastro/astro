@@ -29,6 +29,24 @@ function deriveFallbackVariant(data: Partial<unifont.FontFaceData>): FallbackVar
 	return 'normal';
 }
 
+// Chromium and Firefox synthesize bold only from faces whose weight does not exceed 500.
+const MAX_SYNTHESIZABLE_WEIGHT = 500;
+
+/**
+ * Caps a numeric weight or weight range at `MAX_SYNTHESIZABLE_WEIGHT`. Returns other weights
+ * (e.g. `"normal"`) unchanged.
+ */
+function capWeight(weight: unifont.FontFaceData['weight']): unifont.FontFaceData['weight'] {
+	const values = (
+		Array.isArray(weight) ? weight : typeof weight === 'string' ? weight.split(' ') : [weight]
+	).map(Number);
+	if (values.some(Number.isNaN)) {
+		return weight;
+	}
+	const capped = values.map((value) => Math.min(value, MAX_SYNTHESIZABLE_WEIGHT));
+	return capped.length === 2 ? [capped[0], capped[1]] : capped[0];
+}
+
 export async function optimizeFallbacks({
 	family,
 	fallbacks: _fallbacks,
@@ -70,6 +88,7 @@ export async function optimizeFallbacks({
 			: [];
 		return {
 			collected,
+			variant,
 			localFonts: localFonts.flatMap((font, index) =>
 				// A bold face backed by a regular local font would render regular, because the browser
 				// does not synthesize bold for a face that declares a bold weight.
@@ -112,11 +131,17 @@ export async function optimizeFallbacks({
 	fallbacks = [...uniqueFamilyFonts.map(nameForFont), ...fallbacks];
 	let css = '';
 
-	for (const { collected, localFonts } of collectedWithLocalFonts) {
+	for (const { collected, variant, localFonts } of collectedWithLocalFonts) {
 		if (localFonts.length === 0) {
 			continue;
 		}
-		const properties = unifontFontFaceDataToProperties(collected.data);
+		// Normal faces are backed by regular local fonts. Declaring a bold-capable weight on them
+		// (e.g. 600 or "100 900") would make bold text match a regular font instead of synthesizing bold.
+		const properties = unifontFontFaceDataToProperties(
+			variant === 'normal'
+				? { ...collected.data, weight: capWeight(collected.data.weight) }
+				: collected.data,
+		);
 		const metrics = await fontMetricsResolver.getMetrics(family.name, collected);
 		for (const { font, familyFont } of localFonts) {
 			css += fontMetricsResolver.generateFontFace({
