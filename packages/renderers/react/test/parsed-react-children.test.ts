@@ -43,6 +43,61 @@ describe('experimental react children', () => {
 		assert.deepEqual(pVNode.props.children, ["Don't panic & carry\u00a0on ©"]);
 	});
 
+	it('keeps a space between inline elements', () => {
+		const [pVNode] = convert('<p><strong>Hello</strong> <em>world</em></p>');
+		const [strongVNode, space, emVNode] = pVNode.props.children;
+		assert.equal(pVNode.props.children.length, 3);
+		assert.equal(strongVNode.type, 'strong');
+		assert.equal(space, ' ');
+		assert.equal(emVNode.type, 'em');
+	});
+
+	it('keeps whitespace inside elements', () => {
+		const [preVNode] = convert('<pre><b>A</b>\n<b>B</b></pre>');
+		assert.equal(preVNode.props.children.length, 3);
+		assert.equal(preVNode.props.children[1], '\n');
+	});
+
+	it('drops the line break that directly follows a pre start tag, as browsers do', () => {
+		const [preVNode] = convert('<pre>\n\n<b>A</b></pre>');
+		assert.equal(preVNode.props.children.length, 2);
+		assert.equal(preVNode.props.children[0], '\n');
+		const [textPreVNode] = convert('<pre>\n\nA</pre>');
+		assert.deepEqual(textPreVNode.props.children, ['\nA']);
+		const [crPreVNode] = convert('<pre>\r<b>A</b></pre>');
+		assert.equal(crPreVNode.props.children.length, 1);
+		assert.equal(crPreVNode.props.children[0].type, 'b');
+	});
+
+	it('skips whitespace with a line break between top-level children', () => {
+		const children = convert('\n\t<span>A</span>\n\t<span>B</span>&nbsp;\n');
+		assert.equal(children.length, 3);
+		assert.equal(children[0].type, 'span');
+		assert.equal(children[1].type, 'span');
+		assert.equal(children[2], '\u00a0\n');
+		assert.equal(convert('<b>A</b>&#10;<i>B</i>').length, 2);
+	});
+
+	it('keeps a space between top-level inline elements', () => {
+		const children = convert('<b>A</b> <i>B</i>');
+		assert.equal(children.length, 3);
+		assert.equal(children[1], ' ');
+	});
+
+	it('skips whitespace at either end of the top-level children', () => {
+		const children = convert(' <b>A</b> <i>B</i>&#32;');
+		assert.equal(children.length, 3);
+		assert.equal(children[0].type, 'b');
+		assert.equal(children[1], ' ');
+		assert.equal(children[2].type, 'i');
+	});
+
+	it('keeps an encoded space between top-level children', () => {
+		const children = convert('<b>A</b>&#32;<i>B</i>');
+		assert.equal(children.length, 3);
+		assert.equal(children[1], ' ');
+	});
+
 	it('keeps text inside script and style elements as written', () => {
 		const [scriptVNode, styleVNode] = convert(
 			'<script>a = "&amp;";</script><STYLE>a::after { content: "&amp;"; }</STYLE>',

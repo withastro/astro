@@ -27,5 +27,11 @@ const title = "Don't panic & carry on";
 		<WithChildren id="four">
 			<p title={title}>{title}</p>
 		</WithChildren>
+
+		<!-- Test that a space between inline elements is kept -->
+		<WithChildren id="five">
+			<p><strong>Hello</strong> <em>world</em></p>
+		</WithChildren>
+		<WithChildren id="six"><strong>Hello</strong> <em>world</em></WithChildren>
   </body>
 </html>

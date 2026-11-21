@@ -1,0 +1,24 @@
+---
+import Box from '../components/Box.jsx';
+import Count from '../components/Count.jsx';
+---
+
+<html>
+	<body>
+		<Box id="text" client:load>Hello <b>world</b></Box>
+		<Box id="space" client:load><p><strong>Hello</strong> <em>world</em></p></Box>
+		<Box id="top-level-space" client:load><strong>Hello</strong> <em>world</em></Box>
+		<Box id="pre" client:load><pre><b>A</b>
+<b>B</b></pre></Box>
+		<Box id="pre-leading-line-break" client:load><pre>
+
+<b>A</b></pre></Box>
+		<Box id="pre-leading-line-break-text" client:load><pre>
+
+A</pre></Box>
+		<Count id="count" client:load>
+			<div>child 1</div>
+			<div>child 2</div>
+		</Count>
+	</body>
+</html>
