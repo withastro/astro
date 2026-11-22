@@ -6,6 +6,7 @@ import {
 	applyCacheHeaders,
 	isCacheActive,
 } from '../../../dist/core/cache/runtime/cache.js';
+import { SpyLogger } from '../test-utils.ts';
 
 // Mock provider
 function createMockProvider(overrides: Partial<CacheProvider> = {}): CacheProvider {
@@ -351,5 +352,33 @@ describe('isCacheActive()', () => {
 		cache.set({ maxAge: 60 });
 		cache.set(false);
 		assert.equal(isCacheActive(cache), false);
+	});
+});
+
+describe('AstroCache - set() after headers are applied', () => {
+	it('warns once when set() is called after applyCacheHeaders()', () => {
+		const logger = new SpyLogger();
+		const cache = new AstroCache(null, logger);
+		cache.set({ maxAge: 60, tags: ['from-page'] });
+		assert.equal(logger.logs.length, 0);
+
+		applyCacheHeaders(cache, new Response('test'), dummyRequest);
+		cache.set({ tags: ['from-layout'] });
+		cache.set({ tags: ['from-component'] });
+
+		const warnings = logger.logs.filter((log) => log.level === 'warn');
+		assert.equal(warnings.length, 1);
+		assert.equal(warnings[0].label, 'cache');
+		assert.match(warnings[0].message, /cache\.set\(\)/);
+	});
+
+	it('warns when headers were applied to an inactive cache', () => {
+		const logger = new SpyLogger();
+		const cache = new AstroCache(null, logger);
+
+		applyCacheHeaders(cache, new Response('test'), dummyRequest);
+		cache.set({ tags: ['from-layout'] });
+
+		assert.equal(logger.logs.filter((log) => log.level === 'warn').length, 1);
 	});
 });

@@ -7,6 +7,7 @@ import type {
 } from '../types.js';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { CacheNotEnabled } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import type { AstroLogger } from '../../logger/core.js';
 import { defaultSetHeaders, isLiveDataEntry } from './utils.js';
 
 const APPLY_HEADERS = Symbol.for('astro:cache:apply');
@@ -38,14 +39,30 @@ export class AstroCache implements CacheLike {
 	#tags = new Set<string>();
 	#disabled = false;
 	#provider: CacheProvider | null;
+	#logger: AstroLogger | undefined;
+	#headersApplied = false;
+	#hasWarnedLateSet = false;
 
 	readonly enabled = true;
 
-	constructor(provider: CacheProvider | null) {
+	constructor(provider: CacheProvider | null, logger?: AstroLogger) {
 		this.#provider = provider;
+		this.#logger = logger;
 	}
 
 	set(input: CacheOptions | CacheHint | LiveDataEntry | false): void {
+		if (this.#headersApplied && !this.#hasWarnedLateSet) {
+			this.#hasWarnedLateSet = true;
+			// When streaming, layouts and components render after the response headers
+			// have been sent, so their directives cannot reach the response.
+			// See https://github.com/withastro/astro/issues/18499
+			this.#logger?.warn(
+				'cache',
+				'`cache.set()` was called after the cache headers had already been applied to the response, so it has no effect. ' +
+					'This can happen when a layout or component calls it while the page is streaming. ' +
+					'Call `cache.set()` in middleware or in the frontmatter of the page instead.',
+			);
+		}
 		if (input === false) {
 			this.#disabled = true;
 			this.#tags.clear();
@@ -113,6 +130,7 @@ export class AstroCache implements CacheLike {
 
 	/** @internal */
 	[APPLY_HEADERS](response: Response, request: Request): void {
+		this.#headersApplied = true;
 		if (this.#disabled) return;
 		const finalOptions: CacheOptions = { ...this.#options, tags: this.tags };
 		if (finalOptions.maxAge === undefined && !finalOptions.tags?.length) return;
