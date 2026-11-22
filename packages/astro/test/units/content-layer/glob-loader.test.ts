@@ -137,10 +137,13 @@ describe('Glob Loader', () => {
 
 			await contentLayer.sync();
 			assert.equal(store.get('posts', 'stable')?.filePath, 'src/content/posts/original.md');
+			const digest = store.get('posts', 'stable')?.digest;
+			assert.ok(digest);
 			renameSync(join(contentDir, 'original.md'), join(contentDir, 'renamed.md'));
 
 			await contentLayer.sync();
 			assert.equal(store.get('posts', 'stable')?.filePath, 'src/content/posts/renamed.md');
+			assert.equal(store.get('posts', 'stable')?.digest, digest);
 			assert.equal(store.values('posts').length, 1);
 			if (deferRender) {
 				const imports = readFileSync(new URL('.astro/content-modules.mjs', tempDir), 'utf-8');

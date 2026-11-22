@@ -413,7 +413,7 @@ export default new Map([\n${lines.join(',\n')}]);
 				const id = String(key);
 				if (digest) {
 					const existing = this.get<DataEntry>(collectionName, id);
-					if (existing && existing.digest === digest) {
+					if (existing && existing.digest === digest && existing.filePath === filePath) {
 						return false;
 					}
 				}

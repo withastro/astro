@@ -169,9 +169,13 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 
 				const filePath = fileURLToPath(fileUrl);
 				const relativePath = posixRelative(fileURLToPath(config.root), filePath);
-				const digest = generateDigest({ contents, filePath: relativePath });
+				const digest = generateDigest(contents);
 
-				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
+				if (
+					existingEntry &&
+					existingEntry.digest === digest &&
+					existingEntry.filePath === relativePath
+				) {
 					if (existingEntry.deferredRender) {
 						store.addModuleImport(existingEntry.filePath);
 					}
