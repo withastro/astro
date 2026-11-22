@@ -1240,7 +1240,8 @@ export async function addToGitignore({
 	);
 
 	if (await askToContinue({ flags, logger })) {
-		const newContent = `${content.trimEnd()}\n\n${entriesToAdd.join('\n')}\n`;
+		const separator = content.endsWith('\n') ? '\n' : '\n\n';
+		const newContent = `${content}${separator}${entriesToAdd.join('\n')}\n`;
 		await fs.writeFile(fileURLToPath(gitignorePath), newContent, { encoding: 'utf-8' });
 		logger.debug('add', `Updated .gitignore with ${gitignoreLabel}`);
 	}
