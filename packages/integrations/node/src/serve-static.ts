@@ -86,12 +86,15 @@ export function createStaticHandler(
 				// keep-alive connections accumulate listeners on every request.
 				getAbortControllerCleanup(req)?.();
 				if (routeData && routeData.prerender) {
-					// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
-					// must strip config.base from the incoming URL before matching, just as
-					// we do for filesystem access above.
-					const baselessPathname = removeTrailingForwardSlash(
+					// Headers are stored keyed by base-less, decoded route paths (e.g. "/one",
+					// "/café"), so we must strip config.base from the incoming URL and decode
+					// it before matching, just as we do for filesystem access above.
+					let baselessPathname = removeTrailingForwardSlash(
 						prependForwardSlash(app.removeBase(urlPath)),
 					);
+					try {
+						baselessPathname = decodeURI(baselessPathname);
+					} catch {}
 					const matchedRoute = headersMap.find(
 						(header) => removeTrailingForwardSlash(header.pathname) === baselessPathname,
 					);

@@ -2,4 +2,4 @@
 '@astrojs/node': patch
 ---
 
-Fixes `staticHeaders` sending another page's `Content-Security-Policy` header for a prerendered page, for example the home page receiving the header of `/about`, or `/blog` receiving the header of `/blog/post`
+Fixes `staticHeaders` sending the wrong `Content-Security-Policy` header for a prerendered page, or none at all. For example, `/` received the header of `/about`, `/blog` received the header of `/blog/post`, and `/about/` or a page with non-ASCII characters in its path, such as `/café`, received none

@@ -28,7 +28,20 @@ describe('Static headers route matching', () => {
 		const expected = entries
 			.find((entry) => entry.pathname === '/about')
 			?.headers.find((header) => header.key === 'Content-Security-Policy')?.value;
+		assert.ok(expected, '_headers.json must have a CSP entry for /about');
+
 		const res = await fetch(`http://${server.host}:${server.port}/about/`);
+		assert.equal(res.headers.get('Content-Security-Policy'), expected);
+	});
+
+	it('sends the CSP header of /café for the percent-encoded /caf%C3%A9', async () => {
+		const expected = entries
+			.find((entry) => entry.pathname === '/café')
+			?.headers.find((header) => header.key === 'Content-Security-Policy')?.value;
+		assert.ok(expected, '_headers.json must have a CSP entry for /café');
+
+		const res = await fetch(`http://${server.host}:${server.port}/caf%C3%A9`);
+		assert.equal(res.status, 200);
 		assert.equal(res.headers.get('Content-Security-Policy'), expected);
 	});
 
