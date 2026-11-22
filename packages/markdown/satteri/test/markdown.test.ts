@@ -212,4 +212,34 @@ describe('satteri markdown', () => {
 
 		assert.match(code, /<p>HELLO<\/p>/);
 	});
+
+	describe('with `features.directive`', () => {
+		it('keeps text after colons that no plugin handles as a directive', async () => {
+			const renderer = await satteri({ features: { directive: true } }).createRenderer({});
+			const { code } = await renderer.render(
+				'Meeting at 12:30\n\nAspect ratio 16:9\n\nVersion:beta\n\n**01:15**\n\nSee :abbr[*HTML*]{title="h"}',
+			);
+			assert.match(code, /<p>Meeting at 12:30<\/p>/);
+			assert.match(code, /<p>Aspect ratio 16:9<\/p>/);
+			assert.match(code, /<p>Version:beta<\/p>/);
+			assert.match(code, /<p><strong>01:15<\/strong><\/p>/);
+			assert.match(code, /<p>See :abbr\[<em>HTML<\/em>\]\{title="h"\}<\/p>/);
+		});
+
+		it('renders text directives that a plugin maps to an element', async () => {
+			const renderer = await satteri({
+				features: { directive: true },
+				mdastPlugins: [
+					{
+						name: 'abbr',
+						textDirective(node, ctx) {
+							ctx.setField(node, 'data', { hName: 'abbr' });
+						},
+					},
+				],
+			}).createRenderer({});
+			const { code } = await renderer.render('See :abbr[HTML]');
+			assert.match(code, /<p>See <abbr>HTML<\/abbr><\/p>/);
+		});
+	});
 });

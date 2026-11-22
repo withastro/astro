@@ -72,3 +72,15 @@ describe('satteri createMdxRenderer with optimize', () => {
 		assert.doesNotMatch(code, /<style set:html/);
 	});
 });
+
+describe('satteri createMdxRenderer with `features.directive`', () => {
+	it('keeps text after colons that no plugin handles as a directive', async () => {
+		const renderer = await satteri({ features: { directive: true } }).createMdxRenderer!(SHARED, {
+			optimize: false,
+		} as any);
+		const { code } = await renderer.process('Meeting at 12:30 and Version:beta\n', PAGE_PATH, {});
+
+		assert.match(code, /"Meeting at 12",\s*":30"/);
+		assert.match(code, /" and Version",\s*":beta"/);
+	});
+});
