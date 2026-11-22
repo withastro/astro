@@ -1142,6 +1142,22 @@ export const MissingSharp = {
 		'Could not find Sharp. Please install Sharp (`sharp`) manually into your project or migrate to another image service.',
 	hint: "See Sharp's installation instructions for more information: https://sharp.pixelplumbing.com/install. If you are not relying on `astro:assets` to optimize, transform, or process any images, you can configure a passthrough image service instead of installing Sharp. See https://docs.astro.build/en/reference/errors/missing-sharp for more information.\n\nSee https://docs.astro.build/en/guides/images/#default-image-service for more information on how to migrate to another image service.",
 } satisfies ErrorData;
+/**
+ * @docs
+ * @see
+ * - [Vite `build.cssMinify`](https://vite.dev/config/build-options#build-cssminify)
+ * - [Vite `build.minify`](https://vite.dev/config/build-options#build-minify)
+ * @description
+ * Vite does not include esbuild. When `vite.build.cssMinify` or `vite.build.minify` is set to `'esbuild'`, the `esbuild` package must be installed manually into your project.
+ *
+ * Alternatively, remove the option to use Vite's default minifiers, which do not require esbuild.
+ */
+export const MissingEsbuild = {
+	name: 'MissingEsbuild',
+	title: 'Could not find esbuild.',
+	message: (option: string) =>
+		`Could not find esbuild, which is required by \`vite.${option}: 'esbuild'\`. Please install esbuild (\`esbuild\`) manually into your project or remove the option to use Vite's default minifier.`,
+} satisfies ErrorData;
 // No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 // Vite Errors - 4xxx
 /**

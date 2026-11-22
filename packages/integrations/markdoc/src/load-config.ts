@@ -57,14 +57,11 @@ async function bundleConfigFile({
 }): Promise<{ code: string }> {
 	let markdocError: MarkdocError | undefined;
 
+	const root = fileURLToPath(astroConfig.root);
 	const bundle = await rolldown({
 		input: fileURLToPath(markdocConfigUrl),
-		cwd: fileURLToPath(astroConfig.root),
+		cwd: root,
 		platform: 'node',
-		// Treat every bare import as external, so the config's dependencies are
-		// loaded at runtime. `.astro` ids stay resolvable so the `stub-astro-imports`
-		// plugin can turn them into the friendly error below.
-		external: (id) => !id.endsWith('.astro') && !id.startsWith('.') && !isAbsolute(id),
 		transform: {
 			target: 'node16',
 		},
@@ -85,6 +82,26 @@ async function bundleConfigFile({
 							external: true,
 						};
 					}
+				},
+			},
+			{
+				// Treat bare imports as external, so the config's dependencies are
+				// loaded at runtime. Bare ids that resolve to project files (e.g. tsconfig
+				// `paths` aliases) are bundled, since Node cannot resolve them at runtime.
+				// https://github.com/withastro/astro/issues/18779
+				name: 'externalize-deps',
+				async resolveId(source, importer) {
+					if (source.startsWith('.') || isAbsolute(source)) return;
+					const resolved = await this.resolve(source, importer);
+					if (
+						resolved &&
+						!resolved.external &&
+						resolved.id.startsWith(root) &&
+						!/[\\/]node_modules[\\/]/.test(resolved.id)
+					) {
+						return resolved;
+					}
+					return { id: source, external: true };
 				},
 			},
 		],

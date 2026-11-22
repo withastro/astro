@@ -8,11 +8,13 @@ describe('Sitemap with chunked files', () => {
 	let fixture: Fixture;
 	let blogUrls: string[];
 	let glossaryUrls: string[];
+	let canonicalUrls: string[];
 	let pagesUrls: string[];
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/chunks/',
+			outDir: './temp/chunks-files/',
 			integrations: [
 				sitemap({
 					serialize(item) {
@@ -37,6 +39,16 @@ describe('Sitemap with chunked files', () => {
 								return item;
 							}
 						},
+						canonical: async (item) => {
+							if (item.url === 'http://example.com/123/') {
+								return { ...item, url: 'http://example.com/canonical/123/' };
+							}
+						},
+						pages: (item) => {
+							if (item.url === 'http://example.com/blog/one/') {
+								return { ...item, url: 'http://example.com/canonical/blog/one/' };
+							}
+						},
 					},
 				}),
 			],
@@ -48,6 +60,7 @@ describe('Sitemap with chunked files', () => {
 		};
 		blogUrls = await flatMapUrls('sitemap-blog-0.xml');
 		glossaryUrls = await flatMapUrls('sitemap-glossary-0.xml');
+		canonicalUrls = await flatMapUrls('sitemap-canonical-0.xml');
 		pagesUrls = await flatMapUrls('sitemap-pages-0.xml');
 	});
 
@@ -58,5 +71,16 @@ describe('Sitemap with chunked files', () => {
 		assert.equal(glossaryUrls.includes('http://example.com/glossary/two/'), true);
 		assert.equal(pagesUrls.includes('http://example.com/one/'), true);
 		assert.equal(pagesUrls.includes('http://example.com/two/'), true);
+	});
+
+	it('excludes the original URL from the default chunk when a callback returns a rewritten URL', () => {
+		assert.deepEqual(canonicalUrls, ['http://example.com/canonical/123/']);
+		assert.equal(pagesUrls.includes('http://example.com/123/'), false);
+	});
+
+	it('keeps entries from a custom pages chunk alongside unmatched entries', () => {
+		assert.ok(pagesUrls.includes('http://example.com/canonical/blog/one/'));
+		assert.ok(pagesUrls.includes('http://example.com/one/'));
+		assert.ok(!pagesUrls.includes('http://example.com/blog/one/'));
 	});
 });
