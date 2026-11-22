@@ -212,9 +212,12 @@ async function runCommand(cmd: string, flags: Flags) {
 	// by the end of this switch statement.
 	switch (cmd) {
 		case 'add': {
-			const { add } = await import('./add/index.js');
+			const [{ add }, { TinyexecCommandExecutor }] = await Promise.all([
+				import('./add/index.js'),
+				import('./infra/tinyexec-command-executor.js'),
+			]);
 			const packages = flags._.slice(3) as string[];
-			await add(packages, { flags });
+			await add(packages, { flags, commandExecutor: new TinyexecCommandExecutor() });
 			return;
 		}
 		case 'dev': {

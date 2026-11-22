@@ -27,6 +27,7 @@ import { printHelp } from '../../core/messages/runtime.js';
 import { appendForwardSlash } from '../../core/path.js';
 import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
+import type { CommandExecutor } from '../definitions.js';
 import { exec } from '../exec.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
@@ -37,6 +38,7 @@ const { bold, cyan, dim, green, magenta, red, yellow } = colors;
 
 interface AddOptions {
 	flags: Flags;
+	commandExecutor: CommandExecutor;
 }
 
 interface IntegrationInfo {
@@ -91,7 +93,7 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP = {
 
 type OfficialAdapterName = keyof typeof OFFICIAL_ADAPTER_TO_IMPORT_MAP;
 
-export async function add(names: string[], { flags }: AddOptions) {
+export async function add(names: string[], { flags, commandExecutor }: AddOptions) {
 	ensureProcessNodeEnv('production');
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { userConfig } = await resolveConfig(inlineConfig, 'add');
@@ -297,7 +299,11 @@ export async function add(names: string[], { flags }: AddOptions) {
 			root,
 			flags,
 			logger,
-			entries: ['.wrangler', 'worker-configuration.d.ts'],
+			commandExecutor,
+			entries: [
+				{ type: 'folder', path: '.wrangler' },
+				{ type: 'file', path: 'worker-configuration.d.ts' },
+			],
 		});
 	}
 	if (
@@ -305,14 +311,26 @@ export async function add(names: string[], { flags }: AddOptions) {
 			(integration) => integration.packageName === OFFICIAL_ADAPTER_TO_IMPORT_MAP.vercel,
 		)
 	) {
-		await addToGitignore({ root, flags, logger, entries: ['.vercel'] });
+		await addToGitignore({
+			root,
+			flags,
+			logger,
+			commandExecutor,
+			entries: [{ type: 'folder', path: '.vercel' }],
+		});
 	}
 	if (
 		integrations.find(
 			(integration) => integration.packageName === OFFICIAL_ADAPTER_TO_IMPORT_MAP.netlify,
 		)
 	) {
-		await addToGitignore({ root, flags, logger, entries: ['.netlify'] });
+		await addToGitignore({
+			root,
+			flags,
+			logger,
+			commandExecutor,
+			entries: [{ type: 'folder', path: '.netlify' }],
+		});
 	}
 
 	let mod: ProxifiedModule<any> | undefined;
@@ -1188,17 +1206,20 @@ export async function addToGitignore({
 	entries,
 	flags,
 	logger,
+	commandExecutor,
 }: {
 	root: URL;
-	entries: string[];
+	entries: { type: 'file' | 'folder'; path: string }[];
 	flags: Flags;
 	logger: AstroLogger;
+	commandExecutor: CommandExecutor;
 }) {
 	const gitignorePath = new URL('./.gitignore', root);
+	const entryPaths = entries.map(({ path: entryPath }) => entryPath);
 	const allEntries = new Intl.ListFormat('en', {
 		style: 'long',
 		type: 'conjunction',
-	}).format(entries);
+	}).format(entryPaths);
 
 	if (!existsSync(gitignorePath)) {
 		logger.info(
@@ -1207,7 +1228,7 @@ export async function addToGitignore({
 		);
 
 		if (await askToContinue({ flags, logger })) {
-			await fs.writeFile(fileURLToPath(gitignorePath), `${entries.join('\n')}\n`, {
+			await fs.writeFile(fileURLToPath(gitignorePath), `${entryPaths.join('\n')}\n`, {
 				encoding: 'utf-8',
 			});
 			logger.debug('add', `Created .gitignore with ${allEntries}`);
@@ -1216,16 +1237,20 @@ export async function addToGitignore({
 	}
 
 	const content = await fs.readFile(fileURLToPath(gitignorePath), { encoding: 'utf-8' });
-	const existingEntries = new Set(
-		content
-			.split(/\r?\n/)
-			.map((line) => line.trim())
-			.filter(Boolean),
-	);
-	const entriesToAdd = entries.filter((entry) => !existingEntries.has(entry));
+	const entriesToAdd: string[] = [];
+	for (const entry of entries) {
+		const checkPath = entry.type === 'file' ? entry.path : `${entry.path}/astro-test-file-123`;
+		try {
+			await commandExecutor.execute('git', ['check-ignore', '-q', '--', checkPath], {
+				cwd: fileURLToPath(root),
+			});
+		} catch {
+			entriesToAdd.push(entry.path);
+		}
+	}
 
 	if (entriesToAdd.length === 0) {
-		logger.debug('add', `${allEntries} already in .gitignore`);
+		logger.debug('add', `${allEntries} already ignored by git`);
 		return;
 	}
 
