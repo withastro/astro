@@ -31,6 +31,29 @@ export function matchStaticAsset(
 	return undefined;
 }
 
+/** The page a URL points to once `html_handling` adds or removes a trailing slash, `index` or `.html`. */
+function assetPath(url: URL): string {
+	return url.pathname.replace(/\/(?:index(?:\.html)?)?$|\.html$/, '');
+}
+
+/**
+ * Fetches from the ASSETS binding without following `_redirects` rules, which the binding matches by path alone, so a
+ * rule like `/login https://app.example.com/login` would loop. Redirects between URLs of the same page are followed.
+ */
+async function fetchAsset(url: string, env: Env): Promise<Response> {
+	const response = (await env.ASSETS.fetch(url, { redirect: 'manual' })) as unknown as Response;
+	const location = response.headers.get('location');
+	if (!location || response.status < 300 || response.status >= 400) {
+		return response;
+	}
+	const from = new URL(url);
+	const to = new URL(location, from);
+	if (to.origin === from.origin && to.search === from.search && assetPath(to) === assetPath(from)) {
+		return (await env.ASSETS.fetch(to.href, { redirect: 'manual' })) as unknown as Response;
+	}
+	return response;
+}
+
 /**
  * Tries the ASSETS binding as a fallback for an unmatched route.
  * Returns the asset `Response` if found (non-404), `undefined` otherwise.
@@ -39,9 +62,7 @@ export async function fallbackToAssets(
 	requestUrl: string,
 	env: Env,
 ): Promise<Response | undefined> {
-	const asset = await env.ASSETS.fetch(
-		requestUrl.replace(/index.html$/, '').replace(/\.html$/, ''),
-	);
+	const asset = await fetchAsset(requestUrl.replace(/index.html$/, '').replace(/\.html$/, ''), env);
 	if (asset.status !== 404) {
 		return asset as unknown as Response;
 	}
