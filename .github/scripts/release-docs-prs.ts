@@ -125,7 +125,8 @@ function buildComment(
 	openDocsPrs: DocsPullRequest[],
 ) {
 	const labels = getReleaseLabels(releasePr);
-	const hasReleaseLabel = (pr: DocsPullRequest) => pr.labels.some((label) => labels.includes(label));
+	const hasReleaseLabel = (pr: DocsPullRequest) =>
+		pr.labels.some((label) => labels.includes(label));
 	const umbrellas = openDocsPrs
 		.filter((pr) => isUmbrella(pr) && (hasReleaseLabel(pr) || isUmbrellaOf(pr, releasePr)))
 		.map((umbrella) => ({
