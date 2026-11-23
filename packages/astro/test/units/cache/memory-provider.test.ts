@@ -500,11 +500,13 @@ describe('memory-provider SWR', () => {
 		// Background revalidation of an swr-only entry must replace the stale entry
 		await new Promise((r) => setTimeout(r, 100));
 
+		// maxAge is 0, so the revalidated entry is stale again one millisecond later.
+		t.mock.timers.tick(1);
 		const res3 = await provider.onRequest!(
 			makeContext(makeRequest(url)),
 			makeNext({ body: 'unexpected-body' }),
 		);
-		assert.equal(res3.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(res3.headers.get('X-Astro-Cache'), 'STALE');
 		assert.equal(await res3.text(), 'fresh-body');
 	});
 
