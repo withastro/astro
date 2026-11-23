@@ -534,6 +534,32 @@ describe('astro:image', () => {
 					assert.ok(imageRequest.status >= 400);
 				});
 
+				it('returns 404 and logs the source when a remote image responds with 404', async () => {
+					assert.ok(redirectUrl, 'Expected redirect URL to be set');
+					const missingUrl = new URL('/missing.png', redirectUrl).toString();
+					logs.length = 0;
+					const src = `/_image?href=${encodeURIComponent(missingUrl)}&w=1&h=1&f=png`;
+					const imageRequest = await fixture.fetch(src);
+					assert.equal(imageRequest.status, 404);
+					assert.ok(
+						logs.some((log) => log.message.includes(missingUrl) && log.message.includes('404')),
+						'Expected an error log with the source URL and status',
+					);
+				});
+
+				it('returns 502 and logs the source when a remote image cannot be reached', async () => {
+					assert.ok(redirectUrl, 'Expected redirect URL to be set');
+					// Redirects to a host outside the allowlist make the fetch throw
+					logs.length = 0;
+					const src = `/_image?href=${encodeURIComponent(redirectUrl)}&w=1&h=1&f=png`;
+					const imageRequest = await fixture.fetch(src);
+					assert.equal(imageRequest.status, 502);
+					assert.ok(
+						logs.some((log) => log.message.includes(redirectUrl!)),
+						'Expected an error log with the source URL',
+					);
+				});
+
 				it('rejects f=svg for a non-SVG data: URI', async () => {
 					// A PNG data: URI with f=svg should be rejected — the endpoint must not
 					// serve non-SVG content with an image/svg+xml content type

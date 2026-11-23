@@ -14,22 +14,28 @@ const isLocal = (url: string) => {
 	return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
 };
 
-export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
+export type RemoteImageLoadResult =
+	| { kind: 'loaded'; buffer: Buffer }
+	| { kind: 'forbidden'; url: string }
+	| { kind: 'http-error'; status: number }
+	| { kind: 'fetch-error'; error: unknown };
+
+export async function loadRemoteImage(src: URL): Promise<RemoteImageLoadResult> {
 	try {
 		const res = await fetchWithRedirects({ url: src, imageConfig });
 
 		// Local URLs are allowed by default
 		if (!isRemoteAllowed(res.url, imageConfig) && !isLocal(res.url)) {
-			return undefined;
+			return { kind: 'forbidden', url: res.url };
 		}
 
 		if (!res.ok) {
-			return undefined;
+			return { kind: 'http-error', status: res.status };
 		}
 
-		return Buffer.from(await res.arrayBuffer());
-	} catch {
-		return undefined;
+		return { kind: 'loaded', buffer: Buffer.from(await res.arrayBuffer()) };
+	} catch (error) {
+		return { kind: 'fetch-error', error };
 	}
 }
 
@@ -77,7 +83,29 @@ export const handleImageRequest = async ({
 			return new Response('Forbidden', { status: 403 });
 		}
 
-		inputBuffer = await loadRemoteImage(new URL(transform.src));
+		const result = await loadRemoteImage(new URL(transform.src));
+		switch (result.kind) {
+			case 'forbidden':
+				logger.error(
+					`Remote image ${transform.src} resolved to ${result.url}, which is not an allowed remote location.`,
+				);
+				return new Response('Forbidden', { status: 403 });
+			case 'http-error':
+				logger.error(
+					`Could not fetch remote image ${transform.src}: received status ${result.status}.`,
+				);
+				return result.status === 404
+					? new Response('Not Found', { status: 404 })
+					: new Response('Bad Gateway', { status: 502 });
+			case 'fetch-error': {
+				const { error } = result;
+				const cause = error instanceof Error && error.cause ? ` (${error.cause})` : '';
+				logger.error(`Could not fetch remote image ${transform.src}: ${error}${cause}`);
+				return new Response('Bad Gateway', { status: 502 });
+			}
+			case 'loaded':
+				inputBuffer = result.buffer;
+		}
 	} else {
 		const result = await loadLocalImage(removeQueryString(transform.src), url);
 		switch (result.kind) {
