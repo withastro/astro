@@ -57,7 +57,7 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 						}
 						text += value;
 					} else {
-						text += child.value.replace(/\{/g, '${');
+						text += child.value;
 					}
 				}
 			});

@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
 import { forEach } from 'neotraverse';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import {
@@ -187,6 +187,8 @@ export class MutableDataStore extends ImmutableDataStore {
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
+			this.#assetsDirty = false;
+			return;
 		}
 
 		if (!this.#assetsDirty && existsSync(filePath)) {

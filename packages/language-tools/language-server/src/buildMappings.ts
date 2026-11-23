@@ -1,7 +1,10 @@
 import type { Mapping } from '@volar/language-core';
-import type { Segment } from 'muggle-string';
+import type { Piece } from 'muggle-string';
 
-export function buildMappings<T>(chunks: Segment<T>[]) {
+type MappedPiece<T> = Exclude<Piece<{ data: T }>, string> & { text: string };
+export type CodeSegment<T> = string | MappedPiece<T>;
+
+export function buildMappings<T>(chunks: CodeSegment<T>[]) {
 	let length = 0;
 	const mappings: Mapping<T>[] = [];
 	for (const segment of chunks) {
@@ -9,13 +12,17 @@ export function buildMappings<T>(chunks: Segment<T>[]) {
 			length += segment.length;
 		} else {
 			mappings.push({
-				sourceOffsets: [segment[2]],
+				sourceOffsets: [segment.start],
 				generatedOffsets: [length],
-				lengths: [segment[0].length],
-				data: segment[3]!,
+				lengths: [segment.text.length],
+				data: segment.data,
 			});
-			length += segment[0].length;
+			length += segment.text.length;
 		}
 	}
 	return mappings;
+}
+
+export function getText<T>(chunks: CodeSegment<T>[]) {
+	return chunks.map((chunk) => (typeof chunk === 'string' ? chunk : chunk.text)).join('');
 }

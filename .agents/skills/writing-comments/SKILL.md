@@ -20,7 +20,7 @@ source. It does **not** apply to end-user documentation:
 - JSDoc blocks tagged `@docs` in
   [`packages/astro/src/types/public/config.ts`](../../../packages/astro/src/types/public/config.ts)
   and
-  [`packages/astro/src/core/errors/errors-data.ts`](../../../packages/astro/src/core/errors/errors-data.ts)
+  [`packages/runtime/src/core/errors/errors-data.ts`](../../../packages/runtime/src/core/errors/errors-data.ts)
   are scraped by an external `docgen` tool and published to the Astro docs
   website. Follow
   [`packages/astro/src/core/errors/README.md`](../../../packages/astro/src/core/errors/README.md)

@@ -1,0 +1,52 @@
+import { createRequire } from 'node:module';
+
+type SupportedReactVersion = keyof typeof versionsConfig;
+export type ReactVersionConfig = (typeof versionsConfig)[SupportedReactVersion];
+
+export function getReactMajorVersion(): number {
+	// NOTE: Do not import `version` from `react-dom` because in 2025 React 19 still relies on
+	// `process.env.NODE_ENV` to determine export dev or prod code, and if we import `react-dom`
+	// too early (e.g. in the astro config) before we set `process.env.NODE_ENV`, it may reference
+	// the dev code, and then `react` will reference the prod code, and we get a mismatch of
+	// `TypeError: dispatcher.getOwner is not a function`
+	const pkgJson = createRequire(import.meta.url)('react-dom/package.json');
+	const matches = /\d+\./.exec(pkgJson.version);
+	if (!matches) {
+		return Number.NaN;
+	}
+	return Number(matches[0]);
+}
+
+export function isSupportedReactVersion(
+	majorVersion: number,
+): majorVersion is SupportedReactVersion {
+	return majorVersion in versionsConfig;
+}
+
+export const versionsConfig = {
+	17: {
+		server: '@astrojs/react-renderer/server-v17.js',
+		client: '@astrojs/react-renderer/client-v17.js',
+	},
+	18: {
+		server: '@astrojs/react-renderer/server.js',
+		client: '@astrojs/react-renderer/client.js',
+	},
+	19: {
+		server: '@astrojs/react-renderer/server.js',
+		client: '@astrojs/react-renderer/client.js',
+	},
+};
+
+/**
+ * Returns the entrypoints of the installed React version.
+ *
+ * @throws {Error} When the installed React version is not supported.
+ */
+export function getReactVersionConfig(): ReactVersionConfig {
+	const majorVersion = getReactMajorVersion();
+	if (!isSupportedReactVersion(majorVersion)) {
+		throw new Error(`Unsupported React version: ${majorVersion}.`);
+	}
+	return versionsConfig[majorVersion];
+}

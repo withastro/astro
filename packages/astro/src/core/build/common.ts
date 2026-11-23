@@ -130,6 +130,11 @@ export function getUrlForPath(
 	 * base: /
 	 */
 
+	// `pathname` is decoded, but the request pathname is decoded again before
+	// route matching, so it must be encoded for characters like `%` and `\`
+	// to survive the round trip.
+	pathname = encodeURI(pathname);
+
 	let ending: string;
 	// For `preserve`, non-index routes output as flat `.html` files (like `file`),
 	// while index routes output as `dir/index.html` (like `directory`).

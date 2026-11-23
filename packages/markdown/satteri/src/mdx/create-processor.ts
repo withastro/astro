@@ -113,13 +113,15 @@ export function createSatteriMdxProcessor(
 
 			let optimizeStatic: MdxCompileOptions['optimizeStatic'];
 			if (mdx.optimize) {
-				const ignoreElements =
+				const ignoreElementNames =
 					typeof mdx.optimize === 'object' ? mdx.optimize.ignoreElementNames : undefined;
 
 				optimizeStatic = {
 					component: 'Fragment',
 					prop: 'set:html',
-					...(ignoreElements && { ignoreElements }),
+					// `collapseScriptStyleText` moves script/style content into a `set:html` directive,
+					// which would be serialized as a literal attribute inside a static subtree
+					ignoreElements: ['script', 'style', ...(ignoreElementNames ?? [])],
 				};
 			}
 

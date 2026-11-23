@@ -7,8 +7,11 @@ import type { RoutingStrategies } from '../core/app/common.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { getFetchStateFromAPIContext } from '../core/fetch/fetch-state.js';
-import { i18nNoLocaleFoundInPath, MissingLocale } from '../core/errors/errors-data.js';
-import { AstroError } from '../core/errors/index.js';
+import {
+	i18nNoLocaleFoundInPath,
+	MissingLocale,
+} from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
 import { createI18nMiddleware } from './middleware.js';
@@ -350,9 +353,8 @@ export function redirectToFallback({
 			});
 
 			if (urlLocale && fallbackKeys.includes(urlLocale)) {
-				const fallbackLocale = fallback[urlLocale];
-				// the user might have configured the locale using the granular locales, so we want to retrieve its corresponding path instead
-				const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
+				// Fallback values are locale paths (validated against `locale.path` for granular locales)
+				const pathFallbackLocale = fallback[urlLocale];
 				let newPathname: string;
 				// If a locale falls back to the default locale, we want to **remove** the locale because
 				// the default locale doesn't have a prefix

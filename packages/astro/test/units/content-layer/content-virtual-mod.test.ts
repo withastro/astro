@@ -245,6 +245,46 @@ describe('attachDataStoreInvalidation', () => {
 		assert.equal(countClientReloads(mockServer), 2, 'a later external change should reload');
 	});
 
+	it('skips the client reload for writes during initial sync, but not after (#18568)', async (t) => {
+		const root = createTempDir('content-data-store-initial-sync-test-');
+		const settings = createMinimalSettings(root, { config: { legacy: {} } });
+		const dataStoreFile = getDataStoreFile(settings, true);
+		await nodeFs.promises.mkdir(settings.dotAstroDir, { recursive: true });
+
+		t.mock.timers.enable({ apis: ['Date'], now: 10_000 });
+		t.after(() => mock.timers.reset());
+
+		const mockServer = createMockViteDevServer();
+		const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
+		// @ts-expect-error - mock args are sufficient for this test
+		plugin.config?.({}, { command: 'serve' });
+		// @ts-expect-error - mock server has enough structure for this test
+		plugin.configureServer?.(mockServer);
+
+		let initialSync = true;
+		const store = await MutableDataStore.fromFile(dataStoreFile);
+		// @ts-expect-error - mock server has enough structure for this test
+		attachDataStoreInvalidation(store, mockServer, settings, {
+			shouldNotifyClient: () => !initialSync,
+		});
+
+		store.set('dogs', 'beagle', { id: 'beagle', data: { breed: 'Beagle' } });
+		await store.waitUntilSaveComplete();
+
+		assert.equal(countClientReloads(mockServer), 0, 'initial sync should not reload the client');
+		const contentChanged = mockServer.sentMessages.filter(
+			(msg) => msg.channel === 'ssr' && msg.type === 'astro:content-changed',
+		);
+		assert.equal(contentChanged.length, 1, 'initial sync should still invalidate the server');
+
+		initialSync = false;
+		t.mock.timers.tick(5_000);
+		store.set('dogs', 'poodle', { id: 'poodle', data: { breed: 'Poodle' } });
+		await store.waitUntilSaveComplete();
+
+		assert.equal(countClientReloads(mockServer), 1, 'writes after startup should reload');
+	});
+
 	it('invalidates the prerender environment when it exists (#17991)', async (t) => {
 		const root = createTempDir('content-data-store-prerender-invalidation-test-');
 		const settings = createMinimalSettings(root, { config: { legacy: {} } });

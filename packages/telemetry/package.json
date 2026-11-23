@@ -25,7 +25,7 @@
     "dist"
   ],
   "dependencies": {
-    "ci-info": "^4.4.0",
+    "ci-info": "^4.5.0",
     "dset": "^3.1.4",
     "is-docker": "^4.0.0",
     "package-manager-detector": "^1.9.0"

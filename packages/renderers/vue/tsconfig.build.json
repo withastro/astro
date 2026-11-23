@@ -1,0 +1,5 @@
+{
+  "extends": "../../../configs/tsconfig.build.json",
+  "include": ["./src", "./env.d.ts"],
+  "references": [{ "path": "../../runtime/tsconfig.json" }]
+}

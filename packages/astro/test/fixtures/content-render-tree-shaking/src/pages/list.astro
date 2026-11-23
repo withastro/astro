@@ -1,0 +1,16 @@
+---
+import { getCollection } from 'astro:content';
+
+// Server-rendered, and only reads collection data: it never calls render().
+export const prerender = false;
+
+const posts = await getCollection('posts');
+---
+
+<html>
+	<body>
+		<ul>
+			{posts.map((post) => <li>{post.data.title}</li>)}
+		</ul>
+	</body>
+</html>

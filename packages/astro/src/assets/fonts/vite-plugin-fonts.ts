@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -8,8 +8,9 @@ import type { Plugin, ResolvedConfig } from 'vite';
 import { pathToDirectoryURL } from '../../core/build/common.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
-import { generateCspDigest } from '../../core/encryption.js';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
+import { copyCachedFile } from '../../core/fs/index.js';
 import type { AstroLogger } from '../../core/logger/core.js';
 import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -38,7 +39,6 @@ import type { FontFetcher, FontTypeExtractor } from './definitions.js';
 import { BuildFontFileIdGenerator } from './infra/build-font-file-id-generator.js';
 import { BuildUrlResolver } from './infra/build-url-resolver.js';
 import { CachedFontFetcher } from './infra/cached-font-fetcher.js';
-import { CapsizeFontMetricsResolver } from './infra/capsize-font-metrics-resolver.js';
 import { DevFontFileIdGenerator } from './infra/dev-font-file-id-generator.js';
 import { DevUrlResolver } from './infra/dev-url-resolver.js';
 import { FsFontFileContentResolver } from './infra/fs-font-file-content-resolver.js';
@@ -46,7 +46,6 @@ import { LevenshteinStringMatcher } from './infra/levenshtein-string-matcher.js'
 import { MinifiableCssRenderer } from './infra/minifiable-css-renderer.js';
 import { NodeFontTypeExtractor } from './infra/node-font-type-extractor.js';
 import { RealSystemFallbacksProvider } from './infra/system-fallbacks-provider.js';
-import { UnifontFontResolver } from './infra/unifont-font-resolver.js';
 import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
 import { XxhashHasher } from './infra/xxhash-hasher.js';
 import type {
@@ -99,9 +98,13 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			resolvedConfig = config;
 		},
 		async buildStart() {
-			if (sync) {
+			if (sync || !settings.config.fonts?.length) {
 				return;
 			}
+			const [{ CapsizeFontMetricsResolver }, { UnifontFontResolver }] = await Promise.all([
+				import('./infra/capsize-font-metrics-resolver.js'),
+				import('./infra/unifont-font-resolver.js'),
+			]);
 			const { root } = settings.config;
 			const isBuild = this.environment.config.command === 'build';
 			// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
@@ -380,6 +383,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					resolvedConfig.environments[ASTRO_VITE_ENVIRONMENT_NAMES.client].build.outDir,
 				);
 				const fontsDir = new URL(`.${assetsDir}`, dir);
+				const cacheDir = new URL(CACHE_DIR, settings.config.cacheDir);
 				try {
 					mkdirSync(fontsDir, { recursive: true });
 				} catch (cause) {
@@ -392,9 +396,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					);
 					await Promise.all(
 						Array.from(fontFileById.entries()).map(async ([id, associatedData]) => {
-							const data = await fontFetcher!.fetch({ id, ...associatedData });
+							// Fetching populates the cache, so the output can be copied from it
+							// with its timestamps kept (#18483).
+							await fontFetcher!.fetch({ id, ...associatedData });
 							try {
-								writeFileSync(new URL(id, fontsDir), data);
+								await copyCachedFile(new URL(id, cacheDir), new URL(id, fontsDir));
 							} catch (cause) {
 								throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 							}

@@ -55,7 +55,8 @@ async function replaceDefine(
 	});
 
 	for (const marker in replacementMarkers) {
-		result.code = result.code.replaceAll(marker, replacementMarkers[marker]);
+		// A function replacer keeps `$` sequences in env values from being read as replacement patterns
+		result.code = result.code.replaceAll(marker, () => replacementMarkers[marker]);
 	}
 
 	return {

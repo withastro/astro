@@ -41,4 +41,27 @@ describe('astro:vite-plugin-env', () => {
 		assert.match(result.code, /Object\.assign\(import\.meta\.env/);
 		assert.match(result.code, /const secret = "secret"/);
 	});
+
+	it('preserves `$` replacement patterns in env values when reading the import.meta.env object', async () => {
+		const value = "a$$b$&c$`d$'e";
+		const plugin: any = importMetaEnv({
+			envLoader: { getPrivateEnv: () => ({ SECRET: JSON.stringify(value) }) } as any,
+		});
+		plugin.config({}, { command: 'build' });
+		plugin.configResolved({
+			command: 'build',
+			build: { sourcemap: false },
+			plugins: [],
+			assetsInclude: () => false,
+		} as unknown as ResolvedConfig);
+
+		const id = path.join(fixture.path, 'src/pages/index.astro');
+		const result = await plugin.transform.handler.call(
+			{ environment: { name: 'ssr' } },
+			'const { SECRET } = import.meta.env;\n',
+			id,
+		);
+
+		assert.ok(result.code.includes(`SECRET:${JSON.stringify(value)}`), result.code);
+	});
 });

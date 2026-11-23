@@ -47,6 +47,7 @@ describe('production environment', () => {
 		assert.equal(productionEnvironment.runtimeMode, 'production');
 		assert.equal(productionEnvironment.errorStrategy, 'default');
 		assert.equal(productionEnvironment.injectCspMetaTagsOnErrorPages, false);
+		assert.equal(productionEnvironment.logsStreamErrors, true);
 		assert.equal(productionEnvironment.defaultStreaming(createManifest()), true);
 	});
 

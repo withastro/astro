@@ -1,0 +1,5 @@
+---
+export const prerender = false;
+Astro.response.status = 403;
+---
+<p id="path">{Astro.url.pathname}</p>

@@ -796,6 +796,23 @@ describe('redirectToFallback', () => {
 			assert.equal(response.headers.get('Location'), '/fr/blog/post');
 		});
 
+		it('should redirect to a granular locale by its custom path', async () => {
+			const payload = createMiddlewarePayload({
+				locales: ['en', 'es', { path: 'french', codes: ['fr', 'fr-CA'] }],
+				defaultLocale: 'en',
+				fallback: { es: 'french' },
+				fallbackType: 'redirect',
+			});
+			const fallbackFn = redirectToFallback(payload);
+			const context = createManualRoutingContext({ pathname: '/es/blog/post' });
+			const originalResponse = new Response(null, { status: 404 });
+
+			const response = await fallbackFn(context, originalResponse);
+
+			assert.equal(response.status, 302);
+			assert.equal(response.headers.get('Location'), '/french/blog/post');
+		});
+
 		it('should remove default locale prefix with prefix-other-locales strategy', async () => {
 			const payload = createMiddlewarePayload({
 				locales: ['en', 'es'],

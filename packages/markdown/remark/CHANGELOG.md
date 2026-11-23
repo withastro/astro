@@ -1,5 +1,37 @@
 # @astrojs/markdown-remark
 
+## 7.3.10
+
+### Patch Changes
+
+- [#18759](https://github.com/withastro/astro/pull/18759) [`387105b`](https://github.com/withastro/astro/commit/387105be28cb3a3c062c3390b551cc9e51a2bfb1) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `getHeadings()` and `render().headings` reporting `{` as `${` in Markdown heading text when using the `unified()` processor
+
+## 7.3.9
+
+### Patch Changes
+
+- [#18713](https://github.com/withastro/astro/pull/18713) [`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5) Thanks [@delucis](https://github.com/delucis)! - Unpins `@astrojs/*` dependencies to allow versions matching the `^` range to be installed
+
+## 7.3.8
+
+### Patch Changes
+
+- [#18698](https://github.com/withastro/astro/pull/18698) [`d13beeb`](https://github.com/withastro/astro/commit/d13beeb66c753f03cbdbf4509cf2c527c816f1a4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes MDX `optimize` emptying `<style>` and `<script>` elements nested in static HTML from plugins, and turning SVG attributes like `marker-end` into `markerEnd` when `ignoreElementNames` is set
+
+## 7.3.7
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+
+## 7.3.6
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+
 ## 7.3.5
 
 ### Patch Changes

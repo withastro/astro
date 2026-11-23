@@ -20,7 +20,7 @@ import type { RedirectConfig } from '../../dist/types/public/config.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
 import type { SSRManifest, RouteInfo } from '../../dist/core/app/types.js';
-import type { AstroComponentFactory } from '../../dist/runtime/server/render/index.js';
+import type { AstroComponentFactory } from '@astrojs/runtime/_internal/server/render/index.js';
 import type { ImageTransform } from '../../dist/assets/types.js';
 import type { AstroRuntimeLogger } from '../../dist/types/public/context.js';
 
@@ -127,7 +127,9 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	// shims (e.g. `createI18nMiddleware`) can find per-request state.
 	const pipeline = createBasicPipeline();
 	const state = new FetchState(pipeline.manifest, request);
-	state.routeData = { prerender: isPrerendered } as any;
+	// The stub route matches every pathname itself, so it never counts as
+	// a request that reached the route through one of its i18n fallback routes.
+	state.routeData = { prerender: isPrerendered, pattern: /.*/, fallbackRoutes: [] } as any;
 	// If the test provides a mock rewrite, override the FetchState's
 	// rewrite method so it doesn't go through the real Rewrites handler.
 	if (overrides.rewrite) {

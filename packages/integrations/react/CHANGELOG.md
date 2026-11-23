@@ -1,5 +1,54 @@
 # @astrojs/react
 
+## 7.1.9
+
+### Patch Changes
+
+- [#18713](https://github.com/withastro/astro/pull/18713) [`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5) Thanks [@delucis](https://github.com/delucis)! - Unpins `@astrojs/*` dependencies to allow versions matching the `^` range to be installed
+- Updated dependencies [[`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5)]:
+  - @astrojs/react-renderer@0.1.3
+
+## 7.1.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/react-renderer@0.1.2
+
+## 7.1.7
+
+### Patch Changes
+
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+  - @astrojs/react-renderer@0.1.1
+
+## 7.1.6
+
+### Patch Changes
+
+- Updated dependencies [[`ff1cf65`](https://github.com/withastro/astro/commit/ff1cf65c7a9d7f7603d371e08bda8dbc4cf106bf)]:
+  - @astrojs/react-renderer@0.1.0
+
+## 7.1.5
+
+### Patch Changes
+
+- [#18664](https://github.com/withastro/astro/pull/18664) [`1713dc0`](https://github.com/withastro/astro/commit/1713dc0f88435cd2f8b78624b73cd8bb5154045f) Thanks [@ocavue](https://github.com/ocavue)! - Expands the peer dependency version range for `oxc-transform-react` from `^0.145.0` to `>=0.145.0 <0.157.0`.
+
+## 7.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+
+## 7.1.3
+
+### Patch Changes
+
+- [#18535](https://github.com/withastro/astro/pull/18535) [`b21d724`](https://github.com/withastro/astro/commit/b21d72469403c7bac8b0000829dd3582d135a174) Thanks [@praveen-kumary](https://github.com/praveen-kumary)! - Preserves component-rendered resource links, including stylesheets, preloads, and modulepreloads, in React island output. Automatic React resource hints are also preserved so that authored links are not removed during server rendering.
+
 ## 7.1.2
 
 ### Patch Changes

@@ -393,6 +393,26 @@ describe('computeFallbackRoute', () => {
 				'/en/page',
 			);
 		});
+
+		it('falls back to a granular locale by its custom path', () => {
+			const result: FallbackRouteResult = computeFallbackRoute(
+				makeFallbackOptions({
+					pathname: '/es/about',
+					responseStatus: 404,
+					currentLocale: 'es',
+					locales: ['en', 'es', { path: 'french', codes: ['fr', 'fr-CA'] }],
+					fallback: { es: 'french' },
+					fallbackType: 'redirect',
+					strategy: 'pathname-prefix-other-locales',
+				}),
+			);
+
+			assert.equal(result.type, 'redirect');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname,
+				'/french/about',
+			);
+		});
 	});
 
 	describe('edge cases', () => {

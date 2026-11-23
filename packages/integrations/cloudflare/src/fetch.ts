@@ -79,6 +79,11 @@ export async function cf(
 	const staticAsset = matchStaticAsset(app!.manifest, state.request.url, env);
 	if (staticAsset) return staticAsset;
 
+	if (app!.isDev()) {
+		const result = await app!.devMatch(app!.getPathnameFromRequest(state.request));
+		if (result) state.routeData = result.routeData;
+	}
+
 	if (!hasMatchingRoute(state)) {
 		const asset = await fallbackToAssets(state.request.url, env);
 		if (asset) return asset;

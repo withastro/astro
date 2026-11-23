@@ -3,6 +3,40 @@ import type { AuditRuleWithSelector } from './index.js';
 // A regular expression to match external URLs
 const EXTERNAL_URL_REGEX = /^(?:[a-z+]+:)?\/\//i;
 
+/**
+ * Reads the image's size from the resource timing entry of the request that loaded it, waiting for
+ * an eager or in-viewport lazy image to finish loading first. Returns 0 when the size is unknown: an
+ * off-screen lazy image that hasn't loaded yet, or a browser reporting no size (WebKit does for `loading="lazy"` images).
+ *
+ * The image is never fetched again: fetching an animated SVG freezes its CSS animations in WebKit,
+ * and fetching a lazy image forces a download the page deferred (https://github.com/withastro/astro/issues/18700).
+ */
+async function getImageSize(image: HTMLImageElement): Promise<number> {
+	if (!image.complete) {
+		// An off-screen lazy image may not load until the user scrolls to it, and the audit awaits each
+		// rule in turn. A lazy image inside the viewport is already being loaded by the browser.
+		if (image.loading === 'lazy' && !isInViewport(image)) return 0;
+		await new Promise<void>((resolve) => {
+			image.addEventListener('load', () => resolve(), { once: true });
+			image.addEventListener('error', () => resolve(), { once: true });
+		});
+	}
+
+	const entries = performance.getEntriesByName(image.currentSrc, 'resource');
+	const entry = entries.at(-1) as PerformanceResourceTiming | undefined;
+	return entry?.decodedBodySize || entry?.encodedBodySize || entry?.transferSize || 0;
+}
+
+function isInViewport(element: Element): boolean {
+	const rect = element.getBoundingClientRect();
+	return (
+		rect.bottom > 0 &&
+		rect.right > 0 &&
+		rect.top < window.innerHeight &&
+		rect.left < window.innerWidth
+	);
+}
+
 export const perf: AuditRuleWithSelector[] = [
 	{
 		code: 'perf-use-image-component',
@@ -23,8 +57,7 @@ export const perf: AuditRuleWithSelector[] = [
 			// Ignore images that are smaller than 20KB, most of the time the image component won't really help with these, or they're used for specific use-cases (pixel tracking, etc.)
 			// Ignore this test for remote images for now, fetching them can be very slow and possibly dangerous
 			if (!EXTERNAL_URL_REGEX.test(src)) {
-				const imageData = await fetch(src).then((response) => response.blob());
-				if (imageData.size < 20480) return false;
+				if ((await getImageSize(element as HTMLImageElement)) < 20480) return false;
 			}
 
 			return true;
@@ -94,8 +127,7 @@ export const perf: AuditRuleWithSelector[] = [
 
 			// Ignore GIFs that are smaller than 100KB, those are typically small enough to not be a problem
 			if (!EXTERNAL_URL_REGEX.test(src)) {
-				const imageData = await fetch(src).then((response) => response.blob());
-				if (imageData.size < 102400) return false;
+				if ((await getImageSize(element as HTMLImageElement)) < 102400) return false;
 			}
 
 			return true;

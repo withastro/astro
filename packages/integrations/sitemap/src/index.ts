@@ -206,30 +206,26 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					if (chunks) {
 						try {
-							let groupedUrlCollection: SitemapItem['url'][] = [];
+							const matchedItemIndexes = new Set<number>();
 							const chunksItem: Record<string, SitemapItem[]> = {};
 							for (const [key, cb] of Object.entries(chunks)) {
 								// Create a new, separate collection for each key
 								const collection: SitemapItem[] = [];
 
-								for (const item of urlData) {
+								for (const [index, item] of urlData.entries()) {
 									// Await the asynchronous operation
 									const collect = await Promise.resolve(cb(item));
 									if (collect) {
 										collection.push(collect);
+										matchedItemIndexes.add(index);
 									}
 								}
 
 								// Assign the specific collection to its key
 								chunksItem[key] = collection;
-								groupedUrlCollection = [
-									...groupedUrlCollection,
-									...collection.map((coll) => coll.url),
-								];
 							}
-							chunksItem['pages'] = urlData.filter(
-								(urlDataItem) => !groupedUrlCollection.includes(urlDataItem.url),
-							);
+							const unmatchedItems = urlData.filter((_, index) => !matchedItemIndexes.has(index));
+							chunksItem['pages'] = chunksItem['pages']?.concat(unmatchedItems) ?? unmatchedItems;
 							// Process each chunk here
 							await writeSitemapChunk({
 								filenameBase,
