@@ -127,11 +127,14 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 	let shouldEmitFile = false;
 
 	const referencedImages = new Set<string>();
+	const sharedImageFiles = new Map<string, Set<string>>();
+	const emittedImagesByEnvironment = new WeakMap<vite.Environment, Map<string, string>>();
 	const api: AssetsPluginApi = {
 		markReferenced(fsPath) {
 			referencedImages.add(fsPath);
 		},
 		referencedImages,
+		sharedImageFiles,
 	};
 
 	const imageComponentPrefix = settings.config.image.responsiveStyles ? 'Responsive' : '';
@@ -317,8 +320,10 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						return;
 					}
 
+					let handle: string | undefined;
 					const fileEmitter = shouldEmitFile
-						? (opts: Parameters<typeof this.emitFile>[0]) => emitClientAsset(this as any, opts)
+						? (opts: Parameters<typeof this.emitFile>[0]) =>
+								(handle = emitClientAsset(this as any, opts))
 						: undefined;
 					const imageMetadata = await emitImageMetadata(id, fileEmitter);
 
@@ -327,6 +332,15 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							...AstroErrorData.ImageNotFound,
 							message: AstroErrorData.ImageNotFound.message(id),
 						});
+					}
+
+					if (handle) {
+						let emittedImages = emittedImagesByEnvironment.get(this.environment);
+						if (!emittedImages) {
+							emittedImages = new Map();
+							emittedImagesByEnvironment.set(this.environment, emittedImages);
+						}
+						emittedImages.set(imageMetadata.fsPath, handle);
 					}
 
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
@@ -390,6 +404,29 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						};
 					}
 				},
+			},
+			generateBundle() {
+				const emittedImages = emittedImagesByEnvironment.get(this.environment);
+				if (!emittedImages) return;
+				// The bundler writes source images with identical content to a single file, so an
+				// original kept for one source must also be kept for the others.
+				// See https://github.com/withastro/astro/issues/18820
+				const fsPathsByFileName = new Map<string, Set<string>>();
+				for (const [fsPath, handle] of emittedImages) {
+					const fileName = this.getFileName(handle);
+					let fsPaths = fsPathsByFileName.get(fileName);
+					if (!fsPaths) {
+						fsPaths = new Set();
+						fsPathsByFileName.set(fileName, fsPaths);
+					}
+					fsPaths.add(fsPath);
+				}
+				for (const fsPaths of fsPathsByFileName.values()) {
+					if (fsPaths.size < 2) continue;
+					for (const fsPath of fsPaths) {
+						sharedImageFiles.set(fsPath, fsPaths);
+					}
+				}
 			},
 		},
 		fontsPlugin({ settings, sync, logger }),

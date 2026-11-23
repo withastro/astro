@@ -76,4 +76,22 @@ describe('StaticImageRegistry', () => {
 		);
 		assert.equal(registry.images.get('/_astro/other.png')?.transforms.size, 1);
 	});
+
+	it('marks images sharing an output file with a referenced image as referenced', () => {
+		const registry = new StaticImageRegistry();
+		registry.addReferencedImages(['/src/assets/a.png']);
+		const shared = new Set(['/src/assets/a.png', '/src/assets/b.png']);
+		registry.addSharedReferences(
+			new Map([
+				['/src/assets/a.png', shared],
+				['/src/assets/b.png', shared],
+				['/src/assets/c.png', new Set(['/src/assets/c.png', '/src/assets/d.png'])],
+			]),
+		);
+
+		assert.deepEqual(
+			registry.referencedImages,
+			new Set(['/src/assets/a.png', '/src/assets/b.png']),
+		);
+	});
 });

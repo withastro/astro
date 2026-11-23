@@ -173,6 +173,9 @@ export interface BuildInternals {
 
 	/** Images kept in the output even without a transform. */
 	referencedImages?: ReadonlySet<string>;
+
+	/** Maps a source image path to every source image path emitted to the same output file. */
+	sharedImageFiles?: ReadonlyMap<string, ReadonlySet<string>>;
 }
 
 /**

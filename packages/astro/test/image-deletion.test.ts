@@ -48,6 +48,13 @@ describe('astro:assets - delete images that are unused', () => {
 			assert.equal(imagesUsedElsewhere.length, 2);
 		});
 
+		it('should not delete an image whose identical copy is only used for optimization', async () => {
+			const $ = cheerio.load(await fixture.readFile('/duplicate/index.html'));
+			const src = $('#duplicate').attr('src')!;
+			assert.ok(fixture.pathExists(src));
+			assert.ok(fixture.pathExists($('#duplicate-copy').attr('src')!));
+		});
+
 		it('should generate images optimized in getStaticPaths', async () => {
 			const $ = cheerio.load(await fixture.readFile('/paths/one/index.html'));
 			const src = $('#from-paths').attr('src')!;
