@@ -18,5 +18,9 @@
   "compilerOptions": {
     "types": ["vite/client", "node"]
   },
-  "references": [{ "path": "./tsconfig.build.json" }, { "path": "../../scripts/tsconfig.json" }]
+  "references": [
+    { "path": "./tsconfig.build.json" },
+    { "path": "../runtime/tsconfig.test.json" },
+    { "path": "../../scripts/tsconfig.json" }
+  ]
 }

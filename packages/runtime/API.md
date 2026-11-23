@@ -36,12 +36,14 @@ The config is module state: one per copy of the runtime, so one per Vite server 
 ```js
 import { createRenderer } from '@astrojs/runtime';
 
-const { renderToString } = createRenderer({
+const renderer = createRenderer({
   renderers,
   resolve: async (specifier) => urls[specifier],
 });
-const html = await renderToString(Page, { props });
+const html = await renderer.renderToString(Page, { props });
 ```
+
+To render in a browser, compile the `.astro` component ahead of time with `internalURL: '@astrojs/runtime/compiler-runtime'`. Bundle the compiled module and its dependencies for the browser, or use an import map to resolve their bare module specifiers. Import the component's default export and pass it to `renderer.renderToString()` or `renderer.renderToResponse()`. The component's frontmatter, its imports, and any framework renderers you supply must also run in the browser.
 
 | `createRenderer(options?)` | Default                 | Notes                                                                                                                                                        |
 | -------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |

@@ -20,7 +20,8 @@
     "./render": "./dist/render.js",
     "./compiler-runtime": "./dist/compiler/index.js",
     "./types": "./dist/types.js",
-    "./_internal/*": "./dist/internal/*"
+    "./_internal/*": "./dist/internal/*",
+    "./_internal/test/compile-fixture": "./test/compile-fixture.ts"
   },
   "files": [
     "dist"
@@ -46,6 +47,16 @@
     "withastro"
   ],
   "publishConfig": {
-    "provenance": true
+    "provenance": true,
+    "exports": {
+      ".": "./dist/index.js",
+      "./server": "./dist/server/index.js",
+      "./client/*": "./dist/internal/client/*",
+      "./jsx-runtime": "./dist/jsx-runtime/index.js",
+      "./render": "./dist/render.js",
+      "./compiler-runtime": "./dist/compiler/index.js",
+      "./types": "./dist/types.js",
+      "./_internal/*": "./dist/internal/*"
+    }
   }
 }

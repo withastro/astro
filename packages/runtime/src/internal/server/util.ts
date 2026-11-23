@@ -1,3 +1,12 @@
+export function isDevelopment() {
+	try {
+		return process.env.NODE_ENV === 'development';
+	} catch (error) {
+		if (typeof process === 'undefined') return false;
+		throw error;
+	}
+}
+
 export function isPromise<T = any>(value: any): value is Promise<T> {
 	return typeof value === 'object' && value !== null && typeof value.then === 'function';
 }

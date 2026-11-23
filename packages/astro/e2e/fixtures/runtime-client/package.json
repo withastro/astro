@@ -1,0 +1,9 @@
+{
+  "name": "@e2e/runtime-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astrojs/runtime": "workspace:*"
+  }
+}

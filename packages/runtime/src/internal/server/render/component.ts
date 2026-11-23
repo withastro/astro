@@ -10,7 +10,7 @@ import { escapeHTML, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
-import { isPromise } from '../util.js';
+import { isDevelopment, isPromise } from '../util.js';
 import { type AstroComponentFactory, isAstroComponentFactory } from './astro/factory.js';
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
@@ -205,7 +205,7 @@ async function renderFrameworkComponent(
 		}
 	}
 
-	let componentServerRenderEndTime;
+	let componentRenderDuration;
 	// If no one claimed the renderer
 	if (!renderer) {
 		if (metadata.hydrate === 'only') {
@@ -285,7 +285,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		if (metadata.hydrate === 'only') {
 			html = await renderSlotToString(result, slots?.fallback);
 		} else {
-			const componentRenderStartTime = performance.now();
+			const componentRenderStartTime = isDevelopment() ? performance.now() : undefined;
 			({ html, attrs } = await renderer.ssr.renderToStaticMarkup.call(
 				{ result, options: renderer.options },
 				Component,
@@ -293,8 +293,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				children,
 				metadata,
 			));
-			if (process.env.NODE_ENV === 'development')
-				componentServerRenderEndTime = performance.now() - componentRenderStartTime;
+			if (componentRenderStartTime !== undefined)
+				componentRenderDuration = performance.now() - componentRenderStartTime;
 		}
 	}
 
@@ -357,8 +357,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		metadata as Required<AstroComponentMetadata>,
 	);
 
-	if (componentServerRenderEndTime && process.env.NODE_ENV === 'development')
-		island.props['server-render-time'] = componentServerRenderEndTime;
+	if (componentRenderDuration !== undefined)
+		island.props['server-render-time'] = componentRenderDuration;
 
 	// Render template if not all astro fragments are provided.
 	let unrenderedSlots: string[] = [];
