@@ -262,6 +262,35 @@ describe('shared server utilities', () => {
 		assert.deepEqual(buildBackgroundArgs('dev', { _: [], force: false }), ['dev']);
 	});
 
+	it('forwards every flag that flagsToAstroInlineConfig reads', () => {
+		// Keep this in sync with the flags read in `flagsToAstroInlineConfig` (cli/flags.ts).
+		// If a new flag is added there but forgotten in `buildBackgroundArgs`, this test fails
+		// instead of silently dropping the flag in background dev/preview.
+		const flagCases: Array<[string, Flags, string]> = [
+			['config', { _: [], config: './astro.config.mjs' }, '--config'],
+			['mode', { _: [], mode: 'staging' }, '--mode'],
+			['verbose', { _: [], verbose: true }, '--verbose'],
+			['silent', { _: [], silent: true }, '--silent'],
+			['force', { _: [], force: true }, '--force'],
+			['root', { _: [], root: './' }, '--root'],
+			['site', { _: [], site: 'https://example.com' }, '--site'],
+			['base', { _: [], base: '/app' }, '--base'],
+			['outDir', { _: [], outDir: 'dist' }, '--out-dir'],
+			['port', { _: [], port: 4321 }, '--port'],
+			['host', { _: [], host: true }, '--host'],
+			['open', { _: [], open: true }, '--open'],
+			['allowedHosts', { _: [], allowedHosts: 'example.com' }, '--allowed-hosts'],
+			['json', { _: [], json: true }, '--json'],
+		];
+		for (const [flag, flags, expected] of flagCases) {
+			const args = buildBackgroundArgs('dev', flags);
+			assert.ok(
+				args.includes(expected),
+				`expected --${flag} to be forwarded to the background server (got ${JSON.stringify(args)})`,
+			);
+		}
+	});
+
 	it('uses separate dev and preview log files', () => {
 		const root = new URL('file:///project/');
 		assert.equal(getLogFileURL(root).href, 'file:///project/.astro/dev.log');
