@@ -61,8 +61,7 @@ export function file(fileName: string, options?: FileOptions): Loader {
 			data = await parse!(contents);
 		} catch (error: any) {
 			logger.error(`Error reading data from ${fileName}`);
-			logger.debug(error.message);
-			return;
+			throw error;
 		}
 
 		const normalizedFilePath = posixRelative(fileURLToPath(config.root), filePath);
@@ -136,7 +135,11 @@ export function file(fileName: string, options?: FileOptions): Loader {
 			watcher?.on('change', async (changedPath) => {
 				if (changedPath === filePath) {
 					logger.info(`Reloading data from ${fileName}`);
-					await syncData(filePath, context);
+					try {
+						await syncData(filePath, context);
+					} catch (error: any) {
+						logger.error(`Failed to reload ${fileName}: ${error.message}`);
+					}
 				}
 			});
 		},
