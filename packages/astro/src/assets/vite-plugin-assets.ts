@@ -421,10 +421,16 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					}
 					fsPaths.add(fsPath);
 				}
+				// Every environment writes into the same map, so merge with groups recorded by other
+				// environments instead of replacing them.
 				for (const fsPaths of fsPathsByFileName.values()) {
 					if (fsPaths.size < 2) continue;
+					const merged = new Set(fsPaths);
 					for (const fsPath of fsPaths) {
-						sharedImageFiles.set(fsPath, fsPaths);
+						for (const shared of sharedImageFiles.get(fsPath) ?? []) merged.add(shared);
+					}
+					for (const fsPath of merged) {
+						sharedImageFiles.set(fsPath, merged);
 					}
 				}
 			},
