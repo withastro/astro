@@ -236,6 +236,7 @@ export class AstroSession {
 		this.#cookies.delete(this.#cookieName, this.#cookieConfig);
 		this.#sessionID = undefined;
 		this.#data = undefined;
+		this.#cookieSet = false;
 		this.#dirty = true;
 	}
 
