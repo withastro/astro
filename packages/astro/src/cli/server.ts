@@ -141,6 +141,7 @@ export function buildBackgroundArgs(command: ServerCommand, flags: Flags): strin
 	if (flags.site) args.push('--site', String(flags.site));
 	if (flags.base) args.push('--base', String(flags.base));
 	if (flags.outDir) args.push('--out-dir', String(flags.outDir));
+	if (flags.force) args.push('--force');
 	if (flags.verbose) args.push('--verbose');
 	if (flags.silent) args.push('--silent');
 	if (flags.open != null) {

@@ -254,6 +254,14 @@ describe('shared server utilities', () => {
 		assert.deepEqual(buildBackgroundArgs('dev', { _: [], silent: true }), ['dev', '--silent']);
 	});
 
+	it('forwards --force', () => {
+		assert.deepEqual(buildBackgroundArgs('dev', { _: [], force: true }), ['dev', '--force']);
+	});
+
+	it('does not forward --force when false', () => {
+		assert.deepEqual(buildBackgroundArgs('dev', { _: [], force: false }), ['dev']);
+	});
+
 	it('uses separate dev and preview log files', () => {
 		const root = new URL('file:///project/');
 		assert.equal(getLogFileURL(root).href, 'file:///project/.astro/dev.log');
