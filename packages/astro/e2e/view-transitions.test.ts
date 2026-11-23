@@ -853,6 +853,26 @@ test.describe('View Transitions', () => {
 		await expect(cnt).toHaveText('BB1');
 	});
 
+	test('Vue Islands with a single root element can persist using transition:persist', async ({
+		page,
+		astro,
+	}) => {
+		const errors: Error[] = [];
+		page.on('pageerror', (err) => errors.push(err));
+
+		await page.goto(astro.resolveUrl('/island-vue-single-root-one'));
+		const counter = page.locator('.single-root-counter');
+		await waitForHydrate(page, counter);
+		await page.click('.increment');
+		await expect(page.locator('.single-root-counter pre')).toHaveText('1');
+
+		await page.click('#click-two');
+		await expect(page.locator('#island-two')).toBeVisible();
+		await expect(page).toHaveURL(/\/island-vue-single-root-two$/);
+		await expect(page.locator('astro-island .single-root-counter pre')).toHaveText('1');
+		expect(errors).toEqual([]);
+	});
+
 	test('transition:persist-props prevents props from changing', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-one?persist'));
