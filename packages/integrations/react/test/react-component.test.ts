@@ -134,6 +134,14 @@ describe('React Components', () => {
 			assert.equal($('#three .subtitle').text(), 'World');
 		});
 
+		it('Children keep boolean attributes and form field values', async () => {
+			const html = await fixture.readFile('/children/index.html');
+			const $ = cheerioLoad(html);
+			assert.equal($('#form details[open]').length, 1);
+			assert.equal($('#form input[type="checkbox"][checked]').length, 1);
+			assert.equal($('#form input:not([type])').attr('value'), 'Hello');
+		});
+
 		it('Children with escaped text and attributes are rendered once', async () => {
 			const html = await fixture.readFile('/children/index.html');
 			const $ = cheerioLoad(html);

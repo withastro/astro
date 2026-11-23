@@ -23,6 +23,13 @@ const title = "Don't panic & carry on";
 			<span class="subtitle">World</span>
 		</WithChildren>
 
+		<!-- Test that boolean attributes and form field values are kept -->
+		<WithChildren id="form">
+			<details open><summary>Summary</summary></details>
+			<input type="checkbox" checked />
+			<input value="Hello" />
+		</WithChildren>
+
 		<!-- Test that escaped text and attribute values are not escaped again -->
 		<WithChildren id="four">
 			<p title={title}>{title}</p>
