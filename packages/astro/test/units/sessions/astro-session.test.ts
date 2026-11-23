@@ -136,6 +136,32 @@ describe('AstroSession - Cookie Management', () => {
 		assert.equal(cookieDeletedName, 'test-session');
 		assert.equal(cookieDeletedArgs?.path, '/');
 	});
+
+	it('should set a new session cookie when set() follows destroy() after an earlier set()', async () => {
+		const cookieOps: string[] = [];
+		let cookieValue: string | undefined = defaultSessionId;
+		const mockCookies: MockCookies = {
+			set: (_name: string, value: string) => {
+				cookieOps.push(`set:${value}`);
+				cookieValue = value;
+			},
+			delete: () => {
+				cookieOps.push('delete');
+				cookieValue = undefined;
+			},
+			get: () => (cookieValue ? { value: cookieValue } : undefined),
+		};
+
+		const session = createSession(defaultConfig, mockCookies);
+		session.set('lastSeen', 1);
+		session.destroy();
+		session.set('flash', 'Logged out');
+
+		assert.equal(cookieOps.length, 3);
+		assert.equal(cookieOps[1], 'delete');
+		assert.ok(cookieOps[2].startsWith('set:'));
+		assert.notEqual(cookieOps[2], `set:${defaultSessionId}`);
+	});
 });
 
 // #endregion

@@ -237,6 +237,7 @@ export class AstroSession {
 		this.#sessionID = undefined;
 		this.#data = undefined;
 		this.#dirty = true;
+		this.#cookieSet = false;
 	}
 
 	/**
