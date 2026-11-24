@@ -64,6 +64,29 @@ describe('@astrojs/vue-renderer: dev', () => {
 	});
 });
 
+describe('@astrojs/vue-renderer: dev with a server dep optimizer', () => {
+	let server: ViteDevServer;
+
+	before(async () => {
+		server = await createServer({
+			...config,
+			environments: { ...config.environments, ssr: { optimizeDeps: { noDiscovery: false } } },
+			server: { port: 0 },
+		});
+	});
+
+	after(async () => {
+		await server.close();
+	});
+
+	it('pre-bundles vue/server-renderer with vue', () => {
+		const { include = [], exclude = [] } = server.environments.ssr.config.optimizeDeps;
+		assert.ok(include.includes('vue'));
+		assert.ok(include.includes('vue/server-renderer'));
+		assert.equal(exclude.includes('vue/server-renderer'), false);
+	});
+});
+
 describe('@astrojs/vue-renderer: build', () => {
 	let html: string;
 	let plain: string;
