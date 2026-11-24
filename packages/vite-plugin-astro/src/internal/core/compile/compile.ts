@@ -169,7 +169,10 @@ function handleCompileResultErrors(
 function normalizeFilename(filename: string, root: URL) {
 	const normalizedFilename = normalizePath(filename);
 	const normalizedRoot = normalizePath(fileURLToPath(root));
-	if (normalizedFilename.startsWith(normalizedRoot)) {
+	// The scope hash is derived from this root-relative path. The root may be typed with a different
+	// case than the on-disk path Vite resolves ids to (Windows, macOS), so compare case-insensitively
+	// to keep the hash stable. See https://github.com/withastro/astro/issues/18841
+	if (normalizedFilename.toLowerCase().startsWith(normalizedRoot.toLowerCase())) {
 		return normalizedFilename.slice(normalizedRoot.length - 1);
 	} else {
 		return normalizedFilename;
