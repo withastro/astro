@@ -30,8 +30,8 @@ async function compileScope(root: string, filename: string) {
 		astroFileToCompileMetadata: new Map(),
 	});
 	return {
-		html: result.code.match(/astro-[a-z0-9]{8}/)?.[0],
-		css: result.css[0].code.match(/astro-[a-z0-9]{8}/)?.[0],
+		html: /astro-[a-z0-9]{8}/.exec(result.code)?.[0],
+		css: /astro-[a-z0-9]{8}/.exec(result.css[0].code)?.[0],
 	};
 }
 
