@@ -1,4 +1,6 @@
 import * as assert from 'node:assert/strict';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
@@ -41,5 +43,30 @@ describe('normalizeFilename', () => {
 		const root = pathToFileURL('/users/me/project/');
 		const result = normalizeFilename('/Users/me/project/src/pages/index.astro', root);
 		assert.equal(result, '/Users/me/project/src/pages/index.astro');
+	});
+
+	// Vite ids on Windows start with a drive letter, so only POSIX ids reach the
+	// root-relative branch.
+	describe('absolute paths that share no directory with root', {
+		skip: process.platform === 'win32',
+	}, () => {
+		const root = pathToFileURL('/astro-normalize-filename-root/');
+
+		it('preserves paths that exist on disk', () => {
+			// e.g. a dependency in pnpm's global virtual store or a symlinked `node_modules`
+			const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-normalize-filename-'));
+			const filename = path.join(dir, 'Card.astro');
+			fs.writeFileSync(filename, '');
+			try {
+				assert.equal(normalizeFilename(filename, root), filename);
+			} finally {
+				fs.rmSync(dir, { recursive: true, force: true });
+			}
+		});
+
+		it('resolves paths that do not exist on disk against root', () => {
+			const result = normalizeFilename('/src/pages/index.astro', root);
+			assert.equal(result, '/astro-normalize-filename-root/src/pages/index.astro');
+		});
 	});
 });

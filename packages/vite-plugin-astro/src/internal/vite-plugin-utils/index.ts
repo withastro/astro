@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { commonAncestorPath } from 'common-ancestor-path';
 import {
@@ -53,7 +54,13 @@ export function normalizeFilename(filename: string, root: URL) {
 		// is imported via a TypeScript path alias and Vite produces a relative virtual module ID.
 		const url = new URL(filename, root);
 		filename = viteID(url);
-	} else if (filename.startsWith('/') && !isPathInRoot(filename, fileURLToPath(root))) {
+	} else if (
+		filename.startsWith('/') &&
+		!isPathInRoot(filename, fileURLToPath(root)) &&
+		// An existing file is an absolute path even when it shares no directory with root,
+		// e.g. a dependency in pnpm's global virtual store or a symlinked `node_modules`.
+		!fs.existsSync(filename)
+	) {
 		const url = new URL('.' + filename, root);
 		filename = viteID(url);
 	}
