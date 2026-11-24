@@ -167,6 +167,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 				await requestContext.run({ url: request.url, logger }, async () => {
 					const response = await app.render(request, {
 						addCookieHeader: true,
+						locals,
 						prerenderedErrorPageFetch,
 					});
 					await writeResponse(response, res);
