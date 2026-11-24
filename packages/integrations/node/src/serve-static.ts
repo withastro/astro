@@ -27,11 +27,20 @@ export function resolveStaticPath(client: string, urlPath: string) {
 	}
 
 	let isDirectory = false;
+	let isFile = false;
+	let hasIndexFile = false;
 	try {
-		isDirectory = fs.lstatSync(filePath).isDirectory();
+		const stat = fs.lstatSync(filePath);
+		isDirectory = stat.isDirectory();
+		isFile = stat.isFile();
 	} catch {}
+	if (isDirectory) {
+		try {
+			hasIndexFile = fs.statSync(path.join(filePath, 'index.html')).isFile();
+		} catch {}
+	}
 
-	return { filePath: resolved, isDirectory };
+	return { filePath: resolved, isDirectory, isFile, hasIndexFile };
 }
 
 /**
@@ -64,7 +73,21 @@ export function createStaticHandler(
 			try {
 				fsPath = decodeURI(fsPath);
 			} catch {}
-			const { isDirectory } = resolveStaticPath(client, fsPath);
+			const { isDirectory, isFile, hasIndexFile } = resolveStaticPath(client, fsPath);
+
+			// With `build.format: 'file'` or `'preserve'`, `/blog` is served by `blog.html`, which can sit
+			// next to a `blog/` folder, and `/blog/` is the same page when `trailingSlash` is `'ignore'`.
+			// `send` can't find that file when a folder with the same name exists, when the name
+			// contains a dot (`/v1.2`), or when the URL ends with a slash.
+			let htmlPagePathname: string | undefined;
+			if (app.manifest.buildFormat !== 'directory' && urlPath !== '/' && !isFile) {
+				const withoutSlash = urlPath.replace(/\/+$/, '');
+				const sibling = resolveStaticPath(client, fsPath.replace(/\/+$/, '') + '.html');
+				const canUseSlash = !urlPath.endsWith('/') || app.manifest.trailingSlash === 'ignore';
+				if (sibling.isFile && canUseSlash && !hasIndexFile) {
+					htmlPagePathname = withoutSlash + '.html';
+				}
+			}
 
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
@@ -129,6 +152,7 @@ export function createStaticHandler(
 					break;
 				}
 			}
+			if (htmlPagePathname) pathname = htmlPagePathname;
 			// app.removeBase sometimes returns a path without a leading slash
 			pathname = prependForwardSlash(app.removeBase(pathname));
 
