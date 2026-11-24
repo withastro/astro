@@ -35,6 +35,21 @@ export function resolveStaticPath(client: string, urlPath: string) {
 }
 
 /**
+ * Checks whether `<urlPath>.html` (ignoring a trailing slash) is a file within the client
+ * directory, as emitted for pages by `build.format: 'file'` and `'preserve'`.
+ */
+function hasHtmlFile(client: string, urlPath: string) {
+	const htmlPath = `${urlPath.endsWith('/') ? urlPath.slice(0, -1) : urlPath}.html`;
+	const filePath = path.resolve(client, '.' + htmlPath);
+	if (!filePath.startsWith(path.resolve(client) + path.sep)) return false;
+	try {
+		return fs.statSync(filePath).isFile();
+	} catch {
+		return false;
+	}
+}
+
+/**
  * Creates a Node.js http listener for static files and prerendered pages.
  * In standalone mode, the static handler is queried first for the static files.
  * If one matching the request path is not found, it relegates to the SSR handler.
@@ -68,6 +83,15 @@ export function createStaticHandler(
 
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
+			const isFileFormat =
+				app.manifest.buildFormat === 'file' || app.manifest.buildFormat === 'preserve';
+			// `send` only tries the `.html` extension for paths without a dot and without a
+			// trailing slash, and a same-named folder (e.g. `blog/` next to `blog.html`) would
+			// otherwise be resolved to its `index.html`, so look up the page file directly.
+			const htmlPathname =
+				isFileFormat && urlPath !== '/' && hasHtmlFile(client, fsPath)
+					? `${hasSlash ? urlPath.slice(0, -1) : urlPath}.html`
+					: undefined;
 
 			if (headersMap && headersMap.length > 0) {
 				// Skip the body so this throwaway Request doesn't start consuming `req`
@@ -105,13 +129,17 @@ export function createStaticHandler(
 						res.setHeader('Location', pathname);
 						return res.end();
 					}
-					if (isDirectory && !hasSlash) {
+					if (htmlPathname && !hasSlash) {
+						pathname = htmlPathname;
+					} else if (isDirectory && !hasSlash) {
 						pathname = `${urlPath}/index.html`;
 					}
 					break;
 				}
 				case 'ignore': {
-					if (isDirectory && !hasSlash) {
+					if (htmlPathname) {
+						pathname = htmlPathname;
+					} else if (isDirectory && !hasSlash) {
 						pathname = `${urlPath}/index.html`;
 					}
 					break;
@@ -125,6 +153,9 @@ export function createStaticHandler(
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
 						return res.end();
+					}
+					if (htmlPathname && hasSlash) {
+						pathname = htmlPathname;
 					}
 					break;
 				}
