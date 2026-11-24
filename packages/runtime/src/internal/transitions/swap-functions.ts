@@ -164,6 +164,11 @@ export function swapBodyElement(newElement: Element, oldElement: Element) {
 			: null;
 
 	for (const el of oldElement.querySelectorAll(`[${PERSIST_ATTR}]`)) {
+		// Descendants of an already matched element travel with its subtree. Matching
+		// them separately would pull them out of that subtree, e.g. the root of a
+		// framework component that received the island's persist attribute as a prop.
+		// https://github.com/withastro/astro/issues/18821
+		if (persistPairs.some(({ old }) => old.contains(el))) continue;
 		const id = el.getAttribute(PERSIST_ATTR);
 		const newEl = newElement.querySelector(`[${PERSIST_ATTR}="${id}"]`);
 		if (!newEl) continue; // no matching target — leave in old body to be discarded
