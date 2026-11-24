@@ -17,7 +17,7 @@
     "preact"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://www.npmjs.com/package/@astrojs/preact-renderer",
   "exports": {
     ".": "./dist/index.js",
     "./container-renderer": "./dist/container-renderer.js",
