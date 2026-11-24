@@ -198,6 +198,32 @@ describe('getRssString', () => {
 		assert.ok(str.includes(customData));
 	});
 
+	it('should preserve numeric-looking text in `customData`', async () => {
+		const feedCustomData = '<itunes:episode>0123</itunes:episode>';
+		const itemCustomData =
+			'<itunes:episode>007</itunes:episode><itunes:duration>1.10</itunes:duration><a>1e3</a><b>0x1A</b>';
+		const str = await getRssString({
+			title,
+			description,
+			items: [
+				{
+					title: 'Episode 7',
+					link: '/ep-7/',
+					pubDate: new Date('2024-01-01'),
+					customData: itemCustomData,
+				},
+			],
+			site,
+			xmlns: {
+				itunes: 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+			},
+			customData: feedCustomData,
+		});
+
+		assert.ok(str.includes(feedCustomData));
+		assert.ok(str.includes(itemCustomData));
+	});
+
 	it('should not append trailing slash to URLs with the given option', async () => {
 		const str = await getRssString({
 			title,
