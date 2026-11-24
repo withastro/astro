@@ -138,6 +138,18 @@ describe('ISR with edge middleware', () => {
 		assert.equal(url.pathname, '/_render');
 	});
 
+	it('keys forwards to the serverless function on the full path', {
+		timeout: 30000,
+	}, async () => {
+		// The CDN caches `_render` responses by URL: a bare `/_render` would serve
+		// one page's cached response for every path.
+		assert.equal((await forwardedUrl('/live')).searchParams.get('x_astro_path'), '/live');
+		assert.equal(
+			(await forwardedUrl('/no/such/page?foo=1')).searchParams.get('x_astro_path'),
+			'/no/such/page?foo=1',
+		);
+	});
+
 	it('still caches the dynamic route the exclusion overlaps', {
 		timeout: 30000,
 	}, async () => {
@@ -207,6 +219,32 @@ describe('ISR with edge middleware', () => {
 		);
 
 		assert.deepEqual(await response.json(), { ok: true, query: '?foo=bar' });
+	});
+
+	it('hides the forwarded path param from the serverless function', {
+		timeout: 30000,
+	}, async () => {
+		const secret = await middlewareSecret();
+		const functionConfig = JSON.parse(
+			await fixture.readFile('../.vercel/output/functions/_render.func/.vc-config.json'),
+		);
+		const entry = new URL(
+			`../.vercel/output/functions/_render.func/${functionConfig.handler}`,
+			fixture.config.outDir,
+		);
+		const module = await import(entry.href);
+
+		for (const path of ['/api/data', '/api/data?foo=bar']) {
+			const response = await module.default.fetch(
+				new Request(`https://example.com/_render?${new URLSearchParams({ x_astro_path: path })}`, {
+					headers: { 'x-astro-middleware-secret': secret, 'x-astro-path': path },
+				}),
+			);
+			assert.deepEqual(await response.json(), {
+				ok: true,
+				query: new URL(path, 'https://example.com').search,
+			});
+		}
 	});
 
 	it('still returns the response to the middleware', { timeout: 30000 }, async () => {

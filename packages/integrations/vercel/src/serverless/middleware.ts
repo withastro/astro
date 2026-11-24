@@ -174,8 +174,13 @@ const isCached = (pathname) =>
 
 // Cached routes go back through \`_isr\`, or every request would re-render.
 // Keep in step with \`getIsrPath\`.
-function forwardPath(pathname) {
-	if (!isCached(pathname)) return '/${NODE_PATH}';
+// The CDN keys \`_render\` responses on this URL, so it carries the full path:
+// one shared URL would serve one page's cached response for every path.
+// https://github.com/withastro/astro/issues/18827
+function forwardPath(pathname, path) {
+	if (!isCached(pathname)) {
+		return '/${NODE_PATH}?' + new URLSearchParams({ '${ASTRO_PATH_PARAM}': path }).toString();
+	}
 	const params = new URLSearchParams({
 		'${ASTRO_PATH_PARAM}': pathname,
 		'${ASTRO_PATH_TOKEN_PARAM}': '${middlewareSecret}',
@@ -191,14 +196,15 @@ export default async function middleware(request, context) {
 	});
 	Object.assign(ctx.locals, { vercel: { edge: context }, ...${handlerTemplateCall} });
 	const { origin, pathname } = new URL(request.url);
+	const path = request.url.replace(origin, '');
 	const next = async () => {
 		const { vercel, ...locals } = ctx.locals;
-		const response = await fetch(new URL(forwardPath(pathname), request.url), {
+		const response = await fetch(new URL(forwardPath(pathname, path), request.url), {
 			method: request.method,
 			headers: {
 				...Object.fromEntries(request.headers.entries()),
 				'${ASTRO_MIDDLEWARE_SECRET_HEADER}': '${middlewareSecret}',
-				'${ASTRO_PATH_HEADER}': request.url.replace(origin, ''),
+				'${ASTRO_PATH_HEADER}': path,
 				'${ASTRO_LOCALS_HEADER}': trySerializeLocals(locals)
 			},
 			...(request.body ? { body: request.body, duplex: 'half' } : {}),
