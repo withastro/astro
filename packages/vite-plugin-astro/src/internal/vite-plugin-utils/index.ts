@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { commonAncestorPath } from 'common-ancestor-path';
 import {
@@ -53,7 +54,14 @@ export function normalizeFilename(filename: string, root: URL) {
 		// is imported via a TypeScript path alias and Vite produces a relative virtual module ID.
 		const url = new URL(filename, root);
 		filename = viteID(url);
-	} else if (filename.startsWith('/') && !isPathInRoot(filename, fileURLToPath(root))) {
+	} else if (
+		filename.startsWith('/') &&
+		!isPathInRoot(filename, fileURLToPath(root)) &&
+		// An existing absolute path that shares no directory with root (e.g. a pnpm global
+		// virtual store or a node_modules mounted elsewhere) is not root-relative.
+		// See https://github.com/withastro/astro/issues/18839
+		!existsSync(filename)
+	) {
 		const url = new URL('.' + filename, root);
 		filename = viteID(url);
 	}

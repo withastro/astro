@@ -1,4 +1,6 @@
 import * as assert from 'node:assert/strict';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
@@ -41,5 +43,23 @@ describe('normalizeFilename', () => {
 		const root = pathToFileURL('/users/me/project/');
 		const result = normalizeFilename('/Users/me/project/src/pages/index.astro', root);
 		assert.equal(result, '/Users/me/project/src/pages/index.astro');
+	});
+
+	it('preserves existing absolute paths that share no directory with root (issue #18839)', () => {
+		const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-normalize-'));
+		const file = path.join(dir, 'Card.astro');
+		fs.writeFileSync(file, '');
+		try {
+			const filename = file.replaceAll(path.sep, '/');
+			const result = normalizeFilename(filename, pathToFileURL('/nonexistent-root/project/'));
+			assert.equal(result, filename);
+		} finally {
+			fs.rmSync(dir, { recursive: true, force: true });
+		}
+	});
+
+	it('resolves root-relative ids that do not exist on disk against root', () => {
+		const result = normalizeFilename('/src/pages/index.astro', projectRootUrl);
+		assert.equal(result, `${projectRootSlash}/src/pages/index.astro`);
 	});
 });
