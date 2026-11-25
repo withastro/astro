@@ -1,5 +1,6 @@
 import { createElement, startTransition } from 'react';
 import { createRoot, hydrateRoot, type Root } from 'react-dom/client';
+import { htmlAttributesToProps } from './html-attributes.js';
 import StaticHtml from './static-html.js';
 
 function isAlreadyHydrated(element: HTMLElement) {
@@ -30,16 +31,17 @@ function createReactElementFromDOMElement(element: any, id?: number, key?: numbe
 		attrs[propName] = attr.value;
 	}
 
-	attrs.key = `${id}-${key}`;
+	const props = htmlAttributesToProps(element.localName, attrs);
+	props.key = `${id}-${key}`;
 
 	if (element.firstChild === null) {
-		return createElement(element.localName, attrs);
+		return createElement(element.localName, props);
 	}
 
 	let childKey = 0;
 	return createElement(
 		element.localName,
-		attrs,
+		props,
 		Array.from(element.childNodes)
 			.map((c: any) => {
 				if (c.nodeType === Node.TEXT_NODE) {

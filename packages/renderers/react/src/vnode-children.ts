@@ -1,6 +1,7 @@
 import { decodeHTML, decodeHTMLAttribute } from 'entities';
 import { createElement, Fragment } from 'react';
 import { DOCUMENT_NODE, ELEMENT_NODE, parse, TEXT_NODE } from 'ultrahtml';
+import { htmlAttributesToProps } from './html-attributes.js';
 
 // ultrahtml keeps character references such as `&amp;` in text and attribute values as written,
 // and React escapes those strings again, so they are decoded first. Browsers leave references inside
@@ -27,7 +28,7 @@ export default function convert(children: any) {
 			for (const [name, value] of Object.entries<string>(node.attributes)) {
 				attributes[name] = decodeHTMLAttribute(value);
 			}
-			const { class: className, ...props } = attributes;
+			const { class: className, ...props } = htmlAttributesToProps(node.name, attributes);
 			return createElement(node.name, { ...props, className, key: `${id}-${key++}` }, childVnodes);
 		} else if (node.type === TEXT_NODE) {
 			// 0-length text gets omitted in JSX
