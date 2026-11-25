@@ -501,12 +501,14 @@ export function isDeferredModule(viteId: string): boolean {
 }
 
 function invalidateConfigModule(environment: RunnableDevEnvironment, configPathname: string) {
+	// Module graph lookups are keyed by Vite-normalized paths (forward slashes on Windows).
+	const file = normalizePath(configPathname);
 	const timestamp = Date.now();
-	for (const mod of environment.moduleGraph.getModulesByFile(configPathname) ?? []) {
+	for (const mod of environment.moduleGraph.getModulesByFile(file) ?? []) {
 		environment.moduleGraph.invalidateModule(mod, undefined, timestamp, true);
 	}
 	const { evaluatedModules } = environment.runner;
-	for (const mod of evaluatedModules.getModulesByFile(configPathname) ?? []) {
+	for (const mod of evaluatedModules.getModulesByFile(file) ?? []) {
 		evaluatedModules.invalidateModule(mod);
 	}
 }
