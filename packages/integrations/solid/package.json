@@ -41,10 +41,10 @@
     "vite": "^8.3.8"
   },
   "devDependencies": {
-    "@solidjs/web": "^2.0.0",
+    "@solidjs/web": "^2.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^2.0.0"
+    "solid-js": "^2.0.3"
   },
   "peerDependencies": {
     "@solidjs/web": "^2.0.0",

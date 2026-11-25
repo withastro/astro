@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@astrojs/runtime": "workspace:^",
-    "vitefu": "^1.1.3"
+    "vitefu": "^1.1.4"
   },
   "peerDependencies": {
     "@solidjs/web": "^2.0.0",
@@ -45,9 +45,9 @@
   "devDependencies": {
     "@astrojs/vite-plugin-astro": "workspace:*",
     "@solidjs/vite-plugin": "^3.0.1",
-    "@solidjs/web": "^2.0.0",
+    "@solidjs/web": "^2.0.3",
     "astro-scripts": "workspace:*",
-    "solid-js": "^2.0.0",
+    "solid-js": "^2.0.3",
     "vite": "^8.3.8"
   },
   "publishConfig": {

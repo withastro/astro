@@ -39,8 +39,8 @@
     "astro": "^7.2.1"
   },
   "devDependencies": {
-    "@fastify/middie": "^9.3.6",
-    "@fastify/static": "^10.1.10",
+    "@fastify/middie": "^9.3.9",
+    "@fastify/static": "^10.1.12",
     "@types/express": "^5.0.6",
     "@types/node": "^22.10.6",
     "@types/send": "^1.2.1",

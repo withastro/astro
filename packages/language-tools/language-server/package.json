@@ -32,7 +32,7 @@
     "@volar/language-core": "~2.4.31",
     "@volar/language-server": "~2.4.31",
     "@volar/language-service": "~2.4.31",
-    "muggle-string": "^1.0.4",
+    "muggle-string": "^1.0.5",
     "tinyglobby": "^0.2.17",
     "volar-service-css": "0.0.71",
     "volar-service-emmet": "0.0.71",
@@ -51,7 +51,7 @@
     "astro-scripts": "workspace:*",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
-    "vscode-languageserver-protocol": "^3.18.5",
+    "vscode-languageserver-protocol": "^3.18.6",
     "vscode-languageserver-textdocument": "^1.0.16"
   },
   "peerDependencies": {
