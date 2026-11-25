@@ -35,17 +35,33 @@ async function compileScope(root: string, filename: string) {
 	};
 }
 
-describe('Scoped style hash', () => {
-	it('is the same when the root casing differs from the file path casing', async () => {
-		const root = path.resolve('/tmp/my-site');
-		const filename = path.join(root, 'src/components/Box.astro');
+const isCaseInsensitiveFs = process.platform === 'win32' || process.platform === 'darwin';
 
+describe('Scoped style hash', () => {
+	const root = path.resolve('/tmp/my-site');
+	const mismatchedRoot = path.resolve('/TMP/my-site');
+	const filename = path.join(root, 'src/components/Box.astro');
+
+	it('is the same when the root casing differs from the file path casing', {
+		skip: !isCaseInsensitiveFs,
+	}, async () => {
 		const matching = await compileScope(root, filename);
-		const mismatched = await compileScope(path.resolve('/TMP/my-site'), filename);
+		const mismatched = await compileScope(mismatchedRoot, filename);
 
 		assert.ok(matching.html);
 		assert.equal(matching.css, matching.html);
 		assert.equal(mismatched.html, matching.html);
 		assert.equal(mismatched.css, matching.html);
+	});
+
+	it('treats a root with different casing as a different directory on case-sensitive filesystems', {
+		skip: isCaseInsensitiveFs,
+	}, async () => {
+		const matching = await compileScope(root, filename);
+		const mismatched = await compileScope(mismatchedRoot, filename);
+
+		assert.ok(matching.html);
+		assert.equal(mismatched.css, mismatched.html);
+		assert.notEqual(mismatched.html, matching.html);
 	});
 });

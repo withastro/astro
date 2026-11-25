@@ -166,13 +166,22 @@ function handleCompileResultErrors(
 	}
 }
 
+// Default filesystems on Windows and macOS are case-insensitive.
+const isCaseInsensitiveFs = process.platform === 'win32' || process.platform === 'darwin';
+
 function normalizeFilename(filename: string, root: URL) {
 	const normalizedFilename = normalizePath(filename);
 	const normalizedRoot = normalizePath(fileURLToPath(root));
-	// The scope hash is derived from this root-relative path. The root may be typed with a different
-	// case than the on-disk path Vite resolves ids to (Windows, macOS), so compare case-insensitively
-	// to keep the hash stable. See https://github.com/withastro/astro/issues/18841
-	if (normalizedFilename.toLowerCase().startsWith(normalizedRoot.toLowerCase())) {
+	// The scope hash is derived from this root-relative path. On case-insensitive filesystems the
+	// root may be typed with a different case than the on-disk path Vite resolves ids to, so compare
+	// the prefix case-insensitively there to keep the hash stable. The prefix is cut to the root length
+	// before lowercasing, because `toLowerCase()` can change a string length (e.g. "İ").
+	// See https://github.com/withastro/astro/issues/18841
+	const prefix = normalizedFilename.slice(0, normalizedRoot.length);
+	if (
+		prefix === normalizedRoot ||
+		(isCaseInsensitiveFs && prefix.toLowerCase() === normalizedRoot.toLowerCase())
+	) {
 		return normalizedFilename.slice(normalizedRoot.length - 1);
 	} else {
 		return normalizedFilename;
