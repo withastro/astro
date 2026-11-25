@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import os from 'node:os';
 import path from 'node:path';
 import { after, before } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -32,7 +31,7 @@ function run(code) {
 
 before(
 	async () => {
-		temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'astro-esm-'));
+		temporary = await fs.mkdtemp(path.join(path.dirname(root), 'astro-esm-'));
 		consumer = path.join(temporary, 'consumer with spaces 日本語');
 		await fs.mkdir(consumer);
 		const cli = process.env.npm_execpath;
@@ -41,12 +40,16 @@ before(
 		for (const directory of packages) {
 			const cwd = path.join(root, directory);
 			const manifest = JSON.parse(await fs.readFile(path.join(cwd, 'package.json'), 'utf8'));
-			execFileSync(process.execPath, [cli, 'pack', '--pack-destination', temporary], {
-				cwd,
-				env,
-				stdio: 'pipe',
-				timeout: 60000,
-			});
+			try {
+				execFileSync(process.execPath, [cli, 'pack', '--pack-destination', temporary], {
+					cwd,
+					env,
+					stdio: 'pipe',
+					timeout: 60000,
+				});
+			} catch (error) {
+				throw new Error(`${error.message}\n${error.stdout}\n${error.stderr}`, { cause: error });
+			}
 			const tarball = `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`;
 			dependencies[manifest.name] = `file:${path.join(temporary, tarball)}`;
 		}
