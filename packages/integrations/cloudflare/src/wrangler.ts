@@ -57,10 +57,14 @@ export function cloudflareConfigCustomizer(
 	const needsWorkerCache = options?.needsWorkerCache ?? false;
 
 	const customizer = (config: Partial<WorkerConfig>): Partial<WorkerConfig> => {
-		const getNonInheritableBindings = (nonInheritableConfig: {
-			kv_namespaces?: KVNamespace[];
-			images?: { binding?: string };
-		} | undefined) => {
+		const getNonInheritableBindings = (
+			nonInheritableConfig:
+				| {
+						kv_namespaces?: KVNamespace[];
+						images?: { binding?: string };
+				  }
+				| undefined,
+		) => {
 			const hasSessionBinding = nonInheritableConfig?.kv_namespaces?.some(
 				(kv: KVNamespace) => kv.binding === sessionKVBindingName,
 			);
