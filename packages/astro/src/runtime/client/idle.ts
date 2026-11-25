@@ -16,7 +16,7 @@ const idleDirective: ClientDirective = (load, options) => {
 	if ('requestIdleCallback' in window) {
 		(window as any).requestIdleCallback(cb, idleOptions);
 	} else {
-		setTimeout(cb, idleOptions.timeout || 200);
+		setTimeout(cb, idleOptions.timeout ?? 200);
 	}
 };
 
