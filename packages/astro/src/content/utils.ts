@@ -504,10 +504,19 @@ function invalidateConfigModule(environment: RunnableDevEnvironment, configPathn
 	// Module graph lookups are keyed by Vite-normalized paths (forward slashes on Windows).
 	const file = normalizePath(configPathname);
 	const timestamp = Date.now();
+	const { evaluatedModules } = environment.runner;
+	// The module runner keys its cache by the URL passed to import(), while the module graph
+	// keys it by the resolved ID. Looking up by URL handles paths that resolve through symlinks
+	// (e.g. macOS /var -> /private); the normalized file path is used as a fallback.
+	const runnerModule = evaluatedModules.getModuleByUrl(configPathname);
+	if (runnerModule) {
+		const module = environment.moduleGraph.getModuleById(runnerModule.id);
+		if (module) environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
+		evaluatedModules.invalidateModule(runnerModule);
+	}
 	for (const mod of environment.moduleGraph.getModulesByFile(file) ?? []) {
 		environment.moduleGraph.invalidateModule(mod, undefined, timestamp, true);
 	}
-	const { evaluatedModules } = environment.runner;
 	for (const mod of evaluatedModules.getModulesByFile(file) ?? []) {
 		evaluatedModules.invalidateModule(mod);
 	}
