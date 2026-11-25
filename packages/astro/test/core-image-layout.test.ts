@@ -233,6 +233,19 @@ describe('astro:image:layout', () => {
 					const widths = parseSrcset($source.attr('srcset')!).map((s) => s.w);
 					assert.deepEqual(widths, [640, 750, 828, 1080, 1280, 1668, 2048]);
 				});
+
+				it('passes the generated sizes to every source', () => {
+					for (const [id, sizes] of [
+						['#picture-constrained', '(min-width: 800px) 800px, 100vw'],
+						['#picture-fixed', '400px'],
+						['#picture-full-width', '100vw'],
+					]) {
+						assert.equal($(`${id} img`).attr('sizes'), sizes);
+						const $sources = $(`${id} source`);
+						assert.ok($sources.length > 0);
+						$sources.each((_, source) => assert.equal($(source).attr('sizes'), sizes, id));
+					}
+				});
 			});
 
 			describe('fallback format', () => {
