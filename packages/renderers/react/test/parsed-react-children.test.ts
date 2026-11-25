@@ -50,6 +50,11 @@ describe('experimental react children', () => {
 		assert.equal(imgVNode.props.alt, '');
 	});
 
+	it('passes inert written without a value as true on React 19', () => {
+		const [divVNode] = convert('<div inert><button>Send</button></div>');
+		assert.equal(divVNode.props.inert, true);
+	});
+
 	it('passes input value and checked attributes as default props', () => {
 		const [textVNode, checkboxVNode, optionVNode] = convert(
 			'<input value="Hello"><input type="checkbox" value="yes" checked><option value="a" selected>A</option>',

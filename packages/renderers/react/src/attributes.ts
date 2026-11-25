@@ -1,3 +1,5 @@
+import { version } from 'react';
+
 const PROP_NAMES = new Map([
 	['class', 'className'],
 	['for', 'htmlFor'],
@@ -23,6 +25,9 @@ const BOOLEAN_PROPS = new Set([
 	'scoped',
 	'seamless',
 	'selected',
+	// React 19 treats `inert` as a boolean prop and drops `''`. React 18 renders it as a plain
+	// attribute and drops `true`, so there it stays as written.
+	...(Number.parseInt(version, 10) >= 19 ? ['inert'] : []),
 ]);
 
 // React controls an input that has a `checked` prop, or a `value` prop on any type but these, and a
