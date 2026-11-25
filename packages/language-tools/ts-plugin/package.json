@@ -27,7 +27,7 @@
   "author": "withastro",
   "license": "MIT",
   "dependencies": {
-    "@astrojs/astro2tsx": "^0.1.4",
+    "@astrojs/astro2tsx": "^0.1.5",
     "@astrojs/yaml2ts": "^0.2.4",
     "@volar/language-core": "~2.4.31",
     "@volar/typescript": "~2.4.31"

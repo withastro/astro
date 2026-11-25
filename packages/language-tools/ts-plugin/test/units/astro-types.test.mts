@@ -202,51 +202,70 @@ suite('Astro TSX conversion', () => {
 	});
 });
 
-suite('Astro TSX auto-imports', () => {
-	test('does not suggest the generated component name', () => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-ts-plugin-auto-import-'));
-		const src = path.join(root, 'src');
-		fs.mkdirSync(src, { recursive: true });
+function createComponentImportProject(components: Record<string, string>, script: string) {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-ts-plugin-auto-import-'));
+	const src = path.join(root, 'src');
+	fs.mkdirSync(src, { recursive: true });
 
-		const astroFile = path.join(src, 'Footer.astro');
-		const virtualFileName = `${astroFile}.tsx`;
-		const scriptFileName = path.join(src, 'temp.ts');
-		const { virtualFile } = astro2tsx('<footer>Footer</footer>', astroFile);
+	const files: string[] = [];
+	for (const [name, content] of Object.entries(components)) {
+		const astroFile = path.join(src, name);
+		const { virtualFile } = astro2tsx(content, astroFile);
 		fs.writeFileSync(
-			virtualFileName,
+			`${astroFile}.tsx`,
 			virtualFile.snapshot.getText(0, virtualFile.snapshot.getLength()),
 		);
-		fs.writeFileSync(scriptFileName, 'import Foo');
+		files.push(`${astroFile}.tsx`);
+	}
+	const scriptFileName = path.join(src, 'temp.ts');
+	fs.writeFileSync(scriptFileName, script);
+	files.push(scriptFileName);
 
-		const files = [virtualFileName, scriptFileName];
-		const host: ts.LanguageServiceHost = {
-			getScriptFileNames: () => files,
-			getScriptVersion: () => '0',
-			getScriptSnapshot: (fileName) => {
-				if (!fs.existsSync(fileName)) return undefined;
-				return ts.ScriptSnapshot.fromString(fs.readFileSync(fileName, 'utf8'));
-			},
-			getCurrentDirectory: () => root,
-			getCompilationSettings: () => ({
-				allowJs: true,
-				jsx: ts.JsxEmit.Preserve,
-				module: ts.ModuleKind.ESNext,
-				moduleResolution: ts.ModuleResolutionKind.Bundler,
-				target: ts.ScriptTarget.ESNext,
-			}),
-			getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
-			fileExists: (fileName) => fs.existsSync(fileName),
-			readFile: (fileName) => fs.readFileSync(fileName, 'utf8'),
-			readDirectory: ts.sys.readDirectory,
-			directoryExists: ts.sys.directoryExists,
-			getDirectories: ts.sys.getDirectories,
-			useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
-			getNewLine: () => ts.sys.newLine,
-		};
+	const host: ts.LanguageServiceHost = {
+		getScriptFileNames: () => files,
+		getScriptVersion: () => '0',
+		getScriptSnapshot: (fileName) => {
+			if (!fs.existsSync(fileName)) return undefined;
+			return ts.ScriptSnapshot.fromString(fs.readFileSync(fileName, 'utf8'));
+		},
+		getCurrentDirectory: () => root,
+		getCompilationSettings: () => ({
+			allowJs: true,
+			jsx: ts.JsxEmit.Preserve,
+			module: ts.ModuleKind.ESNext,
+			moduleResolution: ts.ModuleResolutionKind.Bundler,
+			target: ts.ScriptTarget.ESNext,
+		}),
+		getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
+		fileExists: (fileName) => fs.existsSync(fileName),
+		readFile: (fileName) => fs.readFileSync(fileName, 'utf8'),
+		readDirectory: ts.sys.readDirectory,
+		directoryExists: ts.sys.directoryExists,
+		getDirectories: ts.sys.getDirectories,
+		useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
+		getNewLine: () => ts.sys.newLine,
+	};
+
+	return {
+		service: ts.createLanguageService(host),
+		scriptFileName,
+		cleanup: () => fs.rmSync(root, { recursive: true, force: true }),
+	};
+}
+
+// A component whose own frontmatter uses its name keeps the compiler's suffixed default export
+// and named re-export.
+const COMPONENTS = {
+	'Footer.astro': '<footer>Footer</footer>',
+	'Card.astro': '---\nconst Card = 1;\n---\n<div>{Card}</div>',
+};
+
+suite('Astro TSX auto-imports', () => {
+	test('does not suggest the generated component name', () => {
+		const project = createComponentImportProject(COMPONENTS, 'import Foo');
 
 		try {
-			const service = ts.createLanguageService(host);
-			const completions = service.getCompletionsAtPosition(scriptFileName, 10, {
+			const completions = project.service.getCompletionsAtPosition(project.scriptFileName, 10, {
 				includeCompletionsForImportStatements: true,
 				includeCompletionsForModuleExports: true,
 				includeCompletionsWithInsertText: true,
@@ -258,7 +277,51 @@ suite('Astro TSX auto-imports', () => {
 			assert.ok(componentNames?.includes('Footer'));
 			assert.ok(!componentNames?.includes('FooterAstroComponent'));
 		} finally {
-			fs.rmSync(root, { recursive: true, force: true });
+			project.cleanup();
 		}
 	});
+
+	for (const name of ['Footer', 'Card']) {
+		test(`only offers a default import quick fix for ${name}.astro`, () => {
+			const script = `export const x = ${name};\n`;
+			const project = createComponentImportProject(COMPONENTS, script);
+
+			try {
+				const start = script.indexOf(name);
+				const fixes = project.service.getCodeFixesAtPosition(
+					project.scriptFileName,
+					start,
+					start + name.length,
+					[2304],
+					{},
+					{},
+				);
+				const imports = fixes.flatMap((fix) =>
+					fix.changes.flatMap((change) => change.textChanges.map((edit) => edit.newText.trim())),
+				);
+
+				assert.deepStrictEqual(imports, [`import ${name} from "./${name}.astro";`]);
+			} finally {
+				project.cleanup();
+			}
+		});
+
+		test(`reports named imports of ${name}.astro`, () => {
+			const project = createComponentImportProject(
+				COMPONENTS,
+				`import { ${name} } from './${name}.astro';\nimport Default from './${name}.astro';\nexport const x = [${name}, Default({})];\n`,
+			);
+
+			try {
+				const diagnostics = project.service.getSemanticDiagnostics(project.scriptFileName);
+
+				assert.deepStrictEqual(
+					diagnostics.map((diagnostic) => diagnostic.code),
+					[2614],
+				);
+			} finally {
+				project.cleanup();
+			}
+		});
+	}
 });
