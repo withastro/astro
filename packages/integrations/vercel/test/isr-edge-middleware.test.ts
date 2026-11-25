@@ -104,6 +104,7 @@ describe('ISR with edge middleware', () => {
 			await fixture.readFile('../.vercel/output/functions/_isr.prerender-config.json'),
 		);
 		assert.equal(config.expiration, 120);
+		assert.equal(config.exposeErrBody, undefined);
 	});
 
 	it('forwards cached routes to the ISR function', { timeout: 30000 }, async () => {
