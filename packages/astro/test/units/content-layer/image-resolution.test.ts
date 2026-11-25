@@ -5,8 +5,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { IMAGE_IMPORT_PREFIX } from '../../../dist/content/consts.js';
-import { image, runWithContentImageContext } from '../../../dist/content/image.js';
-import { attachContentImageResolver } from '../../../dist/content/image-context.js';
+import { image, resolveImageField } from '../../../dist/content/image.js';
+import { getEntryData } from '../../../dist/content/utils.js';
 
 const coverFixture = fileURLToPath(new URL('../assets/600x400.jpg', import.meta.url));
 
@@ -27,92 +27,78 @@ describe('image() source resolution', () => {
 		await fs.rm(dir, { recursive: true, force: true });
 	});
 
-	it('resolves a sibling file and reads its dimensions', async () => {
-		const result = await runWithContentImageContext({ filePath: entryFilePath }, () =>
-			image('cover.jpg'),
-		);
+	it('returns a synchronous marker without image metadata or entry context', () => {
+		const result = image('cover.jpg');
+		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}cover.jpg`);
+		assert.equal(result.width, undefined);
+	});
+
+	it('resolves a sibling file and reads its dimensions after validation', async () => {
+		const result = await resolveImageField(image('cover.jpg'), entryFilePath);
 		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}./cover.jpg`);
 		assert.equal(result.width, 600);
 		assert.equal(result.height, 400);
 	});
 
-	it('reads the active entry context when called without an explicit context', async () => {
-		const result = await runWithContentImageContext({ filePath: entryFilePath }, () =>
-			image('cover.jpg'),
+	it('resolves image markers for entries without a schema', async () => {
+		const result = await getEntryData(
+			{
+				id: 'post',
+				collection: 'posts',
+				unvalidatedData: { cover: image('cover.jpg') },
+				_internal: { rawData: undefined, filePath: entryFilePath },
+			},
+			{ type: 'content_layer', loader: { name: 'test', load: () => {} } },
+			false,
 		);
-		assert.equal(result.width, 600);
-		assert.equal(result.height, 400);
+		assert.equal(result.cover.width, 600);
+		assert.equal(result.cover.height, 400);
 	});
 
 	it('keeps an explicit relative source unchanged', async () => {
-		const result = await runWithContentImageContext({ filePath: entryFilePath }, () =>
-			image('./cover.jpg'),
-		);
+		const result = await resolveImageField(image('./cover.jpg'), entryFilePath);
 		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}./cover.jpg`);
 		assert.equal(result.width, 600);
 	});
 
-	it('reports a missing relative source', async () => {
+	it('reports a missing relative source after validation', async () => {
 		await assert.rejects(
-			() => runWithContentImageContext({ filePath: entryFilePath }, () => image('./missing.jpg')),
+			() => resolveImageField(image('./missing.jpg'), entryFilePath),
 			/Could not find requested image/,
 		);
 	});
 
 	it('passes a remote URL through without reading it', async () => {
-		const context = attachContentImageResolver({ filePath: entryFilePath }, async () => {
-			throw new Error('the resolver must not run for a remote source');
-		});
-		const result = await runWithContentImageContext(context, () =>
-			image('https://example.com/cover.jpg'),
-		);
+		const result = await resolveImageField(image('https://example.com/cover.jpg'), entryFilePath);
 		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}https://example.com/cover.jpg`);
 		assert.equal(result.width, undefined);
 	});
 
-	it('resolves a root-absolute source through the resolver', async () => {
-		const context = attachContentImageResolver({ filePath: entryFilePath }, async (source) =>
-			source === '/cover.jpg' ? coverPath : undefined,
+	it('resolves an aliased source with the provided resolver', async () => {
+		const result = await resolveImageField(
+			image('@images/cover.jpg'),
+			entryFilePath,
+			async (source) => (source === '@images/cover.jpg' ? coverPath : undefined),
 		);
-		const result = await runWithContentImageContext(context, () => image('/cover.jpg'));
 		assert.equal(result.width, 600);
 	});
 
-	it('defers an unresolved source to read time when no resolver is installed', async () => {
-		const result = await runWithContentImageContext({ filePath: entryFilePath }, () =>
-			image('not-a-file'),
-		);
+	it('defers an unresolved source to read time when no resolver is available', async () => {
+		const result = await resolveImageField(image('not-a-file'), entryFilePath);
 		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}not-a-file`);
 		assert.equal(result.width, undefined);
 	});
 
-	it('reads resolver context created by a separate module instance', async () => {
-		const { attachContentImageResolver: attachFromDuplicate } = (await import(
-			new URL('../../../dist/content/image-context.js?duplicate', import.meta.url).href
-		)) as typeof import('../../../dist/content/image-context.js');
-		const context = attachFromDuplicate({ filePath: entryFilePath }, async (source) =>
-			source === '@images/cover.jpg' ? coverPath : undefined,
-		);
-		const result = await runWithContentImageContext(context, () => image('@images/cover.jpg'));
-
-		assert.equal(result.width, 600);
-	});
-
 	it('reports an alias the resolver cannot resolve', async () => {
-		const context = attachContentImageResolver({ filePath: entryFilePath }, async () => undefined);
 		await assert.rejects(
-			() => runWithContentImageContext(context, () => image('@missing/x.jpg')),
+			() => resolveImageField(image('@missing/x.jpg'), entryFilePath, async () => undefined),
 			/Could not find requested image/,
 		);
 	});
 
-	it('defers to read time when the context has no file path', async () => {
-		const result = await runWithContentImageContext({}, () => image('./cover.jpg'));
+	it('defers to read time when the entry has no file path', async () => {
+		const result = await resolveImageField(image('./cover.jpg'), undefined);
 		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}./cover.jpg`);
 		assert.equal(result.width, undefined);
-	});
-
-	it('rejects a call without the schema context', async () => {
-		await assert.rejects(() => image('./cover.jpg'), /needs an active content entry context/);
 	});
 });

@@ -3,10 +3,9 @@ import path from 'node:path';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
 import { imageMetadata } from '../assets/utils/metadata.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { IMAGE_FIELD_MARKER, IMAGE_IMPORT_PREFIX } from './consts.js';
-import { getContentImageContext, getContentImageResolver } from './image-context.js';
-
-export { getContentImageContext, runWithContentImageContext } from './image-context.js';
+export type ImageSourceResolver = (source: string, importer: string) => Promise<string | undefined>;
 
 /**
  * Config-time image helper, published as `astro/content/fields`.
@@ -20,15 +19,8 @@ export { getContentImageContext, runWithContentImageContext } from './image-cont
 /**
  * What `image()` returns while a collection entry is being parsed.
  *
- * `width`/`height`/`format` are read from the file, so schemas can validate them. `src` is
- * deliberately *not* final: it is a `/@fs/...` URL in dev and a hashed emitted asset in a
- * build, and only Vite knows which. It stays a marker until read time, where the real
- * `ImageMetadata` is merged over this object — so fields added by transforms downstream of
- * `image()` survive.
- *
- * The dimensions are absent when the source cannot be located from `context.filePath`: a
- * remote URL, a Vite alias, or a root-absolute path. Those are resolved by Vite at read
- * time instead.
+ * `src` is prefixed so Astro can resolve the image after validation and before storing the
+ * entry. Image metadata is not available to schema validation.
  */
 export type ContentImageField = {
 	[IMAGE_FIELD_MARKER]: true;
@@ -69,44 +61,24 @@ async function probe(fsPath: string) {
 	return metadata;
 }
 
-/**
- * Resolves an image source against the entry currently being parsed.
- *
- * Call it from inside a schema transform while Astro validates a content entry, so it
- * composes with any validator and its result can be validated further:
- *
- * ```js
- * schema: z.object({
- *   cover: z.string()
- *     .transform((src) => image(src))
- *     .refine((cover) => cover.width >= 1000, 'cover must be at least 1000px wide'),
- * })
- * ```
- */
-export async function image(rawSrc: string): Promise<ContentImageField> {
-	const context = getContentImageContext();
+/** Returns a marker that Astro resolves after schema validation. */
+export function image(rawSrc: string): ContentImageField {
 	if (typeof rawSrc !== 'string') {
 		throwImageNotFound(String(rawSrc));
 	}
+	return createImageMarker(rawSrc);
+}
 
-	if (typeof context !== 'object' || context === null) {
-		throw new AstroError({
-			...AstroErrorData.ImageNotFound,
-			title: 'Invalid `image()` usage.',
-			message: '`image()` needs an active content entry context to resolve its source.',
-			hint: 'Call `image(src)` while Astro validates a content entry, or wrap your call with `runWithContentImageContext()`.',
-		});
-	}
-
-	const entryFilePath = context.filePath;
+export async function resolveImageField(
+	field: ContentImageField,
+	filePath: string | undefined,
+	resolveSource?: ImageSourceResolver,
+): Promise<ContentImageField> {
+	const rawSrc = field.src.replace(IMAGE_IMPORT_PREFIX, '');
 	// Remote sources have no file to read, and an entry whose loader gave no absolute path
 	// gives us nothing to resolve against.
-	if (
-		rawSrc.includes('://') ||
-		typeof entryFilePath !== 'string' ||
-		!path.isAbsolute(entryFilePath)
-	) {
-		return createImageMarker(rawSrc);
+	if (rawSrc.includes('://') || typeof filePath !== 'string' || !path.isAbsolute(filePath)) {
+		return field;
 	}
 
 	// `./` and `../` are unambiguously file paths, never Vite aliases.
@@ -118,13 +90,17 @@ export async function image(rawSrc: string): Promise<ContentImageField> {
 	// frontmatter — read time hands the stored src to Vite, which would otherwise treat a
 	// bare specifier as a package.
 	if (!isRootAbsolute) {
-		const candidate = path.resolve(path.dirname(entryFilePath), rawSrc);
+		const candidate = path.resolve(path.dirname(filePath), rawSrc);
 		if (fsMod.existsSync(candidate)) {
 			const metadata = await probe(candidate);
 			if (!metadata) {
 				throwImageNotFound(rawSrc);
 			}
-			return { ...createImageMarker(isRelative ? rawSrc : `./${rawSrc}`), ...metadata };
+			return {
+				...field,
+				...metadata,
+				src: `${IMAGE_IMPORT_PREFIX}${isRelative ? rawSrc : `./${rawSrc}`}`,
+			};
 		}
 		if (isRelative) {
 			// Nothing else is going to resolve `./missing.png`.
@@ -135,12 +111,11 @@ export async function image(rawSrc: string): Promise<ContentImageField> {
 	// Aliases, root-absolute paths, and bare specifiers with no sibling file: only Vite
 	// knows how to resolve these. Without a resolver — a loader running outside a sync, for
 	// instance — defer to read time as before rather than reporting a false negative.
-	const resolveSource = getContentImageResolver(context);
 	if (!resolveSource) {
-		return createImageMarker(rawSrc);
+		return field;
 	}
 
-	const resolvedPath = await resolveSource(rawSrc, entryFilePath);
+	const resolvedPath = await resolveSource(rawSrc, filePath);
 	if (!resolvedPath) {
 		throwImageNotFound(rawSrc);
 	}
@@ -152,5 +127,20 @@ export async function image(rawSrc: string): Promise<ContentImageField> {
 
 	// The source is stored unchanged: Vite resolves it again at read time, from the entry
 	// file, so an alias must stay an alias.
-	return { ...createImageMarker(rawSrc), ...metadata };
+	return { ...field, ...metadata, src: field.src };
+}
+
+export function createViteImageSourceResolver(
+	server: import('vite').ViteDevServer,
+): ImageSourceResolver {
+	return async (source, importer) => {
+		const resolved = await server.environments[
+			ASTRO_VITE_ENVIRONMENT_NAMES.ssr
+		].pluginContainer.resolveId(source, importer);
+		if (!resolved) {
+			return undefined;
+		}
+		const id = resolved.id.split('?')[0].split('#')[0];
+		return path.isAbsolute(id) && fsMod.existsSync(id) ? id : undefined;
+	};
 }

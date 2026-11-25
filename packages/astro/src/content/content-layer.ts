@@ -26,11 +26,7 @@ import {
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
-import {
-	attachContentImageResolver,
-	createViteImageSourceResolver,
-	type ImageSourceResolver,
-} from './image-context.js';
+import { createViteImageSourceResolver, type ImageSourceResolver } from './image.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
 export interface ContentLayerOptions {
@@ -343,10 +339,7 @@ export class ContentLayer {
 								id,
 								collection: name,
 								unvalidatedData: data,
-								_internal: attachContentImageResolver(
-									{ rawData: undefined, filePath },
-									imageResolver,
-								),
+								_internal: { rawData: undefined, filePath, imageResolver },
 							},
 							{ ...collection, schema },
 							false,

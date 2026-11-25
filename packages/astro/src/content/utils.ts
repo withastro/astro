@@ -6,6 +6,7 @@ import { slug as githubSlug } from 'github-slugger';
 import colors from 'piccolore';
 import type { RunnableDevEnvironment, Rolldown } from 'vite';
 import xxhash from 'xxhash-wasm';
+import { forEach } from 'neotraverse';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import * as z from 'zod/v4';
 import {
@@ -32,14 +33,10 @@ import {
 	CONTENT_LAYER_TYPE,
 	CONTENT_MODULE_FLAG,
 	DEFERRED_MODULE,
+	IMAGE_FIELD_MARKER,
 	LIVE_CONTENT_TYPE,
 } from './consts.js';
-import { image as resolveImageField } from './image.js';
-import {
-	attachContentImageResolver,
-	getContentImageResolver,
-	runWithContentImageContext,
-} from './image-context.js';
+import { image as createImageField, resolveImageField } from './image.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
@@ -141,7 +138,11 @@ function contentConfigParser(logger: AstroLogger) {
 export type ContentConfig = z.infer<ReturnType<typeof contentConfigParser>> & { digest?: string };
 export type CollectionConfig = ContentConfig['collections'][string];
 
-type EntryInternal = { rawData: string | undefined; filePath: string };
+type EntryInternal = {
+	rawData: string | undefined;
+	filePath: string;
+	imageResolver?: import('./image.js').ImageSourceResolver;
+};
 
 export function parseEntrySlug({
 	id,
@@ -181,34 +182,19 @@ export async function getEntryData<
 	let data = entry.unvalidatedData as TOutputData;
 
 	let schema = collectionConfig.schema;
-	const imageResolver = getContentImageResolver(entry._internal);
-	let imageContext = attachContentImageResolver(
-		{ filePath: entry._internal.filePath },
-		imageResolver,
-	);
+	const imageResolver = entry._internal.imageResolver;
 
 	if (typeof schema === 'function') {
 		const { filePath } = entry._internal;
 		if (pluginContext) {
-			const schemaContext = attachContentImageResolver(
-				{ filePath, image: createImage(pluginContext, shouldEmitFile, filePath) },
-				imageResolver,
-			);
-			imageContext = schemaContext;
+			const schemaContext = {
+				image: createImage(pluginContext, shouldEmitFile, filePath),
+			};
 			schema = schema(schemaContext);
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
-			const contentLayerImageContext = attachContentImageResolver({ filePath }, imageResolver);
 			const schemaContext = {
-				filePath,
-				image: () =>
-					z
-						.string()
-						.transform((val) =>
-							runWithContentImageContext(contentLayerImageContext, () => resolveImageField(val)),
-						),
+				image: () => z.string().transform((val) => createImageField(val)),
 			};
-			attachContentImageResolver(schemaContext, imageResolver);
-			imageContext = schemaContext;
 			schema = schema(schemaContext);
 		}
 	}
@@ -222,15 +208,9 @@ export async function getEntryData<
 		}
 		let result: StandardSchemaV1.Result<unknown>;
 		try {
-			// `validate()` may return a promise, which is what allows async transforms. The
-			// error map keeps the wording Astro's schema errors use for Zod schemas.
 			patchZodStandardSchema(schema, errorMap);
-			result = await runWithContentImageContext(imageContext, () =>
-				schema['~standard'].validate(data),
-			);
+			result = await schema['~standard'].validate(data);
 		} catch (error) {
-			// `image()` cannot see the entry it is resolving for, so add the entry to its
-			// error here, where the collection and id are known.
 			if (error instanceof AstroError && error.name === AstroErrorData.ImageNotFound.name) {
 				throw new AstroError({
 					...AstroErrorData.ImageNotFound,
@@ -265,6 +245,52 @@ export async function getEntryData<
 		data = result.value as TOutputData;
 	}
 
+	try {
+		data = (await resolveImageFields(data, entry._internal.filePath, imageResolver)) as TOutputData;
+	} catch (error) {
+		if (error instanceof AstroError && error.name === AstroErrorData.ImageNotFound.name) {
+			throw new AstroError({
+				...AstroErrorData.ImageNotFound,
+				message: `**${entry.collection} → ${entry.id}** ${error.message}`,
+				location: {
+					file: entry._internal.filePath,
+					line: 0,
+					column: 0,
+				},
+			});
+		}
+		throw error;
+	}
+
+	return data;
+}
+
+async function resolveImageFields(
+	data: Record<string, unknown>,
+	filePath: string,
+	resolver?: import('./image.js').ImageSourceResolver,
+): Promise<Record<string, unknown>> {
+	const markers: { path: (string | number)[]; value: import('./image.js').ContentImageField }[] =
+		[];
+	forEach(data, (ctx, value) => {
+		if (
+			value &&
+			typeof value === 'object' &&
+			(value as Record<string, unknown>)[IMAGE_FIELD_MARKER]
+		) {
+			markers.push({
+				path: ctx.path.map((segment) => segment as string | number),
+				value: value as import('./image.js').ContentImageField,
+			});
+		}
+	});
+	for (const marker of markers) {
+		let parent: any = data;
+		for (const segment of marker.path.slice(0, -1)) {
+			parent = parent[segment];
+		}
+		parent[marker.path.at(-1)!] = await resolveImageField(marker.value, filePath, resolver);
+	}
 	return data;
 }
 
