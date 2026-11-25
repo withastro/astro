@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["types/packaged/pass.astro", "types/packaged/*.d.ts"]
+}

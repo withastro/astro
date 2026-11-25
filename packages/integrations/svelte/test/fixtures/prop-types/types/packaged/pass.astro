@@ -1,0 +1,9 @@
+---
+import Greeting from './Greeting.svelte';
+import LegacyGreeting from './LegacyGreeting.svelte';
+---
+
+<Greeting name="astro" />
+<Greeting name="world" client:load />
+<LegacyGreeting name="astro" />
+<LegacyGreeting name="world" client:load />
