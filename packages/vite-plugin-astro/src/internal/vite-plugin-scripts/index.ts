@@ -12,13 +12,22 @@ export interface InjectedScript {
 export interface ScriptsPluginOptions {
 	/** Read on every load, so scripts added after the plugin is created are included. */
 	scripts: readonly InjectedScript[];
+	/**
+	 * Names of the environments where the `before-hydration` chunk is emitted on build.
+	 *
+	 * @default every environment whose `consumer` is `'client'` or `'server'`
+	 */
+	environments?: readonly string[];
 }
 
 /**
  * Serves `astro:scripts/before-hydration.js`, the `before-hydration` scripts, which run in the
  * browser before the first island hydrates.
  */
-export default function astroScriptsPlugin({ scripts }: ScriptsPluginOptions): VitePlugin {
+export default function astroScriptsPlugin({
+	scripts,
+	environments,
+}: ScriptsPluginOptions): VitePlugin {
 	let command: 'build' | 'serve';
 	return {
 		name: 'astro:scripts:before-hydration',
@@ -51,11 +60,11 @@ export default function astroScriptsPlugin({ scripts }: ScriptsPluginOptions): V
 		buildStart() {
 			if (command === 'serve') return;
 			const hasHydrationScripts = scripts.some((s) => s.stage === 'before-hydration');
-			if (
-				hasHydrationScripts &&
-				(this.environment.config.consumer === 'client' ||
-					this.environment.config.consumer === 'server')
-			) {
+			const shouldEmit = environments
+				? environments.includes(this.environment.name)
+				: this.environment.config.consumer === 'client' ||
+					this.environment.config.consumer === 'server';
+			if (hasHydrationScripts && shouldEmit) {
 				this.emitFile({
 					type: 'chunk',
 					id: BEFORE_HYDRATION_SCRIPT_ID,

@@ -53,6 +53,11 @@ export function toAstroCli(
 				includeExternal: true,
 			}),
 		headEnvironments: [ASTRO_VITE_ENVIRONMENT_NAMES.ssr, ASTRO_VITE_ENVIRONMENT_NAMES.prerender],
+		scriptEnvironments: [
+			ASTRO_VITE_ENVIRONMENT_NAMES.client,
+			ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+			ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
+		],
 		getDevCssModuleId: getDevCssModuleIdForInvalidatedModule,
 		scripts: settings.scripts,
 	};
