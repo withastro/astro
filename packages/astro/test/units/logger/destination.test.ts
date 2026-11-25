@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import jsonFactory, { SGR_REGEX } from '../../../dist/core/logger/impls/json.js';
+import nodeFactory from '../../../dist/core/logger/impls/node.js';
 
 let logs: AstroLoggerMessage[] = [];
 
@@ -239,6 +240,26 @@ describe('json handler', () => {
 			assert.equal(consoleLogCalls.length, 0);
 			assert.equal(consoleErrorCalls.length, 1);
 		});
+
+		for (const stream of ['stdout', 'stderr'] as const) {
+			it(`routes every level to ${stream} when configured`, () => {
+				const configuredLogger = new AstroLogger({
+					destination: jsonFactory({ stream }),
+					level: 'info',
+				});
+				configuredLogger.info('check', 'information');
+				configuredLogger.warn('check', 'warning');
+				configuredLogger.error('check', 'error');
+
+				const output = stream === 'stdout' ? consoleLogCalls : consoleErrorCalls;
+				const otherOutput = stream === 'stdout' ? consoleErrorCalls : consoleLogCalls;
+				assert.deepEqual(
+					output.map((line) => JSON.parse(line).level),
+					['info', 'warn', 'error'],
+				);
+				assert.equal(otherOutput.length, 0);
+			});
+		}
 	});
 
 	describe('cross-runtime compatibility', () => {
@@ -253,4 +274,35 @@ describe('json handler', () => {
 			);
 		});
 	});
+});
+
+describe('node handler stream routing', () => {
+	for (const stream of [undefined, 'stdout', 'stderr'] as const) {
+		it(`routes logs with ${stream ?? 'default'} stream configuration`, (t) => {
+			const stdout: string[] = [];
+			const stderr: string[] = [];
+			t.mock.method(process.stdout, 'write', (chunk: string) => {
+				stdout.push(chunk);
+				return true;
+			});
+			t.mock.method(process.stderr, 'write', (chunk: string) => {
+				stderr.push(chunk);
+				return true;
+			});
+			const logger = new AstroLogger({ destination: nodeFactory({ stream }), level: 'info' });
+			logger.info('SKIP_FORMAT', 'information');
+			logger.warn('SKIP_FORMAT', 'warning');
+			logger.error('SKIP_FORMAT', 'error');
+
+			const allMessages = ['information\n', 'warning\n', 'error\n'];
+			assert.deepEqual(
+				stdout,
+				stream === 'stderr' ? [] : stream === 'stdout' ? allMessages : allMessages.slice(0, 2),
+			);
+			assert.deepEqual(
+				stderr,
+				stream === 'stdout' ? [] : stream === 'stderr' ? allMessages : ['error\n'],
+			);
+		});
+	}
 });

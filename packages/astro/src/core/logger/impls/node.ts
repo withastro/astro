@@ -15,16 +15,19 @@ type ConsoleStream = Writable & {
 
 export type NodeHandlerConfig = {
 	level?: AstroLoggerLevel;
+	/** Write every log level to this stream. By default, only errors go to stderr. */
+	stream?: 'stdout' | 'stderr';
 };
 
 function nodeLogDestination(config: NodeHandlerConfig = {}): AstroLoggerDestination {
-	const { level = 'info' } = config;
+	const { level = 'info', stream } = config;
 	return {
 		write(event) {
-			let dest: ConsoleStream = process.stderr;
-			if (levels[event.level] < levels['error']) {
-				dest = process.stdout;
-			}
+			const dest: ConsoleStream = stream
+				? process[stream]
+				: levels[event.level] < levels['error']
+					? process.stdout
+					: process.stderr;
 
 			if (!matchesLevel(event.level, level)) {
 				return;
