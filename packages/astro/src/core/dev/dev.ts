@@ -107,6 +107,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
 	} else {
+		restart.contentStore = store;
 		// Invalidate the content virtual modules directly when the store is
 		// written, rather than relying on the file watcher to observe the write.
 		// On Windows the watcher can miss it, leaving dev serving stale content.

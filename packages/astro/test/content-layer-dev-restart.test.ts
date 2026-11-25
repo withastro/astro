@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { setTimeout as delay } from 'node:timers/promises';
 import { after, before, describe, it } from 'node:test';
+import { globalContentLayer } from '../dist/content/instance.js';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 async function waitFor(condition: () => boolean | Promise<boolean>, timeout = 10000) {
@@ -74,5 +75,44 @@ describe('Content layer dev restart', () => {
 		process.off('unhandledRejection', onUnhandled);
 		assert.ok(updated, 'Dev server stopped picking up content edits after a loader error');
 		assert.deepEqual(unhandled, []);
+	});
+});
+
+describe('Content layer dev restart after a failed initial content config load', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+
+	before(async () => {
+		// Test files share a process, so drop any content layer left by an earlier dev server.
+		globalContentLayer.dispose();
+		fixture = await loadFixture({ root: './fixtures/content-layer-dev-restart/' });
+		(globalThis as any).__throwInContentConfig = true;
+		devServer = await fixture.startDevServer();
+		delete (globalThis as any).__throwInContentConfig;
+	});
+
+	after(async () => {
+		delete (globalThis as any).__throwInContentConfig;
+		fixture.resetAllFiles();
+		await devServer.stop();
+	});
+
+	it('creates the content layer on a config restart', async () => {
+		const html = await (await fixture.fetch('/')).text();
+		assert.ok(!html.includes('Original title'));
+
+		const initialWatcher = devServer.watcher;
+		await fixture.editFile('/astro.config.mjs', (content) =>
+			content.replace('defineConfig({})', "defineConfig({ site: 'https://example.com' })"),
+		);
+		assert.ok(
+			await waitFor(() => devServer.watcher !== initialWatcher),
+			'Dev server did not restart',
+		);
+
+		const loaded = await waitFor(async () =>
+			(await (await fixture.fetch('/')).text()).includes('Original title'),
+		);
+		assert.ok(loaded, 'Content was not loaded after restart');
 	});
 });

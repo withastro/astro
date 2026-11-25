@@ -2,7 +2,9 @@ import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import { globalContentLayer } from '../../content/instance.js';
+import type { MutableDataStore } from '../../content/mutable-data-store.js';
 import { attachContentServerListeners } from '../../content/server-listeners.js';
+import { globalContentConfigObserver } from '../../content/utils.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
 import { SETTINGS_FILE } from '../../preferences/constants.js';
@@ -163,6 +165,8 @@ interface Restart {
 	container: Container;
 	bindCLIShortcuts: () => void;
 	restarted: () => Promise<Error | null>;
+	/** Data store for the content layer, set by `dev()` once it has been created. */
+	contentStore?: MutableDataStore;
 }
 
 export async function createContainerWithAutomaticRestart({
@@ -243,13 +247,17 @@ export async function createContainerWithAutomaticRestart({
 	// Vite's in-place restart closes the old file watcher, so loaders must be
 	// re-registered on the new one, using the new settings.
 	async function restartContentLayer() {
-		const previousContentLayer = globalContentLayer.get();
-		if (!previousContentLayer) return;
+		// A restart during startup can interrupt the first content config load, so
+		// `dev()` never creates the layer. Create it here once the config loads (#18850).
+		const store =
+			globalContentLayer.get()?.store ??
+			(globalContentConfigObserver.get().status === 'loaded' ? restart.contentStore : undefined);
+		if (!store) return;
 		const contentLayer = globalContentLayer.init({
 			settings: restart.container.settings,
 			logger,
 			watcher: restart.container.viteServer.watcher,
-			store: previousContentLayer.store,
+			store,
 		});
 		contentLayer.watchContentConfig();
 		// A loader error must not reject the watcher callback that triggered the

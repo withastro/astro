@@ -2,6 +2,11 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
+// Lets tests simulate a content config load that fails during startup.
+if ((globalThis as any).__throwInContentConfig) {
+	throw new Error('Content config failed');
+}
+
 const blog = defineCollection({
 	loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
 	schema: z.object({
