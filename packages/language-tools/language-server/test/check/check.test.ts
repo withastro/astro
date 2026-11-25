@@ -1,6 +1,5 @@
 import assert from 'node:assert';
 import { createRequire } from 'node:module';
-import os from 'node:os';
 import path from 'node:path';
 import { before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -39,7 +38,7 @@ describe('AstroCheck', async () => {
 		assert.notStrictEqual(result.fileResult[0].fileContent, undefined);
 		assert.deepStrictEqual(
 			result.fileResult[0].fileContent,
-			`---${os.EOL}console.log(doesntExist);${os.EOL}---${os.EOL}`,
+			'---\nconsole.log(doesntExist);\n---\n',
 		);
 	});
 
