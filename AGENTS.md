@@ -75,7 +75,7 @@ These rules apply to **every** comment you write, including ones added incidenta
 - Deletion test: a comment must state something the reader cannot recover from the code. If names or types already carry it, don't write it.
 - `/** */` docs state the contract (behavior, params, returns, throws); `//` comments carry rationale only. Anchor a workaround to the GitHub issue or PR that motivates it.
 - When your change alters documented behavior, extend or correct the existing prose — never replace specific docs with generic text.
-- Exception: `@docs`-tagged JSDoc in `types/public/config.ts` and `core/errors/errors-data.ts` is end-user documentation generated to the website; these rules don't apply there.
+- Exception: `@docs`-tagged JSDoc in `packages/astro/src/types/public/config.ts` and `packages/runtime/src/core/errors/errors-data.ts` is end-user documentation generated to the website; these rules don't apply there.
 
 # Environment Guide
 
@@ -162,4 +162,4 @@ When writing unit tests, read [`reference/unit-testing.md`](./reference/unit-tes
 
 ## Vite Dep Optimizer (`optimizeDeps`)
 
-When a bug works in `astro build` but fails in `astro dev` with errors like `require is not defined`, the root cause is almost always Vite's dep optimizer failing to pre-bundle a CJS dependency. `astro build` uses Rollup and handles CJS→ESM reliably; `astro dev` relies on esbuild's optimizer scan, which is intentionally shallow and will miss deps that are only reachable through non-JS files (like `.astro` components in `node_modules`). The key files are `packages/astro/src/vite-plugin-environment/index.ts` (sets `optimizeDeps.entries`) and `packages/astro/src/core/create-vite.ts` (wires up `vitefu`/`crawlFrameworkPkgs`). For a full deep-dive including a debugging playbook and potential fixes, see [`reference/optimize-deps.md`](./reference/optimize-deps.md).
+When a bug works in `astro build` but fails in `astro dev` with errors like `require is not defined`, the root cause is almost always Vite's dep optimizer failing to pre-bundle a CJS dependency. `astro build` uses Vite's Rolldown-based build and handles CJS→ESM reliably. `astro dev` relies on Rolldown's optimizer scan, which is intentionally shallow and will miss deps that are only reachable through non-JS files (like `.astro` components in `node_modules`). The key files are `packages/astro/src/vite-plugin-environment/index.ts` (sets `optimizeDeps.entries`) and `packages/astro/src/core/create-vite.ts` (wires up `vitefu`/`crawlFrameworkPkgs`). For a full deep-dive including a debugging playbook and potential fixes, see [`reference/optimize-deps.md`](./reference/optimize-deps.md).

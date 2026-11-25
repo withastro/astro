@@ -21,9 +21,7 @@ export class PnpmPackageManager implements PackageManager {
 	async getPackageVersion(name: string): Promise<string | undefined> {
 		try {
 			// https://pnpm.io/cli/why
-			const { stdout } = await this.#commandExecutor.execute('pnpm', ['why', name, '--json'], {
-				shell: true,
-			});
+			const { stdout } = await this.#commandExecutor.execute('pnpm', ['why', name, '--json']);
 
 			const parsedOutput = JSON.parse(stdout) as Array<BareNpmLikeVersionOutput>;
 

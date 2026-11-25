@@ -1,0 +1,14 @@
+---
+import Counter from './Counter.jsx';
+---
+<section class="card">
+	<Counter client:load initial={2} />
+</section>
+<style>
+	.card { color: rebeccapurple; }
+</style>
+<script>
+	// TypeScript, which the JSX refresh filter of `viteReact()` must not hand to OXC as JavaScript.
+	const message: string = 'card script';
+	console.log(message);
+</script>

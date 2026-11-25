@@ -64,7 +64,7 @@ describe('URL', () => {
 	it('return https when the X-Forwarded-Proto header is set to https', async () => {
 		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
-			headers: { 'X-Forwarded-Proto': 'https' },
+			headers: { 'X-Forwarded-Proto': 'https', Host: 'localhost:3000' },
 			url: '/',
 		});
 
@@ -135,6 +135,23 @@ describe('URL', () => {
 
 		// Should use the Host header, not X-Forwarded-Host when allowedDomains is not configured
 		assert.equal($('body').text().trim(), 'https://legitimate.example.com/');
+	});
+
+	it('rejects Host when it does not match allowedDomains', async () => {
+		const handler = await fixture.loadNodeAdapterHandler();
+		const { req, res, text } = createRequestAndResponse({
+			headers: { Host: 'attacker.example.net' },
+			url: '/',
+		});
+
+		handler(req, res);
+		req.send();
+
+		const html = await text();
+		const $ = cheerio.load(html);
+		const url = new URL($('body').text().trim());
+
+		assert.equal(url.hostname, 'localhost');
 	});
 
 	it('rejects port in forwarded host when port not in allowedDomains', async () => {

@@ -121,7 +121,7 @@ const html = await highlighter.codeToHtml(code, typeof lang === 'string' ? lang 
 	wrap,
 	inline,
 	transformers,
-	meta,
+	...(meta !== undefined && { meta }),
 	attributes: rest as any,
 });
 ---

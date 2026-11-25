@@ -56,6 +56,17 @@ describe('astro:image', () => {
 				const $img = $('img');
 				assert.equal(new URL($img.attr('src')!, 'http://example.com').searchParams.get('w'), '50');
 			});
+
+			it('Image alt and title survive the __ASTRO_IMAGE_ round-trip escaped exactly once', async () => {
+				// The attribute is JSON-serialized into the markup and decoded again
+				// later; an ampersand must come back as one ampersand, not as the
+				// text of an entity left behind by an incomplete decode. cheerio
+				// hands back the decoded DOM value, so a double escape shows up
+				// here as a literal "&amp;".
+				const $img = $('img');
+				assert.equal($img.attr('alt'), 'A & B');
+				assert.equal($img.attr('title'), 'C & D');
+			});
 		});
 	});
 });

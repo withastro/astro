@@ -1,11 +1,10 @@
-import {
-	type AdobeProviderOptions,
-	type GoogleFamilyOptions,
-	type GoogleiconsFamilyOptions,
-	type InitializedProvider,
-	type NpmProviderOptions,
-	type NpmFamilyOptions,
-	providers,
+import type {
+	AdobeProviderOptions,
+	GoogleFamilyOptions,
+	GoogleiconsFamilyOptions,
+	InitializedProvider,
+	NpmProviderOptions,
+	NpmFamilyOptions,
 } from 'unifont';
 import { FontaceFontFileReader } from '../infra/fontace-font-file-reader.js';
 import type { FontProvider } from '../types.js';
@@ -13,111 +12,151 @@ import { type LocalFamilyOptions, LocalFontProvider } from './local.js';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 
+const VARIABLE_SUFFIX_RE = / Variable$/;
+
+async function loadUnifontProviders() {
+	return (await import('unifont')).providers;
+}
+
 /** [Adobe](https://docs.astro.build/en/reference/font-provider-reference/#adobe) */
 function adobe(config: AdobeProviderOptions): FontProvider {
-	const provider = providers.adobe(config);
+	const name = 'adobe';
 	let initializedProvider: InitializedProvider | undefined;
 	return {
-		name: provider._name,
+		name,
 		config,
 		async init(context) {
-			initializedProvider = await provider(context);
+			const providers = await loadUnifontProviders();
+			initializedProvider = await providers[name](config)(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
 
 /** [Bunny](https://docs.astro.build/en/reference/font-provider-reference/#bunny) */
 function bunny(): FontProvider {
-	const provider = providers.bunny();
+	const name = 'bunny';
 	let initializedProvider: InitializedProvider | undefined;
 	return {
-		name: provider._name,
+		name,
 		async init(context) {
-			initializedProvider = await provider(context);
+			const providers = await loadUnifontProviders();
+			initializedProvider = await providers[name]()(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
 
 /** [Fontshare](https://docs.astro.build/en/reference/font-provider-reference/#fontshare) */
 function fontshare(): FontProvider {
-	const provider = providers.fontshare();
+	const name = 'fontshare';
 	let initializedProvider: InitializedProvider | undefined;
 	return {
-		name: provider._name,
+		name,
 		async init(context) {
-			initializedProvider = await provider(context);
+			const providers = await loadUnifontProviders();
+			initializedProvider = await providers[name]()(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
 
 /** [Fontsource](https://docs.astro.build/en/reference/font-provider-reference/#fontsource) */
 function fontsource(): FontProvider {
-	const provider = providers.fontsource();
+	const name = 'fontsource';
 	let initializedProvider: InitializedProvider | undefined;
 	return {
-		name: provider._name,
+		name,
 		async init(context) {
-			initializedProvider = await provider(context);
+			const providers = await loadUnifontProviders();
+			initializedProvider = await providers[name]()(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
-			return await initializedProvider?.resolveFont(familyName, rest);
+			const result = await initializedProvider?.resolveFont(familyName, rest);
+			// The fontsource API uses family names without a "Variable" suffix (e.g. "Inter"),
+			// but fontsource's website and npm packages use "Inter Variable" for variable fonts.
+			// Retry without the suffix so both naming conventions work. See #18143.
+			if (!result?.fonts?.length && familyName.endsWith(' Variable')) {
+				return await initializedProvider?.resolveFont(
+					familyName.replace(VARIABLE_SUFFIX_RE, ''),
+					rest,
+				);
+			}
+			return result;
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
 
 /** [Google](https://docs.astro.build/en/reference/font-provider-reference/#google) */
 function google(): FontProvider<GoogleFamilyOptions | undefined> {
-	const provider = providers.google();
+	const name = 'google';
 	let initializedProvider: InitializedProvider<GoogleFamilyOptions> | undefined;
 	return {
-		name: provider._name,
+		name,
 		async init(context) {
-			initializedProvider = await provider(context);
+			const providers = await loadUnifontProviders();
+			initializedProvider = await providers[name]()(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
 
 /** [Google Icons](https://docs.astro.build/en/reference/font-provider-reference/#google-icons) */
 function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
-	const provider = providers.googleicons();
+	const name = 'googleicons';
 	let initializedProvider: InitializedProvider<GoogleiconsFamilyOptions> | undefined;
 	return {
-		name: provider._name,
+		name,
 		async init(context) {
-			initializedProvider = await provider(context);
+			const providers = await loadUnifontProviders();
+			initializedProvider = await providers[name]()(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -133,21 +172,42 @@ function local(): FontProvider<LocalFamilyOptions> {
 function npm(
 	options?: Omit<NpmProviderOptions, 'root' | 'readFile'>,
 ): FontProvider<NpmFamilyOptions | undefined> {
+	const name = 'npm';
 	let initializedProvider: InitializedProvider<NpmFamilyOptions> | undefined;
 	return {
-		name: providers.npm()._name,
+		name,
 		async init(context) {
-			initializedProvider = await providers.npm({
+			const providers = await loadUnifontProviders();
+			initializedProvider = await providers[name]({
 				...options,
 				root: fileURLToPath(context.root),
 				readFile: (path) => readFile(path, 'utf-8').catch(() => null),
 			})(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
-			return await initializedProvider?.resolveFont(familyName, rest);
+			const result = await initializedProvider?.resolveFont(familyName, rest);
+			if (!result) return result;
+			// With `remote: false`, unifont points font files at `file://` URLs. The rest of the
+			// pipeline treats absolute paths as local files (read from disk, hashed, watched) and
+			// anything else as remote, so convert them like the local provider does.
+			// https://github.com/withastro/astro/issues/16218
+			return {
+				...result,
+				fonts: result.fonts.map((font) => ({
+					...font,
+					src: font.src.map((source) =>
+						'url' in source && source.url.startsWith('file:')
+							? { ...source, url: fileURLToPath(source.url) }
+							: source,
+					),
+				})),
+			};
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }

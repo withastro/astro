@@ -37,6 +37,7 @@ export default {
 			ignoreDependencies: [
 				'@astrojs/check', // Used by the build script but not as a standard module import
 				'bgproc', // Used by agents, documented in the AGENTS.md file
+				'rolldown', // Used by the bundle-size GitHub Action script in `.github/scripts`
 			],
 			// In smoke tests, we checkout to the docs repo so those binaries are not present in this project
 			// vsce and ovsx are only used in CI for publishing, and due to how we have to publish the VS Code extension have
@@ -81,6 +82,8 @@ export default {
 				'rehype-slug',
 				'rehype-toc',
 				'remark-code-titles',
+				// Imported by fixture source in test/units/vite-plugin-environment/astro-scan.test.ts
+				'clsx',
 				'@types/http-cache-semantics',
 				// Resolved from the user's project by `astro add cloudflare`.
 				'@astrojs/cloudflare',
@@ -95,6 +98,10 @@ export default {
 			ignoreUnresolved: ['#prism-loadLanguages'],
 		},
 		'packages/integrations/*': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			project,
+		},
+		'packages/renderers/*': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
 		},
@@ -114,8 +121,6 @@ export default {
 		'packages/integrations/solid': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
-			// It's an optional peer dep (triggers a warning) but it's fine in this case
-			ignoreDependencies: ['solid-devtools'],
 		},
 		'packages/integrations/svelte': {
 			entry: [srcEntry, dtsEntry, testEntry],

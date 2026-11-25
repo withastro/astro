@@ -84,10 +84,10 @@ describe('createAsyncManifestMemo', () => {
 		const first = memo.get(manifest);
 		const second = memo.get(manifest);
 		assert.equal(calls, 1);
-		assert.equal(first, second);
 
 		release('resolved');
 		assert.equal(await first, 'resolved');
+		assert.equal(await second, 'resolved');
 		// Still cached after settling.
 		assert.equal(await memo.get(manifest), 'resolved');
 		assert.equal(calls, 1);
@@ -109,6 +109,44 @@ describe('createAsyncManifestMemo', () => {
 		assert.equal(calls, 2);
 		// The successful value stays cached.
 		assert.equal(await memo.get(manifest), 'recovered');
+		assert.equal(calls, 2);
+	});
+
+	it('a caller joining a derivation that fails derives again itself', async () => {
+		// Approximates workerd, where awaiting a promise created by a cancelled
+		// request throws in the awaiting request: https://github.com/withastro/astro/issues/18764
+		let calls = 0;
+		const memo = createAsyncManifestMemo(async () => {
+			calls++;
+			if (calls === 1) {
+				throw new Error('created by a request that has since ended');
+			}
+			return 'recovered';
+		});
+		const manifest = createManifest();
+
+		const first = memo.get(manifest);
+		const joined = memo.get(manifest);
+		await assert.rejects(first, { message: 'created by a request that has since ended' });
+		assert.equal(await joined, 'recovered');
+		assert.equal(calls, 2);
+		// The joiner's derivation is cached for later callers.
+		assert.equal(await memo.get(manifest), 'recovered');
+		assert.equal(calls, 2);
+	});
+
+	it('a joining caller still rejects when its own derivation fails', async () => {
+		let calls = 0;
+		const memo = createAsyncManifestMemo(async () => {
+			calls++;
+			throw new Error(`load failed ${calls}`);
+		});
+		const manifest = createManifest();
+
+		const first = memo.get(manifest);
+		const joined = memo.get(manifest);
+		await assert.rejects(first, { message: 'load failed 1' });
+		await assert.rejects(joined, { message: 'load failed 2' });
 		assert.equal(calls, 2);
 	});
 

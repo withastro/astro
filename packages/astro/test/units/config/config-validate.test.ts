@@ -430,6 +430,7 @@ describe('Config Validation', () => {
 				),
 				true,
 			);
+			assert.equal(configError.issues[0].message.includes('be a valid ident:'), true);
 
 			configError = await validateConfig({
 				fonts: [

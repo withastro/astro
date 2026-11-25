@@ -36,9 +36,10 @@ export function processTemplateReadme(content: string, packageManager: string): 
 
 	// Replace package manager references if not npm
 	if (packageManager !== 'npm') {
-		processed = processed
-			.replace(/\bnpm run\b/g, packageManager)
-			.replace(/\bnpm\b/g, packageManager);
+		// nub requires an explicit `run` for scripts, so `npm run <script>` maps to
+		// `nub run <script>` rather than dropping the `run` like pnpm/yarn/bun.
+		const runCommand = packageManager === 'nub' ? 'nub run' : packageManager;
+		processed = processed.replace(/\bnpm run\b/g, runCommand).replace(/\bnpm\b/g, packageManager);
 	}
 
 	return processed;
@@ -131,6 +132,16 @@ Consult these guides before working on related tasks:
 `;
 }
 
+/**
+ * Writes the default `AGENTS.md` for AI coding agents into `cwd`, unless the
+ * template already provides its own `AGENTS.md`, which is left untouched.
+ */
+export function writeAgentsMd(cwd: string) {
+	const agentsPath = path.resolve(cwd, 'AGENTS.md');
+	if (fs.existsSync(agentsPath)) return;
+	fs.writeFileSync(agentsPath, generateAgentsMd());
+}
+
 export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	// Handle Starlight templates
 	if (tmpl === 'starlight' || tmpl.startsWith('starlight/')) {
@@ -212,19 +223,7 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 		}
 
 		if (ctx.ai) {
-			// Generate AGENTS.md for AI coding agents, with a CLAUDE.md link
-			const agentsPath = path.resolve(ctx.cwd, 'AGENTS.md');
-			const claudePath = path.resolve(ctx.cwd, 'CLAUDE.md');
-			fs.writeFileSync(agentsPath, generateAgentsMd());
-			try {
-				fs.symlinkSync('AGENTS.md', claudePath);
-			} catch {
-				try {
-					fs.linkSync(agentsPath, claudePath);
-				} catch {
-					// Link creation failed; AGENTS.md still exists
-				}
-			}
+			writeAgentsMd(ctx.cwd);
 		}
 
 		// Post-process in parallel

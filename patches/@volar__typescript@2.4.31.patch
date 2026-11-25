@@ -1,0 +1,10 @@
+diff --git a/lib/node/proxyLanguageService.js b/lib/node/proxyLanguageService.js
+--- a/lib/node/proxyLanguageService.js
++++ b/lib/node/proxyLanguageService.js
+@@ -112,5 +112,6 @@ function createProxyLanguageService(languageService) {
+                 return Reflect.get(target, p, receiver);
+             },
+             set(target, p, value, receiver) {
++                proxyCache.delete(p);
+                 return Reflect.set(target, p, value, receiver);
+             },

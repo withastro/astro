@@ -7,8 +7,8 @@ import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('experimental.incrementalBuild server islands', () => {
 	const root = new URL('./fixtures/incremental-build-islands/', import.meta.url);
-	const cachedPlain = new URL('node_modules/.astro/dist/client/plain/a/index.html', root);
-	const cachedIsland = new URL('node_modules/.astro/dist/client/island/a/index.html', root);
+	const cachedPlain = new URL('node_modules/.astro/dist/plain/a/index.html', root);
+	const cachedIsland = new URL('node_modules/.astro/dist/island/a/index.html', root);
 	let fixture: Fixture;
 
 	before(async () => {

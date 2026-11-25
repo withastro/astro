@@ -24,6 +24,36 @@ describe('astro/src/core/cookies', () => {
 			assert.equal(cookies.get('foo')!.value, 'bar');
 		});
 
+		for (const header of ['foo=', 'before=value; foo=; after=value']) {
+			it(`gets an empty cookie value from ${header}`, () => {
+				const req = new Request('http://example.com/', {
+					headers: { cookie: header },
+				});
+				const cookies = new AstroCookies(req, mockLogger);
+
+				assert.equal(cookies.has('foo'), true);
+				assert.equal(cookies.get('foo')?.value, '');
+			});
+		}
+
+		it('passes an empty cookie value to a custom decoder', () => {
+			const req = new Request('http://example.com/', {
+				headers: { cookie: 'foo=' },
+			});
+			const cookies = new AstroCookies(req, mockLogger);
+			const decodedValues: string[] = [];
+
+			const cookie = cookies.get('foo', {
+				decode(value) {
+					decodedValues.push(value);
+					return 'decoded empty value';
+				},
+			});
+
+			assert.equal(cookie?.value, 'decoded empty value');
+			assert.deepEqual(decodedValues, ['']);
+		});
+
 		it('gets the cookie value with default decode', () => {
 			const url = 'http://localhost/?hello=world&foo=bar#hash';
 			const req = new Request('http://example.com/', {

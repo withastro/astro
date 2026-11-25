@@ -12,7 +12,6 @@ export class TinyexecCommandExecutor implements CommandExecutor {
 			nodeOptions: {
 				cwd: options?.cwd,
 				env: options?.env,
-				shell: options?.shell,
 				stdio: options?.stdio,
 			},
 		});

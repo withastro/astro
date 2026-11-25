@@ -8,6 +8,8 @@ import {
 import type { CodeMapping, VirtualCode } from '@volar/language-core';
 import { Range, TextDocument } from '@volar/language-server';
 
+const SPAN_MAP_KIND_ATOM = 1;
+
 export interface LSPTSXRanges {
 	frontmatter: Range;
 	body: Range;
@@ -104,6 +106,43 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult) {
 			},
 		},
 	];
+	for (const [
+		generatedOffset,
+		generatedLength,
+		sourceOffset,
+		sourceLength,
+		kind,
+		features,
+	] of tsx.mappings) {
+		if (
+			generatedLength === 0 ||
+			sourceLength !== 0 ||
+			kind !== SPAN_MAP_KIND_ATOM ||
+			features !== undefined
+		) {
+			continue;
+		}
+
+		const previous = [...mapped]
+			.reverse()
+			.find(
+				(mapping) =>
+					mapping.sourceOffset + mapping.length === sourceOffset &&
+					mapping.generatedOffset + mapping.length <= generatedOffset,
+			);
+		if (!previous) continue;
+
+		// The terminator exists only in generated TSX. Extend the preceding mapping over it
+		// so edits that include it still map back to the end of the Astro frontmatter.
+		mappings.push({
+			sourceOffsets: [previous.sourceOffset],
+			generatedOffsets: [previous.generatedOffset],
+			lengths: [previous.length],
+			generatedLengths: [generatedOffset + generatedLength - previous.generatedOffset],
+			// Volar uses verification for code actions and navigation when mapping their edits.
+			data: { verification: true, navigation: true },
+		});
+	}
 	if (tsx.frontmatterStatus === 'doesnt-exist') {
 		// TypeScript inserts auto-imports into the synthetic newline before the template. Map it
 		// to the start of the Astro file so completion edits can create a frontmatter section.

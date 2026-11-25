@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { loadFixture, type Fixture } from './test-utils.ts';
 
-const cssAssetReferenceRegExp = /_astro\/[A-Za-z\d\-]+\.[\da-f]{8}\.css/g;
+const cssAssetReferenceRegExp = /_astro\/[\w-]+\.[\w-]{8}\.css/g;
 
 describe("When Vite's preloadModule polyfill is used", async () => {
 	let fixture: Fixture;

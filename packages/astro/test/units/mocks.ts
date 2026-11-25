@@ -6,6 +6,7 @@ import { App } from '../../dist/core/app/app.js';
 import { FetchState } from '../../dist/core/fetch/fetch-state.js';
 import { fetchStateSymbol } from '../../dist/core/constants.js';
 import { baseService } from '../../dist/assets/services/service.js';
+import { setConfiguredImageService } from '../../dist/assets/internal.js';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import {
 	createComponent,
@@ -19,7 +20,7 @@ import type { RedirectConfig } from '../../dist/types/public/config.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
 import type { SSRManifest, RouteInfo } from '../../dist/core/app/types.js';
-import type { AstroComponentFactory } from '../../dist/runtime/server/render/index.js';
+import type { AstroComponentFactory } from '@astrojs/runtime/_internal/server/render/index.js';
 import type { ImageTransform } from '../../dist/assets/types.js';
 import type { AstroRuntimeLogger } from '../../dist/types/public/context.js';
 
@@ -126,7 +127,9 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	// shims (e.g. `createI18nMiddleware`) can find per-request state.
 	const pipeline = createBasicPipeline();
 	const state = new FetchState(pipeline.manifest, request);
-	state.routeData = { prerender: isPrerendered } as any;
+	// The stub route matches every pathname itself, so it never counts as
+	// a request that reached the route through one of its i18n fallback routes.
+	state.routeData = { prerender: isPrerendered, pattern: /.*/, fallbackRoutes: [] } as any;
 	// If the test provides a mock rewrite, override the FetchState's
 	// rewrite method so it doesn't go through the real Rewrites handler.
 	if (overrides.rewrite) {
@@ -338,7 +341,7 @@ interface ImageServiceOverrides {
 }
 
 /**
- * Installs the unit test image service on globalThis so that getImage()
+ * Installs the unit test image service so that getImage()
  * can resolve it without the virtual:image-service Vite module.
  * Returns the imageConfig object to pass to getImage(), and a cleanup function.
  *
@@ -355,7 +358,7 @@ export function installImageService(overrides: ImageServiceOverrides = {}): {
 	};
 	cleanup: () => void;
 } {
-	(globalThis as any).astroAsset = { imageService: unitTestImageService };
+	setConfiguredImageService(unitTestImageService as any);
 
 	const imageConfig = {
 		service: { entrypoint: 'test', config: {} as Record<string, never> },
@@ -369,7 +372,7 @@ export function installImageService(overrides: ImageServiceOverrides = {}): {
 	return {
 		imageConfig,
 		cleanup() {
-			(globalThis as any).astroAsset = undefined;
+			setConfiguredImageService(undefined);
 		},
 	};
 }

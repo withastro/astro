@@ -2,12 +2,16 @@ import { BaseApp } from '../app/entrypoints/index.js';
 import type { LogRequestPayload } from '../app/base.js';
 import type { SSRManifest } from '../app/types.js';
 import type { ComponentInstance } from '../../types/astro.js';
+import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { getEnvironment } from '../environment/index.js';
 import { getRouteCache, type RouteCache } from '../render/route-cache.js';
-import type { BuildEnvironmentSlots } from './environment.js';
-import type { BuildInternals } from './internal.js';
-import type { StaticBuildOptions } from './types.js';
+import { stringifyParams } from '../routing/params.js';
+import type {
+	BuildEnvironmentInternals,
+	BuildEnvironmentOptions,
+	BuildEnvironmentSlots,
+} from './environment.js';
 
 /**
  * The build / prerender facade: a thin shell over the
@@ -40,11 +44,11 @@ export class BuildApp extends BaseApp {
 		return undefined;
 	}
 
-	public setInternals(internals: BuildInternals) {
+	public setInternals(internals: BuildEnvironmentInternals) {
 		this.#buildEnv.setInternals(internals);
 	}
 
-	public setOptions(options: StaticBuildOptions) {
+	public setOptions(options: BuildEnvironmentOptions) {
 		this.#buildEnv.setOptions(options);
 		this.logger.setDestination(options.logger.options.destination);
 		this.resetAdapterLogger();
@@ -71,6 +75,20 @@ export class BuildApp extends BaseApp {
 
 	getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		return getEnvironment(this.manifest).getComponentByRoute(this.manifest, routeData);
+	}
+
+	async addStaticPath(routeData: RouteData, item: GetStaticPathsItem): Promise<void> {
+		const mod = await this.getComponentByRoute(routeData);
+		const key = stringifyParams(item.params, routeData, this.manifest.trailingSlash);
+		const cached = this.routeCache.get(routeData);
+		if (cached?.mod === mod) {
+			if (cached.staticPaths.keyed.has(key)) return;
+			cached.staticPaths.push(item);
+			cached.staticPaths.keyed.set(key, item);
+			return;
+		}
+		const staticPaths = Object.assign([item], { keyed: new Map([[key, item]]) });
+		this.routeCache.set(routeData, { mod, staticPaths, partial: true });
 	}
 
 	logRequest(_options: LogRequestPayload) {}

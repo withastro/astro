@@ -2,8 +2,8 @@ import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
-import { SessionStorageInitError } from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
+import { SessionStorageInitError } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { normalizePath } from '../viteUtils.js';
 import { normalizeSessionDriverConfig } from './utils.js';
 
@@ -48,7 +48,7 @@ export function vitePluginSessionDriver({ settings }: { settings: AstroSettings 
 				}
 
 				return {
-					code: `import { default as _default } from '${resolved.id}';\nexport * from '${resolved.id}';\nexport default _default;`,
+					code: `import { default as _default } from ${JSON.stringify(resolved.id)};\nexport * from ${JSON.stringify(resolved.id)};\nexport default _default;`,
 				};
 			},
 		},

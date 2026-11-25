@@ -27,7 +27,7 @@ interface EventContext extends ProjectInfo {
 export class AstroTelemetry {
 	private opts: AstroTelemetryOptions;
 	private _anonymousSessionId: string | undefined;
-	private _anonymousProjectInfo: ProjectInfo | undefined;
+	private _anonymousProjectInfo: Promise<ProjectInfo> | undefined;
 	private config = new GlobalConfig({ name: 'astro' });
 	private isCI = isCI;
 	private env = process.env;
@@ -85,9 +85,9 @@ export class AstroTelemetry {
 		return this._anonymousSessionId;
 	}
 
-	private async getAnonymousProjectInfo(): Promise<ProjectInfo> {
+	private getAnonymousProjectInfo(): Promise<ProjectInfo> {
 		// NOTE(fks): this value isn't global, so it can't use getConfigWithFallback().
-		this._anonymousProjectInfo = this._anonymousProjectInfo || (await getProjectInfo(this.isCI));
+		this._anonymousProjectInfo ??= getProjectInfo(this.isCI);
 		return this._anonymousProjectInfo;
 	}
 

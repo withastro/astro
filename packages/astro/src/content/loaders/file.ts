@@ -1,13 +1,13 @@
 import { existsSync, promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import * as yaml from 'js-yaml';
+import { parseYaml } from '@astrojs/internal-helpers/yaml';
 import * as toml from 'smol-toml';
 import {
 	DuplicateContentEntrySlugError,
 	FileGlobNotSupported,
 	FileParserNotFound,
-} from '../../core/errors/errors-data.js';
-import { AstroError } from '../../core/errors/index.js';
+} from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
 
@@ -37,10 +37,7 @@ export function file(fileName: string, options?: FileOptions): Loader {
 	if (ext === 'json') {
 		parse = JSON.parse;
 	} else if (ext === 'yml' || ext === 'yaml') {
-		parse = (text) =>
-			yaml.load(text, {
-				filename: fileName,
-			});
+		parse = parseYaml;
 	} else if (ext === 'toml') {
 		parse = toml.parse;
 	}

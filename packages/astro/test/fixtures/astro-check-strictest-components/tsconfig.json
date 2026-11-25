@@ -1,0 +1,4 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  "include": ["node_modules/astro/components/*.astro"]
+}

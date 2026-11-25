@@ -6,7 +6,7 @@ const localeKeySchema = z.string().min(1);
 
 export const SitemapOptionsSchema = z
 	.object({
-		filenameBase: z.string().optional().prefault(SITEMAP_CONFIG_DEFAULTS.filenameBase),
+		filenameBase: z.string().prefault(SITEMAP_CONFIG_DEFAULTS.filenameBase),
 		filter: z.function({ input: [z.string()], output: z.boolean() }).optional(),
 		customSitemaps: z.array(z.url()).optional(),
 		customPages: z.array(z.url()).optional(),
@@ -26,7 +26,7 @@ export const SitemapOptionsSchema = z
 						}),
 				),
 			})
-			.refine((val) => !val || val.locales[val.defaultLocale], {
+			.refine((val) => !val || Object.hasOwn(val.locales, val.defaultLocale), {
 				message: '`defaultLocale` must exist in `locales` keys',
 			})
 			.optional(),

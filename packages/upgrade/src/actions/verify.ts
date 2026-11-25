@@ -2,7 +2,7 @@ import dns from 'node:dns/promises';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { color } from '@astrojs/cli-kit';
-import { coerce, difference, isGreater, tryParse } from 'verkit';
+import { coerce, difference, isGreaterThan, tryParse } from 'verkit';
 import { bannerAbort, error, getRegistry, info, newline } from '../messages.js';
 import type { Context, PackageInfo } from './context.js';
 
@@ -143,13 +143,17 @@ export async function resolveTargetVersion(
 	if (packageMetadata.status >= 400) {
 		throw new Error(`Unable to resolve "${packageInfo.name}"`);
 	}
-	const { 'dist-tags': distTags } = await packageMetadata.json();
+	const { 'dist-tags': distTags, versions = {} } = await packageMetadata.json();
 	let version = distTags[packageInfo.targetVersion];
-	if (version) {
+	if (!version && packageInfo.name === 'astro' && versions[packageInfo.targetVersion]) {
+		// An exact version refers to an Astro release and is installed as-is, without a `^` prefix.
+		// Integrations are versioned independently, so a matching version string for them is unrelated.
+		version = packageInfo.targetVersion;
+	} else if (version) {
 		const currentCoerced = coerce(packageInfo.currentVersion);
 		const targetParsed = tryParse(version);
 		// If the dist-tag points to a version older than the installed one, fall back to latest.
-		if (currentCoerced && targetParsed && isGreater(currentCoerced, targetParsed)) {
+		if (currentCoerced && targetParsed && isGreaterThan(currentCoerced, targetParsed)) {
 			packageInfo.targetVersion = 'latest';
 			version = distTags.latest;
 		} else {

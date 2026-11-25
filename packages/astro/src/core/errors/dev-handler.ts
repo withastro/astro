@@ -1,5 +1,6 @@
 import type { RenderErrorOptions } from '../app/base.js';
 import type { SSRManifest } from '../app/types.js';
+import { provideCache } from '../cache/handler.js';
 import { getEnvironment } from '../environment/index.js';
 import { FetchState } from '../fetch/fetch-state.js';
 import type { RouteData } from '../../types/public/index.js';
@@ -8,8 +9,11 @@ import { handleMiddleware } from '../middleware/astro-middleware.js';
 import { handlePages } from '../pages/handler.js';
 import { getCustom404Route, getCustom500Route } from '../routing/helpers.js';
 import { getRouteTable } from '../routing/route-table.js';
-import { type AstroError, isAstroError } from './index.js';
-import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from './errors-data.js';
+import { type AstroError, isAstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
+import {
+	MiddlewareNoDataOrNextCalled,
+	MiddlewareNotAResponse,
+} from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import { rewroteToEmptyErrorResponse } from './handler.js';
 
 export interface DevErrorHandlerOptions {
@@ -66,6 +70,7 @@ export async function renderDevError(
 			errorState.componentInstance = preloadedComponent;
 			errorState.locals = resolvedRenderOptions.locals ?? ({} as App.Locals);
 			errorState.initialProps = { error };
+			await provideCache(errorState);
 			const response = await handleMiddleware(errorState, handlePages);
 
 			// A middleware rewrite issued while rendering the error page swaps the

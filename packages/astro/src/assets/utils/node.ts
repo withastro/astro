@@ -2,11 +2,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Rolldown } from 'vite';
-import { generateContentHash } from '../../core/encryption.js';
+import { generateContentHash } from '@astrojs/runtime/_internal/core/encryption.js';
 import { prependForwardSlash, slash } from '../../core/path.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
 
+export { markImageReferenced } from './assets.js';
 export { hashTransform, propsToFilename } from './hash.js';
 
 type FileEmitter = (opts: Parameters<Rolldown.PluginContext['emitFile']>[0]) => string;

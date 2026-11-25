@@ -10,6 +10,7 @@ import { satteri } from '@astrojs/markdown-satteri';
 import type { MarkdownProcessor } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
+import { AstroPluginOptionsSchema } from '@astrojs/vite-plugin-astro';
 import * as z from 'zod/v4';
 import { FontFamilySchema } from '../../../assets/fonts/config.js';
 import { SvgOptimizerSchema } from '../../../assets/svg/config.js';
@@ -66,6 +67,13 @@ export type Smartypants = ComplexifyWithOmit<_Smartypants>;
 import { ASTRO_CONFIG_DEFAULTS } from './defaults.js';
 export { ASTRO_CONFIG_DEFAULTS };
 
+const imageServiceSchema = z.object({
+	entrypoint: z
+		.union([z.literal('astro/assets/services/sharp'), z.string()])
+		.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
+	config: z.record(z.string(), z.any()).default({}),
+});
+
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
 	.default(syntaxHighlightDefaults.type);
@@ -101,11 +109,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.srcDir)
 		.transform((val) => new URL(val)),
-	publicDir: z
-		.string()
-		.optional()
-		.default(ASTRO_CONFIG_DEFAULTS.publicDir)
-		.transform((val) => new URL(val)),
+	publicDir: AstroPluginOptionsSchema.shape.publicDir.transform((val) => new URL(val)),
 	outDir: z
 		.string()
 		.optional()
@@ -116,16 +120,10 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.cacheDir)
 		.transform((val) => new URL(val)),
-	site: z.string().url().optional(),
-	compressHTML: z
-		.union([z.boolean(), z.literal('jsx')])
-		.optional()
-		.default(ASTRO_CONFIG_DEFAULTS.compressHTML),
+	site: AstroPluginOptionsSchema.shape.site,
+	compressHTML: AstroPluginOptionsSchema.shape.compressHTML,
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
-	trailingSlash: z
-		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
-		.optional()
-		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
+	trailingSlash: AstroPluginOptionsSchema.shape.trailingSlash,
 	output: z
 		.union([z.literal('static'), z.literal('server'), z.literal('hybrid')])
 		.optional()
@@ -245,12 +243,10 @@ export const AstroConfigSchema = z.object({
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.endpoint),
 			service: z
-				.object({
-					entrypoint: z
-						.union([z.literal('astro/assets/services/sharp'), z.string()])
-						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
-					config: z.record(z.string(), z.any()).default({}),
-				})
+				.union([
+					z.object({ build: imageServiceSchema, runtime: imageServiceSchema }),
+					imageServiceSchema,
+				])
 				.default(ASTRO_CONFIG_DEFAULTS.image.service),
 			dangerouslyProcessSVG: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.dangerouslyProcessSVG),
 			domains: z.array(z.string()).default([]),
@@ -432,7 +428,6 @@ export const AstroConfigSchema = z.object({
 							fallbackType: z.enum(['redirect', 'rewrite']).optional().default('redirect'),
 						}),
 					)
-					.optional()
 					.prefault({}),
 			})
 			.optional(),
@@ -525,6 +520,16 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.incrementalBuild),
+			redirectPage: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.redirectPage),
+			parallelPrerender: z
+				.union([
+					z.boolean(),
+					z.object({
+						workers: z.number().int().min(1).optional(),
+					}),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.parallelPrerender),
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			collectionStorage: z
 				.union([

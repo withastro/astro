@@ -1,5 +1,85 @@
 # @astrojs/vercel
 
+## 11.0.22
+
+### Patch Changes
+
+- [#18713](https://github.com/withastro/astro/pull/18713) [`59052e7`](https://github.com/withastro/astro/commit/59052e72668578a341a2c412769ead56d570fbe5) Thanks [@delucis](https://github.com/delucis)! - Unpins `@astrojs/*` dependencies to allow versions matching the `^` range to be installed
+
+## 11.0.21
+
+### Patch Changes
+
+- [#18680](https://github.com/withastro/astro/pull/18680) [`4f8e19a`](https://github.com/withastro/astro/commit/4f8e19aa28b9d67519a5fad84303c725654cbb4f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Prevents server function traces from including the entire project when a dependency uses paths the tracer cannot resolve.
+- Updated dependencies [[`57137ed`](https://github.com/withastro/astro/commit/57137ed304b8f4220c8ae03606039bd521f1e005)]:
+  - @astrojs/internal-helpers@0.13.2
+
+## 11.0.20
+
+### Patch Changes
+
+- Updated dependencies [[`7da442b`](https://github.com/withastro/astro/commit/7da442bb286e0c29e1c9e1add6727b7cbf434f1a)]:
+  - @astrojs/internal-helpers@0.13.1
+
+## 11.0.19
+
+### Patch Changes
+
+- [#18631](https://github.com/withastro/astro/pull/18631) [`3106e0a`](https://github.com/withastro/astro/commit/3106e0ad80573b507ee64ce38ff9310a5924c2bf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes Vercel builds that crash on unrecognized NFT dependency-resolution warnings
+
+## 11.0.18
+
+### Patch Changes
+
+- [#18554](https://github.com/withastro/astro/pull/18554) [`3ef9fea`](https://github.com/withastro/astro/commit/3ef9fea973c3a21c65a320407fbb2cf4e947b495) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes NFT tracing so dynamic path segments no longer glob the whole workspace, which could include unrelated files in function bundles for monorepo projects
+
+## 11.0.17
+
+### Patch Changes
+
+- [#18085](https://github.com/withastro/astro/pull/18085) [`785473b`](https://github.com/withastro/astro/commit/785473bc2e18a3dff3f278f812024f1b1ac19411) Thanks [@nikolas-sapa](https://github.com/nikolas-sapa)! - Fix redirects never matching on Vercel when `trailingSlash: 'always'` is set. Redirect sources now include the trailing slash so they match the normalized request path. Sources whose last segment contains a dot are left unslashed, and dynamic or spread sources emit both the slashed and unslashed form, because Vercel only normalizes paths without a dot.
+
+## 11.0.16
+
+### Patch Changes
+
+- [#18411](https://github.com/withastro/astro/pull/18411) [`48ec171`](https://github.com/withastro/astro/commit/48ec171f7bed5dbd5477a4fd5216ef5b53a2eb3a) Thanks [@matthewp](https://github.com/matthewp)! - Uses the Vercel Bun runtime for serverless functions when the project is built with Bun (e.g. `bunx --bun astro build`)
+
+## 11.0.15
+
+### Patch Changes
+
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+
+## 11.0.14
+
+### Patch Changes
+
+- [#18339](https://github.com/withastro/astro/pull/18339) [`fcc050c`](https://github.com/withastro/astro/commit/fcc050cdc60e03b3594f19f6e5418c94f2e40774) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes on-demand routes failing with "Cannot find native binding" on Vercel, caused by the serverless function loading `rolldown` at runtime
+
+## 11.0.13
+
+### Patch Changes
+
+- [#18263](https://github.com/withastro/astro/pull/18263) [`882dd98`](https://github.com/withastro/astro/commit/882dd98cd9f11c4e7bd0b812d37f865dfca75d3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors internal bundling and code transforms to use Vite's Oxc-based `transformWithOxc` and Rolldown instead of esbuild. These packages no longer depend on esbuild directly.
+
+## 11.0.12
+
+### Patch Changes
+
+- [#18254](https://github.com/withastro/astro/pull/18254) [`36f3a0c`](https://github.com/withastro/astro/commit/36f3a0cef5e92de5fc4581f998e039024caf7f7c) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes middleware rewrites returning 404 instead of 200 when the 404 page is server-rendered
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+
+## 11.0.11
+
+### Patch Changes
+
+- [#18044](https://github.com/withastro/astro/pull/18044) [`98c07e1`](https://github.com/withastro/astro/commit/98c07e1735b2c9e075ad31aeafa5af7db4bf0563) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a rare issue where ISR pages on Vercel could intermittently be served a cached redirect to a nonsense URL (such as `/$0/`) instead of the page itself. Pages now render correctly, and requests that can't be resolved to a valid path return a `404` instead of a redirect.
+
+- [#18008](https://github.com/withastro/astro/pull/18008) [`a09b328`](https://github.com/withastro/astro/commit/a09b3288d5d893be230934cb3dbd43afefca0d6c) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Fixes the immutable `Cache-Control` rule for hashed assets (`/_astro/*`) being emitted after the `filesystem` route handle in `.vercel/output/config.json`.
+
 ## 11.0.10
 
 ### Patch Changes

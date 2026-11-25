@@ -3,131 +3,33 @@ import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHashEntry, CspResourceEntry } from '../../core/csp/config.js';
 import type { CacheLike } from '../../core/cache/runtime/cache.js';
 import type { AstroSession } from '../../core/session/runtime.js';
-import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
 
-/**
- * Astro global available in all contexts in .astro files
- *
- * [Astro reference](https://docs.astro.build/en/reference/api-reference/)
- */
-export interface AstroGlobal<
-	Props extends Record<string, any> = Record<string, any>,
-	Self = AstroComponentFactory,
-	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> extends APIContext<Props, Params> {
-	/**
-	 * A standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object describing the outgoing response.
-	 *
-	 * ## Example
-	 *
-	 * You can change the status code by assigning a value to this property:
-	 * ```typescript
-	 * Astro.response.status = 404;
-	 * ```
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#response)
-	 */
-	response: ResponseInit & {
-		readonly headers: Headers;
-	};
-
-	/**
-	 * Allows a component to be recursively called.
-	 *
-	 * This is useful when you need to render an Astro component from within
-	 * itself. `Astro.self` accepts the same properties as the component itself.
-	 *
-	 * ## Example
-	 *
-	 * ```astro
-	 * ---
-	 * const { items } = Astro.props;
-	 * ---
-	 * <ul>
-	 *   {items.map((item) => (
-	 *     <li>
-	 *       {Array.isArray(item) ? (
-	 *         <Astro.self items={item} />
-	 *       ) : (
-	 *         item
-	 *       )}
-	 *     </li>
-	 *   ))}
-	 * </ul>
-	 * ```
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroself)
-	 */
-	self: Self;
-
-	/**
-	 * An object containing utility functions for modifying an Astro component’s
-	 * slotted children.
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslots)
-	 */
-	slots: Record<string, true | undefined> & {
+declare module '@astrojs/vite-plugin-astro' {
+	interface AstroGlobalExtensions<
+		Props extends Record<string, any>,
+		Params extends Record<string, string | undefined>,
+	> extends APIContext<Props, Params> {
 		/**
-		 * Check whether content for this slot name exists
-		 *
-		 * @param {string} slotName - The name of the slot to check.
-		 * @returns {boolean} Whether the slot exists.
+		 * A standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object describing the outgoing response.
 		 *
 		 * ## Example
 		 *
-		 * ```astro
-		 * ---
-		 * ---
-		 * <slot />
-		 * {Astro.slots.has('more') && (
-		 *   // Do something...
-		 * }
+		 * You can change the status code by assigning a value to this property:
+		 * ```typescript
+		 * Astro.response.status = 404;
 		 * ```
 		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslotshas)
+		 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#response)
 		 */
-		has(slotName: string): boolean;
-
-		/**
-		 * Asynchronously renders the contents of a slot to a string of HTML.
-		 *
-		 * @param {string} slotName - The name of the slot to render.
-		 * @param {any[]} [args] - The additional arguments to pass to the callback.
-		 * @returns {Promise<string>} The rendered slot as HTML string.
-		 *
-		 * ## Examples
-		 *
-		 * ```astro
-		 * ---
-		 * let html: string = '';
-		 * if (Astro.slots.has('default')) {
-		 *   html = await Astro.slots.render('default')
-		 * }
-		 * ---
-		 * <Fragment set:html={html} />
-		 * ```
-		 *
-		 * A second parameter can be used to pass arguments to a slotted callback
-		 *
-		 * ```astro
-		 * ---
-		 * html = await Astro.slots.render('default', ["Hello", "World"])
-		 * ---
-		 * ```
-		 * Each item in the array will be passed as an argument that you can use like so:
-		 * ```astro
-		 * <Component>
-		 *		{(hello, world) => <div>{hello}, {world}!</div>}
-		 * </Component>
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslotsrender)
-		 */
-		render(slotName: string, args?: any[]): Promise<string>;
-	};
+		response: ResponseInit & {
+			readonly headers: Headers;
+		};
+	}
 }
+
+export type { AstroGlobal } from '@astrojs/vite-plugin-astro';
 
 /**
  * A type containing functions for logging messages.
@@ -383,7 +285,7 @@ export interface APIContext<
 	props: Props;
 
 	/**
-	 * Create a response that redirects to another page.
+	 * Creates a response that redirects to another page.
 	 *
 	 * This accepts a custom status code when redirecting for on-demand rendered routes only.
 	 *
@@ -513,14 +415,14 @@ export interface APIContext<
 	isPrerendered: boolean;
 
 	/**
-	 * It exposes utilities to control CSP headers
+	 * Exposes utilities to control CSP headers from your pages, endpoints, and middleware.
 	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#csp)
 	 */
 	csp:
 		| {
 				/**
-				 * It adds a specific CSP directive to the route being rendered.
+				 * Adds a specific CSP directive to the route being rendered.
 				 *
 				 * @param {CspDirective} directive - The directive to add to the current page.
 				 *
@@ -530,12 +432,12 @@ export interface APIContext<
 				 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
 				 * ```
 				 *
-				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertdirective)
+				 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cspinsertdirective)
 				 */
 				insertDirective: (directive: CspDirective) => void;
 
 				/**
-				 * It sets the resource for the `style-src` family of directives in the route being rendered. It overrides Astro's default.
+				 * Sets the resource for the `style-src` family of directives in the route being rendered. It overrides Astro's default.
 				 *
 				 * Pass a bare string to add the source to `style-src`, or an object with a `kind` to scope it:
 				 * `"element"` → `style-src-elem`, `"attribute"` → `style-src-attr`, `"default"` → `style-src`.
@@ -549,12 +451,12 @@ export interface APIContext<
 				 * ctx.insertStyleResource({ resource: "'unsafe-inline'", kind: "attribute" })
 				 * ```
 				 *
-				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstyleresource)
+				 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cspinsertstyleresource)
 				 */
 				insertStyleResource: (payload: CspResourceEntry) => void;
 
 				/**
-				 * Insert a single style hash to the route being rendered.
+				 * Inserts a single style hash to the route being rendered.
 				 *
 				 * Pass a bare hash to add it to `style-src`, or an object with a `kind` to scope it:
 				 * `"element"` → `style-src-elem`, `"attribute"` → `style-src-attr`, `"default"` → `style-src`.
@@ -568,12 +470,12 @@ export interface APIContext<
 				 * ctx.insertStyleHash({ hash: "sha256-1234567890abcdef1234567890", kind: "element" })
 				 * ```
 				 *
-				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstylehash)
+				 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cspinsertstylehash)
 				 */
 				insertStyleHash: (payload: CspHashEntry) => void;
 
 				/**
-				 * It sets the resource for the `script-src` family of directives in the route being rendered.
+				 * Sets the resource for the `script-src` family of directives in the route being rendered.
 				 *
 				 * Pass a bare string to add the source to `script-src`, or an object with a `kind` to scope it:
 				 * `"element"` → `script-src-elem`, `"attribute"` → `script-src-attr`, `"default"` → `script-src`.
@@ -587,12 +489,12 @@ export interface APIContext<
 				 * ctx.insertScriptResource({ resource: "https://scripts.cdn.example.com/", kind: "element" })
 				 * ```
 				 *
-				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscriptresource)
+				 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cspinsertscriptresource)
 				 */
 				insertScriptResource: (payload: CspResourceEntry) => void;
 
 				/**
-				 * Insert a single script hash to the route being rendered.
+				 * Inserts a single script hash to the route being rendered.
 				 *
 				 * Pass a bare hash to add it to `script-src`, or an object with a `kind` to scope it:
 				 * `"element"` → `script-src-elem`, `"attribute"` → `script-src-attr`, `"default"` → `script-src`.
@@ -606,7 +508,7 @@ export interface APIContext<
 				 * ctx.insertScriptHash({ hash: "sha256-1234567890abcdef1234567890", kind: "element" })
 				 * ```
 				 *
-				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
+				 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cspinsertscripthash)
 				 */
 				insertScriptHash: (payload: CspHashEntry) => void;
 		  }

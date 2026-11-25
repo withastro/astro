@@ -38,7 +38,12 @@ describe('preserveBuildClientDir', () => {
 
 		it('outputs to outDir for static builds without preserveBuildClientDir', () => {
 			const settings = createSettings({ buildOutput: 'static' }) as unknown as AstroSettings;
-			const result = getOutFolder(settings, '/about', pageRoute);
+			const result = getOutFolder({
+				outRoot: getClientOutputDirectory(settings),
+				buildFormat: settings.config.build.format,
+				pathname: '/about',
+				routeData: pageRoute,
+			});
 			assert.equal(result.href, new URL('about/', outDir).href);
 		});
 
@@ -47,13 +52,23 @@ describe('preserveBuildClientDir', () => {
 				buildOutput: 'static',
 				preserveBuildClientDir: true,
 			}) as unknown as AstroSettings;
-			const result = getOutFolder(settings, '/about', pageRoute);
+			const result = getOutFolder({
+				outRoot: getClientOutputDirectory(settings),
+				buildFormat: settings.config.build.format,
+				pathname: '/about',
+				routeData: pageRoute,
+			});
 			assert.equal(result.href, new URL('about/', clientDir).href);
 		});
 
 		it('outputs to client dir for server builds regardless of preserveBuildClientDir', () => {
 			const settings = createSettings({ buildOutput: 'server' }) as unknown as AstroSettings;
-			const result = getOutFolder(settings, '/about', pageRoute);
+			const result = getOutFolder({
+				outRoot: getClientOutputDirectory(settings),
+				buildFormat: settings.config.build.format,
+				pathname: '/about',
+				routeData: pageRoute,
+			});
 			assert.equal(result.href, new URL('about/', clientDir).href);
 		});
 
@@ -63,7 +78,12 @@ describe('preserveBuildClientDir', () => {
 				preserveBuildClientDir: true,
 			}) as unknown as AstroSettings;
 			const indexRoute = { type: 'page', isIndex: true } as unknown as RouteData;
-			const result = getOutFolder(settings, '/', indexRoute);
+			const result = getOutFolder({
+				outRoot: getClientOutputDirectory(settings),
+				buildFormat: settings.config.build.format,
+				pathname: '/',
+				routeData: indexRoute,
+			});
 			assert.equal(result.href, new URL('./', clientDir).href);
 		});
 	});

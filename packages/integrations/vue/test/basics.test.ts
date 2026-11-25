@@ -63,5 +63,17 @@ describe('Basics', () => {
 			const response = await fixture.fetch('/');
 			assert.equal(response.status, 200);
 		});
+
+		it('inlines Vue scoped styles transformed by the Vue plugin', async () => {
+			const html = await fixture.fetch('/scoped-style').then((res) => res.text());
+			const { document } = parseHTML(html);
+			const css = [...document.querySelectorAll('style[data-vite-dev-id]')]
+				.filter((style) => style.getAttribute('data-vite-dev-id')!.includes('ScopedStyle.vue'))
+				.map((style) => style.textContent)
+				.join('');
+
+			assert.match(css, /\.box\[data-v-[a-z0-9]+\]/);
+			assert.doesNotMatch(css, /v-bind/);
+		});
 	});
 });

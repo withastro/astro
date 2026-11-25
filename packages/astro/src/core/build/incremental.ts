@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import type { SerializedStaticImage } from '../../assets/types.js';
 import type { AstroSettings } from '../../types/astro.js';
+import { copyCachedFile } from '../fs/index.js';
 
 const INCREMENTAL_CACHE_FILE = 'incremental-build.json';
 const INCREMENTAL_OUTPUT_DIR = 'dist/';
@@ -302,7 +303,7 @@ export class IncrementalBuildCache {
 		if (!fs.existsSync(cachedOutputFile)) return false;
 
 		await this.#ensureDir(new URL('./', destination));
-		await fs.promises.copyFile(cachedOutputFile, destination);
+		await copyCachedFile(cachedOutputFile, destination);
 		return true;
 	}
 

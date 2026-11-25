@@ -1,4 +1,5 @@
 // @ts-check
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,40 +11,35 @@ import { glob } from 'tinyglobby';
 */
 
 const rootUrl = new URL('../..', import.meta.url);
-const rootPackageJson = JSON.parse(await fs.readFile(new URL('./package.json', rootUrl), 'utf-8'));
+const rootDir = fileURLToPath(rootUrl);
 
 // get all workspace package name to versions
 /** @type {Map<string, string>} */
 const packageToVersions = new Map();
 
-// Changeset detects workspace packages to publish via `workspaces` in package.json.
-// Although this conflicts with the `pnpm-workspace.yaml` config, it's easier to configure what gets
-// published through this field, so this file also respects this field when updating the versions.
-const workspaceDirs = await glob(rootPackageJson.workspaces, {
-	onlyDirectories: true,
-	cwd: fileURLToPath(rootUrl),
+// pnpm resolves the workspace from `pnpm-workspace.yaml`, so it is the source of truth for the
+// package list. Its raw globs also match test fixtures, some of which have no version, so ask pnpm
+// for the packages it ends up resolving instead.
+const listResult = spawnSync('pnpm', ['ls', '-r', '--depth', '-1', '--json'], {
+	cwd: rootDir,
+	encoding: 'utf8',
+	shell: process.platform === 'win32',
 });
-for (const workspaceDir of workspaceDirs) {
-	const packageJsonPath = path.join(workspaceDir, './package.json');
-	const packageJson = await readAndParsePackageJson(packageJsonPath);
-	if (!packageJson) continue;
+if (listResult.error || listResult.status !== 0) {
+	throw new Error(`Failed to list workspace packages: ${listResult.error ?? listResult.stderr}`);
+}
 
-	if (packageJson.private === true) continue;
+for (const workspacePackage of JSON.parse(listResult.stdout)) {
+	if (workspacePackage.private === true) continue;
+	if (!workspacePackage.name || !workspacePackage.version) continue;
 
-	if (!packageJson.name) {
-		throw new Error(`${packageJsonPath} does not contain a "name" field.`);
-	}
-	if (!packageJson.version) {
-		throw new Error(`${packageJsonPath} does not contain a "version" field.`);
-	}
-
-	packageToVersions.set(packageJson.name, packageJson.version);
+	packageToVersions.set(workspacePackage.name, workspacePackage.version);
 }
 
 // Update all examples' package.json
 const exampleDirs = await glob('examples/*', {
 	onlyDirectories: true,
-	cwd: fileURLToPath(rootUrl),
+	cwd: rootDir,
 });
 for (const exampleDir of exampleDirs) {
 	const packageJsonPath = path.join(exampleDir, './package.json');

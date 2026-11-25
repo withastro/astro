@@ -8,8 +8,8 @@ import {
 	ActionCalledFromServerError,
 	ActionNotFoundError,
 	ActionsReturnedInvalidDataError,
-} from '../../core/errors/errors-data.js';
-import { AstroError } from '../../core/errors/errors.js';
+} from '@astrojs/runtime/_internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { BodySizeLimitError, readBodyWithLimit } from '../../core/request-body.js';
 import type { APIContext } from '../../types/public/index.js';
@@ -194,6 +194,11 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					) {
 						return { data: undefined, error: new ActionError({ code: 'NOT_FOUND' }) };
 					}
+					// decodeURIComponent in getAction throws URIError for malformed
+					// percent-encoded action names (e.g. a lone "%").
+					if (error instanceof URIError) {
+						return { data: undefined, error: new ActionError({ code: 'NOT_FOUND' }) };
+					}
 					throw error;
 				}
 
@@ -207,6 +212,12 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					}
 					if (e instanceof TypeError) {
 						return { data: undefined, error: new ActionError({ code: 'UNSUPPORTED_MEDIA_TYPE' }) };
+					}
+					if (e instanceof SyntaxError) {
+						return {
+							data: undefined,
+							error: new ActionError({ code: 'BAD_REQUEST', message: 'Invalid JSON request body' }),
+						};
 					}
 					throw e;
 				}

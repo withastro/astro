@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'node:test';
-import { collectPrerenderMetadata } from '../../../dist/core/render-scope/collect.js';
-import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
-import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
+import { afterEach, beforeEach, describe, it } from 'node:test';
+import { collectPrerenderMetadata } from '@astrojs/runtime/_internal/core/render-scope/collect.js';
+import { uninstallRenderScope } from '@astrojs/runtime/_internal/core/render-scope/scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/_internal/core/render-scope/node-scope.js';
 import {
+	isCollectingStaticImages,
 	recordContentEntryRender,
 	recordStaticImage,
-} from '../../../dist/core/render-scope/record.js';
+} from '@astrojs/runtime/_internal/core/render-scope/record.js';
 import type { SerializedStaticImage } from '../../../dist/assets/types.js';
 import { defaultLogger, SpyLogger } from '../test-utils.ts';
 
@@ -21,6 +22,10 @@ function image(hash: string): SerializedStaticImage {
 }
 
 describe('collectPrerenderMetadata', () => {
+	// Builds leave their scope installed, and unit tests share one process.
+	beforeEach(() => {
+		uninstallRenderScope();
+	});
 	afterEach(() => {
 		uninstallRenderScope();
 	});
@@ -28,10 +33,10 @@ describe('collectPrerenderMetadata', () => {
 	it('with no scope installed: warns once per process, runs fn bare, metadata undefined', async () => {
 		// Unit tests share one process; import a fresh module instance so the
 		// warn-once latch is deterministically unset for this test.
-		const freshSpecifier = '../../../dist/core/render-scope/collect.js?warn-once';
+		const freshSpecifier = `${import.meta.resolve('@astrojs/runtime/_internal/core/render-scope/collect.js')}?warn-once`;
 		const { collectPrerenderMetadata: collect } = (await import(
 			freshSpecifier
-		)) as typeof import('../../../dist/core/render-scope/collect.js');
+		)) as typeof import('@astrojs/runtime/_internal/core/render-scope/collect.js');
 		const logger = new SpyLogger();
 		const first = await collect(async () => 'first', logger);
 		assert.equal(first.value, 'first');
@@ -76,10 +81,38 @@ describe('collectPrerenderMetadata', () => {
 		for (const { value: i, metadata } of results) {
 			assert.deepEqual(metadata?.contentEntryKeys, [`entry-${i}`, 'entry-shared']);
 			assert.deepEqual(
-				metadata?.staticImages.map((img) => img.hash),
+				metadata?.staticImages.map((img) => (img as SerializedStaticImage).hash),
 				[`img-${i}`, 'img-shared'],
 			);
 		}
+	});
+
+	it('reports each image transform once', async () => {
+		ensureAsyncRenderScope();
+		const { metadata } = await collectPrerenderMetadata(async () => {
+			recordStaticImage(image('a'));
+			recordStaticImage(image('b'));
+			recordStaticImage(image('a'));
+		}, defaultLogger);
+		assert.deepEqual(
+			metadata?.staticImages.map((img) => img.hash),
+			['a', 'b'],
+		);
+	});
+
+	it('does not collect static images when disabled', async () => {
+		ensureAsyncRenderScope();
+		const { metadata } = await collectPrerenderMetadata(
+			async () => {
+				assert.equal(isCollectingStaticImages(), false);
+				recordStaticImage(image('a'));
+				recordContentEntryRender('entry');
+			},
+			defaultLogger,
+			{ staticImages: false },
+		);
+		assert.deepEqual(metadata?.staticImages, []);
+		assert.deepEqual(metadata?.contentEntryKeys, ['entry']);
 	});
 
 	it('the returned snapshot is immune to post-resolve records', async () => {
@@ -102,7 +135,7 @@ describe('collectPrerenderMetadata', () => {
 		await lateRecordDone;
 		assert.deepEqual(metadata?.contentEntryKeys, ['on-time']);
 		assert.deepEqual(
-			metadata?.staticImages.map((img) => img.hash),
+			metadata?.staticImages.map((img) => (img as SerializedStaticImage).hash),
 			['on-time'],
 		);
 	});

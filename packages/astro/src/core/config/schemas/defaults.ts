@@ -1,14 +1,14 @@
 import { markdownConfigDefaults } from '@astrojs/internal-helpers/markdown';
+import { ASTRO_PLUGIN_DEFAULTS } from '@astrojs/vite-plugin-astro/defaults';
 import type { AstroUserConfig } from '../../../types/public/config.js';
 
 export const ASTRO_CONFIG_DEFAULTS = {
+	...ASTRO_PLUGIN_DEFAULTS,
 	root: '.',
 	srcDir: './src',
-	publicDir: './public',
 	outDir: './dist',
 	cacheDir: './node_modules/.astro',
 	base: '/',
-	trailingSlash: 'ignore',
 	build: {
 		format: 'directory',
 		client: './client/',
@@ -28,7 +28,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	devToolbar: {
 		enabled: true,
 	},
-	compressHTML: 'jsx',
 	server: {
 		host: false,
 		port: 4321,
@@ -60,6 +59,8 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
 		incrementalBuild: false,
+		redirectPage: false,
+		parallelPrerender: false,
 		collectionStorage: 'single-file',
 	},
 } satisfies AstroUserConfig & {

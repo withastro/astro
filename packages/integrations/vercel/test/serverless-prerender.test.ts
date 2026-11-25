@@ -16,6 +16,17 @@ describe('Serverless prerender', () => {
 		assert.ok(await fixture.readFile('../.vercel/output/static/index.html'));
 	});
 
+	it('server entry does not import build-only dependencies', { timeout: 30000 }, async () => {
+		const functionConfig = JSON.parse(
+			await fixture.readFile('../.vercel/output/functions/_render.func/.vc-config.json'),
+		);
+		const entry = await fixture.readFile(
+			`../.vercel/output/functions/_render.func/${functionConfig.handler}`,
+		);
+		assert.doesNotMatch(entry, /["']rolldown["']/);
+		assert.doesNotMatch(entry, /["']@vercel\/routing-utils["']/);
+	});
+
 	it('outDir is tree-shaken if not needed', { timeout: 30000 }, async () => {
 		const [file] = await fixture.glob(
 			'../.vercel/output/functions/_render.func/packages/vercel/test/fixtures/serverless-prerender/.vercel/output/_functions/pages/_image.astro.mjs',

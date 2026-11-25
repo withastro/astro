@@ -84,6 +84,15 @@ describe('AstroTelemetry', () => {
 		assert.equal(logs.length, 2);
 		cleanup();
 	});
+	it('looks up project info once for events recorded at the same time', async () => {
+		const { telemetry, cleanup } = setup();
+		const [first, second] = await Promise.all([
+			telemetry['getAnonymousProjectInfo'](),
+			telemetry['getAnonymousProjectInfo'](),
+		]);
+		assert.equal(first, second);
+		cleanup();
+	});
 	it('respects disable from notify', async () => {
 		const { telemetry, config, logs, cleanup } = setup();
 		await telemetry.notify(() => false);

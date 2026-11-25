@@ -12,6 +12,5 @@ const { classLanguage, html } = await runHighlighterWithAstro(lang, code);
 ---
 
 <pre
-	class={[className, classLanguage]
-		.filter(Boolean)
-		.join(' ')}><code class={classLanguage} set:html={html} /></pre>
+	class={[className, classLanguage].filter(Boolean).join(' ')}
+><code class={classLanguage} set:html={html} /></pre>

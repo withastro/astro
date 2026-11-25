@@ -23,13 +23,11 @@ const projects = (await getCollection('work')).sort(
 				align="start"
 			/>
 			<Grid variant="offset">
-				{
-					projects.map((project) => (
-						<li>
-							<PortfolioPreview project={project} />
-						</li>
-					))
-				}
+				{projects.map((project) => (
+					<li>
+						<PortfolioPreview project={project} />
+					</li>
+				))}
 			</Grid>
 		</main>
 		<ContactCTA />

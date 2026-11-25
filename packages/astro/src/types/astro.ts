@@ -11,6 +11,7 @@ import type { ContentEntryType, DataEntryType } from './public/content.js';
 import type {
 	AstroAdapter,
 	AstroPrerenderer,
+	AstroPrerendererFactory,
 	AstroRenderer,
 	InjectedScriptStage,
 	InjectedType,
@@ -33,10 +34,7 @@ export type SerializedRouteData = Omit<
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
-	prerenderer:
-		| AstroPrerenderer
-		| ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer)
-		| undefined;
+	prerenderer: AstroPrerenderer | AstroPrerendererFactory | undefined;
 	preferences: AstroPreferences;
 	injectedRoutes: InternalInjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];

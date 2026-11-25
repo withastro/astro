@@ -16,12 +16,12 @@ const totalPages = Math.ceil(posts.length / 10);
 <BaseLayout title="Blog - Server Site">
 	<ServerInfo />
 	<h1>All Blog Posts</h1>
-	<p>Page {currentPage} of {totalPages}</p>
+	<p>
+		Page {currentPage} of {totalPages}
+	</p>
 	<div class="grid">
-		{
-			posts.map((post) => (
-				<Card title={post.title} description={post.description} href={post.href} />
-			))
-		}
+		{posts.map((post) => (
+			<Card title={post.title} description={post.description} href={post.href} />
+		))}
 	</div>
 </BaseLayout>

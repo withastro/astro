@@ -1,6 +1,6 @@
 import type { SerializeOptions } from 'cookie';
 import { parseCookie, stringifySetCookie } from 'cookie';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 
 export type AstroCookieSetOptions = Pick<
@@ -129,7 +129,7 @@ class AstroCookies implements AstroCookiesInterface {
 		const values = this.#ensureParsed();
 		if (key in values) {
 			const value = values[key];
-			if (value) {
+			if (value !== undefined) {
 				let decodedValue: string;
 				try {
 					decodedValue = decode(value);

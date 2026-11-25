@@ -7,6 +7,7 @@ import { getEnvironment } from '../environment/index.js';
 import { renderErrorFromState } from '../errors/handler.js';
 import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import { applyRewriteToState } from '../rewrites/handler.js';
+import { rejectInvalidEncoding } from '../routing/invalid-encoding.js';
 import { callMiddleware } from './callMiddleware.js';
 import { getMiddleware } from './load.js';
 import { sequence } from './index.js';
@@ -102,6 +103,10 @@ export async function handleMiddlewareWithErrorFallback(
 	state: FetchState,
 	renderRouteCallback: RenderRouteCallback,
 ): Promise<Response> {
+	const invalidEncodingResponse = rejectInvalidEncoding(state);
+	if (invalidEncodingResponse) {
+		return invalidEncodingResponse;
+	}
 	// `FetchState` falls back to an SSR 404 route when nothing matches, so
 	// routeData is only missing when the custom 404 page is prerendered (or
 	// absent). Returning a marked 404 lets the app's `X-Astro-Error`

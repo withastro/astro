@@ -4,13 +4,13 @@ import type fsMod from 'node:fs';
 // runtime graph reaches: restricted runtimes (Cloudflare Workers) disallow
 // wasm code generation. This module is only loaded by dev/build config code.
 // https://github.com/withastro/astro/issues/17906
-import * as eslexer from 'es-module-lexer';
+import * as eslexer from 'es-module-lexer/minimal';
 
 /**
  * Check whether the Actions config file is present.
  */
 export async function isActionsFilePresent(fs: typeof fsMod, srcDir: URL) {
-	await eslexer.init;
+	await eslexer.init();
 
 	const actionsFile = search(fs, srcDir);
 	if (!actionsFile) return false;

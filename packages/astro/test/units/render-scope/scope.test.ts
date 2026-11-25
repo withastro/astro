@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { afterEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import {
 	getInstalledRenderScope,
 	getRenderCollectors,
@@ -8,8 +8,8 @@ import {
 	uninstallRenderScope,
 	type RenderCollectors,
 	type RenderCollectorScope,
-} from '../../../dist/core/render-scope/scope.js';
-import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
+} from '@astrojs/runtime/_internal/core/render-scope/scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/_internal/core/render-scope/node-scope.js';
 
 function fakeScope(): RenderCollectorScope {
 	return {
@@ -19,6 +19,9 @@ function fakeScope(): RenderCollectorScope {
 }
 
 describe('render scope channel', () => {
+	beforeEach(() => {
+		uninstallRenderScope();
+	});
 	afterEach(() => {
 		uninstallRenderScope();
 	});
@@ -77,10 +80,10 @@ describe('render scope channel', () => {
 		// The prerender runtime is bundled, so the orchestrator and the runtime hold
 		// different compiled copies of scope.ts. Simulate the second instance with a
 		// query-string cache-buster and assert both copies resolve one channel.
-		const copyBSpecifier = '../../../dist/core/render-scope/scope.js?render-scope-copy-b';
+		const copyBSpecifier = `${import.meta.resolve('@astrojs/runtime/_internal/core/render-scope/scope.js')}?render-scope-copy-b`;
 		const copyB = (await import(
 			copyBSpecifier
-		)) as typeof import('../../../dist/core/render-scope/scope.js');
+		)) as typeof import('@astrojs/runtime/_internal/core/render-scope/scope.js');
 
 		const scope = ensureAsyncRenderScope();
 		assert.equal(copyB.getInstalledRenderScope(), scope);

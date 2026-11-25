@@ -12,7 +12,7 @@ import {
 	getTsdk,
 } from '@volar/vscode';
 import * as vscode from 'vscode';
-import * as lsp from 'vscode-languageclient/node.js';
+import * as lsp from 'vscode-languageclient/node';
 
 const require = createRequire(import.meta.url);
 

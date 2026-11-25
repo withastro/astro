@@ -1,0 +1,13 @@
+---
+export function getStaticPaths() {
+	return [
+		{ params: { slug: '50%-off' } },
+		// `\` is a path separator on Windows, so this page can't be written there.
+		...(process.platform === 'win32' ? [] : [{ params: { slug: 'a\\b' } }]),
+		{ params: { slug: 'tag#1' } },
+		{ params: { slug: 'café' } },
+	];
+}
+const { slug } = Astro.params;
+---
+<p id="slug">{slug}</p>

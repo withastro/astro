@@ -60,8 +60,9 @@ describe('@astrojs/cloudflare/fetch lazy initialization', () => {
 
 	it('exports a cf function', () => {
 		// Sanity check: the module still exports cf
-		assert.ok(
-			source.includes('export {') && source.includes('cf'),
+		assert.match(
+			source,
+			/export\s+(?:async\s+)?function\s+cf\b|export\s*\{[^}]*\bcf\b[^}]*\}/,
 			'Module should export the cf function',
 		);
 	});

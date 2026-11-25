@@ -136,6 +136,28 @@ function toEndpointRoute() {
 // #region Tests
 
 describe('Astro.cookies', () => {
+	it('reads an empty cookie value in an endpoint', async () => {
+		const app = createTestApp([
+			createEndpoint(
+				{
+					GET: (ctx: APIContext) =>
+						Response.json({
+							present: ctx.cookies.has('empty'),
+							value: ctx.cookies.get('empty')?.value,
+							missing: ctx.cookies.has('missing'),
+						}),
+				},
+				{ route: '/empty' },
+			),
+		]);
+		const response = await app.render(
+			new Request('http://example.com/empty', { headers: { cookie: 'empty=' } }),
+		);
+
+		assert.equal(response.status, 200);
+		assert.deepEqual(await response.json(), { present: true, value: '', missing: false });
+	});
+
 	it('is able to get cookies from the request', async () => {
 		const app = createTestApp([getJsonEndpoint()]);
 		const request = new Request('http://example.com/get-json', {

@@ -1,0 +1,14 @@
+<html>
+	<head>
+		<title>Ignored dynamic imports</title>
+	</head>
+	<body>
+		<script>
+			const { hello } = await import(/* @vite-ignore */ '/external.js');
+			hello();
+			const url = '/external.js';
+			const module = await import(/* @vite-ignore */ url);
+			module.hello();
+		</script>
+	</body>
+</html>

@@ -11,7 +11,7 @@ We welcome contributions of any size and skill level. As an open source project,
 ### Prerequisites
 
 ```shell
-node: "^>=22.12.0"
+node: "^>=22.23.4"
 pnpm: "^10.28.0"
 # otherwise, your build will fail
 ```
@@ -649,7 +649,7 @@ Remember:
 Active Astro development happens on the [`main`](https://github.com/withastro/astro/tree/main) branch. `main` always reflects the latest code.
 
 > [!Note]
-> During certain periods, we put `main` into a [**prerelease**](https://github.com/changesets/changesets/blob/main/docs/prereleases.md#prereleases) state. Read more about [Releasing Astro](#releasing-astro).
+> During certain periods, we put `main` into a [**prerelease**](https://changesets.dev/guide/prereleases) state. Read more about [Releasing Astro](#releasing-astro).
 
 ### `latest`
 
@@ -692,7 +692,7 @@ git reset --hard
 
 By default, every package with a changeset will be released. If you only want to target a smaller subset of packages for release, you can consider clearing out the `.changesets` directory to replace all existing changesets with a single changeset of only the packages that you want to release. Just be sure not to commit or push this to `main`, since it will destroy existing changesets that you will still want to eventually release.
 
-Full documentation: https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md
+Full documentation: https://changesets.dev/guide/snapshot-releases
 
 ### Releasing `astro@next` (aka "prerelease mode")
 
@@ -700,7 +700,7 @@ Sometimes, the repo will enter into "prerelease mode". In prerelease mode, our n
 
 While in prerelease mode, follow the normal release process to release `astro@next` instead of `astro@latest`. To release `astro@latest` instead, see [Releasing `astro@latest` while in prerelease mode](#releasing-astrolatest-while-in-prerelease-mode).
 
-Full documentation: https://github.com/changesets/changesets/blob/main/docs/prereleases.md
+Full documentation: https://changesets.dev/guide/prereleases
 
 ### Entering prerelease mode
 

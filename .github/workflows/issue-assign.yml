@@ -1,0 +1,50 @@
+name: "Issue: Assign"
+
+on:
+  issues:
+    types: [opened]
+
+concurrency:
+  group: issue-assign
+  # Runs must queue instead of cancelling each other: each run reads the
+  # assignee of the most recent pool-assigned issue, so a cancelled run would
+  # silently skip its turn in the rotation.
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  assign:
+    if: github.repository == 'withastro/astro'
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    steps:
+      - name: Assign issue to the next pool member
+        env:
+          GH_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          POOL: '["matthewp", "Princesseuh"]'
+        run: |
+          set -euo pipefail
+
+          # Rotation without stored state: the most recent issue (PRs excluded) with a
+          # pool member assigned is the pointer, and this issue goes to the next member.
+          # A manual pool assignment becomes the new pointer; with no history at all the
+          # first pool member is used.
+          last=$(
+            gh api "repos/${GITHUB_REPOSITORY}/issues?state=all&sort=created&direction=desc&per_page=100" |
+              jq -r --argjson pool "$POOL" '
+                [.[] | select(.pull_request == null)
+                     | .assignees[].login
+                     | select(. as $u | ($pool | index($u)) != null)][0] // empty'
+          )
+
+          if [ -n "$last" ]; then
+            next=$(jq -rn --argjson pool "$POOL" --arg last "$last" \
+              '($pool | index($last) + 1) % ($pool | length) | $pool[.]')
+          else
+            next=$(jq -rn --argjson pool "$POOL" '$pool[0]')
+          fi
+
+          echo "Assigning issue #${ISSUE_NUMBER} to ${next} (last assignee: ${last:-none})"
+          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --add-assignee "$next"

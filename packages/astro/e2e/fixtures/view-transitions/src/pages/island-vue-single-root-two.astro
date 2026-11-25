@@ -1,0 +1,9 @@
+---
+import Layout from '../components/Layout.astro';
+import Counter from '../components/VueSingleRootCounter.vue';
+---
+<Layout>
+	<p id="island-two">Page 2</p>
+	<a id="click-one" href="/island-vue-single-root-one">go to 1</a>
+	<Counter client:load transition:persist="single-root-counter" />
+</Layout>

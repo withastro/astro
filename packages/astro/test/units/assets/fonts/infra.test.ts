@@ -518,7 +518,7 @@ describe('fonts infra', () => {
 					new URL(import.meta.url),
 				);
 				assert.equal(providerFactory._name, 'test');
-				const provider = await providerFactory({ storage: new SpyStorage() });
+				const provider = await providerFactory({ storage: new SpyStorage(), fetch });
 				assert.deepStrictEqual(
 					await provider?.resolveFont('', {
 						formats: [],
@@ -566,7 +566,7 @@ describe('fonts infra', () => {
 					},
 					new URL(import.meta.url),
 				);
-				await providerFactory({ storage: new SpyStorage() });
+				await providerFactory({ storage: new SpyStorage(), fetch });
 				assert.equal(ran, true);
 			});
 
@@ -580,8 +580,35 @@ describe('fonts infra', () => {
 					new URL(import.meta.url),
 				);
 				assert.equal(providerFactory._name, 'test');
-				const provider = await providerFactory({ storage: new SpyStorage() });
+				const provider = await providerFactory({ storage: new SpyStorage(), fetch });
 				assert.deepStrictEqual(await provider?.listFonts?.(), ['a', 'b', 'c']);
+			});
+
+			it('handles getFontProperties()', async () => {
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider(
+					{
+						name: 'test',
+						resolveFont: () => undefined,
+						getFontProperties: ({ familyName }) =>
+							familyName === 'Foo' ? { weights: ['400'] } : undefined,
+					},
+					new URL(import.meta.url),
+				);
+				const provider = await providerFactory({ storage: new SpyStorage(), fetch });
+				assert.deepStrictEqual(await provider?.getFontProperties?.('Foo'), { weights: ['400'] });
+				assert.equal(await provider?.getFontProperties?.('Bar'), undefined);
+			});
+
+			it('does not expose getFontProperties() if the provider does not implement it', async () => {
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider(
+					{
+						name: 'test',
+						resolveFont: () => undefined,
+					},
+					new URL(import.meta.url),
+				);
+				const provider = await providerFactory({ storage: new SpyStorage(), fetch });
+				assert.equal(provider?.getFontProperties, undefined);
 			});
 
 			it('handles unifont > astro > unifont', async () => {
@@ -621,7 +648,7 @@ describe('fonts infra', () => {
 					new URL(import.meta.url),
 				);
 				assert.equal(providerFactory._name, 'test');
-				const provider = await providerFactory({ storage: new SpyStorage() });
+				const provider = await providerFactory({ storage: new SpyStorage(), fetch });
 				assert.equal(ran, true);
 				assert.deepStrictEqual(
 					await provider?.resolveFont('', {
@@ -754,6 +781,56 @@ describe('fonts infra', () => {
 					},
 				}),
 				['a', 'b', 'c'],
+			);
+		});
+
+		it('getFontProperties() works', async () => {
+			const fontResolver = await UnifontFontResolver.create({
+				families: [
+					{
+						name: 'Foo',
+						uniqueName: 'Foo-xxx',
+						cssVariable: '--foo',
+						provider: {
+							name: 'foo',
+							resolveFont: () => undefined,
+						},
+					},
+					{
+						name: 'Bar',
+						uniqueName: 'Bar-xxx',
+						cssVariable: '--bar',
+						provider: {
+							name: 'bar',
+							resolveFont: () => undefined,
+							getFontProperties: ({ familyName }) => ({ weights: ['400'], subsets: [familyName] }),
+						},
+					},
+				],
+				hasher: new FakeHasher(),
+				storage: new SpyStorage(),
+				root: new URL(import.meta.url),
+			});
+			assert.equal(
+				await fontResolver.getFontProperties({
+					familyName: 'Foo',
+					provider: {
+						name: 'foo',
+						resolveFont: () => undefined,
+					},
+				}),
+				undefined,
+			);
+			// The internal provider id is not leaked to consumers
+			assert.deepStrictEqual(
+				await fontResolver.getFontProperties({
+					familyName: 'Bar',
+					provider: {
+						name: 'bar',
+						resolveFont: () => undefined,
+					},
+				}),
+				{ weights: ['400'], subsets: ['Bar'] },
 			);
 		});
 	});

@@ -1,6 +1,7 @@
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { AstroPluginOptionsSchema } from '@astrojs/vite-plugin-astro';
 import * as z from 'zod/v4';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../../path.js';
 import { ASTRO_CONFIG_DEFAULTS, AstroConfigSchema } from './base.js';
@@ -28,14 +29,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.srcDir)
 			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
-		compressHTML: z
-			.union([z.boolean(), z.literal('jsx')])
-			.optional()
-			.default(ASTRO_CONFIG_DEFAULTS.compressHTML),
-		publicDir: z
-			.string()
-			.default(ASTRO_CONFIG_DEFAULTS.publicDir)
-			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
+		compressHTML: AstroPluginOptionsSchema.shape.compressHTML,
+		publicDir: AstroPluginOptionsSchema.shape.publicDir.transform((val) =>
+			resolveDirAsUrl(val, fileProtocolRoot),
+		),
 		outDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.outDir)
@@ -87,7 +84,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 				concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 			})
-			.optional()
 			.prefault({}),
 		server: z
 			.preprocess(

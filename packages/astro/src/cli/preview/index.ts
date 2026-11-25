@@ -4,10 +4,17 @@ import { checkExistingServer, removeLockFile, writeLockFile } from '../../core/d
 import { resolveRoot } from '../../core/config/config.js';
 import { printHelp } from '../../core/messages/runtime.js';
 import previewServer from '../../core/preview/index.js';
-import { isRunByAgent } from '../agent.js';
+import { isRunByAgent, supportsAgentAutoBackgrounding } from '../agent.js';
 import { isIgnoreLock } from '../dev/index.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
-import { background, logs, previewServerCommand, status, stop } from '../server.js';
+import {
+	background,
+	isBackgroundServerProcess,
+	logs,
+	previewServerCommand,
+	status,
+	stop,
+} from '../server.js';
 
 interface PreviewOptions {
 	flags: Flags;
@@ -57,7 +64,9 @@ export async function preview({ flags }: PreviewOptions) {
 	// Agent-inferred background yields to `--ignore-lock`: the flag means a one-off
 	// foreground server that `stop`/`status`/`logs` won't track.
 	// https://github.com/withastro/astro/issues/17903
-	const wantsBackground = !!flags.background || (agentDetected && !ignoreLock);
+	const wantsBackground =
+		!!flags.background ||
+		(supportsAgentAutoBackgrounding(process.platform) && agentDetected && !ignoreLock);
 
 	const logger = createLoggerFromFlags(flags);
 	const subcommand = flags._[3]?.toString();
@@ -159,7 +168,7 @@ export async function preview({ flags }: PreviewOptions) {
 			port: server.port,
 			url: serverUrl,
 			urls: server.urls,
-			background: !!process.env.ASTRO_PREVIEW_BACKGROUND,
+			background: isBackgroundServerProcess(previewServerCommand),
 			startedAt: new Date().toISOString(),
 		},
 		'preview',

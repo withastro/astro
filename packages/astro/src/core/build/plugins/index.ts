@@ -2,11 +2,12 @@ import type { Plugin as VitePlugin } from 'vite';
 import { vitePluginActionsBuild } from '../../../actions/vite-plugin-actions.js';
 import { astroHeadBuildPlugin } from '../../../vite-plugin-head/index.js';
 import type { BuildInternals } from '../internal.js';
-import type { StaticBuildOptions } from '../types.js';
+import type { StaticBuildOptionsInput } from '../types.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
 import { pluginCssTargetLowering } from './plugin-css-target-lowering.js';
+import { pluginEsbuildCheck } from './plugin-esbuild-check.js';
 import { pluginInternals } from './plugin-internals.js';
 import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPrerender } from './plugin-prerender.js';
@@ -16,18 +17,20 @@ import { pluginChunkImports } from './plugin-chunk-imports.js';
 import { pluginIncremental } from './plugin-incremental.js';
 import { pluginNoop } from './plugin-noop.js';
 import { vitePluginSSRAssets } from '../vite-plugin-ssr-assets.js';
+import { pluginImageServiceEntry } from '../image-service.js';
 
 export function getAllBuildPlugins(
 	internals: BuildInternals,
-	options: StaticBuildOptions,
+	options: StaticBuildOptionsInput,
 ): Array<VitePlugin | VitePlugin[] | undefined> {
 	return [
 		pluginComponentEntry(internals),
 		pluginAnalyzer(internals),
 		pluginInternals(options, internals),
-		pluginMiddleware(options, internals),
-		vitePluginActionsBuild(options, internals),
+		pluginMiddleware(internals),
+		vitePluginActionsBuild(internals),
 		pluginCssTargetLowering(),
+		pluginEsbuildCheck(),
 		...pluginCSS(options, internals),
 		astroHeadBuildPlugin(internals),
 		pluginPrerender(options, internals),
@@ -36,6 +39,7 @@ export function getAllBuildPlugins(
 		pluginNoop(),
 		vitePluginSSRAssets(internals),
 		pluginChunkImports(options),
+		pluginImageServiceEntry(),
 		options.settings.config.experimental.incrementalBuild
 			? pluginIncremental(internals, options.settings.config.root)
 			: undefined,

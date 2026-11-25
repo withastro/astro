@@ -14,7 +14,10 @@ describe('React Components', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			// React 19 cannot run in build (production) and dev mode in the same
+			// process. This suite also starts a dev server, so build in dev mode.
+			// See: https://github.com/facebook/react/issues/32030
+			await fixture.build({}, { devOutput: true });
 		});
 
 		it('Can load React', async () => {
@@ -129,6 +132,13 @@ describe('React Components', () => {
 			assert.equal($('#three .subtitle').length, 1);
 			assert.equal($('#three .title').text(), 'Hello');
 			assert.equal($('#three .subtitle').text(), 'World');
+		});
+
+		it('Children with escaped text and attributes are rendered once', async () => {
+			const html = await fixture.readFile('/children/index.html');
+			const $ = cheerioLoad(html);
+			assert.equal($('#four p').text(), "Don't panic & carry on");
+			assert.equal($('#four p').attr('title'), "Don't panic & carry on");
 		});
 
 		it('Does not render astro-slot for empty slots', async () => {

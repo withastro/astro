@@ -1,6 +1,11 @@
 import type { StdioOptions } from 'node:child_process';
 import type { AnyCommand } from './domain/command.js';
 import type { HelpPayload } from './domain/help-payload.js';
+import type { Flags } from './flags.js';
+
+export interface CliArgumentParser {
+	parse: (args: string[]) => Flags;
+}
 
 export interface HelpDisplay {
 	shouldFire: () => boolean;
@@ -31,7 +36,6 @@ export interface CommandRunner {
 export interface CommandExecutorOptions {
 	cwd?: string;
 	env?: Record<string, string | undefined>;
-	shell?: boolean;
 	input?: string;
 	stdio?: StdioOptions;
 }

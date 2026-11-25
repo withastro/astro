@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
-import { Agent } from 'undici';
+import { Agent, fetch as undiciFetch } from 'undici';
 import { CILogger } from '../../../scripts/testing/github-utils.js';
 import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/instance.js';
@@ -244,6 +244,12 @@ export async function loadFixture(inlineConfig: AstroInlineConfig): Promise<Fixt
 			}
 			const resolvedUrl = resolveUrl(url);
 			try {
+				if (config.vite?.server?.https) {
+					return (await undiciFetch(
+						resolvedUrl,
+						init as Parameters<typeof undiciFetch>[1],
+					)) as unknown as Response;
+				}
 				return await fetch(resolvedUrl, init);
 			} catch (err) {
 				// node fetch throws a vague error when it fails, so we log the url here to easily debug it

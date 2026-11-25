@@ -8,7 +8,7 @@ import {
 	stringifyAnimation,
 	stringifyAnimations,
 	toTimeValue,
-} from '../../../dist/runtime/server/transition.js';
+} from '@astrojs/runtime/_internal/server/transition.js';
 import type { SSRResult } from '../../../dist/types/public/internal.js';
 
 describe('reEncode', () => {
@@ -200,6 +200,31 @@ describe('ViewTransitionStyleSheet', () => {
 		assert.ok(
 			css.includes('[data-astro-transition=back]::view-transition-old(banner)'),
 			`expected back prefix: ${css}`,
+		);
+	});
+
+	it('addAnimationPair() quotes custom direction names in the selector', () => {
+		const sheet = new ViewTransitionStyleSheet('astro-xyz-1', 'banner');
+		sheet.addAnimationPair('downward', 'old', { name: 'slide-out' });
+		const css = sheet.toString();
+		assert.ok(
+			css.includes('[data-astro-transition="downward"]::view-transition-old(banner)'),
+			`expected quoted custom direction prefix: ${css}`,
+		);
+	});
+
+	it('addAnimationPair() supports custom direction names that are not CSS identifiers', () => {
+		const sheet = new ViewTransitionStyleSheet('astro-xyz-1', 'banner');
+		sheet.addAnimationPair('2nd step', 'new', { name: 'slide-in' });
+		sheet.addAnimationPair('a"b]c{d}', 'old', { name: 'slide-out' });
+		const css = sheet.toString();
+		assert.ok(
+			css.includes('[data-astro-transition="2nd step"]::view-transition-new(banner)'),
+			`expected quoted custom direction prefix: ${css}`,
+		);
+		assert.ok(
+			css.includes('[data-astro-transition="a\\"b]c{d}"]::view-transition-old(banner)'),
+			`expected punctuation in custom direction to be escaped: ${css}`,
 		);
 	});
 

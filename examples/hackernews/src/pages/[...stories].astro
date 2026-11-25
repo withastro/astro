@@ -35,13 +35,24 @@ const stories = (await fetchAPI(`${mapStories[type]}?page=${page}`)) as IStory[]
 	<section>
 		<nav aria-labelledby="current-page">
 			<Show when={page > 1}>
-				<a href={`/${type}?page=${page - 1}`} aria-label="Previous Page"> &lt; prev</a>
-				<span slot="fallback" aria-disabled="true"> &lt; prev</span>
+				<a href={`/${type}?page=${page - 1}`} aria-label="Previous Page">
+					{' '}
+					&lt; prev
+				</a>
+				<span slot="fallback" aria-disabled="true">
+					{' '}
+					&lt; prev
+				</span>
 			</Show>
 			<span id="current-page">page {page}</span>
 			<Show when={stories?.length >= 29}>
-				<a href={`/${type}?page=${page + 1}`} aria-label="Next Page">more &gt;</a>
-				<span slot="fallback" aria-disabled="true"> more &gt;</span>
+				<a href={`/${type}?page=${page + 1}`} aria-label="Next Page">
+					more &gt;
+				</a>
+				<span slot="fallback" aria-disabled="true">
+					{' '}
+					more &gt;
+				</span>
 			</Show>
 		</nav>
 		<main>

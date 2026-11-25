@@ -1,0 +1,17 @@
+---
+import { threadId } from 'node:worker_threads';
+
+export function getStaticPaths() {
+	return ['one', 'two', 'three', 'four', 'five', 'six'].map((slug) => ({
+		params: { slug },
+		props: { discoveredIn: threadId, date: new Date(0), url: new URL('https://astro.build/') },
+	}));
+}
+
+const { discoveredIn, date, url } = Astro.props;
+---
+
+<p id="discovered-in">{discoveredIn}</p>
+<p id="rendered-in">{threadId}</p>
+<p id="date">{date?.toISOString()}</p>
+<p id="url">{url?.href}</p>

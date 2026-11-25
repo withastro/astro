@@ -1,3 +1,4 @@
+import { getImageServiceConfig } from '../assets/utils/service-config.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type {
@@ -90,7 +91,10 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'sharp',
-		() => settings.config?.image?.service?.entrypoint === 'astro/assets/services/sharp',
+		() =>
+			!!settings.config?.image?.service &&
+			getImageServiceConfig(settings.config.image.service, 'runtime').entrypoint ===
+				'astro/assets/services/sharp',
 	);
 
 	return validationResult;

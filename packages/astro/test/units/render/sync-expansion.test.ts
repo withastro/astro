@@ -7,7 +7,7 @@ import {
 	renderComponent,
 	renderSlotToString,
 } from '../../../dist/runtime/server/index.js';
-import { createRenderInstruction } from '../../../dist/runtime/server/render/instruction.js';
+import { createRenderInstruction } from '@astrojs/runtime/_internal/server/render/instruction.js';
 
 describe('sync subtree expansion', () => {
 	it('keeps scripts carried alongside a slot rendered into a sync component', async () => {

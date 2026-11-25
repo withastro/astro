@@ -1937,7 +1937,9 @@
   });
   ---
 
-  <html><body>Cached page</body></html>
+  <html>
+    <body>Cached page</body>
+  </html>
   ```
 
   In API routes and middleware, use `context.cache`:
@@ -2600,7 +2602,9 @@
   });
   ---
 
-  <html><body>Cached page</body></html>
+  <html>
+    <body>Cached page</body>
+  </html>
   ```
 
   In API routes and middleware, use `context.cache`:

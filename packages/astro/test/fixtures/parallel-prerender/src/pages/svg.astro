@@ -1,0 +1,12 @@
+---
+import { threadId } from 'node:worker_threads';
+import { Image, getImage } from 'astro:assets';
+import Icon from '../assets/icon.svg';
+
+const image = await getImage({ src: Icon, width: 16 });
+---
+
+<p id="rendered-in">{threadId}</p>
+<Icon id="inline-svg" />
+<Image id="image-component" src={Icon} width={24} alt="SVG via Image" />
+<img id="get-image" src={image.src} {...image.attributes} alt="SVG via getImage" />
