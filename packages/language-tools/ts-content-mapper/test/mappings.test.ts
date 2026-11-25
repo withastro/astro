@@ -77,7 +77,7 @@ describe('span mappings', () => {
 		assert.ok((anchor[5]! & DEFINITION) !== 0);
 		assert.equal(
 			result.text.slice(anchor[0], anchor[0] + anchor[1]),
-			'CardAstroComponent',
+			'Card',
 			'the anchor should cover the generated component identifier',
 		);
 	});

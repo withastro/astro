@@ -7143,7 +7143,7 @@ importers:
   packages/language-tools/ts-content-mapper:
     dependencies:
       '@astrojs/astro2tsx':
-        specifier: ^0.1.4
+        specifier: ^0.1.5
         version: 0.1.5
       vscode-jsonrpc:
         specifier: ^10.0.1

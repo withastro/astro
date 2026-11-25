@@ -30,7 +30,7 @@
     "test": "astro-scripts test \"test/**/*.test.ts\" --tsx true"
   },
   "dependencies": {
-    "@astrojs/astro2tsx": "^0.1.4",
+    "@astrojs/astro2tsx": "^0.1.5",
     "vscode-jsonrpc": "^10.0.1"
   },
   "devDependencies": {
