@@ -1,4 +1,4 @@
-import type { ExtractedStyle } from '@astrojs/astro2tsx';
+import { ExtractedStyleType, type ExtractedStyle } from '@astrojs/astro2tsx';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
 import { buildMappings, getText, type CodeSegment } from '../buildMappings.js';
 
@@ -23,7 +23,7 @@ function mergeCSSContextsByLanguage(inlineStyles: ExtractedStyle[]): VirtualCode
 	for (const cssContext of inlineStyles) {
 		const currentCode = isSupportedLanguage(cssContext.lang) ? codes[cssContext.lang] : codes.css;
 
-		const isStyleAttribute = cssContext.type === 'style-attribute';
+		const isStyleAttribute = cssContext.type === ExtractedStyleType.StyleAttribute;
 		if (isStyleAttribute) currentCode.push('__ { ');
 		currentCode.push({
 			text: cssContext.content,

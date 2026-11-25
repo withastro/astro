@@ -1,4 +1,4 @@
-import type { ExtractedScript } from '@astrojs/astro2tsx';
+import { ExtractedScriptType, type ExtractedScript } from '@astrojs/astro2tsx';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
 import { buildMappings, getText, type CodeSegment } from '../buildMappings.js';
 
@@ -6,7 +6,11 @@ export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 	const embeddedJSCodes: VirtualCode[] = [];
 
 	const moduleScripts = scripts
-		.filter((script) => script.type === 'module' || script.type === 'processed-module')
+		.filter(
+			(script) =>
+				script.type === ExtractedScriptType.Module ||
+				script.type === ExtractedScriptType.ProcessedModule,
+		)
 		.map(moduleScriptToVirtualCode) satisfies VirtualCode[];
 
 	const inlineScripts = scripts
@@ -15,7 +19,9 @@ export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 				// TODO: Change this at some point so that unknown scripts are not included
 				// We can't guarantee that they are JavaScript, so we shouldn't treat them as such, even if it might work in some cases
 				// Perhaps we should make it so that the user has to specify the language of the script if it's not a known type (ex: lang="js"), not sure.
-				script.type === 'event-attribute' || script.type === 'inline' || script.type === 'unknown',
+				script.type === ExtractedScriptType.EventAttribute ||
+				script.type === ExtractedScriptType.Inline ||
+				script.type === ExtractedScriptType.Unknown,
 		)
 		.sort((a, b) => a.position.start - b.position.start);
 
@@ -26,7 +32,7 @@ export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 	}
 
 	const JSONScripts = scripts
-		.filter((script) => script.type === 'json')
+		.filter((script) => script.type === ExtractedScriptType.Json)
 		.map(jsonScriptToVirtualCode) satisfies VirtualCode[];
 	embeddedJSCodes.push(...JSONScripts);
 
@@ -36,7 +42,7 @@ export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 function moduleScriptToVirtualCode(script: ExtractedScript, index: number): VirtualCode {
 	let extension = 'mts';
 	let languageId = 'typescript';
-	if (script.type === 'module') {
+	if (script.type === ExtractedScriptType.Module) {
 		extension = 'mjs';
 		languageId = 'javascript';
 	}

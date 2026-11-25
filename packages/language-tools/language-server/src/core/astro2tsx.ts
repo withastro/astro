@@ -1,5 +1,5 @@
 import {
-	type AstroFrontmatterStatus,
+	AstroFrontmatterStatus,
 	type ConvertToTsxResult,
 	type ExtractedScript,
 	type ExtractedStyle,
@@ -35,8 +35,7 @@ export function safeConvertToTSX(
 			mappings: [],
 			frontmatter: { start: 0, end: 0 },
 			body: { start: 0, end: 0 },
-			// `AstroFrontmatterStatus` is an ambient const enum, which `verbatimModuleSyntax` forbids reading.
-			frontmatterStatus: 'doesnt-exist' as AstroFrontmatterStatus,
+			frontmatterStatus: AstroFrontmatterStatus.DoesntExist,
 			frontmatterSource: { start: 0, end: 0 },
 			scripts: [],
 			styles: [],
@@ -143,7 +142,7 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult) {
 			data: { verification: true, navigation: true },
 		});
 	}
-	if (tsx.frontmatterStatus === 'doesnt-exist') {
+	if (tsx.frontmatterStatus === AstroFrontmatterStatus.DoesntExist) {
 		// TypeScript inserts auto-imports into the synthetic newline before the template. Map it
 		// to the start of the Astro file so completion edits can create a frontmatter section.
 		mappings.push({

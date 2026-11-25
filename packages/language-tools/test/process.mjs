@@ -78,7 +78,7 @@ export function startProtocolProcess(t, args, cwd, protocol) {
 		notify(method, params) {
 			send({ jsonrpc: '2.0', method, params });
 		},
-		request(command, args) {
+		request(command, params) {
 			const id = ++seq;
 			return new Promise((resolve, reject) => {
 				const timer = setTimeout(() => {
@@ -97,8 +97,8 @@ export function startProtocolProcess(t, args, cwd, protocol) {
 				});
 				send(
 					protocol === 'tsserver'
-						? { seq: id, type: 'request', command, arguments: args }
-						: { jsonrpc: '2.0', id, method: command, params: args },
+						? { seq: id, type: 'request', command, arguments: params }
+						: { jsonrpc: '2.0', id, method: command, params },
 				);
 			});
 		},
