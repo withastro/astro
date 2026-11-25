@@ -68,11 +68,7 @@ function config(name, input) {
 			entryFileNames: `${name}.js`,
 			banner: [
 				"import { createRequire as __astroCreateRequire } from 'node:module';",
-				"import { fileURLToPath as __astroFileURLToPath } from 'node:url';",
-				"import { dirname as __astroDirname } from 'node:path';",
 				'const require = __astroCreateRequire(import.meta.url);',
-				'const __filename = __astroFileURLToPath(import.meta.url);',
-				'const __dirname = __astroDirname(__filename);',
 			].join('\n'),
 		},
 	};
