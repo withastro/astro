@@ -1,9 +1,11 @@
 ---
 import Greeting from './Greeting.svelte';
 import LegacyGreeting from './LegacyGreeting.svelte';
+import TwoArgs from './TwoArgs';
 ---
 
 <Greeting name="astro" />
 <Greeting name="world" client:load />
 <LegacyGreeting name="astro" />
 <LegacyGreeting name="world" client:load />
+<TwoArgs />

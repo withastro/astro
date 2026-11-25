@@ -30,6 +30,7 @@ declare namespace astroHTML.JSX {
 	 * Components callable with props alone (Astro, React, local `.svelte` files rewritten by `@astrojs/svelte`, etc.)
 	 * keep `P`. The first argument is matched structurally because `astro` cannot depend on `svelte` types:
 	 * Svelte 5 brands it with a symbol key whose value is `'ComponentInternals'`, svelte2tsx types it as `unknown`.
+	 * A first argument without keys (e.g. `{}`) is not treated as the brand, since `keyof {}` is `never`.
 	 * @see https://github.com/withastro/astro/issues/18855
 	 */
 	type LibraryManagedAttributes<C, P> = C extends (props: any) => any
@@ -39,11 +40,13 @@ declare namespace astroHTML.JSX {
 				? 0 extends 1 & I
 					? P
 					: Props
-				: [keyof I] extends [symbol]
-					? [I[keyof I]] extends ['ComponentInternals']
-						? Props
+				: [keyof I] extends [never]
+					? P
+					: [keyof I] extends [symbol]
+						? [I[keyof I]] extends ['ComponentInternals']
+							? Props
+							: P
 						: P
-					: P
 			: P;
 
 	// biome-ignore format: bug
