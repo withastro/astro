@@ -13,6 +13,7 @@ export {
 	generateAgentsMd,
 	processTemplateReadme,
 	removeTemplateMarkerSections,
+	writeAgentsMd,
 } from './actions/template.js';
 export { setStdout } from './messages.js';
 
