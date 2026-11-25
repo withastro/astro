@@ -7,9 +7,9 @@
     "astro": "workspace:*"
   },
   "devDependencies": {
-    "@cloudflare/vitest-plugin": "1.8.1",
+    "@cloudflare/vitest-plugin": "1.9.0",
     "@vitest/runner": "4.1.11",
-    "@vitest/snapshot": "5.1.0",
-    "vitest": "5.1.0"
+    "@vitest/snapshot": "5.1.1",
+    "vitest": "5.1.1"
   }
 }

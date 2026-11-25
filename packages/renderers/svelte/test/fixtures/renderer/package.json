@@ -9,7 +9,7 @@
     "@astrojs/vite-plugin-astro": "workspace:*",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@test/svelte-renderer-lib": "workspace:*",
-    "svelte": "^5.57.3",
+    "svelte": "^5.59.1",
     "vite": "^8.3.8"
   }
 }

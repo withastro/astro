@@ -45,7 +45,7 @@
     "@vitejs/plugin-vue": "^6.0.11",
     "astro-scripts": "workspace:*",
     "vite": "^8.3.8",
-    "vue": "^3.5.45"
+    "vue": "^3.5.46"
   },
   "publishConfig": {
     "provenance": true
