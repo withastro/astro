@@ -61,7 +61,11 @@ async function probe(fsPath: string) {
 	return metadata;
 }
 
-/** Returns a marker that Astro resolves after schema validation. */
+/**
+ * Marks an image path in a build-time collection. Call `image(src)` in a schema
+ * transform and return its result as the field value. Astro resolves local image
+ * metadata after validation, so schema refinements cannot check dimensions or format.
+ */
 export function image(rawSrc: string): ContentImageField {
 	if (typeof rawSrc !== 'string') {
 		throwImageNotFound(String(rawSrc));

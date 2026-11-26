@@ -75,9 +75,8 @@ export interface MetaStore {
 }
 
 /**
- * Any [Standard Schema](https://standardschema.dev) validator: Zod, Valibot, ArkType, and
- * others. Astro validates collection entries through the standard interface, so it is not
- * tied to a single validation library.
+ * A [Standard Schema](https://standardschema.dev/) validator for collection entries.
+ * The schema's output determines the type of `entry.data`.
  */
 export type BaseSchema = StandardSchemaV1;
 
@@ -104,12 +103,11 @@ export type InferSchemaInput<S> = S extends StandardSchemaV1
 
 export type { ImageFunction };
 
-/** @deprecated Use a static schema and import `image` from `astro/content/fields`. */
+/** @deprecated Pass the schema directly to `defineCollection()` and import `image` from `astro/content/fields`. */
 export interface SchemaContext {
 	/**
-	 * @deprecated Use `image()` from `astro/content/fields` instead, which is an ordinary
-	 * function rather than a schema factory, so it works with any validator and its result
-	 * can be validated further:
+	 * @deprecated Import `image` from `astro/content/fields` and call it with the image
+	 * path in a schema transform. Local image metadata is available after validation:
 	 *
 	 * ```js
 	 * schema: z.object({
@@ -153,6 +151,7 @@ export type LiveCollectionConfig<
 	S extends BaseSchema | undefined = undefined,
 > = {
 	type?: 'live';
+	/** Validates entries at query time. Its parsed output takes precedence over the loader's data type. */
 	schema?: S;
 	loader: L;
 };

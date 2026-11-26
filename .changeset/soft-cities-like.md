@@ -4,7 +4,7 @@
 
 Adds `reference(collection, id)` from `astro/content/fields` for content collection schemas and deprecates `reference(collection)` from `astro:content`
 
-`reference()` used to return a Zod schema, which meant it only worked with Zod and its result could not be validated any further. It now takes the referenced entry as a second argument and returns the reference itself, so you can call it from inside a schema transform with any validator:
+Call the helper from your validator's transform with a collection name and an entry ID. It returns a reference you can pass to `getEntry()`:
 
 ```diff
 // src/content.config.ts
@@ -17,6 +17,6 @@ schema: z.object({
 })
 ```
 
-That second argument accepts what the schema form accepted: an entry id, as a string or a number, or a reference object an earlier parse produced. Anything else now throws while your content is synced, instead of being reported as a validation issue on the field.
+Pass a string or numeric ID, or an existing reference to the same collection. Numeric IDs become strings. An invalid lookup, including a reference to a different collection, throws `InvalidContentReferenceError` during sync.
 
 The single-argument form still works but is deprecated and will be removed in Astro 8.

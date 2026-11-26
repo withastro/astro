@@ -14,22 +14,20 @@ declare module 'astro:content' {
 	/**
 	 * @deprecated
 	 * `import { z } from 'astro:content'` is deprecated and will be removed
-	 * in Astro 8. Install `zod` and use `import { z } from 'zod'` instead.
+	 * in Astro 8. Use `import { z } from 'astro/zod'` instead.
 	 */
 	export const z = zod.z;
 
 	/**
-	 * The `data` of every collection, keyed by collection name. This is the only thing
-	 * `astro sync` generates — it infers this interface from `src/content.config.ts` — and
-	 * everything else in `astro:content` is derived from it.
+	 * Maps build-time collection names to the `data` type of their entries. Astro infers
+	 * each type from the collection schema, or from the loader if it provides a schema.
 	 *
-	 * It is an interface, so anything that knows a collection Astro cannot infer can add it.
-	 * An integration shipping its own collection, or a project typing one by hand:
+	 * Augment this interface to declare a collection Astro cannot infer:
 	 *
 	 * ```ts
 	 * declare module 'astro:content' {
 	 *   interface DataMap {
-	 *     blog: { title: string; heroImage?: ImageMetadata };
+	 *     changelog: { version: string; date: Date };
 	 *   }
 	 * }
 	 * ```
@@ -43,14 +41,14 @@ declare module 'astro:content' {
 	 * ```ts
 	 * declare module 'astro:content' {
 	 *   interface LiveDataMap {
-	 *     products: { data: Product; entryFilter: { sku: string } };
+	 *     products: { data: { name: string; price: number }; entryFilter: { sku: string } };
 	 *   }
 	 * }
 	 * ```
 	 *
-	 * A hand-written entry only has to declare the parts it uses. `data` is what the loader
-	 * returns, `entryFilter` and `collectionFilter` are what `getLiveEntry()` and
-	 * `getLiveCollection()` accept, and `error` is what the loader can fail with.
+	 * Declare only the properties you need. `data` is the entry data after validation.
+	 * `entryFilter` and `collectionFilter` are the filters accepted by `getLiveEntry()`
+	 * and `getLiveCollection()`, respectively. `error` is the error type the loader can return.
 	 */
 	export interface LiveDataMap {}
 
@@ -181,7 +179,7 @@ declare module 'astro:content' {
 		| { collection: C; id: string }
 		| { collection: C; slug: string };
 
-	/** @deprecated Use `reference(collection, id)` from `astro/content/fields` in a schema transform instead. */
+	/** @deprecated Use `reference(collection, id)` from `astro/content/fields` in a schema transform. This export will be removed in Astro 8. */
 	export function reference<
 		C extends
 			| CollectionKey
@@ -254,6 +252,11 @@ declare module 'astro:content' {
 }
 
 declare module 'astro/content/fields' {
+	/**
+	 * Creates an entry reference in a schema transform. Numeric IDs become strings.
+	 * You can also pass an existing reference to the same collection.
+	 * @throws If the lookup is invalid or refers to a different collection.
+	 */
 	export function reference<C extends import('astro:content').CollectionKey | (string & {})>(
 		collection: C,
 		lookup: string | number | { collection: C; id: string } | { collection: C; slug: string },

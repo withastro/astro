@@ -125,6 +125,10 @@ export function isInputError<T extends ErrorInferenceObject>(
 	);
 }
 
+/**
+ * Reports invalid action input as a `BAD_REQUEST` error. Throw this from a handler with
+ * your validator's issues. Callers can use {@link isInputError} to read the result.
+ */
 export class ActionInputError<T extends ErrorInferenceObject> extends ActionError {
 	type = 'AstroActionInputError';
 
@@ -134,6 +138,7 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 
 	// TODO: type as `StandardSchemaV1.Issue[]` in Astro 8
 	issues: z.$ZodIssue[];
+	/** Messages grouped by the first segment of each issue's path. Pathless issues appear only in `issues`. */
 	fields: { [P in keyof T]?: string[] | undefined };
 
 	// TODO: type as `StandardSchemaV1.Issue[]` in Astro 8

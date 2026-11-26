@@ -987,7 +987,7 @@ export const MiddlewareCantBeLoaded = {
  * @description
  * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or a URL, it cannot be a string of a filepath.
  *
- * For local images from content collections, you can use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections) to resolve the images.
+ * For local images in a build-time collection, pass the path to [`image()` from `astro/content/fields`](https://docs.astro.build/en/guides/images/#images-in-content-collections) in a schema transform. Use the resulting field from the queried entry as the image's `src`.
  *
  * ```astro
  * ---
@@ -1851,9 +1851,8 @@ export const InvalidContentEntryDataError = {
  * @message
  * The schema for the **blog** collection is not a valid schema.
  * @description
- * A collection was defined with a `schema` that is not a [Standard Schema](https://standardschema.dev) validator.
- * Astro validates collection entries through the Standard Schema interface, so any validator that
- * implements it — Zod, Valibot, ArkType, and others — can be used.
+ * The collection or its loader provided an invalid `schema`. Pass a validator that implements
+ * [Standard Schema](https://standardschema.dev/), such as a Zod or Valibot object schema.
  */
 export const InvalidCollectionSchemaError = {
 	name: 'InvalidCollectionSchemaError',
@@ -2151,7 +2150,8 @@ export const FileGlobNotSupported = {
  * @see
  *  - [Defining collection references](https://docs.astro.build/en/guides/content-collections/#defining-collection-references)
  * @description
- * `reference()` was given a value it cannot turn into a reference. It accepts an entry id, as a string or a number, or an already-resolved reference object belonging to the same collection.
+ * `reference(collection, lookup)` from `astro/content/fields` received an invalid lookup.
+ * Pass a string or numeric entry ID, or a reference object that belongs to the named collection.
  */
 export const InvalidContentReferenceError = {
 	name: 'InvalidContentReferenceError',
@@ -2228,15 +2228,13 @@ export const ActionCalledFromServerError = {
 /**
  * @docs
  * @see
- * - [Actions reference](https://docs.astro.build/en/guides/actions/)
+ * - [Action input](https://docs.astro.build/en/reference/modules/astro-actions/#input-validator)
+ * - [Using validators with form inputs](https://docs.astro.build/en/guides/actions/#using-validators-with-form-inputs)
  * @description
- * An action was defined with an `input` that cannot validate its payload.
- *
- * A JSON action accepts any [Standard Schema](https://standardschema.dev) validator — Zod,
- * Valibot, ArkType, and others. A form action only accepts Zod: turning `FormData` into the
- * value a schema expects needs more than Standard Schema describes, which is why that
- * deprecated option is Zod-only. To validate a form with another validator, omit `input` and
- * parse the `FormData` inside your handler.
+ * The action's `input` is not a supported schema. For JSON actions, pass a
+ * [Standard Schema](https://standardschema.dev/) validator. For form actions, omit `input`
+ * and validate the submitted `FormData` in the handler. The deprecated `input` option
+ * for form actions accepts only Zod schemas.
  */
 export const ActionsInvalidInputSchemaError = {
 	name: 'ActionsInvalidInputSchemaError',

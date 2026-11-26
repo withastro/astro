@@ -2,9 +2,9 @@
 'astro': minor
 ---
 
-Adds support for any [Standard Schema](https://standardschema.dev) validator in content collection schemas
+Adds support for [Standard Schema](https://standardschema.dev/) validators in build-time and live content collections
 
-The `schema` of a collection is no longer required to be a Zod schema. Any validator implementing Standard Schema, such as Zod, Valibot, or ArkType, can now be used, and the type of `entry.data` is inferred from it:
+Pass a schema directly to `defineCollection()` or `defineLiveCollection()` to validate entries and infer the type of `entry.data` from the parsed output. For example, use Valibot to define a blog collection:
 
 ```ts
 // src/content.config.ts
@@ -23,6 +23,6 @@ const blog = defineCollection({
 export const collections = { blog };
 ```
 
-Existing Zod schemas keep working, including the `schema: (context) => ...` function form. Astro deprecates schema factories in favor of static schemas.
+A build-time loader can also provide a default validator with `schema` or return one from `createSchema()`. A schema in the collection config takes precedence. Existing Zod schemas from `astro/zod` keep working.
 
-Data collections still get the `.schema.json` file that gives them autocompletion and validation in your editor, as long as the validator can also describe itself as [JSON Schema](https://standardschema.dev/json-schema). When it cannot, the file is skipped and Astro logs a warning naming the collection.
+To get a `.schema.json` file for editor autocompletion, use a validator that also implements [Standard JSON Schema](https://standardschema.dev/json-schema). Otherwise, Astro warns and skips that file. Entry validation and TypeScript inference still work.

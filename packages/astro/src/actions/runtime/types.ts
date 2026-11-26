@@ -18,7 +18,9 @@ export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<Return
 type InferKey = '__internalInfer';
 
 /**
- * Infers the type of an action's input based on its schema
+ * The validator passed to an action's `input` option, including its library-specific
+ * methods. For a JSON action, use `StandardSchemaV1.InferInput` on this type for the
+ * caller's payload or `StandardSchemaV1.InferOutput` for the handler's parsed value.
  *
  * @see https://docs.astro.build/en/reference/modules/astro-actions/#actioninputschema
  */

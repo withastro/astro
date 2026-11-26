@@ -4,9 +4,7 @@
 
 Infers collection types from your content config, and adds the `DataMap` and `LiveDataMap` interfaces
 
-`astro sync` used to write out the type of every collection's `data` into the generated `astro:content` types. Those types are now inferred from your content config itself, so entry types stay accurate as you edit your schemas.
-
-This also means a collection's `data` is typed from any [Standard Schema](https://standardschema.dev) validator, not just Zod. A collection with no schema is typed as `any`, as before.
+For build-time collections, `entry.data` uses the output type of the collection schema or, if you omit it, the type provided by the loader's schema. Without either, `entry.data` is `any`. For live collections, a schema overrides the loader's data type and preserves its filter and error types.
 
 #### Typing collections by hand
 
@@ -20,7 +18,7 @@ declare module 'astro:content' {
 }
 ```
 
-`LiveDataMap` is the same for live collections, which are inferred from your live config. A live collection is typed by more than its data, so an entry maps a collection name to the set of types its loader works with, and only has to declare the ones you use:
+Augment `LiveDataMap` for a live collection. Declare only the properties you need:
 
 - `data` is what the loader returns
 - `entryFilter` and `collectionFilter` are what `getLiveEntry()` and `getLiveCollection()` accept
@@ -29,11 +27,15 @@ declare module 'astro:content' {
 ```ts
 declare module 'astro:content' {
   interface LiveDataMap {
-    products: { data: Product; entryFilter: { sku: string } };
+    products: { data: { name: string; price: number }; entryFilter: { sku: string } };
   }
 }
 ```
 
 #### Deprecations
 
-`DataEntryMap`, `InferEntrySchema`, `InferLoaderSchema`, `ContentCollectionKey`, and `DataCollectionKey` are still exported but are deprecated and will be removed in Astro 8. Use `DataMap`, `CollectionEntry<C>['data']`, and `CollectionKey` instead.
+The following types are deprecated and will be removed in Astro 8:
+
+- To declare collection data, replace `DataEntryMap` with `DataMap`.
+- To read the data type of collection `C`, replace `InferEntrySchema<C>` or `InferLoaderSchema<C>` with `CollectionEntry<C>['data']`.
+- To refer to a collection name, replace `ContentCollectionKey` or `DataCollectionKey` with `CollectionKey`.

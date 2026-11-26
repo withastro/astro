@@ -61,11 +61,15 @@ export type Loader = {
 	load: (context: LoaderContext) => Promise<void>;
 } & (
 	| {
-			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
+			/** Default Standard Schema validator for entries. A schema in the collection config takes precedence. */
 			schema?: StandardSchemaV1;
 	  }
 	| {
-			/** Optionally, provide a function to dynamically provide a schema. Will be overridden by user-defined schema */
+			/**
+			 * Builds a default validator and TypeScript source that exports an `Entry` type.
+			 * Use this when the schema depends on data fetched at build time. A schema in the
+			 * collection config takes precedence.
+			 */
 			createSchema?: () => Promise<{
 				schema: StandardSchemaV1;
 				types: string;

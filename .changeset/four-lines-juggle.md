@@ -2,4 +2,4 @@
 '@astrojs/yaml2ts': patch
 ---
 
-Types Markdown frontmatter with `CollectionEntry<C>['data']` instead of `InferEntrySchema<C>`, which Astro now deprecates
+Updates Markdown frontmatter type checking to use `CollectionEntry<C>['data']` in place of the deprecated `InferEntrySchema<C>` type

@@ -36,9 +36,10 @@ import type {
 } from './types.js';
 
 /**
- * Defines an action called from an HTML form, receiving the submitted `FormData`.
+ * Defines an action that accepts `FormData`. Omit `input` to read and validate the
+ * submitted fields in your handler.
  *
- * @see https://docs.astro.build/en/guides/actions/#accept-form-data
+ * @see https://docs.astro.build/en/guides/actions/#using-validators-with-form-inputs
  *
  * @example
  * ```ts
@@ -61,21 +62,23 @@ export function defineAction<
 >(params: {
 	accept: 'form';
 	/**
-	 * @deprecated Validating `FormData` with an `input` schema is deprecated and will be
-	 * removed in Astro 8. Astro's `FormData` coercion is too opinionated to fit every form,
-	 * and it can only ever support Zod. Parse the `FormData` in your handler instead, with
-	 * the validator of your choice:
+	 * @deprecated Omit `input` and validate the submitted `FormData` in your handler.
+	 * This option accepts only Zod schemas and will be removed in Astro 8.
+	 * To report field errors, throw an `ActionInputError` with your validator's issues:
 	 *
 	 * ```ts
-	 * import { ActionInputError, defineAction } from 'astro:actions';
 	 * import { parseFormData } from '@standard-community/standard-form';
+	 * import { ActionInputError, defineAction } from 'astro:actions';
+	 * import { z } from 'astro/zod';
+	 *
+	 * const schema = z.object({ email: z.email() });
 	 *
 	 * defineAction({
 	 * 	accept: 'form',
 	 * 	handler: async (formData) => {
 	 * 		const result = await parseFormData(schema, formData);
 	 * 		if (result.issues) throw new ActionInputError(result.issues);
-	 * 		// ...
+	 * 		return result.value;
 	 * 	},
 	 * });
 	 * ```
@@ -86,12 +89,11 @@ export function defineAction<
 /**
  * Defines an action called with JSON, the default.
  *
- * Pass an `input` schema to validate the payload before the handler runs. Any validator
- * implementing [Standard Schema](https://standardschema.dev) can be used — Zod, Valibot,
- * ArkType, and others — and the handler receives its parsed output. When the payload does
- * not match, the caller gets an `ActionInputError` instead.
+ * Pass a [Standard Schema](https://standardschema.dev/) validator as `input` to validate
+ * the payload. The handler receives the parsed output. If validation fails, Astro returns
+ * an `ActionInputError` to the caller without running the handler.
  *
- * @see https://docs.astro.build/en/guides/actions/#handler-property
+ * @see https://docs.astro.build/en/reference/modules/astro-actions/#input-validator
  *
  * @example
  * ```ts
