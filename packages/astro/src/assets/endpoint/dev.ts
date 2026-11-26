@@ -57,8 +57,8 @@ async function loadLocalImage(src: string, url: URL): Promise<LocalImageLoadResu
 		if (sourceUrl.origin !== url.origin) {
 			return { kind: 'invalid-path' };
 		}
-		const buffer = await loadRemoteImage(sourceUrl);
-		return buffer ? { kind: 'loaded', buffer } : { kind: 'failed' };
+		const remote = await loadRemoteImage(sourceUrl);
+		return remote.kind === 'loaded' ? { kind: 'loaded', buffer: remote.buffer } : { kind: 'failed' };
 	}
 
 	return returnValue ? { kind: 'loaded', buffer: returnValue } : { kind: 'failed' };
