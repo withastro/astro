@@ -33,8 +33,8 @@ describe('Content Layer - Live Loaders', () => {
 		const result = z.object({ title: z.string() }).safeParse({ title: false });
 		assert.ok(!result.success);
 		for (const ErrorType of [LiveCollectionValidationError, LiveCollectionCacheHintError]) {
-			const fromZod = new ErrorType('posts', 'one', result.error);
-			const fromIssues = new ErrorType('posts', 'one', result.error.issues);
+			const fromZod: Error = new ErrorType('posts', 'one', result.error);
+			const fromIssues: Error = new ErrorType('posts', 'one', result.error.issues);
 			assert.match(fromZod.message, /\*\*title\*\*:/);
 			assert.equal(fromZod.message, fromIssues.message);
 		}

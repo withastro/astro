@@ -143,6 +143,22 @@ describe('ActionInputError', () => {
 		assert.deepEqual(error.fields.name, ['Expected string']);
 	});
 
+	it('normalizes vendor codes and object path segments before grouping and serialization', () => {
+		const issues = [
+			{ code: 'domain', message: 'Invalid email', path: [{ key: 'email' }] },
+			{ code: 'invalid_type', message: 'Invalid key', path: [{ key: '__proto__' }] },
+		];
+		const error = new ActionInputError(issues);
+		assert.deepEqual(error.issues, [
+			{ code: 'custom', message: 'Invalid email', path: ['email'] },
+			{ code: 'custom', message: 'Invalid key', path: ['__proto__'] },
+		]);
+		const restored = ActionError.fromJson(JSON.parse(JSON.stringify(error)));
+		assert.ok(isInputError(restored));
+		assert.deepEqual(restored.fields.email, ['Invalid email']);
+		assert.deepEqual(restored.fields['__proto__'], ['Invalid key']);
+	});
+
 	it('populates fields from a mix of both shapes', () => {
 		const error = new ActionInputError([
 			{ code: 'invalid_type', message: 'Expected string', path: ['name'] } as any,

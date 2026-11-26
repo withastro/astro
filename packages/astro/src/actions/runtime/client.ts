@@ -149,31 +149,50 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 			code: 'BAD_REQUEST',
 		});
 		this.issues = zodIssues;
-		this.fields = {};
+		const fields = new Map<string, string[]>();
 		for (const issue of zodIssues) {
 			const segment = issue.path?.[0];
 			if (segment === undefined) continue;
-			const key = String(segment) as keyof typeof this.fields;
-			this.fields[key] ??= [];
-			this.fields[key]?.push(issue.message);
+			const key = String(segment);
+			const messages = fields.get(key);
+			if (messages) messages.push(issue.message);
+			else fields.set(key, [issue.message]);
 		}
+		this.fields = Object.fromEntries(fields) as typeof this.fields;
 	}
 }
 
-function isZodIssue(issue: z.$ZodIssue | StandardSchemaV1.Issue): issue is z.$ZodIssue {
-	return 'code' in issue && typeof issue.code === 'string';
-}
+const zodIssueFields = {
+	invalid_type: 'expected',
+	too_big: 'maximum',
+	too_small: 'minimum',
+	invalid_format: 'format',
+	not_multiple_of: 'divisor',
+	unrecognized_keys: 'keys',
+	invalid_union: 'errors',
+	invalid_key: 'issues',
+	invalid_element: 'key',
+	invalid_value: 'values',
+	custom: 'message',
+} satisfies { [C in z.$ZodIssue['code']]: keyof Extract<z.$ZodIssue, { code: C }> };
 
 // TODO: remove in Astro 8, when `ActionInputError#issues` becomes `StandardSchemaV1.Issue[]`
 function toZodIssue(issue: z.$ZodIssue | StandardSchemaV1.Issue): z.$ZodIssue {
-	if (isZodIssue(issue)) return issue;
+	if (
+		'code' in issue &&
+		Object.hasOwn(zodIssueFields, issue.code) &&
+		zodIssueFields[issue.code] in issue &&
+		issue.path?.every((segment) => typeof segment !== 'object')
+	) {
+		return issue;
+	}
 	return {
 		code: 'custom',
 		message: issue.message,
 		path: (issue.path ?? []).map((segment) =>
 			typeof segment === 'object' ? segment.key : segment,
 		),
-	} satisfies z.$ZodIssueCustom;
+	};
 }
 
 export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {

@@ -13,7 +13,7 @@ export function isSchemaFactory(value: unknown): boolean {
 	return typeof value === 'function' && !isStandardSchema(value);
 }
 
-export function formatIssuePath(path: StandardSchemaV1.Issue['path']): string {
+function formatIssuePath(path: StandardSchemaV1.Issue['path']): string {
 	return (path ?? [])
 		.map((segment) => String(typeof segment === 'object' ? segment.key : segment))
 		.join('.');

@@ -255,7 +255,6 @@ declare module 'astro:content' {
 
 declare module 'astro/content/fields' {
 	export const image: typeof import('../dist/content/image.js').image;
-	export type ContentImageField = import('../dist/content/image.js').ContentImageField;
 
 	/**
 	 * Creates an entry reference in a schema transform. Numeric IDs become strings.

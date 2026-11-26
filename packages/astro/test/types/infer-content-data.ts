@@ -51,6 +51,15 @@ type ContentConfig = {
 };
 
 describe('InferData()', () => {
+	it('accepts explicit schema and loader type arguments', () => {
+		const loader = async () => [{ id: '1' }];
+		const posts = defineCollection<typeof schema>({ schema, loader });
+		const news = defineCollection<typeof schema, typeof loader>({ schema, loader });
+		type Data = InferData<{ collections: { posts: typeof posts; news: typeof news } }>;
+		expectTypeOf<Data['posts']>().toEqualTypeOf<{ title: string }>();
+		expectTypeOf<Data['news']>().toEqualTypeOf<{ title: string }>();
+	});
+
 	it('infers a collection from its own schema', () => {
 		expectTypeOf<InferData<ContentConfig>['withSchema']>().toEqualTypeOf<{ title: string }>();
 		expectTypeOf<InferData<ContentConfig>['legacy']>().toEqualTypeOf<{ title: string }>();

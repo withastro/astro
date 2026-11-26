@@ -15,8 +15,9 @@ import {
 	MarkdownError,
 } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
+import { getYamlPathLine } from '@astrojs/internal-helpers/yaml';
+import type { ImageMetadata } from '../assets/types.js';
 import {
-	formatIssuePath,
 	formatSchemaIssues,
 	isSchemaFactory,
 	isStandardSchema,
@@ -217,10 +218,7 @@ export async function getEntryData<
 					),
 					location: {
 						file: entry._internal.filePath,
-						line: getYAMLErrorLine(
-							entry._internal.rawData,
-							formatIssuePath(result.issues[0]?.path).split('.')[0],
-						),
+						line: getEntryErrorLine(entry._internal.rawData, result.issues[0]?.path),
 						column: 0,
 					},
 				});
@@ -249,8 +247,7 @@ async function resolveImageFields(
 	filePath: string,
 	resolver?: import('./image.js').ImageSourceResolver,
 ): Promise<Record<string, unknown>> {
-	const markers: { path: (string | number)[]; value: import('./image.js').ContentImageField }[] =
-		[];
+	const markers: { path: (string | number)[]; value: ImageMetadata }[] = [];
 	forEach(data, (ctx, value) => {
 		if (
 			value &&
@@ -259,7 +256,7 @@ async function resolveImageFields(
 		) {
 			markers.push({
 				path: ctx.path.map((segment) => segment as string | number),
-				value: value as import('./image.js').ContentImageField,
+				value: value as ImageMetadata,
 			});
 		}
 	});
@@ -459,18 +456,18 @@ function hasUnderscoreBelowContentDirectoryPath(
 	return false;
 }
 
-function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
-	if (!rawData) return 0;
-	const indexOfObjectKey = rawData.search(
-		// Match key either at the top of the file or after a newline
-		// Ensures matching on top-level object keys only
-		new RegExp(`(\n|^)${objectKey}`),
+function getEntryErrorLine(rawData: string | undefined, issuePath: StandardSchemaV1.Issue['path']) {
+	if (!rawData || !issuePath?.length) return 0;
+	const keys = issuePath.map((segment) => (typeof segment === 'object' ? segment.key : segment));
+	const yamlLine = getYamlPathLine(rawData, keys);
+	if (yamlLine !== undefined) return yamlLine;
+	// TOML frontmatter uses assignments instead of YAML mapping keys.
+	return (
+		rawData.split('\n').findIndex((line) => {
+			const equals = line.indexOf('=');
+			return equals !== -1 && line.slice(0, equals).trimEnd() === String(keys[0]);
+		}) + 1
 	);
-	if (indexOfObjectKey === -1) return 0;
-
-	const dataBeforeKey = rawData.substring(0, indexOfObjectKey + 1);
-	const numNewlinesBeforeKey = dataBeforeKey.split('\n').length;
-	return numNewlinesBeforeKey;
 }
 
 export function safeParseFrontmatter(source: string, id?: string) {

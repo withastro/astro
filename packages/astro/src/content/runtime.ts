@@ -547,7 +547,7 @@ function resolveImageAtPath(
 	src: string,
 	fileName: string | undefined,
 	imageAssetMap: Map<string, ImageMetadata> | undefined,
-): unknown {
+) {
 	const id = imageSrcToImportId(src, fileName);
 	if (!id) {
 		return undefined;
@@ -636,7 +636,7 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 				// An SVG import can resolve to a component factory.
 				typeof resolved === 'function'
 					? resolved
-					: { ...(current as object), ...(resolved as object) },
+					: Object.defineProperties({ ...current }, Object.getOwnPropertyDescriptors(resolved)),
 			);
 		}
 	}

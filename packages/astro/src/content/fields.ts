@@ -1,2 +1,2 @@
-export { image, type ContentImageField } from './image.js';
+export { image } from './image.js';
 export { reference } from './runtime.js';

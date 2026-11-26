@@ -328,13 +328,13 @@ export class ContentLayer {
 
 				const context = await this.#getLoaderContext({
 					collectionName: name,
-					parseData: ({ id, data, filePath = '' }) =>
+					parseData: ({ id, data, filePath = '', rawData }) =>
 						getEntryData(
 							{
 								id,
 								collection: name,
 								unvalidatedData: data,
-								_internal: { rawData: undefined, filePath, imageResolver },
+								_internal: { rawData, filePath, imageResolver },
 							},
 							{ ...collection, schema },
 							false,

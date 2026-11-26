@@ -14,6 +14,7 @@ const inputSchema = z.object({
 describe('ActionInputSchema', () => {
 	it('Exports ActionInputError from astro:actions', () => {
 		expectTypeOf<ActionInputError<Record<string, any>>>().toMatchTypeOf<Error>();
+		expectTypeOf<ConstructorParameters<typeof ActionInputError>['length']>().toEqualTypeOf<1>();
 	});
 
 	describe(`accept = 'form'`, () => {

@@ -24,6 +24,8 @@ export interface ParseDataOptions<TData extends Record<string, unknown>> {
 	data: TData;
 	/** An optional file path, where the entry represents a local file. */
 	filePath?: string;
+	/** Unparsed entry data with its original line breaks, used to locate validation errors. */
+	rawData?: string;
 }
 
 export interface LoaderContext {

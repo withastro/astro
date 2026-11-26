@@ -1,6 +1,6 @@
 import fsMod from 'node:fs';
 import path from 'node:path';
-import type { ImageMetadata, OmitBrand } from '../assets/types.js';
+import type { ImageMetadata } from '../assets/types.js';
 import { imageMetadata } from '../assets/utils/metadata.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
@@ -16,30 +16,11 @@ export type ImageSourceResolver = (source: string, importer: string) => Promise<
  * Cloudflare and Deno, which the `verify-no-node-stuff` test plugin enforces.
  */
 
-/**
- * What `image()` returns while a collection entry is being parsed.
- *
- * `src` is prefixed so Astro can resolve the image after validation and before storing the
- * entry. Image metadata is not available to schema validation.
- */
-export type ContentImageField = {
-	[IMAGE_FIELD_MARKER]: true;
-} & OmitBrand<ImageMetadata>;
-
 function throwImageNotFound(src: string): never {
 	throw new AstroError({
 		...AstroErrorData.ImageNotFound,
 		message: AstroErrorData.ImageNotFound.message(src),
 	});
-}
-
-function createImageMarker(src: string): ContentImageField {
-	const marker = {
-		[IMAGE_FIELD_MARKER]: true,
-		src: `${IMAGE_IMPORT_PREFIX}${src}`,
-	} as ContentImageField;
-	Object.defineProperty(marker, 'fsPath', { value: '' });
-	return marker;
 }
 
 // Without a file emitter, `emitImageMetadata` would put a dev-only `/@fs/` URL in the data store.
@@ -62,18 +43,20 @@ async function probe(fsPath: string) {
  * transform and return its result as the field value. Astro resolves local image
  * metadata after validation, so schema refinements cannot check dimensions or format.
  */
-export function image(rawSrc: string): ContentImageField {
+export function image(rawSrc: string): ImageMetadata {
 	if (typeof rawSrc !== 'string') {
 		throwImageNotFound(String(rawSrc));
 	}
-	return createImageMarker(rawSrc);
+	const marker = { [IMAGE_FIELD_MARKER]: true, src: `${IMAGE_IMPORT_PREFIX}${rawSrc}` };
+	Object.defineProperty(marker, 'fsPath', { value: '' });
+	return marker as unknown as ImageMetadata;
 }
 
 export async function resolveImageField(
-	field: ContentImageField,
+	field: ImageMetadata,
 	filePath: string | undefined,
 	resolveSource?: ImageSourceResolver,
-): Promise<ContentImageField> {
+): Promise<ImageMetadata> {
 	const rawSrc = field.src.replace(IMAGE_IMPORT_PREFIX, '');
 	if (rawSrc.includes('://') || typeof filePath !== 'string' || !path.isAbsolute(filePath)) {
 		return field;

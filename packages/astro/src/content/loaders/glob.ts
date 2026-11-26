@@ -152,7 +152,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					return;
 				}
 
-				const { body, data } = await entryType.getEntryInfo({
+				const { body, data, rawData } = await entryType.getEntryInfo({
 					contents,
 					fileUrl,
 				});
@@ -186,10 +186,15 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 
 				const relativePath = posixRelative(fileURLToPath(config.root), filePath);
 
+				const leadingLines =
+					rawData && rawData !== contents
+						? (/^(\s*\n)(?:---|\+\+\+)/.exec(contents)?.[1] ?? '')
+						: '';
 				const parsedData = await parseData({
 					id,
 					data,
 					filePath,
+					rawData: leadingLines ? leadingLines + rawData : rawData,
 				});
 
 				if (existingEntry && existingEntry.filePath && existingEntry.filePath !== relativePath) {

@@ -184,6 +184,13 @@ function throwInvalidInputSchema(vendor?: string): never {
 	});
 }
 
+function createActionInputError(issues: readonly StandardSchemaV1.Issue[], vendor: string) {
+	if (vendor === 'zod') return new ActionInputError(issues);
+	// Other validators can use the same issue codes as Zod. Passing only the Standard Schema
+	// fields lets ActionInputError report these issues as `custom` without guessing their origin.
+	return new ActionInputError(issues.map(({ message, path }) => ({ message, path })));
+}
+
 function getFormServerHandler<TOutput, TInputSchema extends z.$ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
@@ -202,7 +209,7 @@ function getFormServerHandler<TOutput, TInputSchema extends z.$ZodType>(
 		const parsed = await parseFormData(inputSchema, unparsedInput);
 
 		if (parsed.issues) {
-			throw new ActionInputError(parsed.issues);
+			throw createActionInputError(parsed.issues, inputSchema['~standard'].vendor);
 		}
 		return await handler(parsed.value, context);
 	};
@@ -223,7 +230,7 @@ function getJsonServerHandler<TOutput, TInputSchema extends StandardSchemaV1>(
 		if (!inputSchema) return await handler(unparsedInput, context);
 		const parsed = await inputSchema['~standard'].validate(unparsedInput);
 		if (parsed.issues) {
-			throw new ActionInputError(parsed.issues);
+			throw createActionInputError(parsed.issues, inputSchema['~standard'].vendor);
 		}
 		return await handler(parsed.value, context);
 	};

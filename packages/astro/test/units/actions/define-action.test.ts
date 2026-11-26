@@ -15,7 +15,16 @@ const nonZodSchema: StandardSchemaV1<{ name: string }, { name: string }> = {
 		vendor: 'test',
 		validate: (value: any) => {
 			if (typeof value?.name !== 'string') {
-				return { issues: [{ message: 'Expected a string', path: ['name'] }] };
+				return {
+					issues: [
+						{
+							code: 'invalid_type',
+							expected: 'string',
+							message: 'Expected a string',
+							path: ['name'],
+						},
+					],
+				};
 			}
 			return { value: { name: value.name.trim() } };
 		},

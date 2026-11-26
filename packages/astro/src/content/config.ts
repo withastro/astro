@@ -218,7 +218,12 @@ export function defineLiveCollection<
 	return config;
 }
 
-export function defineCollection<T extends CollectionConfig>(config: T): T {
+export function defineCollection<T extends CollectionConfig>(config: T): T;
+export function defineCollection<
+	S extends BaseSchema,
+	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
+>(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader>;
+export function defineCollection(config: CollectionConfig): CollectionConfig {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {

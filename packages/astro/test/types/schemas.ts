@@ -11,7 +11,7 @@ import type { SvgOptimizer } from '../../dist/assets/svg/types.js';
 import type { SvgOptimizerSchema } from '../../dist/assets/svg/config.js';
 import type { ImageInputFormat, ImageMetadata } from '../../dist/assets/types.js';
 import type { SchemaContext } from '../../dist/content/config.js';
-import { image, type ContentImageField } from 'astro/content/fields';
+import { image } from 'astro/content/fields';
 import type { getImage } from '../../dist/assets/index.js';
 
 describe('fonts', () => {
@@ -51,9 +51,9 @@ describe('svgOptimizer', () => {
 
 describe('content image()', () => {
 	it('returns a type compatible with ImageMetadata', () => {
-		expectTypeOf(image('./cover.jpg')).toEqualTypeOf<ContentImageField>();
-		expectTypeOf<ContentImageField>().toExtend<ImageMetadata>();
-		const options: Parameters<typeof getImage>[0] = { src: {} as ContentImageField };
+		const cover = image('./cover.jpg');
+		expectTypeOf(cover).toEqualTypeOf<ImageMetadata>();
+		const options: Parameters<typeof getImage>[0] = { src: cover };
 		void options;
 	});
 
