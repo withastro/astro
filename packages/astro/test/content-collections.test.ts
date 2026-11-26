@@ -283,7 +283,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = (e as Error).message;
 			}
-			assert.match(error!, /\*\*title\*\*: Required/);
+			assert.match(error!, /\*\*title\*\*: Invalid input: expected string, received undefined/);
 		});
 	});
 

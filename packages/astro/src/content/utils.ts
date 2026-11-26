@@ -14,13 +14,11 @@ import {
 	AstroErrorData,
 	MarkdownError,
 } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { errorMap } from '@astrojs/vite-plugin-astro/_internal/core/errors/index.js';
 import { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
 import {
 	formatIssuePath,
 	formatSchemaIssues,
 	isStandardSchema,
-	validateSchema,
 } from '../core/errors/standard-schema.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -208,7 +206,7 @@ export async function getEntryData<
 		}
 		let result: StandardSchemaV1.Result<unknown>;
 		try {
-			result = await validateSchema(schema, data, errorMap);
+			result = await schema['~standard'].validate(data);
 		} catch (error) {
 			if (error instanceof AstroError && error.name === AstroErrorData.ImageNotFound.name) {
 				throw new AstroError({

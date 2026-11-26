@@ -12,7 +12,7 @@ import {
 	ActionsReturnedInvalidDataError,
 } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
-import { isStandardSchema, validateSchema } from '../../core/errors/standard-schema.js';
+import { isStandardSchema } from '../../core/errors/standard-schema.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { BodySizeLimitError, readBodyWithLimit } from '../../core/request-body.js';
 import type { APIContext } from '../../types/public/index.js';
@@ -226,7 +226,7 @@ function getJsonServerHandler<TOutput, TInputSchema extends StandardSchemaV1>(
 		}
 
 		if (!inputSchema) return await handler(unparsedInput, context);
-		const parsed = await validateSchema(inputSchema, unparsedInput);
+		const parsed = await inputSchema['~standard'].validate(unparsedInput);
 		if (parsed.issues) {
 			throw new ActionInputError(parsed.issues);
 		}
