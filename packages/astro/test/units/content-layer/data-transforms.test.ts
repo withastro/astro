@@ -743,7 +743,6 @@ describe('Content Layer - reference()', () => {
 			assert.throws(() => referenceField('cats', true as any), {
 				name: 'InvalidContentReferenceError',
 			});
-			// An explicit `undefined` is a mistake, not a request for the schema form.
 			assert.throws(() => referenceField('cats', undefined as any), {
 				name: 'InvalidContentReferenceError',
 			});

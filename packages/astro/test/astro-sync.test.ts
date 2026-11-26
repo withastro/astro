@@ -172,8 +172,6 @@ describe('astro sync', () => {
 			await fixture.load('./fixtures/content-collections-empty-dir/');
 			fixture.clean();
 			await fixture.whenSyncing();
-			// A collection is named in `DataMap` whether or not it has any entries, and its data
-			// is inferred from the config rather than written out.
 			fixture.thenFileContentShouldInclude(
 				'.astro/content.d.ts',
 				`export type ContentConfig = typeof import("../src/content.config.js");`,

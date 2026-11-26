@@ -183,9 +183,7 @@ declare module 'astro:content' {
 	export function reference<
 		C extends
 			| CollectionKey
-			// Allow generic `string` to avoid excessive type errors in the config
-			// if `dev` is not running to update as you edit.
-			// Invalid collection names will be caught at build time.
+			// Generated types can lag behind config edits. The build checks collection names.
 			| (string & {}),
 	>(
 		collection: C,

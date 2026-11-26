@@ -153,7 +153,6 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 		for (const issue of zodIssues) {
 			const segment = issue.path?.[0];
 			if (segment === undefined) continue;
-			// `toZodIssue` already unwraps the `{ key }` segments Standard Schema allows.
 			const key = String(segment) as keyof typeof this.fields;
 			this.fields[key] ??= [];
 			this.fields[key]?.push(issue.message);
@@ -161,17 +160,10 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 	}
 }
 
-/** A Zod issue is what a bare Standard Schema issue is not: coded. */
 function isZodIssue(issue: z.$ZodIssue | StandardSchemaV1.Issue): issue is z.$ZodIssue {
 	return 'code' in issue && typeof issue.code === 'string';
 }
 
-/**
- * Describes an issue as the Zod issue that `ActionInputError#issues` is still typed as.
- * A validator other than Zod only guarantees `message` and `path`, and none of the rest of
- * a Zod issue can be invented, so it becomes `custom` — Zod's own code for an issue no
- * built-in check produced.
- */
 // TODO: remove in Astro 8, when `ActionInputError#issues` becomes `StandardSchemaV1.Issue[]`
 function toZodIssue(issue: z.$ZodIssue | StandardSchemaV1.Issue): z.$ZodIssue {
 	if (isZodIssue(issue)) return issue;

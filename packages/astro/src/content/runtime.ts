@@ -612,7 +612,6 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 			current = (current as Record<string | number, unknown>)?.[key];
 		}
 
-		// String form: the whole field is the marker, so replace it outright.
 		if (typeof current === 'string') {
 			const resolved = resolveImageAtPath(current, fileName, imageAssetMap);
 			if (resolved !== undefined) {
@@ -621,14 +620,11 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 			continue;
 		}
 
-		// Object form (from `image()`): merge so that fields added by transforms
-		// downstream of `image()` survive resolution.
+		// Schema transforms can add fields to the image object. Preserve them when merging metadata.
 		if (current && typeof current === 'object' && typeof (current as any).src === 'string') {
 			const src = (current as any).src;
 			const resolved = resolveImageAtPath(src, fileName, imageAssetMap);
 			if (resolved === undefined) {
-				// A remote source has no import to resolve. Read it back as the URL string,
-				// which is what the deprecated `({ image })` helper produced.
 				if (isRemotePath(src)) {
 					result = setAtPathCopying(result, path, src);
 				}
@@ -637,8 +633,7 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 			result = setAtPathCopying(
 				result,
 				path,
-				// SVGs resolve to a component factory rather than metadata, so there is
-				// nothing to merge into.
+				// An SVG import can resolve to a component factory.
 				typeof resolved === 'function'
 					? resolved
 					: { ...(current as object), ...(resolved as object) },
@@ -802,17 +797,8 @@ export type ReferenceField =
 /** Every value `reference()` accepts as an entry lookup. */
 export type ReferenceLookup = string | number | ReferenceField;
 
-/**
- * The resolution shared by both `reference()` signatures.
- *
- * Reports failure instead of throwing, so the deprecated schema form can surface it as a
- * validation issue — collected alongside the schema's other issues — while the function
- * form, which has no validator to report through, throws.
- *
- * Note what is *not* checked here: whether the entry exists. A reference may point at a
- * collection whose loader has not run yet, so existence is verified once every loader has
- * finished, by walking the store ({@link ContentLayer#validateReferences}).
- */
+// The referenced collection might not have loaded yet. ContentLayer.validateReferences checks
+// that the entry exists after all loaders finish.
 function resolveReference(
 	collection: string,
 	lookup: unknown,
@@ -826,8 +812,6 @@ function resolveReference(
 	if (lookup !== null && typeof lookup === 'object') {
 		const entry = lookup as { collection?: unknown; id?: unknown; slug?: unknown };
 		if (typeof entry.collection === 'string') {
-			// Already a reference object, so the schema is running over data an earlier parse
-			// transformed. The collection is the one thing we can still check.
 			if (entry.collection !== collection) {
 				return {
 					ok: false,

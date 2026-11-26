@@ -7,8 +7,7 @@ const blog = defineCollection({
 	loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
 	schema: z.object({
 		title: z.string(),
-		// Root-absolute so resolving it needs Vite, and therefore the dev server's
-		// plugin container during sync.
+		// A root-absolute path requires Vite's resolver after a dev server restart.
 		cover: z.string().transform((src) => image(src)),
 	}),
 });

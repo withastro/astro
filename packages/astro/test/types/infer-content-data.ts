@@ -31,9 +31,6 @@ const schemaless = defineCollection({
 
 const legacy = defineCollection({ schema });
 
-// A loader that builds its schema while loading describes nothing statically. `astro sync`
-// generates the types it hands back and writes them into `DataMap` itself, so inference is
-// expected to fall through to `any` here rather than to guess.
 const dynamic = defineCollection({
 	loader: {
 		name: 'loader-with-created-schema',

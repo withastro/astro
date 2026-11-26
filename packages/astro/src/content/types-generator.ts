@@ -412,23 +412,11 @@ async function getContentLayerSchema<T extends keyof ContentConfig['collections'
 	return result?.schema;
 }
 
-/**
- * The type of one collection's entries in the generated `DataMap`. Every collection gets a
- * member, so that the collection names are known without resolving the config (see the note on
- * {@link InferCollectionData} in `astro/types/content.d.ts`), but the type behind each name is
- * inferred from the config rather than written out, in all but two cases:
- *
- * - a collection that exists as a directory under `src/content/` but is missing from the
- *   config, which has no schema to infer from, and
- * - a loader that builds its schema while loading (`createSchema()`), whose types are generated
- *   here and written to a file of their own.
- */
 async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T] | undefined,
 	collectionKey: T,
 ): Promise<{ type: string; injectedType?: InjectedType }> {
 	if (!collection) {
-		// Not in the config, so nothing describes its data.
 		return { type: 'any' };
 	}
 	const inferred = { type: `InferCollectionData<ContentConfig, ${collectionKey}>` };
@@ -443,7 +431,6 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	}
 	const result = await getCreateSchemaResult(collection, collectionKey);
 	if (!result) {
-		// A loader with no schema of any kind. Inference types it as `any`.
 		return inferred;
 	}
 	const base = `loaders/${collectionKey.slice(1, -1)}`;
@@ -604,9 +591,7 @@ async function writeContentFiles({
 	}
 	typeTemplateContent = typeTemplateContent
 		.replace('// @@DATA_MAP@@', dataMapEntries.join('\n\t\t'))
-		// Live collections are not read at sync time, so their names cannot be written out the
-		// way `DataMap`'s are. Nothing calls into `LiveDataMap` from inside a live config, so
-		// inferring the whole map is safe here.
+		// Sync doesn't load the live config, so TypeScript must infer live collection names.
 		.replace(
 			' /* @@LIVE_DATA_MAP_BASE@@ */',
 			liveConfigPathRelativeToCacheDir ? ' extends InferLiveData<LiveContentConfig>' : '',
@@ -639,35 +624,19 @@ async function writeContentFiles({
 
 const JSON_SCHEMA_TARGET = 'draft-2020-12';
 
-/**
- * Whether a schema can describe itself as JSON Schema (https://standardschema.dev/json-schema).
- * It is an optional part of the spec, so validators that do not implement it simply get no
- * generated `.schema.json`.
- */
 function hasJsonSchema(schema: unknown): schema is JSONSchemaCapableSchema {
 	return typeof (schema as any)?.['~standard']?.jsonSchema?.input === 'function';
 }
 
-/**
- * Per-validator tuning, passed through `libraryOptions`, which the Standard JSON Schema spec
- * reserves for vendor-specific parameters. Two things are worth making consistent across
- * validators, because both are the default everywhere else in Astro:
- *
- * - A type with no JSON representation degrades to `{}` instead of aborting the conversion,
- *   so one such field does not cost the collection its whole `.schema.json`.
- * - A date is described as the ISO string a data file actually holds.
- *
- * A validator with no entry here is converted with its own defaults.
- */
+// Data files store dates as strings. Fields without a JSON representation must not
+// prevent editors from validating the rest of the collection.
 function getLibraryOptions(vendor: string): Record<string, unknown> | undefined {
 	switch (vendor) {
 		// https://zod.dev/json-schema#ztojsonschema
 		case 'zod':
 			return {
-				// Types with no JSON representation become `{}` instead of throwing.
 				unrepresentable: 'any',
 				override: (ctx: any) => {
-					// Dates are written as strings in data files, so describe them as such.
 					if (ctx.zodSchema?._zod?.def?.type === 'date') {
 						ctx.jsonSchema.type = 'string';
 						ctx.jsonSchema.format = 'date-time';
@@ -675,24 +644,16 @@ function getLibraryOptions(vendor: string): Record<string, unknown> | undefined 
 				},
 			};
 		// https://github.com/open-circle/valibot/blob/main/packages/to-json-schema/README.md#configurations
-		// Valibot converts through a separate package, so a Valibot schema only reaches this
-		// point when it has been wrapped in `toStandardJsonSchema()` from
-		// `@valibot/to-json-schema`.
 		case 'valibot':
 			return {
 				errorMode: 'ignore',
 				overrideSchema: (ctx: any) =>
-					ctx.valibotSchema?.type === 'date'
-						? { type: 'string', format: 'date-time' }
-						: // Anything else keeps Valibot's own conversion.
-							undefined,
+					ctx.valibotSchema?.type === 'date' ? { type: 'string', format: 'date-time' } : undefined,
 			};
 		// https://arktype.io/docs/configuration#tojsonschema
 		case 'arktype':
 			return {
 				fallback: {
-					// `ctx.base` is the schema built so far, so returning it ignores the constraint
-					// that could not be represented.
 					default: (ctx: any) => ctx.base,
 					date: (ctx: any) => ({ ...ctx.base, type: 'string', format: 'date-time' }),
 				},
@@ -712,14 +673,7 @@ async function generateJSONSchema(
 	let collectionSchema =
 		typeof collectionConfig.schema === 'function'
 			? collectionConfig.schema({
-					// The schema factory is called once per collection to get its shape, not to parse
-					// an entry, so the context has no file to point at. Transforms do not run during
-					// conversion, and `image()` treats a missing path as "nothing to resolve
-					// against". Naming a real file here (the content config, say) would be worse than
-					// naming none: `image()` resolves sources relative to the *entry*, so it would
-					// resolve against the wrong directory.
-					// Deprecated `({ image })` form. Only the input shape matters here, and an image
-					// is referenced by path in a data file.
+					// The input schema describes the image path in the data file, before validation.
 					image: () => z.string() as any,
 				})
 			: collectionConfig.schema;
@@ -737,9 +691,7 @@ async function generateJSONSchema(
 	}
 
 	try {
-		// `$schema` names the JSON Schema dialect and `$defs` holds definitions that `$ref`s
-		// resolve against the document root, so both have to stay at the top level when the
-		// generated schema is wrapped below.
+		// Keep the dialect and definitions at the document root so local references still resolve.
 		const {
 			$schema: dialect,
 			$defs,
@@ -754,16 +706,8 @@ async function generateJSONSchema(
 			collectionConfig.type === CONTENT_LAYER_TYPE &&
 			collectionConfig.loader.name === 'file-loader'
 		) {
-			// The `file()` loader uses a schema which applies to every item in the file rather than
-			// a schema for the whole file. We special case this to provide the correct JSON schema
-			// to users.
-			// TODO: it would be nice if loaders could indicate this behavior so it wasn't unique to
-			// the built-in loader.
-			//
-			// `file()` supports both top-level arrays and record objects. Generate an anyOf schema
-			// so VS Code validates correctly regardless of which shape the source file uses.
-			// `$schema` is injected into the object branch only — top-level array JSON files cannot
-			// reference a schema property per the JSON Schema spec.
+			// The file loader validates individual entries, but editors validate the whole file.
+			// TODO: Let loaders declare when their schema describes an entry in a larger file.
 			schema = {
 				anyOf: [
 					{ type: 'array', items: jsonSchema },
@@ -776,7 +720,6 @@ async function generateJSONSchema(
 			};
 		} else {
 			schema = jsonSchema;
-			// Let the data file point at this schema without failing its own validation.
 			if (schema.type === 'object') {
 				schema.properties = { ...schema.properties, $schema: { type: 'string' } };
 			}

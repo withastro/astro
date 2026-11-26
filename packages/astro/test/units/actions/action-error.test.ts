@@ -121,7 +121,6 @@ describe('ActionInputError', () => {
 	it('normalizes Standard Schema issues to Zod issues', () => {
 		const error = new ActionInputError([
 			{ message: 'Expected string', path: ['name'] },
-			// A validator may describe a segment as an object, and may omit the path entirely.
 			{ message: 'Too short', path: [{ key: 'name' }] },
 			{ message: 'Something wrong' },
 		]);

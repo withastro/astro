@@ -42,11 +42,7 @@ function createImageMarker(src: string): ContentImageField {
 	return marker;
 }
 
-/**
- * Reads dimensions/format straight from the file. Deliberately uses the low-level prober
- * rather than `emitImageMetadata`, whose no-`fileEmitter` branch would build a dev-only
- * `/@fs/...` URL that must never reach the data store.
- */
+// Without a file emitter, `emitImageMetadata` would put a dev-only `/@fs/` URL in the data store.
 async function probe(fsPath: string) {
 	let fileData: Buffer;
 	try {
@@ -79,20 +75,13 @@ export async function resolveImageField(
 	resolveSource?: ImageSourceResolver,
 ): Promise<ContentImageField> {
 	const rawSrc = field.src.replace(IMAGE_IMPORT_PREFIX, '');
-	// Remote sources have no file to read, and an entry whose loader gave no absolute path
-	// gives us nothing to resolve against.
 	if (rawSrc.includes('://') || typeof filePath !== 'string' || !path.isAbsolute(filePath)) {
 		return field;
 	}
 
-	// `./` and `../` are unambiguously file paths, never Vite aliases.
 	const isRelative = rawSrc.startsWith('./') || rawSrc.startsWith('../');
 	const isRootAbsolute = rawSrc.startsWith('/');
 
-	// Fast path: a sibling file, found without going through Vite. A bare filename that
-	// hits here is normalized to `./name` so it resolves the same way as in markdown
-	// frontmatter — read time hands the stored src to Vite, which would otherwise treat a
-	// bare specifier as a package.
 	if (!isRootAbsolute) {
 		const candidate = path.resolve(path.dirname(filePath), rawSrc);
 		if (fsMod.existsSync(candidate)) {
@@ -103,18 +92,15 @@ export async function resolveImageField(
 			return {
 				...field,
 				...metadata,
+				// Vite treats a bare filename as a package name when it reads the stored path.
 				src: `${IMAGE_IMPORT_PREFIX}${isRelative ? rawSrc : `./${rawSrc}`}`,
 			};
 		}
 		if (isRelative) {
-			// Nothing else is going to resolve `./missing.png`.
 			throwImageNotFound(rawSrc);
 		}
 	}
 
-	// Aliases, root-absolute paths, and bare specifiers with no sibling file: only Vite
-	// knows how to resolve these. Without a resolver — a loader running outside a sync, for
-	// instance — defer to read time as before rather than reporting a false negative.
 	if (!resolveSource) {
 		return field;
 	}
@@ -129,8 +115,7 @@ export async function resolveImageField(
 		throwImageNotFound(rawSrc);
 	}
 
-	// The source is stored unchanged: Vite resolves it again at read time, from the entry
-	// file, so an alias must stay an alias.
+	// Keep the alias so Vite can resolve it relative to the entry at read time.
 	return { ...field, ...metadata, src: field.src };
 }
 

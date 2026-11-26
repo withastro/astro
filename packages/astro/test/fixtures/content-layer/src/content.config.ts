@@ -93,8 +93,6 @@ const spacecraft = defineCollection({
 		}),
 });
 
-// Prototype: `image()` called inside a user transform, with a further transform
-// downstream of it to prove composition survives read-time resolution.
 const spacecraftComposed = defineCollection({
 	loader: glob({ pattern: '*.md', base: absoluteRoot }),
 	schema: z.object({

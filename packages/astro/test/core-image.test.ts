@@ -1016,9 +1016,6 @@ describe('astro:image', () => {
 
 describe('content collection image errors', () => {
 	it('properly error image in Markdown frontmatter is not found', async () => {
-		// A missing image in a collection schema is a validation failure, so it is
-		// reported during sync rather than when the page is requested. The fixture is
-		// separate because that failure takes the whole dev server down with it.
 		const frontmatterFixture = await loadFixture({
 			root: './fixtures/core-image-errors-frontmatter/',
 			image: {

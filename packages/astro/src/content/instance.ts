@@ -9,7 +9,6 @@ interface ContentLayerOptions {
 	settings: AstroSettings;
 	logger: AstroLogger;
 	watcher?: FSWatcher;
-	/** Used to resolve image sources (Vite aliases included) while parsing entries. */
 	viteServer?: ViteDevServer;
 }
 

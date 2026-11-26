@@ -11,10 +11,6 @@ const inputSchema = z.object({
 	age: z.number(),
 });
 
-// `accept` is a literal at every call site because form and JSON actions take
-// different schema types: form actions are Zod-only, JSON actions accept any Standard
-// Schema validator.
-
 describe('ActionInputSchema', () => {
 	it('Exports ActionInputError from astro:actions', () => {
 		expectTypeOf<ActionInputError<Record<string, any>>>().toMatchTypeOf<Error>();
@@ -114,8 +110,6 @@ describe('ActionInputSchema', () => {
 	});
 
 	describe('accept is not a literal', () => {
-		// Backwards compatibility: a wrapper forwarding an `accept` it received still
-		// resolves, as long as the schema is a Zod one.
 		const acceptVariants = ['form', 'json', undefined] as const;
 
 		for (const accept of acceptVariants) {
@@ -132,8 +126,6 @@ describe('ActionInputSchema', () => {
 	});
 
 	describe('non-Zod validators', () => {
-		// Stands in for any Standard Schema validator that isn't Zod, without pulling
-		// another validation library into the test suite.
 		const standardSchema: StandardSchemaV1<{ name: string }, { name: string; id: number }> = {
 			'~standard': {
 				version: 1,

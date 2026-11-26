@@ -255,48 +255,22 @@ export function defineCollection<T extends CollectionConfig>(config: T): T {
 	return config;
 }
 
-/**
- * Collection types are inferred from the content config rather than written out collection by
- * collection, so `astro sync` only has to generate the two lines that point `astro:content` at
- * the project's config. Everything below is the type-level half of that: given the module type
- * of a content config, it produces the map of collection name to entry data that the generated
- * `DataMap` interface extends.
- */
-
 type Defined<T> = Exclude<T, undefined>;
 
-/** Whether `S` is a schema rather than the absence of one. */
 type HasSchema<S> = [Defined<S>] extends [never] ? false : true;
 
-/** A schema is either passed directly or returned by a factory that receives the context. */
 type ResolveSchema<S> = S extends SchemaFactory<infer R> ? R : S;
 
-/**
- * The schema declared on the collection itself, if it has one. Declaring it is what counts,
- * not whether the property is optional: a config that never mentions `schema` has no schema to
- * infer from, while one typed as `schema?: S` does.
- */
 type CollectionSchema<TCollection> = 'schema' extends keyof TCollection
 	? ResolveSchema<Defined<TCollection['schema']>>
 	: never;
 
-/**
- * The schema declared by the collection's loader, if it has one. A loader that builds its
- * schema while loading (`createSchema()`) has nothing to infer from here: `astro sync` writes
- * the type it generated straight into `DataMap` instead.
- */
 type LoaderSchema<TCollection> = TCollection extends { loader: { schema: infer S } }
-	? // The function form of a loader schema is ignored at runtime, so it is ignored here too.
-		S extends (...args: Array<any>) => any
+	? S extends (...args: Array<any>) => any
 		? never
 		: S
 	: never;
 
-/**
- * The type of an entry's `data`, from the collection's own definition. A schema on the
- * collection wins over one on its loader, and a collection with neither is unvalidated, so its
- * data is `any`.
- */
 type InferSchemaData<TCollection> =
 	HasSchema<CollectionSchema<TCollection>> extends true
 		? InferSchemaOutput<Defined<CollectionSchema<TCollection>>>
@@ -310,17 +284,13 @@ type InferSchemaData<TCollection> =
  * resolving the config it reads them from — see {@link InferData}.
  */
 export type InferCollectionData<TConfig, TName extends string> = [TConfig] extends [never]
-	? // No content config to read, as when a project has none at all.
-		any
+	? any
 	: TConfig extends { collections: infer TCollections }
 		? TName extends keyof TCollections
 			? InferSchemaData<TCollections[TName]>
 			: any
 		: any;
 
-/**
- * The map of a config with no collections to read: no names, and so no data behind them.
- */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 type EmptyDataMap = {};
 

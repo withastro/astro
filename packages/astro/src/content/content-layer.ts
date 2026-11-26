@@ -35,7 +35,6 @@ export interface ContentLayerOptions {
 	logger: AstroLogger;
 	watcher?: FSWatcher;
 	contentConfigObserver?: ContentObservable;
-	/** Used to resolve image sources (Vite aliases included) while parsing entries. */
 	viteServer?: ViteDevServer;
 }
 

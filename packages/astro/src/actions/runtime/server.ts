@@ -123,9 +123,6 @@ export function defineAction<
  *
  * @see https://docs.astro.build/en/guides/actions/
  */
-// Resolves an `accept` that isn't a literal, such as one forwarded from a wrapper. The
-// fallback is Zod-only because a non-literal `accept` may be a form action, which still
-// takes a Zod schema.
 // TODO: remove in Astro 8, once form actions no longer take an input schema
 export function defineAction<
 	TOutput,
@@ -145,13 +142,10 @@ export function defineAction<TOutput>({
 	accept?: ActionAccept;
 	handler: ActionHandler<any, TOutput>;
 }): ActionClient<TOutput, ActionAccept, any> & string {
-	// Types already rule this out, but an untyped actions file would otherwise fail much
-	// further in, with a far less obvious error.
 	if (inputSchema !== undefined) {
 		if (!isStandardSchema(inputSchema)) {
 			throwInvalidInputSchema();
 		}
-		// Only a form action is Zod-only; every other one takes any Standard Schema validator.
 		if (accept === 'form' && inputSchema['~standard'].vendor !== 'zod') {
 			throwInvalidInputSchema(inputSchema['~standard'].vendor);
 		}
@@ -182,7 +176,6 @@ export function defineAction<TOutput>({
 	return safeServerHandler as ActionClient<TOutput, ActionAccept, any> & string;
 }
 
-/** @param vendor The validator a form action was given, omitted when `input` is not a schema at all. */
 function throwInvalidInputSchema(vendor?: string): never {
 	throw new AstroError({
 		...ActionsInvalidInputSchemaError,

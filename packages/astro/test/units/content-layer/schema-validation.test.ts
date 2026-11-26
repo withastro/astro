@@ -617,8 +617,6 @@ describe('Content Layer - Schema Validation', () => {
 		assert.equal(minimalEntry.data.rating, 0); // Default value
 	});
 	describe('Standard Schema validators other than Zod', () => {
-		// A minimal validator implementing https://standardschema.dev, standing in for
-		// Valibot/ArkType/etc. so the tests do not depend on a second validation library.
 		function stringField(field: string) {
 			return {
 				'~standard': {
@@ -752,7 +750,6 @@ describe('Content Layer - Schema Validation', () => {
 			const collections = {
 				posts: defineCollection({
 					loader: loaderFor([{ id: 'one', title: 'A title' }]),
-					// A plain object, e.g. someone passing a schema definition rather than a schema
 					schema: { title: 'string' } as any,
 				}),
 			};

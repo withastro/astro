@@ -423,10 +423,6 @@ export const collections = { posts };
 			}
 		});
 
-		// Guards the build above: `heroImage` is resolved by `astro/content/fields`, which
-		// imports Node builtins. If that module ever ended up in the `astro:content` runtime
-		// bundle, `preventNodeBuiltinDependencyPlugin` would have failed the build. Asserting
-		// the resolved dimensions keeps the field from silently becoming a no-op guard.
 		it('Resolves image() fields at sync time without bundling Node builtins', async () => {
 			for (const slug of Object.keys(blogSlugToContents)) {
 				const request = new Request('http://example.com/posts/' + slug);

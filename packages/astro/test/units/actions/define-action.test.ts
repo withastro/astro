@@ -5,16 +5,10 @@ import * as z from 'zod/v4';
 import { isInputError } from '../../../dist/actions/runtime/client.js';
 import { ACTION_API_CONTEXT_SYMBOL, defineAction } from '../../../dist/actions/runtime/server.js';
 
-/** Minimal context an action handler is bound to when Astro calls it. */
 function createContext() {
 	return { [ACTION_API_CONTEXT_SYMBOL]: true } as any;
 }
 
-/**
- * Stands in for any Standard Schema validator that isn't Zod, without pulling another
- * validation library into the test suite. Trims `name` so that the handler receiving the
- * *output* rather than the input is observable.
- */
 const nonZodSchema: StandardSchemaV1<{ name: string }, { name: string }> = {
 	'~standard': {
 		version: 1,
@@ -49,7 +43,6 @@ describe('defineAction with accept: json', () => {
 		// @ts-expect-error Deliberately invalid input.
 		const result = await action.call(createContext(), { name: 42 });
 		assert.ok(isInputError(result.error));
-		// Normalized to the Zod shape `issues` is still typed as.
 		assert.deepEqual(result.error.issues, [
 			{ code: 'custom', message: 'Expected a string', path: ['name'] },
 		]);
@@ -65,7 +58,6 @@ describe('defineAction with accept: json', () => {
 		// @ts-expect-error Deliberately invalid input.
 		const result = await action.call(createContext(), { name: 42 });
 		assert.ok(isInputError(result.error));
-		// Zod's own issues reach `issues` untouched, extras included.
 		assert.equal(result.error.issues[0].code, 'invalid_type');
 		assert.deepEqual(result.error.fields, {
 			name: ['Invalid input: expected string, received number'],

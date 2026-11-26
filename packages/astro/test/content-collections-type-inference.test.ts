@@ -32,7 +32,6 @@ describe('Content collection type inference', () => {
 			contentDts.includes('typeof import("../src/content.config.js")'),
 			'Generated content.d.ts should point `ContentConfig` at the config module',
 		);
-		// The `astro:content` API itself ships with Astro, so none of it is written per project.
 		for (const shouldNotBeGenerated of ['getCollection', 'CollectionEntry', 'RenderedContent']) {
 			assert.ok(
 				!contentDts.includes(shouldNotBeGenerated),
@@ -46,9 +45,6 @@ describe('Content collection type inference', () => {
 			new URL('./.astro/content.d.ts', fixture.config.root),
 			'utf-8',
 		);
-		// A collection is named so that `keyof DataMap` is known without resolving the config,
-		// but its data is inferred rather than written out — whether the schema is on the
-		// collection, on its loader, or missing entirely.
 		for (const collection of ['blog', 'legacy', 'schemaless', 'standard', 'referencing']) {
 			assert.ok(
 				contentDts.includes(
@@ -64,8 +60,6 @@ describe('Content collection type inference', () => {
 			new URL('./.astro/content.d.ts', fixture.config.root),
 			'utf-8',
 		);
-		// A `createSchema()` loader has nothing in the config to infer from, so its types are
-		// generated into a file of their own and the collection points at it.
 		assert.ok(
 			contentDts.includes('"dynamic": import("./loaders/dynamic.js").Entry;'),
 			'The dynamic collection should point at its generated types',

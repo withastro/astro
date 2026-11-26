@@ -540,10 +540,6 @@ export function isDeferredModule(viteId: string): boolean {
 	return flags.has(CONTENT_MODULE_FLAG);
 }
 
-/**
- * The name of the first collection whose `schema`, or whose loader's `schema`, is not a
- * Standard Schema validator. Returns `undefined` when every schema is valid.
- */
 function firstInvalidCollectionSchema(
 	collections: ContentConfig['collections'],
 ): string | undefined {

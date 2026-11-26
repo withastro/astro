@@ -16,8 +16,6 @@ import {
 } from 'astro:content';
 import { reference } from 'astro/content/fields';
 
-// `astro sync` augments these two interfaces, and nothing else. Declaring them by hand, the way
-// an integration would, is the same thing the generated types do.
 declare module 'astro:content' {
 	interface DataMap {
 		blog: { title: string };
@@ -65,7 +63,6 @@ describe('DataMap', () => {
 
 	it('checks the collection a reference points at', () => {
 		expectTypeOf(reference('authors', 'ada')).toEqualTypeOf<ReferenceDataEntry<'authors'>>();
-		// A name that is not a collection has no reference to resolve to.
 		expectTypeOf(reference('nope', 'ada')).toBeNever();
 	});
 
@@ -79,7 +76,6 @@ describe('LiveDataMap', () => {
 	it('types a live collection from its loader', async () => {
 		const { entries, error } = await getLiveCollection('products', { tag: 'sale' });
 		expectTypeOf(entries?.[0].data).toEqualTypeOf<{ name: string; price: number } | undefined>();
-		// `error` is the loader's error type, alongside the errors Astro itself can report.
 		expectTypeOf<TypeError | undefined>().toExtend<typeof error>();
 
 		const { entry } = await getLiveEntry('products', { sku: 'abc' });

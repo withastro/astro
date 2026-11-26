@@ -1790,8 +1790,7 @@ export const GetEntryDeprecationError = {
 	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information.',
 } satisfies ErrorData;
 
-// TODO: consider removing. Unused since legacy content collections were removed in Astro 6 (#14407),
-// but kept because it is part of the published error reference.
+// The published error reference includes this legacy error (#14407).
 /**
  * @docs
  * @message
@@ -1942,8 +1941,6 @@ export const ContentLoaderReturnsInvalidId = {
 	hint: 'Make sure that the `id` of the entry is a string. See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders.',
 } satisfies ErrorData;
 
-// TODO: consider removing. Never referenced anywhere; an exact duplicate of
-// `InvalidContentEntryDataError` apart from its name.
 /**
  * @docs
  * @message
@@ -2239,7 +2236,6 @@ export const ActionCalledFromServerError = {
 export const ActionsInvalidInputSchemaError = {
 	name: 'ActionsInvalidInputSchemaError',
 	title: 'Action `input` is not a valid schema.',
-	/** `vendor` is the validator a form action was given, or `undefined` when `input` is not a schema at all. */
 	message: (vendor?: string) =>
 		vendor === undefined
 			? 'The `input` of an action is not a valid schema.'
