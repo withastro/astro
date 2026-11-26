@@ -6,7 +6,7 @@ import { getContainerRenderer } from './container-renderer.js';
 /**
  * Returns the Solid renderer for `astro({ renderers: [solid()] })` from
  * `@astrojs/vite-plugin-astro`: plain data, applied by `astro()`. Compiling JSX is the job of
- * `vite-plugin-solid` with `ssr: true`, added to the Vite `plugins` next to `astro()`.
+ * `@solidjs/vite-plugin` with `ssr: true`, added to the Vite `plugins` next to `astro()`.
  */
 export default function solid(): AstroRenderer {
 	return {
@@ -27,7 +27,9 @@ export default function solid(): AstroRenderer {
 				root: fileURLToPath(root),
 				isBuild: false,
 				isFrameworkPkgByJson(pkgJson) {
-					return !!pkgJson.peerDependencies?.['solid-js'];
+					return !!(
+						pkgJson.peerDependencies?.['solid-js'] || pkgJson.peerDependencies?.['@solidjs/web']
+					);
 				},
 			});
 			return solidPackages.ssr.noExternal;

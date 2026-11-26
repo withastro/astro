@@ -1,5 +1,7 @@
 ---
 import WithChildren from '../components/WithChildren';
+
+const title = "Don't panic & carry on";
 ---
 
 <html>
@@ -19,6 +21,11 @@ import WithChildren from '../components/WithChildren';
 		<WithChildren id="three" client:load>
 			<span class="title">Hello</span>
 			<span class="subtitle">World</span>
+		</WithChildren>
+
+		<!-- Test that escaped text and attribute values are not escaped again -->
+		<WithChildren id="four">
+			<p title={title}>{title}</p>
 		</WithChildren>
   </body>
 </html>

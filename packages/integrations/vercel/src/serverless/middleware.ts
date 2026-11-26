@@ -195,6 +195,8 @@ export default async function middleware(request, context) {
 		const { vercel, ...locals } = ctx.locals;
 		const response = await fetch(new URL(forwardPath(pathname), request.url), {
 			method: request.method,
+			// Redirects from the rendered route must reach the client, not be followed here.
+			redirect: 'manual',
 			headers: {
 				...Object.fromEntries(request.headers.entries()),
 				'${ASTRO_MIDDLEWARE_SECRET_HEADER}': '${middlewareSecret}',

@@ -34,4 +34,20 @@ describe('experimental react children', () => {
 		assert.equal(spanVNode.props.id, 'main');
 		assert.equal(spanVNode.props['data-test'], 'value');
 	});
+
+	it('decodes character references in text and attribute values', () => {
+		const [pVNode] = convert(
+			'<p title="Tom &amp; Jerry&#39;s">Don&#39;t panic &amp; carry&nbsp;on &copy;</p>',
+		);
+		assert.equal(pVNode.props.title, "Tom & Jerry's");
+		assert.deepEqual(pVNode.props.children, ["Don't panic & carry\u00a0on ©"]);
+	});
+
+	it('keeps text inside script and style elements as written', () => {
+		const [scriptVNode, styleVNode] = convert(
+			'<script>a = "&amp;";</script><STYLE>a::after { content: "&amp;"; }</STYLE>',
+		);
+		assert.deepEqual(scriptVNode.props.children, ['a = "&amp;";']);
+		assert.deepEqual(styleVNode.props.children, ['a::after { content: "&amp;"; }']);
+	});
 });

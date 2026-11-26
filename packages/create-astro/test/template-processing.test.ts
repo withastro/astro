@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 import {
 	generateAgentsMd,
 	processTemplateReadme,
 	removeTemplateMarkerSections,
+	writeAgentsMd,
 } from '../dist/index.js';
 
 describe('generateAgentsMd', async () => {
@@ -20,6 +24,30 @@ describe('generateAgentsMd', async () => {
 		assert.ok(result.includes('https://docs.astro.build/en/guides/content-collections/'));
 		assert.ok(result.includes('https://docs.astro.build/en/guides/styling/'));
 		assert.ok(result.includes('https://docs.astro.build/en/guides/internationalization/'));
+	});
+});
+
+describe('writeAgentsMd', async () => {
+	it('writes the default AGENTS.md when the template has none', async () => {
+		const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'create-astro-agents-'));
+		try {
+			writeAgentsMd(dir);
+			assert.equal(fs.readFileSync(path.join(dir, 'AGENTS.md'), 'utf8'), generateAgentsMd());
+		} finally {
+			fs.rmSync(dir, { recursive: true, force: true });
+		}
+	});
+
+	it('keeps an AGENTS.md provided by the template', async () => {
+		const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'create-astro-agents-'));
+		try {
+			const agentsPath = path.join(dir, 'AGENTS.md');
+			fs.writeFileSync(agentsPath, '# Template instructions\n');
+			writeAgentsMd(dir);
+			assert.equal(fs.readFileSync(agentsPath, 'utf8'), '# Template instructions\n');
+		} finally {
+			fs.rmSync(dir, { recursive: true, force: true });
+		}
 	});
 });
 

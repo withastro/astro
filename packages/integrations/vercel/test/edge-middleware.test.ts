@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import http from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { before, describe, it } from 'node:test';
 import { type Fixture, loadFixture, getVercelConfig } from './test-utils.ts';
 
@@ -65,6 +67,37 @@ describe('Vercel edge middleware', () => {
 			assert.ok(captured.body, 'forwards the request body');
 		} finally {
 			globalThis.fetch = originalFetch;
+		}
+	});
+
+	it('edge middleware returns redirects from the rendered route unchanged', {
+		timeout: 30000,
+	}, async () => {
+		const entry = new URL(
+			'../.vercel/output/functions/_middleware.func/middleware.mjs',
+			build.config.outDir,
+		);
+		const module = await import(entry.href);
+
+		const requestedPaths: string[] = [];
+		const server = http.createServer((req, res) => {
+			requestedPaths.push(req.url!);
+			if (req.url === '/_render') {
+				res.writeHead(302, { Location: '/target' });
+				res.end();
+				return;
+			}
+			res.end('redirect target');
+		});
+		await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+		try {
+			const { port } = server.address() as AddressInfo;
+			const response = await module.default(new Request(`http://127.0.0.1:${port}/foo`), {});
+			assert.equal(response.status, 302);
+			assert.equal(response.headers.get('location'), '/target');
+			assert.deepEqual(requestedPaths, ['/_render']);
+		} finally {
+			server.close();
 		}
 	});
 

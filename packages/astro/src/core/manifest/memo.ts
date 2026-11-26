@@ -56,25 +56,41 @@ export interface AsyncManifestMemo<T> {
  * Caches the PROMISE (single-flight: concurrent callers share one derivation).
  * On rejection the entry is DELETED so the next call retries a failed lazy
  * resolve instead of caching the failure forever.
+ *
+ * A caller that joins an existing derivation and sees it fail drops that entry
+ * and derives once more itself, so the second failure is the one it receives.
  */
 export function createAsyncManifestMemo<T>(
 	derive: (manifest: SSRManifest) => Promise<T>,
 ): AsyncManifestMemo<T> {
 	const cache = new WeakMap<SSRManifest, Promise<T>>();
+	const start = (manifest: SSRManifest): Promise<T> => {
+		const promise = derive(manifest);
+		cache.set(manifest, promise);
+		promise.catch(() => {
+			// Only delete if the entry wasn't already replaced/invalidated.
+			if (cache.get(manifest) === promise) {
+				cache.delete(manifest);
+			}
+		});
+		return promise;
+	};
 	return {
 		get(manifest) {
-			let promise = cache.get(manifest);
-			if (!promise) {
-				promise = derive(manifest);
-				cache.set(manifest, promise);
-				promise.catch(() => {
-					// Only delete if the entry wasn't already replaced/invalidated.
-					if (cache.get(manifest) === promise) {
-						cache.delete(manifest);
-					}
-				});
+			const shared = cache.get(manifest);
+			if (!shared) {
+				return start(manifest);
 			}
-			return promise;
+			// On workerd a promise settles only in the request that created it. If
+			// that request is cancelled mid-derivation, the shared promise never
+			// settles and awaiting it from another request throws, so the entry
+			// would never be evicted. See https://github.com/withastro/astro/issues/18764
+			return shared.catch(() => {
+				if (cache.get(manifest) === shared) {
+					cache.delete(manifest);
+				}
+				return start(manifest);
+			});
 		},
 		invalidate(manifest) {
 			cache.delete(manifest);

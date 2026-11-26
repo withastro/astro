@@ -31,6 +31,23 @@ describe('API routes', () => {
 		assert.equal(html.includes('<h1>bar</h1>'), true);
 	});
 
+	it('Can use locals added by node middleware when rendering the 404 page', async () => {
+		const handler = await fixture.loadNodeAdapterHandler();
+		const { req, res, text } = createRequestAndResponse({
+			url: '/no-such-page',
+		});
+
+		const locals = { foo: 'bar' };
+
+		handler(req, res, undefined, locals);
+		req.send();
+
+		const html = await text();
+
+		assert.equal(res.statusCode, 404);
+		assert.equal(html.includes('<h1>bar</h1>'), true);
+	});
+
 	it('Throws an error when provided non-objects as locals', async () => {
 		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, done } = createRequestAndResponse({

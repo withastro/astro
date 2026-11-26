@@ -5,6 +5,6 @@
   "compilerOptions": {
     // Solid specific settings
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "@solidjs/web"
   }
 }

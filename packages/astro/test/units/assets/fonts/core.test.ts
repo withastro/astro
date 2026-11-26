@@ -1794,7 +1794,8 @@ describe('fonts core', () => {
 					systemFallbacksProvider: variantProvider,
 					fontMetricsResolver,
 				});
-				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial Bold', 'sans-serif']);
+				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial', 'sans-serif']);
+				assert.equal(JSON.parse(`[${result?.css.slice(0, -1)}]`)[0].font, 'Arial Bold');
 			});
 
 			it('selects the bold list for string weight "bold"', async () => {
@@ -1807,7 +1808,8 @@ describe('fonts core', () => {
 					systemFallbacksProvider: variantProvider,
 					fontMetricsResolver,
 				});
-				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial Bold', 'sans-serif']);
+				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial', 'sans-serif']);
+				assert.equal(JSON.parse(`[${result?.css.slice(0, -1)}]`)[0].font, 'Arial Bold');
 			});
 
 			it('treats variable weight ranges as normal', async () => {
@@ -1823,7 +1825,32 @@ describe('fonts core', () => {
 				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial', 'sans-serif']);
 			});
 
-			it('unions per-variant local fonts in the prepended stack and dedupes across variants', async () => {
+			it('caps the weight of faces backed by regular local fonts so bold can be synthesized', async () => {
+				const result = await optimizeFallbacks({
+					family,
+					fallbacks: ['sans-serif'],
+					collectedFonts: [
+						{ url: '', id: '', data: { weight: '100 900', style: 'normal' }, init: undefined },
+						{ url: '', id: '', data: { weight: [200, 800], style: 'normal' }, init: undefined },
+						{ url: '', id: '', data: { weight: 600, style: 'normal' }, init: undefined },
+						{ url: '', id: '', data: { weight: '300', style: 'normal' }, init: undefined },
+					],
+					systemFallbacksProvider: variantProvider,
+					fontMetricsResolver,
+				});
+				const faces = JSON.parse(`[${result?.css.slice(0, -1)}]`);
+				assert.deepStrictEqual(
+					faces.map((face: any) => [face.font, face.properties['font-weight']]),
+					[
+						['Arial', '100 500'],
+						['Arial', '200 500'],
+						['Arial', '500'],
+						['Arial', '300'],
+					],
+				);
+			});
+
+			it('groups bold faces under the normal fallback family and skips italic faces', async () => {
 				const result = await optimizeFallbacks({
 					family,
 					fallbacks: ['sans-serif'],
@@ -1836,18 +1863,35 @@ describe('fonts core', () => {
 					systemFallbacksProvider: variantProvider,
 					fontMetricsResolver,
 				});
-				assert.deepStrictEqual(result?.fallbacks, [
-					'Test-xxx fallback: Arial',
-					'Test-xxx fallback: Arial Bold',
-					'sans-serif',
-				]);
+				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial', 'sans-serif']);
 				const faces = JSON.parse(`[${result?.css.slice(0, -1)}]`);
-				// One @font-face per collected font (each variant has one local font in this provider)
-				assert.equal(faces.length, 4);
-				assert.equal(faces[0].font, 'Arial');
-				assert.equal(faces[1].font, 'Arial');
-				assert.equal(faces[2].font, 'Arial Bold');
-				assert.equal(faces[3].font, 'Arial Bold');
+				assert.deepStrictEqual(
+					faces.map((face: any) => [face.name, face.font, face.properties['font-weight']]),
+					[
+						['Test-xxx fallback: Arial', 'Arial', '400'],
+						['Test-xxx fallback: Arial', 'Arial Bold', '700'],
+					],
+				);
+			});
+
+			it('skips bold faces when the bold variant only has regular local fonts', async () => {
+				const result = await optimizeFallbacks({
+					family,
+					fallbacks: ['monospace'],
+					collectedFonts: [
+						{ url: '', id: '', data: { weight: '400', style: 'normal' }, init: undefined },
+						{ url: '', id: '', data: { weight: 700, style: 'normal' }, init: undefined },
+					],
+					systemFallbacksProvider: {
+						getLocalFonts: () => ['Courier New'],
+						getMetricsForLocalFont: systemFallbacksProvider.getMetricsForLocalFont,
+					},
+					fontMetricsResolver,
+				});
+				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Courier New', 'monospace']);
+				const faces = JSON.parse(`[${result?.css.slice(0, -1)}]`);
+				assert.equal(faces.length, 1);
+				assert.equal(faces[0].properties['font-weight'], '400');
 			});
 
 			it('aborts when no variant yields any local font', async () => {
@@ -1869,7 +1913,7 @@ describe('fonts core', () => {
 					family: { name: 'Arial Bold', uniqueName: 'Arial-Bold-xxx' },
 					fallbacks: ['sans-serif'],
 					collectedFonts: [
-						{ url: '', id: '', data: { weight: '700', style: 'italic' }, init: undefined },
+						{ url: '', id: '', data: { weight: '700', style: 'normal' }, init: undefined },
 					],
 					systemFallbacksProvider: variantProvider,
 					fontMetricsResolver,
