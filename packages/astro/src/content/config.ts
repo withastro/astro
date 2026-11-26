@@ -6,6 +6,7 @@ import {
 	AstroErrorData,
 	AstroUserError,
 } from '@astrojs/runtime/_internal/core/errors/index.js';
+import { isSchemaFactory } from '../core/errors/standard-schema.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
 
@@ -96,18 +97,14 @@ export type InferSchemaOutput<S> = S extends StandardSchemaV1
 	? StandardSchemaV1.InferOutput<S>
 	: never;
 
-/** The type an entry must have before it is validated by `S`. */
-export type InferSchemaInput<S> = S extends StandardSchemaV1
-	? StandardSchemaV1.InferInput<S>
-	: never;
-
 export type { ImageFunction };
 
-/** @deprecated Pass the schema directly to `defineCollection()` and import `image` from `astro/content/fields`. */
+/** @deprecated Pass the schema directly to `defineCollection()` and import `image` from `astro/content/fields`. This type will be removed in Astro 8. */
 export interface SchemaContext {
 	/**
 	 * @deprecated Import `image` from `astro/content/fields` and call it with the image
-	 * path in a schema transform. Local image metadata is available after validation:
+	 * path in a schema transform. The context helper will be removed in Astro 8.
+	 * Local image metadata is available after validation:
 	 *
 	 * ```js
 	 * schema: z.object({
@@ -118,7 +115,7 @@ export interface SchemaContext {
 	image: ImageFunction;
 }
 
-/** @deprecated Use a static Standard Schema validator instead. */
+/** @deprecated Use a static Standard Schema validator instead. Schema factories will be removed in Astro 8. */
 type SchemaFactory<S extends BaseSchema> = (context: SchemaContext) => S;
 
 type LoaderConstraint<TData extends { id: string }> =
@@ -208,11 +205,11 @@ export function defineLiveCollection<
 		});
 	}
 
-	if (typeof config.schema === 'function') {
+	if (isSchemaFactory(config.schema)) {
 		throw new AstroError({
 			...AstroErrorData.LiveContentConfigError,
 			message: AstroErrorData.LiveContentConfigError.message(
-				'The schema cannot be a function for live collections. Please use a schema object instead.',
+				'Live collections do not support schema factories. Pass the schema directly.',
 				importerFilename,
 			),
 		});
@@ -259,16 +256,14 @@ type Defined<T> = Exclude<T, undefined>;
 
 type HasSchema<S> = [Defined<S>] extends [never] ? false : true;
 
-type ResolveSchema<S> = S extends SchemaFactory<infer R> ? R : S;
+type ResolveSchema<S> = S extends BaseSchema ? S : S extends SchemaFactory<infer R> ? R : never;
 
 type CollectionSchema<TCollection> = 'schema' extends keyof TCollection
 	? ResolveSchema<Defined<TCollection['schema']>>
 	: never;
 
 type LoaderSchema<TCollection> = TCollection extends { loader: { schema: infer S } }
-	? S extends (...args: Array<any>) => any
-		? never
-		: S
+	? Extract<S, BaseSchema>
 	: never;
 
 type InferSchemaData<TCollection> =

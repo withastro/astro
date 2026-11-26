@@ -18,6 +18,7 @@ import { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
 import {
 	formatIssuePath,
 	formatSchemaIssues,
+	isSchemaFactory,
 	isStandardSchema,
 } from '../core/errors/standard-schema.js';
 import type { AstroLogger } from '../core/logger/core.js';
@@ -99,7 +100,7 @@ function contentConfigParser(logger: AstroLogger) {
 							schema: z
 								.any()
 								.transform((v) => {
-									if (typeof v === 'function') {
+									if (isSchemaFactory(v)) {
 										logger.warn(
 											'content',
 											`Your loader's schema is defined using a function. This is no longer supported and the schema will be ignored. Please update your loader to use the \`createSchema()\` utility instead, or report this to the loader author. In a future major version, this will cause the loader to break entirely.`,
@@ -182,7 +183,7 @@ export async function getEntryData<
 	let schema = collectionConfig.schema;
 	const imageResolver = entry._internal.imageResolver;
 
-	if (typeof schema === 'function') {
+	if (isSchemaFactory(schema)) {
 		const { filePath } = entry._internal;
 		if (pluginContext) {
 			const schemaContext = {
@@ -197,53 +198,36 @@ export async function getEntryData<
 		}
 	}
 
-	if (schema) {
-		if (!isStandardSchema(schema)) {
-			throw new AstroError({
-				...AstroErrorData.InvalidCollectionSchemaError,
-				message: AstroErrorData.InvalidCollectionSchemaError.message(entry.collection),
-			});
-		}
-		let result: StandardSchemaV1.Result<unknown>;
-		try {
-			result = await schema['~standard'].validate(data);
-		} catch (error) {
-			if (error instanceof AstroError && error.name === AstroErrorData.ImageNotFound.name) {
+	try {
+		if (schema) {
+			if (!isStandardSchema(schema)) {
 				throw new AstroError({
-					...AstroErrorData.ImageNotFound,
-					message: `**${entry.collection} → ${entry.id}** ${error.message}`,
+					...AstroErrorData.InvalidCollectionSchemaError,
+					message: AstroErrorData.InvalidCollectionSchemaError.message(entry.collection),
+				});
+			}
+			const result = await schema['~standard'].validate(data);
+			if (result.issues) {
+				throw new AstroError({
+					...AstroErrorData.InvalidContentEntryDataError,
+					message: AstroErrorData.InvalidContentEntryDataError.message(
+						entry.collection,
+						entry.id,
+						formatSchemaIssues(result.issues),
+					),
 					location: {
-						file: entry._internal?.filePath,
-						line: 0,
+						file: entry._internal.filePath,
+						line: getYAMLErrorLine(
+							entry._internal.rawData,
+							formatIssuePath(result.issues[0]?.path).split('.')[0],
+						),
 						column: 0,
 					},
 				});
 			}
-			throw error;
+			data = result.value as TOutputData;
 		}
-		if (result.issues) {
-			throw new AstroError({
-				...AstroErrorData.InvalidContentEntryDataError,
-				message: AstroErrorData.InvalidContentEntryDataError.message(
-					entry.collection,
-					entry.id,
-					formatSchemaIssues(result.issues),
-				),
-				location: {
-					file: entry._internal?.filePath,
-					line: getYAMLErrorLine(
-						entry._internal?.rawData,
-						formatIssuePath(result.issues[0]?.path).split('.')[0],
-					),
-					column: 0,
-				},
-			});
-		}
-		data = result.value as TOutputData;
-	}
-
-	try {
-		data = (await resolveImageFields(data, entry._internal.filePath, imageResolver)) as TOutputData;
+		return (await resolveImageFields(data, entry._internal.filePath, imageResolver)) as TOutputData;
 	} catch (error) {
 		if (error instanceof AstroError && error.name === AstroErrorData.ImageNotFound.name) {
 			throw new AstroError({
@@ -258,8 +242,6 @@ export async function getEntryData<
 		}
 		throw error;
 	}
-
-	return data;
 }
 
 async function resolveImageFields(
@@ -545,7 +527,7 @@ function firstInvalidCollectionSchema(
 ): string | undefined {
 	for (const [name, collection] of Object.entries(collections)) {
 		const schema = collection.schema;
-		if (schema !== undefined && typeof schema !== 'function' && !isStandardSchema(schema)) {
+		if (schema !== undefined && !isStandardSchema(schema) && !isSchemaFactory(schema)) {
 			return name;
 		}
 		const loader = 'loader' in collection ? collection.loader : undefined;

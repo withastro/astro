@@ -1987,7 +1987,7 @@ export const ContentEntryDataError = {
  * @docs
  * @message
  * **Example error message:**<br/>
- * The schema cannot be a function for live collections. Please use a schema object instead. Check your collection definitions in your live content config file.
+ * Live collections do not support schema factories. Pass the schema directly. Check your collection definitions in your live content config file.
  * @description
  * Error in live content config.
  * @see
@@ -2243,6 +2243,7 @@ export const ActionCalledFromServerError = {
  * @see
  * - [Action input](https://docs.astro.build/en/reference/modules/astro-actions/#input-validator)
  * - [Using validators with form inputs](https://docs.astro.build/en/guides/actions/#using-validators-with-form-inputs)
+ * @message The deprecated `input` option of a form action only supports Zod schemas, but received a `valibot` schema.
  * @description
  * The action's `input` is not a supported schema. For JSON actions, pass a
  * [Standard Schema](https://standardschema.dev/) validator. For form actions, omit `input`

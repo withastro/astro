@@ -26,7 +26,7 @@ import {
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
-import { createViteImageSourceResolver, type ImageSourceResolver } from './image.js';
+import { createViteImageSourceResolver } from './image.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
 export interface ContentLayerOptions {
@@ -198,10 +198,6 @@ export class ContentLayer {
 		const imageResolver = this.#viteServer
 			? createViteImageSourceResolver(this.#viteServer)
 			: undefined;
-		return await this.#doSyncInner(options, imageResolver);
-	}
-
-	async #doSyncInner(options: RefreshContentOptions, imageResolver?: ImageSourceResolver) {
 		let contentConfig = this.#contentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 

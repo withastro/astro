@@ -11,6 +11,7 @@ import {
 	type CollectionEntry,
 	type CollectionKey,
 	type DataEntryMap,
+	type InferLoaderSchema,
 	type ReferenceDataEntry,
 	type RenderResult,
 } from 'astro:content';
@@ -64,6 +65,19 @@ describe('DataMap', () => {
 	it('checks the collection a reference points at', () => {
 		expectTypeOf(reference('authors', 'ada')).toEqualTypeOf<ReferenceDataEntry<'authors'>>();
 		expectTypeOf(reference('nope', 'ada')).toBeNever();
+	});
+
+	it('accepts explicit entry IDs and loader types', async () => {
+		const entry: ReferenceDataEntry<'authors', 'ada'> = { collection: 'authors', id: 'ada' };
+		expectTypeOf(entry.id).toEqualTypeOf<'ada'>();
+		expectTypeOf(await getEntry<'authors', 'ada'>(entry)).toEqualTypeOf<
+			CollectionEntry<'authors'>
+		>();
+		expectTypeOf(await getEntry<'authors', 'ada'>('authors', 'ada')).toEqualTypeOf<
+			CollectionEntry<'authors'> | undefined
+		>();
+		type Loader = { schema: import('astro/zod').ZodNumber };
+		expectTypeOf<InferLoaderSchema<'authors', Loader>>().toEqualTypeOf<number>();
 	});
 
 	// TODO: remove in Astro 8

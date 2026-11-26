@@ -1,6 +1,8 @@
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { formatSchemaIssues } from '../../core/errors/standard-schema.js';
 
+type ValidationIssues = StandardSchemaV1.FailureResult | readonly StandardSchemaV1.Issue[];
+
 export class LiveCollectionError extends Error {
 	public readonly collection: string;
 	public readonly message: string;
@@ -35,12 +37,12 @@ export class LiveEntryNotFoundError extends LiveCollectionError {
 }
 
 export class LiveCollectionValidationError extends LiveCollectionError {
-	constructor(collection: string, entryId: string, issues: readonly StandardSchemaV1.Issue[]) {
+	constructor(collection: string, entryId: string, issues: ValidationIssues) {
 		super(
 			collection,
 			[
 				`**${collection} → ${entryId}** data does not match the collection schema.\n`,
-				...formatSchemaIssues(issues),
+				...formatSchemaIssues('issues' in issues ? issues.issues : issues),
 				'',
 			].join('\n'),
 		);
@@ -52,16 +54,12 @@ export class LiveCollectionValidationError extends LiveCollectionError {
 }
 
 export class LiveCollectionCacheHintError extends LiveCollectionError {
-	constructor(
-		collection: string,
-		entryId: string | undefined,
-		issues: readonly StandardSchemaV1.Issue[],
-	) {
+	constructor(collection: string, entryId: string | undefined, issues: ValidationIssues) {
 		super(
 			collection,
 			[
 				`**${String(collection)}${entryId ? ` → ${String(entryId)}` : ''}** returned an invalid cache hint.\n`,
-				...formatSchemaIssues(issues),
+				...formatSchemaIssues('issues' in issues ? issues.issues : issues),
 				'',
 			].join('\n'),
 		);

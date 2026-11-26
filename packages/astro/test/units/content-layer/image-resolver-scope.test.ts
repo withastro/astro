@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { rm } from 'node:fs/promises';
+import { describe, it, type TestContext } from 'node:test';
 import * as z from 'zod/v4';
 import { fileURLToPath } from 'node:url';
 import { defineCollection } from '../../../dist/content/config.js';
@@ -35,9 +36,11 @@ function createViteServer(source: string, calls: string[]) {
 	};
 }
 
-function createLayer(load: (context: any) => Promise<void>, viteServer: any) {
+function createLayer(t: TestContext, load: (context: any) => Promise<void>, viteServer: any) {
+	const root = createTempDir();
+	t.after(() => rm(root, { recursive: true, force: true }));
 	return new ContentLayer({
-		settings: createMinimalSettings(createTempDir()),
+		settings: createMinimalSettings(root),
 		logger: new AstroLogger({ destination: { write: () => true }, level: 'silent' }),
 		store: new MutableDataStore(),
 		contentConfigObserver: createTestConfigObserver({
@@ -53,7 +56,7 @@ function createLayer(load: (context: any) => Promise<void>, viteServer: any) {
 }
 
 describe('Content Layer image resolver scope', () => {
-	it('uses each overlapping sync’s own Vite resolver', async () => {
+	it('uses each overlapping sync’s own Vite resolver', async (t) => {
 		const firstSource = '@first/cover.jpg';
 		const secondSource = '@second/cover.jpg';
 		const firstCalls: string[] = [];
@@ -80,10 +83,12 @@ describe('Content Layer image resolver scope', () => {
 		};
 
 		const first = createLayer(
+			t,
 			load(firstSource, (data) => (firstData = data)),
 			createViteServer(firstSource, firstCalls),
 		);
 		const second = createLayer(
+			t,
 			load(secondSource, (data) => (secondData = data)),
 			createViteServer(secondSource, secondCalls),
 		);

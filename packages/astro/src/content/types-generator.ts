@@ -14,6 +14,7 @@ import * as z from 'zod/v4';
 import type { JSONSchemaCapableSchema } from './config.js';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
+import { isSchemaFactory } from '../core/errors/standard-schema.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -670,13 +671,12 @@ async function generateJSONSchema(
 	collectionSchemasDir: URL,
 	logger: AstroLogger,
 ) {
-	let collectionSchema =
-		typeof collectionConfig.schema === 'function'
-			? collectionConfig.schema({
-					// The input schema describes the image path in the data file, before validation.
-					image: () => z.string() as any,
-				})
-			: collectionConfig.schema;
+	let collectionSchema = isSchemaFactory(collectionConfig.schema)
+		? collectionConfig.schema({
+				// The input schema describes the image path in the data file, before validation.
+				image: () => z.string() as any,
+			})
+		: collectionConfig.schema;
 
 	if (!collectionSchema && collectionConfig.type === CONTENT_LAYER_TYPE) {
 		collectionSchema = await getContentLayerSchema(collectionConfig, collectionKey);

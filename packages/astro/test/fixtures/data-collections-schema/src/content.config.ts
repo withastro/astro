@@ -29,6 +29,13 @@ const func = defineCollection({
 	}),
 });
 
+const callable = defineCollection({
+	loader: i18n.loader,
+	schema: Object.assign((value: unknown) => i18n.schema.parse(value), {
+		'~standard': i18n.schema['~standard'],
+	}),
+});
+
 const image = defineCollection({
 	loader: glob({ pattern: '**/*.{json,yaml,yml}', base: './src/content/image' }),
 	schema: ({ image }) => z.object({
@@ -44,4 +51,4 @@ const authors = defineCollection({
 	loader: glob({ pattern: '**/*.{json,yaml,yml}', base: './src/content/authors' }),
 });
 
-export const collections = { docs, func, image, i18n, authors };
+export const collections = { docs, func, image, i18n, authors, callable };

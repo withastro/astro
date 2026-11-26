@@ -62,6 +62,18 @@ describe('InferData()', () => {
 		}>();
 	});
 
+	it('infers the validated output of callable collection and loader schemas', () => {
+		type CallableSchema = typeof schema & (() => never);
+		type Config = {
+			collections: {
+				direct: { schema: CallableSchema };
+				fromLoader: { loader: { schema: CallableSchema } };
+			};
+		};
+		expectTypeOf<InferData<Config>['direct']>().toEqualTypeOf<{ title: string }>();
+		expectTypeOf<InferData<Config>['fromLoader']>().toEqualTypeOf<{ title: string }>();
+	});
+
 	it("infers a collection from its loader's schema", () => {
 		expectTypeOf<InferData<ContentConfig>['withLoaderSchema']>().toEqualTypeOf<{
 			headline: string;

@@ -34,6 +34,15 @@ describe('defineAction with accept: json', () => {
 		assert.equal(result.data, 'Ben');
 	});
 
+	it('validates JSON input with a callable Standard Schema', async () => {
+		const action = defineAction({
+			input: Object.assign(() => assert.fail('Expected Standard Schema validation'), nonZodSchema),
+			handler: (input) => input.name,
+		});
+		const result = await action.call(createContext(), { name: '  Ben  ' });
+		assert.equal(result.data, 'Ben');
+	});
+
 	it('surfaces issues from a non-Zod validator as an input error', async () => {
 		const action = defineAction({
 			input: nonZodSchema,

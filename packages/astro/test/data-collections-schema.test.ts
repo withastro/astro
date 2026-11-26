@@ -25,6 +25,12 @@ describe('Content Collections - data collections', () => {
 			assert.equal(schemaExists, true);
 		});
 
+		it('Generates the same JSON Schema for a callable validator', async () => {
+			const readSchema = async (name: string) =>
+				JSON.parse(await fixture.readFile(`../../.astro/collections/${name}.schema.json`));
+			assert.deepEqual(await readSchema('callable'), await readSchema('i18n'));
+		});
+
 		it('Generates valid schema file', async () => {
 			const rawJson = await fixture.readFile('../../.astro/collections/i18n.schema.json');
 			assert.deepEqual(

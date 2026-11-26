@@ -132,9 +132,9 @@ declare module 'astro:content' {
 			}
 		: never;
 
-	export type ReferenceDataEntry<C extends CollectionKey> = {
+	export type ReferenceDataEntry<C extends CollectionKey, E extends string = string> = {
 		collection: C;
-		id: string;
+		id: E;
 	};
 
 	export type ReferenceLiveEntry<C extends LiveCollectionKey> = {
@@ -151,12 +151,12 @@ declare module 'astro:content' {
 		filter?: (entry: CollectionEntry<C>) => unknown,
 	): Promise<CollectionEntry<C>[]>;
 
-	export function getEntry<C extends CollectionKey>(
-		entry: ReferenceDataEntry<C>,
+	export function getEntry<C extends CollectionKey, E extends string = string>(
+		entry: ReferenceDataEntry<C, E>,
 	): Promise<CollectionEntry<C>>;
-	export function getEntry<C extends CollectionKey>(
+	export function getEntry<C extends CollectionKey, E extends string = string>(
 		collection: C,
-		id: string,
+		id: E,
 	): Promise<CollectionEntry<C> | undefined>;
 
 	/** Resolve an array of entry references from the same collection */
@@ -221,35 +221,42 @@ declare module 'astro:content' {
 	): Promise<import('astro').LiveDataEntryResult<LiveData<C>, LiveError<C>>>;
 
 	// TODO: remove in Astro 8
-	/** @deprecated Use `getEntry()` instead. */
+	/** @deprecated Use `getEntry()` instead. This function will be removed in Astro 8. */
 	export const getEntryBySlug: (...args: any[]) => any;
 	// TODO: remove in Astro 8
-	/** @deprecated Use `getEntry()` instead. */
+	/** @deprecated Use `getEntry()` instead. This function will be removed in Astro 8. */
 	export const getDataEntryById: (...args: any[]) => any;
 
 	// TODO: remove in Astro 8
 	/**
 	 * @deprecated Use `DataMap`, which maps a collection to the type of its `data` rather than
-	 * to a record of its entries.
+	 * to a record of its entries. This type will be removed in Astro 8.
 	 */
 	export type DataEntryMap = {
 		[C in CollectionKey]: Record<string, CollectionEntry<C>>;
 	};
 	// TODO: remove in Astro 8
-	/** @deprecated Use `CollectionKey`. Content and data collections are no longer distinct. */
+	/** @deprecated Use `CollectionKey` for both content and data collections. This type will be removed in Astro 8. */
 	export type ContentCollectionKey = CollectionKey;
 	// TODO: remove in Astro 8
-	/** @deprecated Use `CollectionKey`. Content and data collections are no longer distinct. */
+	/** @deprecated Use `CollectionKey` for both content and data collections. This type will be removed in Astro 8. */
 	export type DataCollectionKey = CollectionKey;
 	// TODO: remove in Astro 8
-	/** @deprecated Use `CollectionEntry<C>['data']`. */
+	/** @deprecated Use `CollectionEntry<C>['data']`. This type will be removed in Astro 8. */
 	export type InferEntrySchema<C extends CollectionKey> = ResolvedDataMap[C];
 	// TODO: remove in Astro 8
-	/** @deprecated Use `CollectionEntry<C>['data']`. */
-	export type InferLoaderSchema<C extends CollectionKey> = ResolvedDataMap[C];
+	/** @deprecated Use `CollectionEntry<C>['data']`. This type will be removed in Astro 8. */
+	export type InferLoaderSchema<C extends CollectionKey, L = never> = [L] extends [never]
+		? ResolvedDataMap[C]
+		: L extends { schema: import('@standard-schema/spec').StandardSchemaV1<unknown, infer Output> }
+			? Output
+			: any;
 }
 
 declare module 'astro/content/fields' {
+	export const image: typeof import('../dist/content/image.js').image;
+	export type ContentImageField = import('../dist/content/image.js').ContentImageField;
+
 	/**
 	 * Creates an entry reference in a schema transform. Numeric IDs become strings.
 	 * You can also pass an existing reference to the same collection.

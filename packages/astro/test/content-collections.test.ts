@@ -5,6 +5,7 @@ import * as devalue from 'devalue';
 import testAdapter from './test-adapter.ts';
 import { preventNodeBuiltinDependencyPlugin } from './test-plugins.ts';
 import { type App, type Fixture, loadFixture } from './test-utils.ts';
+import { createFixture } from './units/test-utils.ts';
 
 type WithSchemaConfigEntry = {
 	id: string;
@@ -326,65 +327,38 @@ describe('Content Collections', () => {
 	});
 
 	describe('With an invalid schema', () => {
-		it('Throws for a collection schema that is not a Standard Schema validator', async () => {
-			const fixture = await loadFixture({
-				root: './fixtures/content-collections-empty-dir/',
-				outDir: './dist/content-collections-invalid-schema/',
+		it('Throws for a collection schema that is not a Standard Schema validator', async (t) => {
+			const project = await createFixture({
+				'src/content.config.ts': `export const collections = {
+					blog: { type: 'content_layer', loader: () => [], schema: { title: 'string' } },
+				};`,
 			});
-			const reset = await fixture.editFile(
-				'src/content.config.ts',
-				`import { defineCollection } from 'astro:content';
-import { glob } from 'astro/loaders';
-
-const blog = defineCollection({
-	loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
-	schema: { title: 'string' },
-});
-
-export const collections = { blog };
-`,
+			t.after(() => project.rm());
+			const fixture = await loadFixture({ root: project.path, outDir: './dist/invalid-schema/' });
+			await assert.rejects(
+				fixture.build({ force: true }),
+				/\*\*blog\*\* collection is not a valid schema/,
 			);
-			let error: string | undefined;
-			try {
-				await fixture.build({ force: true });
-			} catch (e) {
-				error = (e as Error).message;
-			} finally {
-				reset();
-			}
-			assert.match(error!, /\*\*blog\*\* collection is not a valid schema/);
 		});
 
-		it('Throws for a loader schema that is not a Standard Schema validator', async () => {
-			const fixture = await loadFixture({
-				root: './fixtures/content-collections-empty-dir/',
-				outDir: './dist/content-collections-invalid-loader-schema/',
+		it('Throws for a loader schema that is not a Standard Schema validator', async (t) => {
+			const project = await createFixture({
+				'src/content.config.ts': `export const collections = {
+					posts: {
+						type: 'content_layer',
+						loader: { name: 'invalid-schema-loader', load: async () => {}, schema: { title: 'string' } },
+					},
+				};`,
 			});
-			const reset = await fixture.editFile(
-				'src/content.config.ts',
-				`import { defineCollection } from 'astro:content';
-
-const posts = defineCollection({
-	type: 'content_layer',
-	loader: {
-		name: 'invalid-schema-loader',
-		load: async () => {},
-		schema: { title: 'string' },
-	},
-});
-
-export const collections = { posts };
-`,
+			t.after(() => project.rm());
+			const fixture = await loadFixture({
+				root: project.path,
+				outDir: './dist/invalid-loader-schema/',
+			});
+			await assert.rejects(
+				fixture.build({ force: true }),
+				/\*\*posts\*\* collection is not a valid schema/,
 			);
-			let error: string | undefined;
-			try {
-				await fixture.build({ force: true });
-			} catch (e) {
-				error = (e as Error).message;
-			} finally {
-				reset();
-			}
-			assert.match(error!, /\*\*posts\*\* collection is not a valid schema/);
 		});
 	});
 
