@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { removeDir } from '@astrojs/internal-helpers/fs';
 import { type Fixture, loadFixture } from './test-utils.ts';
 
@@ -11,10 +12,13 @@ describe('Content Collections - data collections', () => {
 			outDir: './dist/data-collections-schema/',
 		});
 		await removeDir(new URL('./fixtures/data-collections-schema/.astro', import.meta.url));
-		await fixture.build({});
 	});
 
 	describe('Translations Collection', () => {
+		before(async () => {
+			await fixture.build({});
+		});
+
 		it('Generates schema file', async () => {
 			const schemaExists = await fixture.pathExists('../../.astro/collections/i18n.schema.json');
 			assert.equal(schemaExists, true);
@@ -106,5 +110,25 @@ describe('Content Collections - data collections', () => {
 				JSON.stringify(JSON.parse(rawJson)),
 			);
 		});
+	});
+
+	it('removes the previous JSON schema when the validator no longer provides one', async () => {
+		const root = fileURLToPath(fixture.config.root);
+		const schemaPath = '../../.astro/collections/callable.schema.json';
+		await fixture.sync({ root });
+		assert.equal(await fixture.pathExists(schemaPath), true);
+		const restore = await fixture.editFile('src/content.config.ts', (source) =>
+			source.replace(
+				"'~standard': i18n.schema['~standard']",
+				"'~standard': { ...i18n.schema['~standard'], jsonSchema: undefined }",
+			),
+		);
+		try {
+			await fixture.sync({ root });
+			assert.equal(await fixture.pathExists(schemaPath), false);
+			assert.equal(await fixture.pathExists('../../.astro/collections/i18n.schema.json'), true);
+		} finally {
+			restore();
+		}
 	});
 });

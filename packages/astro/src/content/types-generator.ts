@@ -682,7 +682,17 @@ async function generateJSONSchema(
 		collectionSchema = await getContentLayerSchema(collectionConfig, collectionKey);
 	}
 
+	const schemaJsonPath = new URL(
+		`./${collectionKey.replace(/"/g, '')}.schema.json`,
+		collectionSchemasDir,
+	);
 	if (!hasJsonSchema(collectionSchema)) {
+		if (
+			new URL('.', schemaJsonPath).href === collectionSchemasDir.href &&
+			schemaJsonPath.pathname.endsWith('.schema.json')
+		) {
+			await fsMod.promises.rm(schemaJsonPath, { force: true });
+		}
 		logger.warn(
 			'content',
 			`The schema for the ${collectionKey} collection cannot be converted to JSON Schema, so no \`.schema.json\` file was generated for it. Its validator does not implement https://standardschema.dev/json-schema.`,
@@ -733,10 +743,6 @@ async function generateJSONSchema(
 		}
 
 		const schemaStr = JSON.stringify(schema, null, 2);
-		const schemaJsonPath = new URL(
-			`./${collectionKey.replace(/"/g, '')}.schema.json`,
-			collectionSchemasDir,
-		);
 		await fsMod.promises.writeFile(schemaJsonPath, schemaStr);
 	} catch (err) {
 		// This should error gracefully and not crash the dev server

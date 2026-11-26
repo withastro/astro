@@ -3,6 +3,7 @@
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { parse as devalueParse } from 'devalue';
 import type * as z from 'zod/v4/core';
+import { getIssuePathKeys } from '../../core/errors/standard-schema.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
 import type {
 	ActionClient,
@@ -189,9 +190,7 @@ function toZodIssue(issue: z.$ZodIssue | StandardSchemaV1.Issue): z.$ZodIssue {
 	return {
 		code: 'custom',
 		message: issue.message,
-		path: (issue.path ?? []).map((segment) =>
-			typeof segment === 'object' ? segment.key : segment,
-		),
+		path: getIssuePathKeys(issue.path),
 	};
 }
 

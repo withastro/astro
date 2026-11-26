@@ -19,6 +19,7 @@ import { getYamlPathLine } from '@astrojs/internal-helpers/yaml';
 import type { ImageMetadata } from '../assets/types.js';
 import {
 	formatSchemaIssues,
+	getIssuePathKeys,
 	isSchemaFactory,
 	isStandardSchema,
 } from '../core/errors/standard-schema.js';
@@ -249,11 +250,7 @@ async function resolveImageFields(
 ): Promise<Record<string, unknown>> {
 	const markers: { path: (string | number)[]; value: ImageMetadata }[] = [];
 	forEach(data, (ctx, value) => {
-		if (
-			value &&
-			typeof value === 'object' &&
-			(value as Record<string, unknown>)[IMAGE_FIELD_MARKER]
-		) {
+		if (value && typeof value === 'object' && IMAGE_FIELD_MARKER in value) {
 			markers.push({
 				path: ctx.path.map((segment) => segment as string | number),
 				value: value as ImageMetadata,
@@ -458,7 +455,7 @@ function hasUnderscoreBelowContentDirectoryPath(
 
 function getEntryErrorLine(rawData: string | undefined, issuePath: StandardSchemaV1.Issue['path']) {
 	if (!rawData || !issuePath?.length) return 0;
-	const keys = issuePath.map((segment) => (typeof segment === 'object' ? segment.key : segment));
+	const keys = getIssuePathKeys(issuePath);
 	const yamlLine = getYamlPathLine(rawData, keys);
 	if (yamlLine !== undefined) return yamlLine;
 	// TOML frontmatter uses assignments instead of YAML mapping keys.

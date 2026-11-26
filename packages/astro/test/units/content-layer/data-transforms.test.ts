@@ -545,7 +545,13 @@ describe('Content Layer - Data Transforms', () => {
 			load: async (context: any) => {
 				const parsed = await context.parseData({
 					id: 'my-post',
-					data: { id: 'my-post', title: 'My Post', author: 'John-Doe' },
+					data: {
+						id: 'my-post',
+						title: 'My Post',
+						author: 'John-Doe',
+						editor: 'jane',
+						ordinary: { collection: 'notes', id: 'one' },
+					},
 				});
 				await context.store.set({ id: 'my-post', data: parsed });
 			},
@@ -562,6 +568,8 @@ describe('Content Layer - Data Transforms', () => {
 					id: z.string(),
 					title: z.string(),
 					author: reference('authors'),
+					editor: z.string().transform((id) => referenceField('missing-editors', id)),
+					ordinary: z.object({ collection: z.string(), id: z.string() }),
 				}),
 			}),
 		};
@@ -577,6 +585,8 @@ describe('Content Layer - Data Transforms', () => {
 
 		// The reference "John-Doe" should trigger an error because the actual id is "john-doe"
 		const errorMessages = errors.join('\n');
+		assert.match(errorMessages, /my-post.*missing-editors.*does not exist/);
+		assert.doesNotMatch(errorMessages, /collection "notes"/);
 		assert.ok(
 			errorMessages.includes('John-Doe') && errorMessages.includes('does not exist'),
 			`Expected error about invalid reference "John-Doe", got: ${errorMessages}`,
@@ -725,10 +735,10 @@ describe('Content Layer - reference()', () => {
 			assert.deepEqual(referenceField('cats', resolved), resolved);
 		});
 
-		it('passes a legacy `slug` reference through without renaming it', () => {
+		it('normalizes a legacy slug to an id', () => {
 			assert.deepEqual(referenceField('cats', { collection: 'cats', slug: 'tabby' }), {
 				collection: 'cats',
-				slug: 'tabby',
+				id: 'tabby',
 			});
 		});
 
@@ -754,6 +764,10 @@ describe('Content Layer - reference()', () => {
 			const schema = reference('cats');
 			assert.deepEqual(await schema.parseAsync('tabby'), { collection: 'cats', id: 'tabby' });
 			assert.deepEqual(await schema.parseAsync(1), { collection: 'cats', id: '1' });
+			assert.deepEqual(await schema.parseAsync({ collection: 'cats', slug: 'tabby' }), {
+				collection: 'cats',
+				slug: 'tabby',
+			});
 		});
 
 		it('reports a cross-collection reference as a validation issue, not a throw', async () => {

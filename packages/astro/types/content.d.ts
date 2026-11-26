@@ -132,10 +132,10 @@ declare module 'astro:content' {
 			}
 		: never;
 
-	export type ReferenceDataEntry<C extends CollectionKey, E extends string = string> = {
-		collection: C;
-		id: E;
-	};
+	export type ReferenceDataEntry<
+		C extends CollectionKey,
+		E extends string = string,
+	> = import('../dist/content/runtime.js').EntryReference<C, E>;
 
 	export type ReferenceLiveEntry<C extends LiveCollectionKey> = {
 		collection: C;
@@ -170,16 +170,9 @@ declare module 'astro:content' {
 	): Promise<RenderResult>;
 
 	/**
-	 * Every value `reference()` accepts as an entry lookup. An already-resolved reference is
-	 * accepted, and passed through, so that re-parsing transformed data is a no-op.
+	 * The schema preserves `slug` when it receives a legacy reference object.
+	 * @deprecated Use `reference(collection, id)` from `astro/content/fields` in a schema transform. This export will be removed in Astro 8.
 	 */
-	type ReferenceLookup<C> =
-		| string
-		| number
-		| { collection: C; id: string }
-		| { collection: C; slug: string };
-
-	/** @deprecated Use `reference(collection, id)` from `astro/content/fields` in a schema transform. This export will be removed in Astro 8. */
 	export function reference<
 		C extends
 			| CollectionKey
@@ -189,7 +182,7 @@ declare module 'astro:content' {
 		collection: C,
 	): import('astro/zod').ZodType<
 		C extends CollectionKey ? ReferenceDataEntry<C> : never,
-		ReferenceLookup<C>
+		import('../dist/content/runtime.js').ReferenceLookup<C>
 	>;
 
 	type LiveTypes<C extends LiveCollectionKey> = ResolvedLiveDataMap[C];
@@ -258,12 +251,13 @@ declare module 'astro/content/fields' {
 
 	/**
 	 * Creates an entry reference in a schema transform. Numeric IDs become strings.
-	 * You can also pass an existing reference to the same collection.
+	 * An existing reference to the same collection supplies its `id` or legacy `slug`.
+	 * The returned reference always uses `id`.
 	 * @throws If the lookup is invalid or refers to a different collection.
 	 */
 	export function reference<C extends import('astro:content').CollectionKey | (string & {})>(
 		collection: C,
-		lookup: string | number | { collection: C; id: string } | { collection: C; slug: string },
+		lookup: import('../dist/content/runtime.js').ReferenceLookup<C>,
 	): C extends import('astro:content').CollectionKey
 		? import('astro:content').ReferenceDataEntry<C>
 		: never;

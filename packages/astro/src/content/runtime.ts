@@ -26,7 +26,7 @@ import type {
 	LiveDataEntryResult,
 } from '../types/public/content.js';
 import { defineCollection as defineCollectionOrig } from './config.js';
-import type { LIVE_CONTENT_TYPE } from './consts.js';
+import { type LIVE_CONTENT_TYPE, REFERENCE_FIELD_MARKER } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import {
 	LiveCollectionCacheHintError,
@@ -491,13 +491,13 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 					.replace(/&(?:amp|#x26|#38);/g, '&'),
 			);
 
-			let resolvedImage: GetImageResult;
+			let image: GetImageResult;
 			if (URL.canParse(decodedImagePath.src)) {
 				// Remote image, pass through without resolving import
 				// We know we should resolve this remote image because either:
 				// 1. It was collected with the remark-collect-images plugin, which respects the astro image configuration,
 				// 2. OR it was manually injected by another plugin, and we should respect that.
-				resolvedImage = await getImage(decodedImagePath);
+				image = await getImage(decodedImagePath);
 			} else {
 				const id = imageSrcToImportId(decodedImagePath.src, fileName);
 
@@ -505,29 +505,29 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 				if (!id || imageObjects.has(id) || !imported) {
 					continue;
 				}
-				resolvedImage = await getImage({ ...decodedImagePath, src: imported });
+				image = await getImage({ ...decodedImagePath, src: imported });
 			}
-			imageObjects.set(imagePath, resolvedImage);
+			imageObjects.set(imagePath, image);
 		} catch {
 			throw new Error(`Failed to parse image reference: ${imagePath}`);
 		}
 	}
 
 	return html.replaceAll(CONTENT_LAYER_IMAGE_REGEX, (full, imagePath) => {
-		const resolvedImage = imageObjects.get(imagePath);
+		const image = imageObjects.get(imagePath);
 
-		if (!resolvedImage) {
+		if (!image) {
 			return full;
 		}
 
-		const { index, ...attributes } = resolvedImage.attributes;
+		const { index, ...attributes } = image.attributes;
 
 		return Object.entries({
 			...attributes,
-			src: resolvedImage.src,
+			src: image.src,
 			// An empty `srcset` is invalid HTML, so only emit it when there are
 			// actual candidates. This matches `vite-plugin-markdown/images.ts`.
-			...(resolvedImage.srcSet.values.length > 0 ? { srcset: resolvedImage.srcSet.attribute } : {}),
+			...(image.srcSet.values.length > 0 ? { srcset: image.srcSet.attribute } : {}),
 			// This attribute is used by the toolbar audit
 			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})
@@ -783,26 +783,21 @@ async function render({
 	}
 }
 
-/**
- * What `reference()` resolves to, and what `getEntry()`/`getEntries()` accept.
- *
- * The `slug` variant only ever comes back out when it went in: a legacy reference object is
- * passed through untouched rather than renamed, so re-parsing already-transformed data is a
- * no-op.
- */
-export type ReferenceField =
-	| { collection: string; id: string }
-	| { collection: string; slug: string };
-
-/** Every value `reference()` accepts as an entry lookup. */
-export type ReferenceLookup = string | number | ReferenceField;
+export type EntryReference<C extends string, Id extends string = string> = {
+	collection: C;
+	id: Id;
+};
+export type ReferenceField<C extends string = string> =
+	| EntryReference<C>
+	| { collection: C; slug: string };
+export type ReferenceLookup<C extends string = string> = string | number | ReferenceField<C>;
 
 // The referenced collection might not have loaded yet. ContentLayer.validateReferences checks
 // that the entry exists after all loaders finish.
-function resolveReference(
-	collection: string,
+function resolveReference<C extends string>(
+	collection: C,
 	lookup: unknown,
-): { ok: true; value: ReferenceField } | { ok: false; message: string } {
+): { ok: true; value: ReferenceField<C> } | { ok: false; message: string } {
 	if (typeof lookup === 'number') {
 		return { ok: true, value: { id: lookup.toString(10), collection } };
 	}
@@ -833,7 +828,10 @@ function resolveReference(
 }
 
 /** Converts an entry ID or reference object to a normalized reference for the given collection. */
-export function reference(collection: string, lookup: ReferenceLookup): ReferenceField {
+export function reference<C extends string>(
+	collection: C,
+	lookup: ReferenceLookup<C>,
+): EntryReference<C> {
 	const resolved = resolveReference(collection, lookup);
 	if (!resolved.ok) {
 		throw new AstroError({
@@ -841,7 +839,9 @@ export function reference(collection: string, lookup: ReferenceLookup): Referenc
 			message: AstroErrorData.InvalidContentReferenceError.message(collection, resolved.message),
 		});
 	}
-	return resolved.value;
+	const value = resolved.value;
+	const entry = 'id' in value ? value : { collection, id: value.slug };
+	return Object.defineProperty(entry, REFERENCE_FIELD_MARKER, { value: true });
 }
 
 /** Creates the Zod schema factory used by `astro:content` for reference fields. */
@@ -866,7 +866,7 @@ export function createReference() {
 					ctx.addIssue({ code: 'custom', message: resolved.message });
 					return z.NEVER;
 				}
-				return resolved.value;
+				return Object.defineProperty(resolved.value, REFERENCE_FIELD_MARKER, { value: true });
 			});
 	};
 }

@@ -1,9 +1,10 @@
 import fsMod from 'node:fs';
 import path from 'node:path';
 import type { ImageMetadata } from '../assets/types.js';
-import { imageMetadata } from '../assets/utils/metadata.js';
+import { readImageFile } from '../assets/utils/node.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { isRemotePath } from '../core/path.js';
 import { IMAGE_FIELD_MARKER, IMAGE_IMPORT_PREFIX } from './consts.js';
 export type ImageSourceResolver = (source: string, importer: string) => Promise<string | undefined>;
 
@@ -21,21 +22,6 @@ function throwImageNotFound(src: string): never {
 		...AstroErrorData.ImageNotFound,
 		message: AstroErrorData.ImageNotFound.message(src),
 	});
-}
-
-// Without a file emitter, `emitImageMetadata` would put a dev-only `/@fs/` URL in the data store.
-async function probe(fsPath: string) {
-	let fileData: Buffer;
-	try {
-		fileData = await fsMod.promises.readFile(fsPath);
-	} catch {
-		return undefined;
-	}
-	const metadata = await imageMetadata(fileData, fsPath);
-	if (path.extname(fsPath).toLowerCase() === '.apng') {
-		metadata.format = 'apng';
-	}
-	return metadata;
 }
 
 /**
@@ -58,7 +44,7 @@ export async function resolveImageField(
 	resolveSource?: ImageSourceResolver,
 ): Promise<ImageMetadata> {
 	const rawSrc = field.src.replace(IMAGE_IMPORT_PREFIX, '');
-	if (rawSrc.includes('://') || typeof filePath !== 'string' || !path.isAbsolute(filePath)) {
+	if (isRemotePath(rawSrc) || typeof filePath !== 'string' || !path.isAbsolute(filePath)) {
 		return field;
 	}
 
@@ -67,14 +53,11 @@ export async function resolveImageField(
 
 	if (!isRootAbsolute) {
 		const candidate = path.resolve(path.dirname(filePath), rawSrc);
-		if (fsMod.existsSync(candidate)) {
-			const metadata = await probe(candidate);
-			if (!metadata) {
-				throwImageNotFound(rawSrc);
-			}
+		const sibling = await readImageFile(candidate);
+		if (sibling) {
 			return {
 				...field,
-				...metadata,
+				...sibling.metadata,
 				// Vite treats a bare filename as a package name when it reads the stored path.
 				src: `${IMAGE_IMPORT_PREFIX}${isRelative ? rawSrc : `./${rawSrc}`}`,
 			};
@@ -93,13 +76,13 @@ export async function resolveImageField(
 		throwImageNotFound(rawSrc);
 	}
 
-	const metadata = await probe(resolvedPath);
-	if (!metadata) {
+	const resolved = await readImageFile(resolvedPath);
+	if (!resolved) {
 		throwImageNotFound(rawSrc);
 	}
 
 	// Keep the alias so Vite can resolve it relative to the entry at read time.
-	return { ...field, ...metadata, src: field.src };
+	return { ...field, ...resolved.metadata, src: field.src };
 }
 
 export function createViteImageSourceResolver(

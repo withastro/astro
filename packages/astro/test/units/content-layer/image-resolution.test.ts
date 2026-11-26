@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import * as fs from 'node:fs/promises';
-import * as os from 'node:os';
+import fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { IMAGE_IMPORT_PREFIX } from '../../../dist/content/consts.js';
 import { image, resolveImageField } from '../../../dist/content/image.js';
 import { getEntryData } from '../../../dist/content/utils.js';
+import { createTempDir } from './test-helpers.ts';
 
 const coverFixture = fileURLToPath(new URL('../assets/600x400.jpg', import.meta.url));
 
@@ -16,7 +16,7 @@ describe('image() source resolution', () => {
 	let coverPath: string;
 
 	before(async () => {
-		dir = await fs.mkdtemp(path.join(os.tmpdir(), 'astro-image-resolution-'));
+		dir = fileURLToPath(createTempDir('astro-image-resolution-'));
 		entryFilePath = path.join(dir, 'post.md');
 		coverPath = path.join(dir, 'cover.jpg');
 		await fs.writeFile(entryFilePath, '');
@@ -45,7 +45,7 @@ describe('image() source resolution', () => {
 			{
 				id: 'post',
 				collection: 'posts',
-				unvalidatedData: { cover: image('cover.jpg') },
+				unvalidatedData: { cover: image('cover.jpg'), ordinary: { __astro_image_field__: true } },
 				_internal: { rawData: undefined, filePath: entryFilePath },
 			},
 			{ type: 'content_layer', loader: { name: 'test', load: () => {} } },
@@ -53,6 +53,7 @@ describe('image() source resolution', () => {
 		);
 		assert.equal(result.cover.width, 600);
 		assert.equal(result.cover.height, 400);
+		assert.deepEqual(result.ordinary, { __astro_image_field__: true });
 	});
 
 	it('keeps an explicit relative source unchanged', async () => {
@@ -68,10 +69,25 @@ describe('image() source resolution', () => {
 		);
 	});
 
+	it('preserves a file read error other than a missing image', async (t) => {
+		const error = Object.assign(new Error('Permission denied'), { code: 'EACCES' });
+		t.mock.method(fs, 'readFile', async () => {
+			throw error;
+		});
+		await assert.rejects(
+			resolveImageField(image('./cover.jpg'), entryFilePath),
+			(cause) => cause === error,
+		);
+	});
+
 	it('passes a remote URL through without reading it', async () => {
-		const result = await resolveImageField(image('https://example.com/cover.jpg'), entryFilePath);
-		assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}https://example.com/cover.jpg`);
-		assert.equal(result.width, undefined);
+		for (const src of ['https://example.com/cover.jpg', '//cdn.example/cover.jpg']) {
+			const result = await resolveImageField(image(src), entryFilePath, async () => {
+				assert.fail('Remote images must not use the local resolver');
+			});
+			assert.equal(result.src, `${IMAGE_IMPORT_PREFIX}${src}`);
+			assert.equal(result.width, undefined);
+		}
 	});
 
 	it('resolves an aliased source with the provided resolver', async () => {

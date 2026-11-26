@@ -379,6 +379,13 @@ export class ContentLayer {
 		const collectionNames = new Set(Object.keys(collections));
 		for (const collectionName of collectionNames) {
 			for (const entry of this.#store.values(collectionName)) {
+				for (const target of entry?.referencedCollections ?? []) {
+					if (!collectionNames.has(target)) {
+						logger.error(
+							`Invalid content reference: entry "${entry.id}" in collection "${collectionName}" references collection "${target}", but that collection does not exist.`,
+						);
+					}
+				}
 				if (entry?.data) {
 					this.#findInvalidReferences(
 						entry.data,

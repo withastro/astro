@@ -13,12 +13,12 @@ export function isSchemaFactory(value: unknown): boolean {
 	return typeof value === 'function' && !isStandardSchema(value);
 }
 
-function formatIssuePath(path: StandardSchemaV1.Issue['path']): string {
-	return (path ?? [])
-		.map((segment) => String(typeof segment === 'object' ? segment.key : segment))
-		.join('.');
+export function getIssuePathKeys(path: StandardSchemaV1.Issue['path']): PropertyKey[] {
+	return (path ?? []).map((segment) => (typeof segment === 'object' ? segment.key : segment));
 }
 
 export function formatSchemaIssues(issues: readonly StandardSchemaV1.Issue[]): Array<string> {
-	return issues.map((issue) => `  **${formatIssuePath(issue.path)}**: ${issue.message}`);
+	return issues.map(
+		(issue) => `  **${getIssuePathKeys(issue.path).map(String).join('.')}**: ${issue.message}`,
+	);
 }

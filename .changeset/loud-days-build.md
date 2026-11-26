@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Infers collection types from your content config, and adds the `DataMap` and `LiveDataMap` interfaces
+Adds `DataMap` and `LiveDataMap` interfaces that infer collection types from your content config
 
 For build-time collections, `entry.data` uses the output type of the collection schema or, if you omit it, the type provided by the loader's schema. Without either, `entry.data` is `any`. For live collections, a schema overrides the loader's data type and preserves its filter and error types.
 

@@ -43,9 +43,22 @@ describe('ActionInputSchema', () => {
 		it('Infers action input schema when input is omitted', async () => {
 			const _action = defineAction({
 				accept: 'form',
-				handler: () => undefined,
+				handler: (input) => {
+					expectTypeOf(input).toEqualTypeOf<FormData>();
+				},
 			});
-			expectTypeOf<ActionInputSchema<typeof _action>>().toBeNever;
+			expectTypeOf<ActionInputSchema<typeof _action>>().toEqualTypeOf<z.core.$ZodType<FormData>>();
+			expectTypeOf(_action).parameter(0).toEqualTypeOf<FormData>();
+		});
+
+		it('preserves FormData when the accept type is explicit', () => {
+			const action = defineAction<void, 'form'>({
+				accept: 'form',
+				handler: (input) => {
+					expectTypeOf(input).toEqualTypeOf<FormData>();
+				},
+			});
+			expectTypeOf(action).parameter(0).toEqualTypeOf<FormData>();
 		});
 	});
 
@@ -77,7 +90,7 @@ describe('ActionInputSchema', () => {
 				accept: 'json',
 				handler: () => undefined,
 			});
-			expectTypeOf<ActionInputSchema<typeof _action>>().toBeNever;
+			expectTypeOf<ActionInputSchema<typeof _action>>().toBeNever();
 		});
 	});
 
@@ -106,7 +119,7 @@ describe('ActionInputSchema', () => {
 			const _action = defineAction({
 				handler: () => undefined,
 			});
-			expectTypeOf<ActionInputSchema<typeof _action>>().toBeNever;
+			expectTypeOf<ActionInputSchema<typeof _action>>().toBeNever();
 		});
 	});
 

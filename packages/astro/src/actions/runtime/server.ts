@@ -127,7 +127,9 @@ export function defineAction<
 export function defineAction<
 	TOutput,
 	TAccept extends ActionAccept | undefined,
-	TInputSchema extends z.$ZodType | undefined = undefined,
+	TInputSchema extends z.$ZodType | undefined = TAccept extends 'form'
+		? z.$ZodType<FormData>
+		: undefined,
 >(params: {
 	accept?: TAccept;
 	input?: TInputSchema;
