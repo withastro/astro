@@ -2,12 +2,15 @@
 'astro': minor
 ---
 
-Adds `reference(collection, id)` for content collection schemas, and deprecates `reference(collection)`
+Adds `reference(collection, id)` from `astro/content/fields` for content collection schemas and deprecates `reference(collection)` from `astro:content`
 
 `reference()` used to return a Zod schema, which meant it only worked with Zod and its result could not be validated any further. It now takes the referenced entry as a second argument and returns the reference itself, so you can call it from inside a schema transform with any validator:
 
 ```diff
 // src/content.config.ts
+-import { reference } from 'astro:content';
++import { reference } from 'astro/content/fields';
+
 schema: z.object({
 - author: reference('authors'),
 + author: z.string().transform((id) => reference('authors', id)),
