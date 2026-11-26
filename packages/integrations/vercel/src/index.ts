@@ -233,6 +233,13 @@ interface VercelISRConfig {
 	expiration?: number | false;
 
 	/**
+	 * When `true`, Vercel serves the response body of the ISR function for every status code, including error status codes. When `false`, Vercel replaces error responses (e.g. a custom `500` page rendered by Astro) with its own error page. See Vercel’s documentation on the [prerender configuration file](https://vercel.com/docs/build-output-api/primitives#prerender-configuration-file) for more information.
+	 *
+	 * @default `false`
+	 */
+	exposeErrBody?: boolean;
+
+	/**
 	 * Paths that will always be served by a serverless function instead of an ISR function.
 	 *
 	 * @default `[]`
@@ -770,6 +777,7 @@ class VercelBuilder {
 			bypassToken: isr.bypassToken,
 			allowQuery: [ASTRO_PATH_PARAM, ASTRO_PATH_TOKEN_PARAM],
 			passQuery: true,
+			exposeErrBody: isr.exposeErrBody,
 		});
 	}
 

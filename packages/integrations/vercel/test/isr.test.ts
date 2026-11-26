@@ -21,6 +21,7 @@ describe('ISR', () => {
 			bypassToken: '1c9e601d-9943-4e7c-9575-005556d774a8',
 			allowQuery: ['x_astro_path', 'x_astro_path_token'],
 			passQuery: true,
+			exposeErrBody: true,
 		});
 	});
 
