@@ -23,6 +23,21 @@ test.describe('Dev Toolbar', () => {
 		await expect(devToolbar).toHaveCount(1);
 	});
 
+	test('mounts without errors when performance has no addEventListener', async ({
+		page,
+		astro,
+	}) => {
+		const errors: Error[] = [];
+		page.on('pageerror', (error) => errors.push(error));
+		// Playwright's fake clock replaces `performance` with an object lacking EventTarget methods.
+		await page.clock.install();
+		await page.goto(astro.resolveUrl('/'));
+
+		const devToolbar = page.locator('astro-dev-toolbar');
+		await expect(devToolbar).toHaveCount(1);
+		expect(errors).toEqual([]);
+	});
+
 	test('shows app name on hover', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
