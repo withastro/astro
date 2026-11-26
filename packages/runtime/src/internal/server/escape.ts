@@ -1,4 +1,4 @@
-import { streamAsyncIterator } from './util.js';
+import { streamAsyncIterator, isResponse } from './util.js';
 
 const ESCAPABLE = /[&<>'"]/g;
 
@@ -135,7 +135,7 @@ export function unescapeHTML(
 			return markHTMLBytes(str);
 		}
 		// If a response, stream out the chunks
-		else if (str instanceof Response && str.body) {
+		else if (isResponse(str) && str.body) {
 			const body = str.body;
 			return unescapeChunksAsync(body);
 		}

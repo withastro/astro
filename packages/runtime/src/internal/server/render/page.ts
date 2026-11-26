@@ -1,3 +1,4 @@
+import { isResponse } from '../util.js';
 import type { RenderRouteInfo, SSRResult } from '../../../types.js';
 import { isRoute404, isRoute500 } from '../../core/routing/internal/route-errors.js';
 import { isPropagatingHint } from '../../core/head-propagation/resolver.js';
@@ -27,6 +28,46 @@ function replaceCspMetaPlaceholder(
 	html: string,
 ): string {
 	return placeholder ? html.replace(placeholder, () => renderCspMetaTag(result)) : html;
+}
+
+/**
+ * Renders a page to a string, with no Response, no byte encoding and no decoding: what `renderPage(..., false)` then
+ * `.text()` gives, minus a UTF-8 round trip of the whole page. Returns a Response when the component returned one.
+ */
+export async function renderPageToString(
+	result: SSRResult,
+	componentFactory: AstroComponentFactory | NonAstroPageComponent,
+	props: any,
+	children: any,
+	route?: RenderRouteInfo,
+): Promise<string | Response> {
+	if (!isAstroComponentFactory(componentFactory)) {
+		return (await renderPage(result, componentFactory, props, children, false, route)).text();
+	}
+	const pageMeta = result.componentMetadata.get(componentFactory.moduleId!);
+	result._metadata.headInTree = pageMeta?.containsHead ?? false;
+	result._metadata.routeHasPropagation = isPropagatingHint(pageMeta?.propagation ?? 'none');
+	const cspMetaPlaceholder = setCspMetaPlaceholder(result);
+	const body = await renderToString(result, componentFactory, props, children, true, route);
+	return typeof body === 'string'
+		? asDecodedUtf8(replaceCspMetaPlaceholder(result, cspMetaPlaceholder, body))
+		: body;
+}
+
+/**
+ * The string `new TextDecoder().decode(new TextEncoder().encode(str))` gives, without the two copies: lone surrogates
+ * become U+FFFD (the encoder's USVString conversion) and a leading U+FEFF is dropped (the decoder's BOM handling).
+ * That is what `renderPage(...)` followed by `response.text()` returned, so output stays identical.
+ */
+function asDecodedUtf8(str: string): string {
+	const wellFormed =
+		typeof str.toWellFormed === 'function'
+			? str.toWellFormed()
+			: str.replace(
+					/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g,
+					'\uFFFD',
+				);
+	return wellFormed.charCodeAt(0) === 0xfeff ? wellFormed.slice(1) : wellFormed;
 }
 
 export async function renderPage(
@@ -105,7 +146,7 @@ export async function renderPage(
 				true,
 				route,
 			);
-			if (isWorkerd && !(nodeBody instanceof Response)) {
+			if (isWorkerd && !isResponse(nodeBody)) {
 				// ReadableStream.from() is available in Node >= 20.6 and workerd but
 				// is not yet in TypeScript's built-in DOM lib types.
 				body = (ReadableStream as any).from(nodeBody);
@@ -126,7 +167,7 @@ export async function renderPage(
 	}
 
 	// If the Astro component returns a Response on init, return that response
-	if (body instanceof Response) return body;
+	if (isResponse(body)) return body;
 
 	// Create final response from body
 	const init = result.response;

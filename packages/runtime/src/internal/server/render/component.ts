@@ -10,7 +10,7 @@ import { escapeHTML, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
-import { isPromise } from '../util.js';
+import { isPromise, isResponse } from '../util.js';
 import { type AstroComponentFactory, isAstroComponentFactory } from './astro/factory.js';
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
@@ -315,7 +315,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		html = '';
 		const destination: RenderDestination = {
 			write(chunk) {
-				if (chunk instanceof Response) return;
+				if (isResponse(chunk)) return;
 				html += chunkToString(result, chunk);
 			},
 		};
@@ -559,7 +559,7 @@ export async function renderComponentToString(
 				}
 
 				// `renderToString` doesn't work with emitting responses, so ignore here
-				if (chunk instanceof Response) return;
+				if (isResponse(chunk)) return;
 
 				str += chunkToString(result, chunk);
 			},

@@ -1,6 +1,6 @@
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import type { RenderRouteInfo, SSRResult } from '../../../../types.js';
-import { isPromise } from '../../util.js';
+import { isPromise, isResponse } from '../../util.js';
 import {
 	chunkToByteArray,
 	chunkToByteArrayOrString,
@@ -62,7 +62,7 @@ async function renderStreamToString(
 			}
 
 			// `renderToString` doesn't work with emitting responses, so ignore here
-			if (chunk instanceof Response) return;
+			if (isResponse(chunk)) return;
 
 			str += chunkToString(result, chunk);
 		},
@@ -107,7 +107,7 @@ async function renderStreamToStream(
 					// `chunk` might be a Response that contains a redirect,
 					// that was rendered eagerly and therefore bypassed the early check
 					// whether headers can still be modified. In that case, throw an error
-					if (chunk instanceof Response) {
+					if (isResponse(chunk)) {
 						throw new AstroError({
 							...AstroErrorData.ResponseSentError,
 						});
@@ -255,7 +255,7 @@ async function renderStreamToAsyncIterable(
 					lastIsString = true;
 				}
 			}
-			if (chunk instanceof Response) {
+			if (isResponse(chunk)) {
 				throw new AstroError(AstroErrorData.ResponseSentError);
 			}
 			const bytes = chunkToByteArrayOrString(result, chunk);
@@ -316,7 +316,7 @@ export async function renderToString(
 	);
 
 	// If the Astro component returns a Response on init, return that response
-	if (templateResult instanceof Response) return templateResult;
+	if (isResponse(templateResult)) return templateResult;
 
 	return await renderStreamToString(result, templateResult, isPage);
 }
@@ -339,7 +339,7 @@ export async function renderToReadableStream(
 	);
 
 	// If the Astro component returns a Response on init, return that response
-	if (templateResult instanceof Response) return templateResult;
+	if (isResponse(templateResult)) return templateResult;
 
 	return await renderStreamToStream(result, templateResult, isPage, route);
 }
@@ -353,7 +353,7 @@ async function callComponentAsTemplateResultOrResponse(
 ) {
 	const factoryResult = await componentFactory(result, props, children);
 
-	if (factoryResult instanceof Response) {
+	if (isResponse(factoryResult)) {
 		return factoryResult;
 	}
 	// we check if the component we attempt to render is a head+content
@@ -408,7 +408,7 @@ export async function renderToAsyncIterable(
 		children,
 		route,
 	);
-	if (templateResult instanceof Response) return templateResult;
+	if (isResponse(templateResult)) return templateResult;
 
 	return await renderStreamToAsyncIterable(result, templateResult, isPage, route);
 }

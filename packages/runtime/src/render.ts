@@ -3,6 +3,8 @@ import { Slots } from './internal/core/render/slots.js';
 import { ASTRO_GENERATOR } from './internal/server/astro-global.js';
 import { type AstroComponentFactory, renderPage } from './server/index.js';
 import { SlotString } from './internal/server/render/slot.js';
+import { renderPageToString } from './internal/server/render/page.js';
+import { isResponse } from './internal/server/util.js';
 import type {
 	AstroGlobal,
 	SSRComponentMetadata,
@@ -129,9 +131,15 @@ export function createRenderer(options: RendererOptions = {}): Renderer {
 	}
 	return {
 		renderToResponse,
-		async renderToString(Component, renderOptions) {
-			const response = await renderToResponse(Component, renderOptions);
-			return response.text();
+		async renderToString(Component, renderOptions = {}) {
+			const result = await createResult(config, Component, renderOptions);
+			const slots: Record<string, SlotString> = {};
+			for (const [name, html] of Object.entries(renderOptions.slots ?? {})) {
+				slots[name] = new SlotString(html, null);
+			}
+			// No Response in between: no UTF-8 encode and decode of the page, and no undici load on first use.
+			const out = await renderPageToString(result, Component, renderOptions.props ?? {}, slots);
+			return isResponse(out) ? out.text() : out;
 		},
 	};
 }
@@ -139,10 +147,15 @@ export function createRenderer(options: RendererOptions = {}): Renderer {
 async function createResult(
 	config: ResolvedRendererOptions,
 	Component: AstroComponentFactory,
-	{ request = new Request('http://localhost/'), partial = false }: RenderOptions,
+	{ request, partial = false }: RenderOptions,
 ): Promise<SSRResult> {
 	const assets = await config.componentAssets(Component.moduleId ?? '');
-	const url = new URL(request.url);
+	// Built on first read: a string render usually never reads them, and `new Request`/`Headers` load undici.
+	let theRequest = request;
+	let theUrl: URL | undefined;
+	let theHeaders: Headers | undefined;
+	const getRequest = () => (theRequest ??= new Request('http://localhost/'));
+	const getUrl = () => (theUrl ??= new URL(getRequest().url));
 	const result: SSRResult = {
 		base: config.base,
 		userAssetsBase: undefined,
@@ -156,8 +169,12 @@ async function createResult(
 				props,
 				self: null,
 				slots: new Slots(result, slotValues, { warn: (_label, message) => console.warn(message) }),
-				request,
-				url,
+				get request() {
+					return getRequest();
+				},
+				get url() {
+					return getUrl();
+				},
 				site: config.site ? new URL(config.site) : undefined,
 				generator: ASTRO_GENERATOR,
 			};
@@ -165,7 +182,9 @@ async function createResult(
 		},
 		links: new Set(),
 		partial,
-		pathname: url.pathname,
+		get pathname() {
+			return getUrl().pathname;
+		},
 		renderers: config.renderers,
 		async resolve(specifier) {
 			return assets.resolve[specifier] ?? config.resolve(specifier);
@@ -173,7 +192,9 @@ async function createResult(
 		response: {
 			status: 200,
 			statusText: 'OK',
-			headers: new Headers({ 'Content-Type': 'text/html' }),
+			get headers() {
+				return (theHeaders ??= new Headers({ 'Content-Type': 'text/html' }));
+			},
 		},
 		scripts: new Set(
 			config.headScripts.map((children) => ({ props: { type: 'module' }, children })),
