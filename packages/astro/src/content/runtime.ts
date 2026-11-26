@@ -8,7 +8,7 @@ import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { recordContentEntryRender } from '@astrojs/runtime/_internal/core/render-scope/record.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import { isRemotePath, prependForwardSlash } from '../core/path.js';
-import { patchZodStandardSchema } from '../preview-release/zod.js';
+import { validateSchema } from '../core/errors/standard-schema.js';
 import {
 	type AstroComponentFactory,
 	createComponent,
@@ -60,9 +60,7 @@ async function parseLiveEntry(
 	collection: string,
 ): Promise<{ entry?: LiveDataEntry; error?: LiveCollectionError }> {
 	try {
-		// `validate()` may return a promise, which is what allows async transforms
-		patchZodStandardSchema(schema);
-		const parsed = await schema['~standard'].validate(entry.data);
+		const parsed = await validateSchema(schema, entry.data);
 		if (parsed.issues) {
 			return {
 				error: new LiveCollectionValidationError(collection, entry.id, parsed.issues),

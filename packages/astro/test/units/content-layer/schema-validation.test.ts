@@ -824,8 +824,6 @@ describe('Content Layer - Schema Validation', () => {
 				level: 'silent',
 			});
 
-			// The core entrypoint puts no `safeParseAsync` on the schema, so the patch takes a
-			// different path there. Shadow the method to exercise it.
 			let calls = 0;
 			const schema = z.object({
 				title: z.string().transform(async (value) => {

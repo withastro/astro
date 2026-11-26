@@ -20,11 +20,11 @@ import {
 	formatIssuePath,
 	formatSchemaIssues,
 	isStandardSchema,
+	validateSchema,
 } from '../core/errors/standard-schema.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
-import { patchZodStandardSchema } from '../preview-release/zod.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
@@ -208,8 +208,7 @@ export async function getEntryData<
 		}
 		let result: StandardSchemaV1.Result<unknown>;
 		try {
-			patchZodStandardSchema(schema, errorMap);
-			result = await schema['~standard'].validate(data);
+			result = await validateSchema(schema, data, errorMap);
 		} catch (error) {
 			if (error instanceof AstroError && error.name === AstroErrorData.ImageNotFound.name) {
 				throw new AstroError({
