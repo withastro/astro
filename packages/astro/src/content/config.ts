@@ -104,6 +104,7 @@ export type InferSchemaInput<S> = S extends StandardSchemaV1
 
 export type { ImageFunction };
 
+/** @deprecated Use a static schema and import `image` from `astro/content/fields`. */
 export interface SchemaContext {
 	/**
 	 * @deprecated Use `image()` from `astro/content/fields` instead, which is an ordinary
