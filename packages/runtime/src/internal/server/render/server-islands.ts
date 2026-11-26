@@ -40,6 +40,9 @@ function isWithinURLLimit(pathname: string, params: URLSearchParams) {
 	return chars < 2048;
 }
 
+// How many islands on each page have used each request digest, to keep host ids unique per page.
+const hostIdDigestCounts = new WeakMap<SSRResult, Map<string, number>>();
+
 export class ServerIslandComponent {
 	result: SSRResult;
 	props: Record<string | number, any>;
@@ -51,6 +54,7 @@ export class ServerIslandComponent {
 	componentExport: string | undefined;
 	componentId: string | undefined;
 	private initPromise: Promise<ThinHead> | undefined;
+	private islandContentPromise: Promise<string> | undefined;
 	constructor(
 		result: SSRResult,
 		props: Record<string | number, any>,
@@ -126,11 +130,16 @@ export class ServerIslandComponent {
 		return componentExport;
 	}
 
-	async getIslandContent() {
-		if (this.islandContent) {
-			return this.islandContent;
-		}
+	/**
+	 * Builds the inline script that fetches the island and sets `hostId` to match it. Runs once;
+	 * concurrent and later calls share the first result.
+	 */
+	getIslandContent(): Promise<string> {
+		this.islandContentPromise ??= this.computeIslandContent();
+		return this.islandContentPromise;
+	}
 
+	private async computeIslandContent(): Promise<string> {
 		const componentPath = this.getComponentPath();
 		const componentExport = this.getComponentExport();
 		const serverIslandNameMap = await this.result.getServerIslandNameMap();
@@ -213,11 +222,6 @@ export class ServerIslandComponent {
 
 		if (useGETRequest) {
 			serverIslandUrl += '?' + potentialSearchParams.toString();
-			this.result._metadata.extraHead.push(
-				markHTMLString(
-					`<link rel="preload" as="fetch" href="${toAttributeString(serverIslandUrl)}" crossorigin="anonymous">`,
-				),
-			);
 		}
 
 		// Get adapter headers for inline script
@@ -243,11 +247,29 @@ let response = await fetch(${serverIslandUrlJson}, {
 }).catch(() => {});`;
 
 		// Derived from the request, which holds the encrypted island data, so that prerendered pages
-		// get the same id on every build. Identical islands on one page share an id, which works
-		// because their responses are identical too.
+		// get the same id on every build. The count tells apart identical islands on one page:
+		// `replaceServerIsland` fills the first script with a matching id, so a shared id would let
+		// one island's response fill another.
 		const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(method));
-		const hostId = encodeHexLowerCase(new Uint8Array(digest)).slice(0, 32);
+		const requestDigest = encodeHexLowerCase(new Uint8Array(digest)).slice(0, 32);
+		let digestCounts = hostIdDigestCounts.get(this.result);
+		if (!digestCounts) {
+			digestCounts = new Map();
+			hostIdDigestCounts.set(this.result, digestCounts);
+		}
+		const index = digestCounts.get(requestDigest) ?? 0;
+		digestCounts.set(requestDigest, index + 1);
+		const hostId = `${requestDigest}-${index}`;
 		this.hostId = hostId;
+
+		// Identical islands fetch the same URL, so only the first one preloads it.
+		if (useGETRequest && index === 0) {
+			this.result._metadata.extraHead.push(
+				markHTMLString(
+					`<link rel="preload" as="fetch" href="${toAttributeString(serverIslandUrl)}" crossorigin="anonymous">`,
+				),
+			);
+		}
 		this.islandContent = `${method}replaceServerIsland(${stringifyForScript(hostId)}, response);`;
 		return this.islandContent;
 	}

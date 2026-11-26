@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createKey } from '@astrojs/runtime/_internal/core/encryption.js';
+import { createKey, generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
 import {
 	ServerIslandComponent,
 	containsServerDirective,
@@ -249,6 +249,29 @@ describe('ServerIslandComponent', () => {
 			const compB = new ServerIslandComponent(result, islandProps({ v: 'b' }), {}, 'Island');
 			await Promise.all([compA.getIslandContent(), compB.getIslandContent()]);
 			assert.notEqual(compA.hostId, compB.hostId);
+		});
+
+		it('gives identical islands distinct ids and one preload link on prerendered pages', async () => {
+			const result = await createStubResult({ prerender: true });
+			const compA = new ServerIslandComponent(result, islandProps({ v: 'a' }), {}, 'Island');
+			const compB = new ServerIslandComponent(result, islandProps({ v: 'a' }), {}, 'Island');
+			await compA.getIslandContent();
+			await compB.getIslandContent();
+			assert.notEqual(compA.hostId, compB.hostId);
+			assert.equal(result._metadata.extraHead.length, 1);
+		});
+
+		it('renders the same island content that init() hashed when both run concurrently', async () => {
+			const result = await createStubResult();
+			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
+			const { destination, output } = createDestination();
+			await Promise.all([component.init(), component.render(destination)]);
+			const html = output();
+			const [, tagId, content] = html.match(/data-island-id="([^"]+)">(.*)<\/script>/s) ?? [];
+			assert.ok(content, `expected an island script, got: ${html}`);
+			assert.ok(content.includes(`replaceServerIsland("${tagId}"`), `id mismatch in: ${html}`);
+			const digest = await generateCspDigest(content, 'SHA-256');
+			assert.ok(result._metadata.extraScriptHashes.includes(digest));
 		});
 
 		it('uses a GET request for small payloads (under 2048 chars)', async () => {
