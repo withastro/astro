@@ -32,6 +32,9 @@ type ErrorPagePath =
  * matching error route (404.astro / 500.astro), falling back to a plain
  * response with the given status. Handles prerendered error pages via
  * `prerenderedErrorPageFetch`.
+ *
+ * @param streaming Whether to stream the rendered error page. When `undefined`,
+ *   the environment default (`defaultStreaming`) applies.
  */
 export async function renderDefaultError(
 	manifest: SSRManifest,
@@ -44,6 +47,7 @@ export async function renderDefaultError(
 		pathname,
 		...resolvedRenderOptions
 	}: RenderErrorOptions,
+	streaming?: boolean,
 ): Promise<Response> {
 	const resolvedPathname = pathname ?? new FetchState(manifest, request).pathname;
 	const routeTable = getRouteTable(manifest);
@@ -104,6 +108,7 @@ export async function renderDefaultError(
 		}
 		const mod = await getEnvironment(manifest).getComponentByRoute(manifest, errorRouteData);
 		const errorState = new FetchState(manifest, request);
+		if (streaming !== undefined) errorState.streaming = streaming;
 		errorState.skipMiddleware = skipMiddleware;
 		errorState.clientAddress = resolvedRenderOptions.clientAddress;
 		errorState.routeData = errorRouteData;
@@ -127,14 +132,19 @@ export async function renderDefaultError(
 			if (
 				rewroteToEmptyErrorResponse(skipMiddleware, errorRouteData, errorState.routeData, response)
 			) {
-				return renderDefaultError(manifest, request, {
-					...resolvedRenderOptions,
-					status,
-					error,
-					response: originalResponse,
-					skipMiddleware: true,
-					pathname: resolvedPathname,
-				});
+				return renderDefaultError(
+					manifest,
+					request,
+					{
+						...resolvedRenderOptions,
+						status,
+						error,
+						response: originalResponse,
+						skipMiddleware: true,
+						pathname: resolvedPathname,
+					},
+					streaming,
+				);
 			}
 			const newResponse = mergeResponses(response, originalResponse);
 			prepareResponse(newResponse, resolvedRenderOptions);
@@ -142,14 +152,19 @@ export async function renderDefaultError(
 		} catch {
 			// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
 			if (skipMiddleware === false) {
-				return renderDefaultError(manifest, request, {
-					...resolvedRenderOptions,
-					status,
-					error,
-					response: originalResponse,
-					skipMiddleware: true,
-					pathname: resolvedPathname,
-				});
+				return renderDefaultError(
+					manifest,
+					request,
+					{
+						...resolvedRenderOptions,
+						status,
+						error,
+						response: originalResponse,
+						skipMiddleware: true,
+						pathname: resolvedPathname,
+					},
+					streaming,
+				);
 			}
 		} finally {
 			await errorState.finalizeAll();
