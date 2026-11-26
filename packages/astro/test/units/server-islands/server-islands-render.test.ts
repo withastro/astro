@@ -226,6 +226,31 @@ describe('ServerIslandComponent', () => {
 			assert.notEqual(contentA, contentB, 'encrypted values should differ due to unique IVs');
 		});
 
+		it('produces identical output for identical islands on prerendered pages', async () => {
+			const key = await createKey();
+			const render = async () => {
+				const result = await createStubResult({ key: Promise.resolve(key), prerender: true });
+				const props = islandProps({ value: 'test' });
+				const slots = { default: () => renderTemplate`slot content` };
+				const component = new ServerIslandComponent(result, props, slots, 'Island');
+				const { destination, output } = createDestination();
+				await component.render(destination);
+				return { html: output(), head: result._metadata.extraHead.join('') };
+			};
+			const first = await render();
+			const second = await render();
+			assert.match(first.head, /\?e=/);
+			assert.deepEqual(first, second);
+		});
+
+		it('gives islands with different props different ids on prerendered pages', async () => {
+			const result = await createStubResult({ prerender: true });
+			const compA = new ServerIslandComponent(result, islandProps({ v: 'a' }), {}, 'Island');
+			const compB = new ServerIslandComponent(result, islandProps({ v: 'b' }), {}, 'Island');
+			await Promise.all([compA.getIslandContent(), compB.getIslandContent()]);
+			assert.notEqual(compA.hostId, compB.hostId);
+		});
+
 		it('uses a GET request for small payloads (under 2048 chars)', async () => {
 			const result = await createStubResult();
 			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');

@@ -1,3 +1,4 @@
+import { encodeHexLowerCase } from '@oslojs/encoding';
 import { encryptString, generateCspDigest } from '../../core/encryption.js';
 import type { SSRResult } from '../../../types.js';
 import { markHTMLString, stringifyForScript } from '../escape.js';
@@ -86,8 +87,8 @@ export class ServerIslandComponent {
 		return createThinHead();
 	}
 	async render(destination: RenderDestination) {
-		const hostId = await this.getHostId();
 		const islandContent = await this.getIslandContent();
+		const hostId = this.hostId;
 		destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
 		destination.write(`<!--${SERVER_ISLAND_START}-->`);
 		// Render the slots
@@ -123,13 +124,6 @@ export class ServerIslandComponent {
 		}
 		this.componentExport = componentExport;
 		return componentExport;
-	}
-
-	async getHostId() {
-		if (!this.hostId) {
-			this.hostId = await crypto.randomUUID();
-		}
-		return this.hostId;
 	}
 
 	async getIslandContent() {
@@ -175,26 +169,37 @@ export class ServerIslandComponent {
 		}
 
 		const key = await this.result.key;
+		const encryptOptions = { deterministic: this.result.prerender };
 
 		// Encrypt componentExport
 		const componentExportEncrypted = await encryptString(
 			key,
 			componentExport,
 			`export:${componentId}`,
+			encryptOptions,
 		);
 
 		const propsEncrypted =
 			Object.keys(this.props).length === 0
 				? ''
-				: await encryptString(key, JSON.stringify(this.props), `props:${componentId}`);
+				: await encryptString(
+						key,
+						JSON.stringify(this.props),
+						`props:${componentId}`,
+						encryptOptions,
+					);
 
 		// Encrypt slots
 		const slotsEncrypted =
 			Object.keys(renderedSlots).length === 0
 				? ''
-				: await encryptString(key, JSON.stringify(renderedSlots), `slots:${componentId}`);
+				: await encryptString(
+						key,
+						JSON.stringify(renderedSlots),
+						`slots:${componentId}`,
+						encryptOptions,
+					);
 
-		const hostId = await this.getHostId();
 		const slash = this.result.base.endsWith('/') ? '' : '/';
 		let serverIslandUrl = `${this.result.base}${slash}_server-islands/${componentId}${this.result.trailingSlash === 'always' ? '/' : ''}`;
 
@@ -237,6 +242,12 @@ let response = await fetch(${serverIslandUrlJson}, {
 	headers,
 }).catch(() => {});`;
 
+		// Derived from the request, which holds the encrypted island data, so that prerendered pages
+		// get the same id on every build. Identical islands on one page share an id, which works
+		// because their responses are identical too.
+		const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(method));
+		const hostId = encodeHexLowerCase(new Uint8Array(digest)).slice(0, 32);
+		this.hostId = hostId;
 		this.islandContent = `${method}replaceServerIsland(${stringifyForScript(hostId)}, response);`;
 		return this.islandContent;
 	}

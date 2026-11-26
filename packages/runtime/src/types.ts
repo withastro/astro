@@ -335,6 +335,11 @@ export interface SSRResult extends SSRResultExtensions {
 	/** Encrypts server island props and slots. */
 	key: Promise<CryptoKey>;
 	/**
+	 * Whether the page is prerendered. Server island data is then encrypted deterministically, so
+	 * that building the same source with the same key gives the same HTML.
+	 */
+	prerender?: boolean;
+	/**
 	 * `cspDestination`:
 	 * - `header`: `<meta>` for static pages, response header for dynamic pages
 	 * - `meta`: `<meta>` for all pages
