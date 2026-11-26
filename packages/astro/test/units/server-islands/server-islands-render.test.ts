@@ -267,7 +267,7 @@ describe('ServerIslandComponent', () => {
 			const { destination, output } = createDestination();
 			await Promise.all([component.init(), component.render(destination)]);
 			const html = output();
-			const [, tagId, content] = html.match(/data-island-id="([^"]+)">(.*)<\/script>/s) ?? [];
+			const [, tagId, content] = /data-island-id="([^"]+)">(.*)<\/script>/s.exec(html) ?? [];
 			assert.ok(content, `expected an island script, got: ${html}`);
 			assert.ok(content.includes(`replaceServerIsland("${tagId}"`), `id mismatch in: ${html}`);
 			const digest = await generateCspDigest(content, 'SHA-256');
