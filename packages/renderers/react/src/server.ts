@@ -1,7 +1,7 @@
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from '@astrojs/runtime/types';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import { incrementId } from './context.js';
+import { incrementComponentIndex, incrementId } from './context.js';
 import StaticHtml from './static-html.js';
 import type { RendererContext, RendererOptions } from './types.js';
 import { createFilter } from '@astrojs/internal-helpers/create-filter';
@@ -89,8 +89,10 @@ async function renderToStaticMarkup(
 	metadata?: AstroComponentMetadata,
 ) {
 	let prefix;
+	let componentIndex = 0;
 	if (this && this.result) {
 		prefix = incrementId(this.result);
+		componentIndex = incrementComponentIndex(this.result, Component);
 	}
 	const attrs: Record<string, any> = { prefix };
 	const opts = this?.options ?? {};
@@ -126,6 +128,14 @@ async function renderToStaticMarkup(
 		attrs['data-action-result'] = JSON.stringify(formState[0]);
 		attrs['data-action-key'] = formState[1];
 		attrs['data-action-name'] = formState[2];
+	}
+	// React keys each `useActionState()` by the component's name, key and position in its root,
+	// and applies `formState` wherever the key matches. Every island is its own root, so islands
+	// of one component would share a key, and a form submitted from one would set the state of
+	// all. The prefix keeps these keys apart from short keys such as `'1'` that a user passes.
+	// See https://github.com/withastro/astro/issues/18874
+	if (componentIndex > 0 && newProps.key === undefined) {
+		newProps.key = `astro-island-${componentIndex}`;
 	}
 	const vnode = React.createElement(Component, newProps);
 	const renderOptions = {

@@ -62,5 +62,29 @@ test.describe('Astro Actions - React 19', () => {
 		await likeButton.click();
 
 		await expect(likeButton, 'like button increments').toContainText('11');
+		await expect(
+			page.getByLabel('likes-action-client'),
+			'the other island of the same component keeps its own state',
+		).toContainText('10');
+	});
+});
+
+test.describe('Astro Actions - React 19 without JavaScript', () => {
+	test.use({ javaScriptEnabled: false });
+
+	test('Like action - useActionState updates only the island that was submitted', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/blog/first-post/'));
+
+		const likeButton = page.getByLabel('likes-action-client');
+		await likeButton.click();
+
+		await expect(likeButton, 'like button increments').toContainText('11');
+		await expect(
+			page.getByLabel('likes-action-server'),
+			'the other island of the same component keeps its own state',
+		).toContainText('10');
 	});
 });
