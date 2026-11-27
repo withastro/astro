@@ -60,9 +60,8 @@ export function file(fileName: string, options?: FileOptions): Loader {
 			const contents = await fs.readFile(filePath, 'utf-8');
 			data = await parse!(contents);
 		} catch (error: any) {
-			logger.error(`Error reading data from ${fileName}`);
-			logger.debug(error.message);
-			return;
+			logger.error(`Error reading data from ${fileName}: ${error.message}`);
+			throw error;
 		}
 
 		const normalizedFilePath = posixRelative(fileURLToPath(config.root), filePath);
@@ -136,7 +135,11 @@ export function file(fileName: string, options?: FileOptions): Loader {
 			watcher?.on('change', async (changedPath) => {
 				if (changedPath === filePath) {
 					logger.info(`Reloading data from ${fileName}`);
-					await syncData(filePath, context);
+					try {
+						await syncData(filePath, context);
+					} catch {
+						// syncData has logged the error. The store keeps the last loaded entries until the file is fixed.
+					}
 				}
 			});
 		},

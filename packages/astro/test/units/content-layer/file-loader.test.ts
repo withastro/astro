@@ -1,12 +1,20 @@
 import { strict as assert } from 'node:assert';
+import { EventEmitter } from 'node:events';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import { file } from '../../../dist/content/loaders/file.js';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
-import { createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
+import {
+	createTempDir,
+	createTestConfigObserver,
+	createMinimalSettings,
+} from './test-helpers.ts';
 
 describe('File Loader', () => {
 	const root = new URL('../../fixtures/content-layer/', import.meta.url);
@@ -366,5 +374,73 @@ describe('File Loader', () => {
 
 		// No duplicate warnings should be logged
 		assert.ok(!warnings.some((w) => w.includes('beagle')));
+	});
+
+	it('rejects when the data file cannot be parsed', async () => {
+		const tempDir = createTempDir();
+		const dataDir = join(fileURLToPath(tempDir), 'src', 'data');
+		mkdirSync(dataDir, { recursive: true });
+		writeFileSync(join(dataDir, 'authors.json'), '[{"id": "ada", "name": "Ada"},]');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir);
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			authors: defineCollection({
+				loader: file('src/data/authors.json'),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await assert.rejects(() => contentLayer.sync(), { name: 'SyntaxError' });
+	});
+
+	it('keeps the loaded entries when a changed data file cannot be parsed', async () => {
+		const tempDir = createTempDir();
+		const dataDir = join(fileURLToPath(tempDir), 'src', 'data');
+		mkdirSync(dataDir, { recursive: true });
+		const dataPath = join(dataDir, 'authors.json');
+		writeFileSync(dataPath, '[{"id": "ada", "name": "Ada"}]');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir);
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+		const watcher = Object.assign(new EventEmitter(), { add: () => {} });
+
+		const collections = {
+			authors: defineCollection({
+				loader: file('src/data/authors.json'),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+			watcher: watcher as any,
+		});
+
+		await contentLayer.sync();
+		assert.equal(store.values('authors').length, 1);
+
+		writeFileSync(dataPath, '[{"id": "ada", "name": "Ada"},]');
+		watcher.emit('change', dataPath);
+		await new Promise((resolve) => setTimeout(resolve, 100));
+
+		assert.equal(store.values('authors').length, 1);
 	});
 });
