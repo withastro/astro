@@ -1,0 +1,13 @@
+---
+// A `client:only` component that imports the Lightbox other islands import
+import { ClientOnlyLightbox } from '../islands/ClientOnlyLightbox';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<ClientOnlyLightbox client:only="react" />
+	</body>
+</html>

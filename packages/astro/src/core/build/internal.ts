@@ -6,15 +6,6 @@ import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
 	/**
-	 * Each CSS module is named with a chunk id derived from the Astro pages they
-	 * are used in by default. It's easy to crawl this relation in the SSR build as
-	 * the Astro pages are the entrypoint, but not for the client build as hydratable
-	 * components are the entrypoint instead. This map is used as a cache from the SSR
-	 * build so the client can pick up the same information and use the same chunk ids.
-	 */
-	cssModuleToChunkIdMap: Map<string, string>;
-
-	/**
 	 * Maps a key describing the exact set of CSS modules bundled into a chunk of the
 	 * prerender environment to the CSS asset filename emitted for that chunk. The SSR
 	 * environment renames its own CSS assets to these filenames when they are backed by
@@ -143,8 +134,8 @@ export interface BuildInternals {
 
 	/**
 	 * Component exports that were rendered during the SSR build.
-	 * Used by the client build's cssScopeTo recovery to distinguish between
-	 * CSS that was tree-shaken because the component wasn't rendered in SSR
+	 * Used by the client build to distinguish between CSS that was tree-shaken
+	 * because the component it is scoped to (`cssScopeTo`) wasn't rendered in SSR
 	 * vs CSS that was included in SSR.
 	 */
 	ssrRenderedExports?: Map<string, Set<string>>;
@@ -182,7 +173,6 @@ export interface BuildInternals {
 export function createBuildInternals(): BuildInternals {
 	return {
 		clientInput: new Set(),
-		cssModuleToChunkIdMap: new Map(),
 		prerenderCssAssetByModuleKey: new Map(),
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),

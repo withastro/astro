@@ -3091,6 +3091,9 @@ importers:
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../integrations/svelte
       '@types/react':
         specifier: ^19.3.0
         version: 19.3.0
@@ -3106,6 +3109,9 @@ importers:
       react-dom:
         specifier: ^19.3.1
         version: 19.3.1(react@19.3.1)
+      svelte:
+        specifier: ^5.57.3
+        version: 5.57.3(@typescript-eslint/types@8.72.2)
 
   packages/astro/test/fixtures/css-double-bundle:
     dependencies:

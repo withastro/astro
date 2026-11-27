@@ -1,0 +1,14 @@
+---
+// The same component rendered on the server and as `client:only`
+import { Tag } from '../shared/Tag';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<Tag />
+		<Tag client:only="react" />
+	</body>
+</html>
