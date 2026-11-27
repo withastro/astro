@@ -5,7 +5,7 @@ export default defineConfig([
 		label: 'unitTests',
 		files: 'test/**/*.test.mts',
 		extensionDevelopmentPath: '../vscode',
-		version: 'stable',
+		version: process.env.VSCODE_TEST_VERSION ?? 'stable',
 		mocha: {
 			ui: 'tdd',
 			timeout: 20000,

@@ -1,7 +1,12 @@
 #!/usr/bin/env node
-if (process.argv.includes('--version')) {
-	const pkgJSON = require('../package.json');
-	console.info(`${pkgJSON['version']}`);
-} else {
-	require('../dist/nodeServer.js');
+
+async function main() {
+	if (process.argv.includes('--version')) {
+		const json = await import('../package.json', { with: { type: 'json' } });
+		console.info(json.default.version);
+	} else {
+		await import('../dist/nodeServer.js');
+	}
 }
+
+void main();

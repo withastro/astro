@@ -19,7 +19,7 @@
     "Static site generator"
   ],
   "icon": "assets/icon.png",
-  "type": "commonjs",
+  "type": "module",
   "galleryBanner": {
     "color": "#17191E",
     "theme": "dark"
@@ -267,6 +267,7 @@
   "dependencies": {
     "@astrojs/astro2tsx": "^0.1.4",
     "prettier": "^3.10.1",
-    "prettier-plugin-astro": "^1.1.2"
+    "prettier-plugin-astro": "^1.1.2",
+    "@astrojs/compiler": "^2.13.1"
   }
 }

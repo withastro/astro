@@ -14,6 +14,7 @@ import { create as createAstroService } from './plugins/astro.js';
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
 import { getAstroInstall } from './utils.js';
 
+const require = createRequire(import.meta.url);
 const volarCommon: typeof import('@volar/language-service/lib/utils/common.js') = createRequire(
 	require.resolve('@volar/kit'),
 )('@volar/language-service/lib/utils/common.js');

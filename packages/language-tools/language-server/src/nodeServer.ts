@@ -6,7 +6,7 @@ import {
 	MessageType,
 	ShowMessageNotification,
 	type WorkspaceFolder,
-} from '@volar/language-server/node';
+} from '@volar/language-server/node.js';
 import { URI, Utils } from 'vscode-uri';
 import {
 	type CollectionConfig,

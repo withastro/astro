@@ -1,5 +1,6 @@
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
-import * as protocol from '@volar/language-server/protocol';
+import * as protocol from '@volar/language-server/protocol.js';
 import type { LabsInfo } from '@volar/vscode';
 import {
 	activateAutoInsertion,
@@ -12,6 +13,8 @@ import {
 } from '@volar/vscode';
 import * as vscode from 'vscode';
 import * as lsp from 'vscode-languageclient/node';
+
+const require = createRequire(import.meta.url);
 
 let client: lsp.BaseLanguageClient;
 

@@ -6,7 +6,7 @@ import type { CollectionConfig } from './frontmatter.js';
 import { getFrontmatterLanguagePlugin } from './frontmatter.js';
 import { getLanguagePlugin } from './language.js';
 
-export = createLanguageServicePlugin((ts, info) => {
+const plugin = createLanguageServicePlugin((ts, info) => {
 	let collectionConfig = undefined;
 	const currentDir = info.project.getCurrentDirectory();
 
@@ -43,3 +43,7 @@ export = createLanguageServicePlugin((ts, info) => {
 		languagePlugins,
 	};
 });
+
+export { plugin as 'module.exports' };
+
+export default plugin;

@@ -4,14 +4,14 @@ import {
 	type LanguagePlugin,
 	MessageType,
 	ShowMessageNotification,
-} from '@volar/language-server/node';
+} from '@volar/language-server/node.js';
 // Services
 import { create as createCssService } from 'volar-service-css';
 import { create as createEmmetService } from 'volar-service-emmet';
 import { create as createPrettierService } from 'volar-service-prettier';
 import { create as createTypeScriptTwoSlashService } from 'volar-service-typescript-twoslash-queries';
 import { URI } from 'vscode-uri';
-import { getAstroLanguagePlugin } from './core';
+import { getAstroLanguagePlugin } from './core/index.js';
 import { type CollectionConfig, getFrontmatterLanguagePlugin } from './core/frontmatterHolders.js';
 import { getSvelteLanguagePlugin } from './core/svelte.js';
 import { getVueLanguagePlugin } from './core/vue.js';

@@ -1,4 +1,6 @@
+import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // The following import needs to always be `type` imports, as we always want to import it dynamically
 import type * as prettier from 'prettier';
@@ -9,6 +11,9 @@ type PackageVersion = {
 	minor: number;
 	patch: number;
 };
+
+const require = createRequire(import.meta.url);
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 let isTrusted = true;
 

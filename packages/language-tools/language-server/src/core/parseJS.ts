@@ -1,6 +1,6 @@
 import { ExtractedScriptType, type ExtractedScript } from '@astrojs/astro2tsx';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
-import { buildMappings, getText, type CodeSegment } from '../buildMappings';
+import { buildMappings, getText, type CodeSegment } from '../buildMappings.js';
 
 export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 	const embeddedJSCodes: VirtualCode[] = [];

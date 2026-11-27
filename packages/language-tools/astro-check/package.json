@@ -45,5 +45,8 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0 || ^6.0.0"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   }
 }

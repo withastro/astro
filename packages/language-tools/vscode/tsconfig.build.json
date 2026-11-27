@@ -1,7 +1,15 @@
 {
-  "extends": "../../../configs/tsconfig.language-tools.json",
+  "extends": "../../../configs/tsconfig.build.json",
   "references": [
-    { "path": "../language-server/tsconfig.json" },
-    { "path": "../ts-plugin/tsconfig.json" }
-  ]
+    {
+      "path": "../language-server/tsconfig.json"
+    },
+    {
+      "path": "../ts-plugin/tsconfig.json"
+    }
+  ],
+  "compilerOptions": {
+    "target": "ES2021",
+    "lib": ["WebWorker", "ES2021"]
+  }
 }

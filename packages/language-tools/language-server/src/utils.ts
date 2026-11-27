@@ -1,10 +1,14 @@
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { PackageInfo } from './importPackage.js';
 import { getPackageInfo } from './importPackage.js';
 
 export function getLanguageServerTypesDir(ts: typeof import('typescript')) {
-	return ts.sys.resolvePath(path.resolve(__dirname, '../types'));
+	return ts.sys.resolvePath(fileURLToPath(new URL('../types', import.meta.url)));
 }
+
+const require = createRequire(import.meta.url);
 
 export function getAstroInstall(
 	basePaths: string[],

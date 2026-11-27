@@ -1,9 +1,12 @@
 import type { VirtualCode } from '@volar/language-core';
 import type ts from 'typescript';
 import * as html from 'vscode-html-languageservice';
-import { isInsideExpression } from '../plugins/utils';
+import { isInsideExpression } from '../plugins/utils.js';
 
-const htmlLs = html.getLanguageService();
+// Node exposes the complete UMD exports through `default`; the extension build selects ESM.
+const { getLanguageService, ScannerState, TokenType } = 'default' in html ? html.default : html;
+
+const htmlLs = getLanguageService();
 
 export function parseHTML(
 	snapshot: ts.IScriptSnapshot,
@@ -33,14 +36,14 @@ export function preprocessHTML(text: string, frontmatterEnd?: number) {
 	let token = scanner.scan();
 	let currentStartTagStart: number | null = null;
 
-	while (token !== html.TokenType.EOS) {
+	while (token !== TokenType.EOS) {
 		const offset = scanner.getTokenOffset();
 
-		if (token === html.TokenType.StartTagOpen) {
+		if (token === TokenType.StartTagOpen) {
 			currentStartTagStart = offset;
 		}
 
-		if (token === html.TokenType.StartTagClose) {
+		if (token === TokenType.StartTagClose) {
 			if (shouldBlankStartOrEndTagLike(offset)) {
 				blankStartOrEndTagLike(offset);
 			} else {
@@ -48,15 +51,15 @@ export function preprocessHTML(text: string, frontmatterEnd?: number) {
 			}
 		}
 
-		if (token === html.TokenType.StartTagSelfClose) {
+		if (token === TokenType.StartTagSelfClose) {
 			currentStartTagStart = null;
 		}
 
 		// <Foo checked={a < 1}>
 		// https://github.com/microsoft/vscode-html-languageservice/blob/71806ef57be07e1068ee40900ef8b0899c80e68a/src/parser/htmlScanner.ts#L327
 		if (
-			token === html.TokenType.Unknown &&
-			scanner.getScannerState() === html.ScannerState.WithinTag &&
+			token === TokenType.Unknown &&
+			scanner.getScannerState() === ScannerState.WithinTag &&
 			scanner.getTokenText() === '<' &&
 			shouldBlankStartOrEndTagLike(offset)
 		) {
@@ -79,7 +82,7 @@ export function preprocessHTML(text: string, frontmatterEnd?: number) {
 
 	function blankStartOrEndTagLike(offset: number, state?: html.ScannerState) {
 		content = content.substring(0, offset) + ' ' + content.substring(offset + 1);
-		scanner = createScanner(content, offset, state ?? html.ScannerState.WithinTag);
+		scanner = createScanner(content, offset, state ?? ScannerState.WithinTag);
 	}
 }
 

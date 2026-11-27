@@ -1,1 +1,1 @@
-export { AstroCheck, CheckResult, Diagnostic, DiagnosticSeverity } from './check.js';
+export { AstroCheck, type CheckResult, Diagnostic, DiagnosticSeverity } from './check.js';

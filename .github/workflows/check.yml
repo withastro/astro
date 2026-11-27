@@ -9,6 +9,8 @@ on:
   pull_request:
     paths:
       - "examples/**"
+      - "packages/language-tools/**"
+      - "configs/tsconfig*.json"
       - ".github/workflows/check.yml"
       - "scripts/smoke/check.js"
       - "packages/astro/src/types/public/**"

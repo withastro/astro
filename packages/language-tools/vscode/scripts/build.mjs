@@ -10,11 +10,7 @@ const require = createRequire(import.meta.url);
 const isDev = process.argv.includes('--watch');
 const minify = process.argv.includes('--minify');
 
-/**
- * Resolve UMD builds of `vscode-*-languageservice` and `jsonc-parser` to their
- * ESM counterparts.
- * @returns {import('rolldown').Plugin}
- */
+/** @returns {import('rolldown').Plugin} */
 function umd2esm() {
 	return {
 		name: 'umd2esm',
@@ -22,7 +18,6 @@ function umd2esm() {
 			if (/^(?:vscode-.*-languageservice|jsonc-parser)/.test(source)) {
 				const resolveDir = importer ? path.dirname(importer) : process.cwd();
 				const pathUmdMay = require.resolve(source, { paths: [resolveDir] });
-				// Call twice the replace is to solve the problem of the path in Windows
 				const pathEsm = pathUmdMay.replace('/umd/', '/esm/').replace('\\umd\\', '\\esm\\');
 				return pathEsm;
 			}
@@ -30,10 +25,7 @@ function umd2esm() {
 	};
 }
 
-/**
- * Copy the language server types into `dist/types` so VS Code can resolve them.
- * @returns {import('rolldown').Plugin}
- */
+/** @returns {import('rolldown').Plugin} */
 function copyTypes() {
 	return {
 		name: 'astro:copy-types',
@@ -46,42 +38,55 @@ function copyTypes() {
 	};
 }
 
-/** @type {Record<string, string>} */
 const entries = {
 	'dist/node/client': './src/client.ts',
-	'dist/node/server': './node_modules/@astrojs/language-server/bin/nodeServer.js',
-	// We need to generate this inside node_modules so VS Code can resolve it
+	'dist/node/server': './node_modules/@astrojs/language-server/dist/nodeServer.js',
 	'node_modules/astro-ts-plugin-bundle/index': './node_modules/@astrojs/ts-plugin/dist/index.js',
 };
 
-/**
- * Each entry is bundled on its own so shared code is inlined instead of emitted
- * as extra chunks.
- * @param {string} name
- * @param {string} input
- */
+/** @param {string} name @param {string} input */
 function config(name, input) {
 	return {
 		input,
 		platform: /** @type {const} */ ('node'),
-		external: ['vscode', '@astrojs/astro2tsx', 'prettier', 'prettier-plugin-astro'],
+		external: [
+			'vscode',
+			'@astrojs/astro2tsx',
+			'@astrojs/compiler',
+			'prettier',
+			'prettier-plugin-astro',
+		],
 		tsconfig: './tsconfig.json',
-		transform: {
-			define: { 'process.env.NODE_ENV': '"production"' },
-		},
+		transform: { define: { 'process.env.NODE_ENV': '"production"' } },
 		plugins: [copyTypes(), umd2esm()],
 		output: {
 			dir: '.',
-			format: /** @type {const} */ ('cjs'),
+			format: /** @type {const} */ ('esm'),
 			sourcemap: isDev,
 			minify,
 			codeSplitting: false,
 			entryFileNames: `${name}.js`,
+			banner: [
+				"import { createRequire as __astroCreateRequire } from 'node:module';",
+				'const require = __astroCreateRequire(import.meta.url);',
+			].join('\n'),
 		},
 	};
 }
 
 export default async function build() {
+	const pluginDir = 'node_modules/astro-ts-plugin-bundle';
+	fs.mkdirSync(pluginDir, { recursive: true });
+	fs.writeFileSync(
+		`${pluginDir}/package.json`,
+		JSON.stringify({
+			name: 'astro-ts-plugin-bundle',
+			private: true,
+			type: 'module',
+			main: './index.js',
+		}),
+	);
+
 	const configs = Object.entries(entries).map(([name, input]) => config(name, input));
 
 	if (!isDev) {

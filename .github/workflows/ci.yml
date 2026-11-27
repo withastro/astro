@@ -50,6 +50,11 @@ jobs:
           filters: |
             language-tools:
               - 'packages/language-tools/**'
+              - 'configs/tsconfig*.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'package.json'
+              - 'turbo.json'
             astro-types:
               - 'packages/astro/types/**'
               - 'packages/astro/astro-jsx.d.ts'
@@ -245,6 +250,9 @@ jobs:
 
     name: 'Test (language-tools): node-${{ matrix.node_version }}, ${{ matrix.os }}'
     steps:
+      - name: Disable git crlf
+        run: git config --global core.autocrlf false
+
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -270,6 +278,24 @@ jobs:
           pnpm run test:language-tools:no-vs
           cd packages/language-tools/vscode
           xvfb-run -a pnpm test
+
+      - name: Test installed language-tool artifacts
+        env:
+          LANGUAGE_TOOLS_PACKAGE_EXTENSION: 1
+        run: pnpm exec node --test packages/language-tools/test/*.test.mjs
+
+      - name: Test minimum VS Code
+        if: runner.os == 'Linux' && matrix.node_version == '22.22.2'
+        env:
+          VSCODE_TEST_VERSION: 1.101.0
+        run: xvfb-run -a pnpm -C packages/language-tools/vscode test:vscode
+
+      - name: Test Node compatibility floor
+        if: runner.os == 'Linux' && matrix.node_version == '22.22.2'
+        run: |
+          for version in 20.19.0 22.12.0; do
+            LANGUAGE_TOOLS_NODE=$(pnpm --silent dlx node@$version -p process.execPath) pnpm exec node --test packages/language-tools/test/*.test.mjs
+          done
 
       - name: Test ts-plugin (Linux, flaky)
         if: runner.os == 'Linux'

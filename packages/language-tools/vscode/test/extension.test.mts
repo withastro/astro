@@ -1,6 +1,6 @@
 import 'mocha';
 import assert from 'node:assert';
-import vscode from 'vscode';
+import * as vscode from 'vscode';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');

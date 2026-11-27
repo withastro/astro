@@ -1,8 +1,7 @@
 {
-  "extends": "../../../configs/tsconfig.language-tools.json",
+  "extends": "../../../configs/tsconfig.build.json",
   "compilerOptions": {
     "emitDeclarationOnly": false,
-    "module": "ESNext",
     "sourceMap": true
   }
 }

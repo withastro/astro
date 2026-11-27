@@ -6,8 +6,7 @@ import {
 	convertToTsx,
 } from '@astrojs/astro2tsx';
 import type { CodeMapping, VirtualCode } from '@volar/language-core';
-import { Range } from '@volar/language-server';
-import { TextDocument } from 'vscode-html-languageservice';
+import { Range, TextDocument } from '@volar/language-server';
 
 const SPAN_MAP_KIND_ATOM = 1;
 
