@@ -2,6 +2,7 @@ import type { SSRResult } from '../../types.js';
 import islandScript from './astro-island.prebuilt.js';
 import islandScriptDev from './astro-island.prebuilt-dev.js';
 import { ISLAND_STYLES } from './astro-island-styles.js';
+import { isDevelopment } from './util.js';
 
 export function determineIfNeedsHydrationScript(result: SSRResult): boolean {
 	// Scripts in <template> are inert, so don't consume dedup state there.
@@ -45,7 +46,7 @@ export function getPrescripts(result: SSRResult, type: PrescriptType, directive:
 	switch (type) {
 		case 'both':
 			return `<style>${ISLAND_STYLES}</style><script>${getDirectiveScriptText(result, directive)}</script><script>${
-				process.env.NODE_ENV === 'development' ? islandScriptDev : islandScript
+				isDevelopment() ? islandScriptDev : islandScript
 			}</script>`;
 		case 'directive':
 			return `<script>${getDirectiveScriptText(result, directive)}</script>`;

@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { transform } from '@astrojs/compiler-rs';
 import { createRenderer } from '../dist/render.js';
+import { compileFixture } from './compile-fixture.ts';
 
 // Components are compiled ahead of time and rendered in plain Node: no Vite and no virtual modules.
 // The output directory is inside the package so `@astrojs/runtime/compiler-runtime`
@@ -44,14 +44,7 @@ describe('createRenderer() in plain Node', () => {
 		await fs.writeFile(new URL('widget.js', outDir), 'export default function Widget() {}\n');
 		for (const [file, source] of Object.entries(sources)) {
 			const filename = fileURLToPath(new URL(file, outDir));
-			const { code } = transform(source, {
-				filename,
-				internalURL: '@astrojs/runtime/compiler-runtime',
-				resultScopedSlot: true,
-				// Client specifiers reach `resolve()` as written in the component.
-				resolvePath: (specifier) => specifier,
-			});
-			await fs.writeFile(`${filename}.mjs`, code);
+			await fs.writeFile(`${filename}.mjs`, compileFixture(source, filename));
 		}
 		Page = (await import(pathToFileURL(fileURLToPath(new URL('Page.astro.mjs', outDir))).href))
 			.default;
@@ -90,6 +83,18 @@ describe('createRenderer() in plain Node', () => {
 		);
 		// The built-in `client:load` directive script is inlined.
 		assert.match(html, /\(self\.Astro\|\|\(self\.Astro=\{\}\)\)\.load=/);
+	});
+
+	it('renders a framework island without a Node.js process global', async (t) => {
+		t.mock.getter(globalThis, 'process', () => undefined);
+		const renderer = createRenderer({
+			renderers: [widgetRenderer],
+			resolve: async (specifier) => `/assets/${specifier}`,
+		});
+		const html = await renderer.renderToString(Page, { props: { name: 'Browser' } });
+		assert.match(html, /<title>Browser<\/title>/);
+		assert.match(html, /<astro-island[^>]*client="load"[^>]*><b>2<\/b><!--astro:end-->/);
+		assert.doesNotMatch(html, /server-render-time=/);
 	});
 
 	it('passes the options of a renderer to its server functions as this.options', async () => {

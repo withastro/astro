@@ -1690,6 +1690,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/e2e/fixtures/runtime-client:
+    dependencies:
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../runtime
+
   packages/astro/e2e/fixtures/server-islands:
     dependencies:
       '@astrojs/mdx':

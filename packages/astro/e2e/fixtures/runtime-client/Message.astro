@@ -1,0 +1,8 @@
+---
+import Widget from './widget.js';
+---
+
+<h1>{Astro.props.title}</h1>
+<p>{Astro.url.pathname}</p>
+<slot />
+<Widget client:load count={2} />
