@@ -90,6 +90,12 @@ export function renderAllHeadContent(result: SSRResult) {
 	// In the future, it may be better to have only an array of head elements to avoid these assumptions.
 	const sep = result.compressHTML === true || result.compressHTML === 'jsx' ? '' : '\n';
 	content += styles.join(sep) + links.join(sep) + scripts.join(sep);
+	if (result._metadata.componentAssets) {
+		const pending = result._metadata.componentAssets.pending;
+		pending.sort((a, b) => a.order - b.order);
+		content += pending.map((asset) => asset.html).join(sep);
+		pending.length = 0;
+	}
 
 	// Inject static speculation rules when CSP + clientPrerender are both enabled.
 	// The content is pre-hashed at build time and included in the CSP script-src directive.

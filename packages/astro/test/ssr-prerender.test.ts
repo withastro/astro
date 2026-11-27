@@ -106,66 +106,82 @@ describe('SSR: prerender', () => {
 	});
 });
 
-describe('SSR manifest does not include inline CSS for prerendered routes', () => {
-	let fixture: Fixture;
+for (const lazyAssets of [false, true]) {
+	describe(`SSR manifest does not include inline CSS for prerendered routes, lazy assets ${lazyAssets}`, () => {
+		let fixture: Fixture;
 
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/ssr-prerender/',
-			output: 'server',
-			outDir: './dist/inline-stylesheets',
-			adapter: testAdapter(),
-			build: {
-				inlineStylesheets: 'always',
-			},
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/ssr-prerender/',
+				output: 'server',
+				outDir: `./dist/inline-stylesheets-${lazyAssets}`,
+				experimental: { lazyAssets },
+				adapter: testAdapter(),
+				build: {
+					inlineStylesheets: 'always',
+				},
+			});
+			await fixture.build();
 		});
-		await fixture.build();
-	});
-
-	it('prerendered routes have empty styles in the SSR manifest', async () => {
-		const app = await fixture.loadTestAdapterApp();
-		const prerenderedRoutes = app.manifest.routes.filter((r) => r.routeData.prerender);
-		assert.ok(prerenderedRoutes.length > 0, 'fixture must have prerendered routes');
-		for (const route of prerenderedRoutes) {
-			assert.deepEqual(
-				route.styles,
-				[],
-				`route ${route.routeData.route} should have no styles in the SSR manifest`,
+		it('only filters prerendered component metadata when lazy assets are enabled', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const metadataIds = Array.from(app.manifest.componentMetadata.keys());
+			assert.equal(
+				metadataIds.some((id) => id.endsWith('/src/pages/static.astro')),
+				!lazyAssets,
 			);
-		}
-	});
+			assert.ok(metadataIds.some((id) => id.endsWith('/src/pages/not-prerendered.astro')));
+		});
 
-	it('SSR routes still have inline styles in the SSR manifest', async () => {
-		const app = await fixture.loadTestAdapterApp();
-		const ssrRoute = app.manifest.routes.find((r) => r.routeData.route === '/not-prerendered');
-		assert.ok(ssrRoute, 'expected /not-prerendered route');
-		const hasInline = ssrRoute.styles.some(
-			(s) => s.type === 'inline' && s.content.includes('ssr-only'),
-		);
-		assert.ok(hasInline, 'SSR route should retain its inline CSS in the manifest');
-	});
+		it('prerendered routes have empty styles in the SSR manifest', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const prerenderedRoutes = app.manifest.routes.filter((r) => r.routeData.prerender);
+			assert.ok(prerenderedRoutes.length > 0, 'fixture must have prerendered routes');
+			for (const route of prerenderedRoutes) {
+				assert.deepEqual(
+					route.styles,
+					[],
+					`route ${route.routeData.route} should have no styles in the SSR manifest`,
+				);
+			}
+		});
 
-	it('prerendered HTML on disk still contains inline <style> tags', async () => {
-		const html = await fixture.readFile('/client/static/index.html');
-		const $ = cheerio.load(html);
-		const inlineStyles = $('style')
-			.map((_, el) => $(el).text() ?? '')
-			.toArray()
-			.join('');
-		assert.ok(
-			inlineStyles.includes('prerender-only'),
-			'prerendered HTML should still inline the route CSS',
-		);
-	});
+		it('SSR routes still have inline styles in the SSR manifest', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const ssrRoute = app.manifest.routes.find((r) => r.routeData.route === '/not-prerendered');
+			assert.ok(ssrRoute, 'expected /not-prerendered route');
+			const styles = [
+				...ssrRoute.styles,
+				...Array.from(app.manifest.componentMetadata.values()).flatMap(
+					(metadata) => metadata.assets?.styles ?? [],
+				),
+			];
+			const hasInline = styles.some((s) => s.type === 'inline' && s.content.includes('ssr-only'));
+			assert.ok(hasInline, 'SSR route should retain its inline CSS in the manifest');
+		});
 
-	it('SSR entry chunk does not contain the prerender-only CSS string', async () => {
-		const entry = (await fixture.readFile('/server/entry.mjs')).toString();
-		assert.ok(
-			!entry.includes('prerender-only'),
-			'SSR entry should not carry inline CSS for prerendered routes',
-		);
+		it('prerendered HTML on disk still contains inline <style> tags', async () => {
+			const html = await fixture.readFile('/client/static/index.html');
+			const $ = cheerio.load(html);
+			const inlineStyles = $('style')
+				.map((_, el) => $(el).text() ?? '')
+				.toArray()
+				.join('');
+			assert.ok(
+				inlineStyles.includes('prerender-only'),
+				'prerendered HTML should still inline the route CSS',
+			);
+		});
+
+		it('SSR entry chunk does not contain the prerender-only CSS string', async () => {
+			const entry = (await fixture.readFile('/server/entry.mjs')).toString();
+			assert.ok(
+				!entry.includes('prerender-only'),
+				'SSR entry should not carry inline CSS for prerendered routes',
+			);
+		});
 	});
-});
+}
 
 // NOTE: This test doesn't make sense as it relies on the fact that on the client build,
 // you can change the prerender state of pages from the SSR build, however, the client build

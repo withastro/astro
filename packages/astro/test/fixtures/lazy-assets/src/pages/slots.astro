@@ -1,0 +1,13 @@
+---
+import SlotPicker from '../components/SlotPicker.astro';
+import One from '../components/One.astro';
+import Two from '../components/Two.astro';
+---
+<html>
+	<head><title>Selected slots</title></head>
+	<body>
+		<SlotPicker><Two /></SlotPicker>
+		<SlotPicker>{await Promise.resolve('Unused')}<Two /></SlotPicker>
+		<SlotPicker open><One /><Two slot="unused" /></SlotPicker>
+	</body>
+</html>

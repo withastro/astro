@@ -113,6 +113,15 @@ export async function trackStyleHashes({
 		}
 	}
 
+	for (const metadata of internals.componentMetadata.values()) {
+		if (!metadata.assets) continue;
+		for (const style of metadata.assets.styles) {
+			if (style.type === 'inline') {
+				clientStyleHashes.push(await generateCspDigest(style.content, algorithm));
+			}
+		}
+	}
+
 	if (settings.renderers.length > 0) {
 		clientStyleHashes.push(await generateCspDigest(ISLAND_STYLES, algorithm));
 	}

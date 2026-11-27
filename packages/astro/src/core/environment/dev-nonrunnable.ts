@@ -160,6 +160,12 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 			if (importer) {
 				const cssModule = await importer();
 				css = cssModule.css;
+				for (const [id, assets] of cssModule.componentAssets) {
+					manifest.componentMetadata.set(id, {
+						...(manifest.componentMetadata.get(id) ?? { containsHead: false, propagation: 'none' }),
+						assets,
+					});
+				}
 			} else {
 				getLogger(manifest).warn(
 					'assets',

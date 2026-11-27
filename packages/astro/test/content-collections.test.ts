@@ -382,49 +382,54 @@ describe('Content Collections', () => {
 		});
 	});
 
-	describe('Base configuration', () => {
-		let fixture: Fixture;
+	for (const lazyAssets of [false, true]) {
+		describe(`Base configuration, lazy assets ${lazyAssets}`, () => {
+			let fixture: Fixture;
 
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/content-collections-base/',
-				outDir: './dist/content-collections-base/',
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/content-collections-base/',
+					outDir: `./dist/content-collections-base-${lazyAssets}/`,
+					experimental: { lazyAssets },
+				});
+				await fixture.build({ force: true });
 			});
-			await fixture.build({ force: true });
-		});
 
-		it('Includes base in links', async () => {
-			const html = await fixture.readFile('/docs/index.html');
-			const $ = cheerio.load(html);
-			assert.equal($('link').attr('href')!.startsWith('/docs'), true);
-		});
+			it('Includes base in links', async () => {
+				const html = await fixture.readFile('/docs/index.html');
+				const $ = cheerio.load(html);
+				assert.equal($('link').attr('href')!.startsWith('/docs'), true);
+			});
 
-		it('Includes base in scripts', async () => {
-			const html = await fixture.readFile('/docs/index.html');
-			const $ = cheerio.load(html);
-			assert.equal($('script').attr('src')!.startsWith('/docs'), true);
-		});
+			it('Includes base in scripts', async () => {
+				const html = await fixture.readFile('/docs/index.html');
+				const $ = cheerio.load(html);
+				assert.equal($('script').attr('src')!.startsWith('/docs'), true);
+			});
 
-		// Regression test for https://github.com/withastro/astro/issues/17218
-		// An `await` in the slot markup before <Content /> used to defer the
-		// propagating component's registration past head buffering, silently
-		// dropping its styles from the build output.
-		it('keeps propagated styles when an await precedes <Content /> in slot markup', async () => {
-			const html = await fixture.readFile('/async-slot/index.html');
-			const $ = cheerio.load(html);
-			const href = $('head link[rel="stylesheet"]').attr('href');
-			assert.ok(href, 'Expected the propagated stylesheet link to survive in the head');
+			// Regression test for https://github.com/withastro/astro/issues/17218
+			// An `await` in the slot markup before <Content /> used to defer the
+			// propagating component's registration past head buffering, silently
+			// dropping its styles from the build output.
+			it('keeps propagated styles when an await precedes <Content /> in slot markup', async () => {
+				const html = await fixture.readFile('/async-slot/index.html');
+				const $ = cheerio.load(html);
+				const href = $('link[rel="stylesheet"]').attr('href');
+				assert.ok(href, 'Expected the stylesheet for the rendered content component');
+				assert.ok(html.indexOf(href) < html.indexOf('Testing'));
+				if (!lazyAssets) assert.equal($('head link[rel="stylesheet"]').attr('href'), href);
 
-			// Read the emitted CSS (href is base-prefixed with `/docs`) and confirm
-			// it contains the content component's rule.
-			const css = await fixture.readFile(href.replace(/^\/docs/, ''));
-			assert.equal(
-				css.includes('color:'),
-				true,
-				'Expected the style from the content component to be present',
-			);
+				// Read the emitted CSS (href is base-prefixed with `/docs`) and confirm
+				// it contains the content component's rule.
+				const css = await fixture.readFile(href.replace(/^\/docs/, ''));
+				assert.equal(
+					css.includes('color:'),
+					true,
+					'Expected the style from the content component to be present',
+				);
+			});
 		});
-	});
+	}
 
 	describe('Mutation', () => {
 		let fixture: Fixture;

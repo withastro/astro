@@ -112,6 +112,7 @@ export interface BuildInternals {
 	manifestFileName?: string;
 	prerenderEntryFileName?: string;
 	componentMetadata: SSRResult['componentMetadata'];
+	serverComponentIds: Set<string>;
 	middlewareEntryPoint: URL | undefined;
 	loggerEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
@@ -198,6 +199,7 @@ export function createBuildInternals(): BuildInternals {
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
+		serverComponentIds: new Set(),
 		astroActionsEntryPoint: undefined,
 		middlewareEntryPoint: undefined,
 		loggerEntryPoint: undefined,
