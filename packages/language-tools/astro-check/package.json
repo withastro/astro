@@ -37,9 +37,11 @@
     "yargs": "^18.2.0"
   },
   "devDependencies": {
+    "@nodable/entities": "3.1.0",
     "@types/node": "^22.10.6",
     "@types/yargs": "^17.0.35",
     "astro-scripts": "workspace:*",
+    "fast-xml-parser": "5.11.2",
     "tinyglobby": "^0.2.17",
     "tsx": "^4.23.15"
   },
