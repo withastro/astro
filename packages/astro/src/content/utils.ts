@@ -500,6 +500,28 @@ export function isDeferredModule(viteId: string): boolean {
 	return flags.has(CONTENT_MODULE_FLAG);
 }
 
+function invalidateConfigModule(environment: RunnableDevEnvironment, configPathname: string) {
+	// Module graph lookups are keyed by Vite-normalized paths (forward slashes on Windows).
+	const file = normalizePath(configPathname);
+	const timestamp = Date.now();
+	const { evaluatedModules } = environment.runner;
+	// The module runner keys its cache by the URL passed to import(), while the module graph
+	// keys it by the resolved ID. Looking up by URL handles paths that resolve through symlinks
+	// (e.g. macOS /var -> /private); the normalized file path is used as a fallback.
+	const runnerModule = evaluatedModules.getModuleByUrl(configPathname);
+	if (runnerModule) {
+		const module = environment.moduleGraph.getModuleById(runnerModule.id);
+		if (module) environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
+		evaluatedModules.invalidateModule(runnerModule);
+	}
+	for (const mod of environment.moduleGraph.getModulesByFile(file) ?? []) {
+		environment.moduleGraph.invalidateModule(mod, undefined, timestamp, true);
+	}
+	for (const mod of evaluatedModules.getModulesByFile(file) ?? []) {
+		evaluatedModules.invalidateModule(mod);
+	}
+}
+
 async function loadContentConfig({
 	fs,
 	settings,
@@ -520,13 +542,18 @@ async function loadContentConfig({
 		return undefined;
 	}
 	const configPathname = fileURLToPath(contentPaths.config.url);
+	// The digest must match the evaluated config, or the store gets re-parsed with a stale schema
+	// under the new digest. A data file change can trigger this load before Vite has processed a
+	// simultaneous config change, so read the source first and drop the cached module (#18798).
+	const configSource = await fs.promises.readFile(configPathname, 'utf-8');
+	invalidateConfigModule(environment, configPathname);
 	const unparsedConfig = await environment.runner.import(configPathname);
 
 	const config = contentConfigParser(logger).safeParse(unparsedConfig);
 	if (config.success) {
 		// Generate a digest of the config file so we can invalidate the cache if it changes
 		const hasher = await xxhash();
-		const digest = hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));
+		const digest = hasher.h64ToString(configSource);
 		return { ...config.data, digest };
 	} else {
 		const message = config.error.issues

@@ -1,0 +1,5 @@
+---
+import { getCollection } from 'astro:content';
+const [theme] = await getCollection('theme');
+---
+<html><body>DARK={theme.data.colors.dark ?? 'MISSING'}</body></html>
