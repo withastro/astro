@@ -43,7 +43,7 @@ const { fallback = 'animate' } = Astro.props;
 	}
 
 	function isReloadEl(el: HTMLElement | SVGAElement): boolean {
-		return el.dataset.astroReload !== undefined;
+		return el.dataset['astroReload'] !== undefined;
 	}
 
 	const leavesWindow = (ev: MouseEvent) =>
@@ -97,7 +97,7 @@ const { fallback = 'animate' } = Astro.props;
 			}
 			ev.preventDefault();
 			navigate(href, {
-				history: link.dataset.astroHistory === 'replace' ? 'replace' : 'auto',
+				history: link.dataset['astroHistory'] === 'replace' ? 'replace' : 'auto',
 				sourceElement: link,
 			});
 		});
