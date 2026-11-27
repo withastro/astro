@@ -1712,7 +1712,7 @@ export const UnknownConfigError = {
 /**
  * @docs
  * @see
- * - [--config](https://docs.astro.build/en/reference/cli-reference/#--config-path)
+ * - [`--config`](https://docs.astro.build/en/reference/cli-reference/#--config-path)
  * @description
  * The specified configuration file using `--config` could not be found. Make sure that it exists or that the path is correct.
  */
