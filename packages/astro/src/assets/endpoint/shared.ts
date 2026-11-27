@@ -7,7 +7,10 @@ import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { inferSourceFormat } from '../utils/inferSourceFormat.js';
 import { fetchWithRedirects } from '../utils/redirectValidation.js';
+import { detector } from '../utils/vendor/image-size/detector.js';
 import type { AstroRuntimeLogger } from '../../types/public/context.js';
+
+const NON_SVG_SOURCE_MESSAGE = 'Cannot convert non-SVG source to SVG format';
 
 const isLocal = (url: string) => {
 	const hostname = new URL(url).hostname;
@@ -63,11 +66,11 @@ export const handleImageRequest = async ({
 
 	// Reject requests that attempt to convert a non-SVG source to SVG output.
 	// This mirrors the same guard in verifyOptions() that protects the <Image> component path.
-	if (transform.format === 'svg') {
-		const sourceFormat = inferSourceFormat(transform.src);
-		if (sourceFormat !== 'svg') {
-			return new Response('Cannot convert non-SVG source to SVG format', { status: 403 });
-		}
+	// Sources without a recognizable extension (e.g. `https://skillicons.dev/icons?i=git`) are
+	// checked against their content once loaded instead.
+	const sourceFormat = transform.format === 'svg' ? inferSourceFormat(transform.src) : undefined;
+	if (transform.format === 'svg' && sourceFormat !== undefined && sourceFormat !== 'svg') {
+		return new Response(NON_SVG_SOURCE_MESSAGE, { status: 403 });
 	}
 
 	let inputBuffer: Buffer | undefined = undefined;
@@ -94,6 +97,10 @@ export const handleImageRequest = async ({
 
 	if (!inputBuffer) {
 		return new Response('Internal Server Error', { status: 500 });
+	}
+
+	if (transform.format === 'svg' && sourceFormat === undefined && detector(inputBuffer) !== 'svg') {
+		return new Response(NON_SVG_SOURCE_MESSAGE, { status: 403 });
 	}
 
 	const { data, format } = await imageService.transform(

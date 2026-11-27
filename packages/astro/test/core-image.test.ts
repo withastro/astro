@@ -1439,6 +1439,23 @@ describe('dev ssr', () => {
 		const response = await fixture.fetch('/some-base/_image?' + String(params));
 		assert.equal(response.status, 403, 'should reject f=svg for a .jpg source in dev');
 	});
+
+	it('allows f=svg for an SVG source without a file extension in dev mode', async () => {
+		const params = new URLSearchParams();
+		params.set('href', '/some-base/extensionless-svg');
+		params.set('f', 'svg');
+		const response = await fixture.fetch('/some-base/_image?' + String(params));
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('content-type'), 'image/svg+xml');
+	});
+
+	it('rejects f=svg for a non-SVG source without a file extension in dev mode', async () => {
+		const params = new URLSearchParams();
+		params.set('href', '/some-base/extensionless-jpg');
+		params.set('f', 'svg');
+		const response = await fixture.fetch('/some-base/_image?' + String(params));
+		assert.equal(response.status, 403);
+	});
 });
 
 describe('prod ssr', () => {
