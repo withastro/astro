@@ -122,6 +122,25 @@ describe('astro cli', () => {
 		assert.equal(result.stdout.includes('0 errors'), true);
 	});
 
+	// https://github.com/withastro/astro/issues/18877
+	it('astro check reports no errors in shipped components under noPropertyAccessFromIndexSignature', {
+		// type definitions are not generated for ecosystem CI
+		skip: !!process.env.ECOSYSTEM_CI,
+		timeout: 35000,
+	}, async () => {
+		const projectRootURL = new URL('./fixtures/astro-check-strictest-components/', import.meta.url);
+		const result = await cli(
+			'check',
+			'--root',
+			fileURLToPath(projectRootURL),
+			'--tsconfig',
+			fileURLToPath(new URL('./tsconfig.index-signature.json', projectRootURL)),
+			'--noSync',
+		).getResult();
+
+		assert.equal(result.stdout.includes('0 errors'), true);
+	});
+
 	it('astro check explains TypeScript 7 support', async () => {
 		const projectRoot = await fs.mkdtemp(join(tmpdir(), 'astro-check-ts7-'));
 		const typescriptRoot = join(projectRoot, 'node_modules', 'typescript');
