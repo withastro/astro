@@ -11,7 +11,7 @@
     "directory": "packages/runtime"
   },
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://www.npmjs.com/package/@astrojs/runtime",
   "exports": {
     ".": "./dist/index.js",
     "./server": "./dist/server/index.js",

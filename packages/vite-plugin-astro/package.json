@@ -11,7 +11,7 @@
     "directory": "packages/vite-plugin-astro"
   },
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://www.npmjs.com/package/@astrojs/vite-plugin-astro",
   "exports": {
     ".": "./dist/index.js",
     "./components/*": "./components/*",
