@@ -162,6 +162,56 @@ describe('astroContentVirtualModPlugin', () => {
 		);
 	});
 
+	describe('data store module in builds', () => {
+		const store = [{ collection: 1 }, 'posts'];
+
+		async function loadDataStore(environmentName: string, prerenderer?: unknown) {
+			const root = createTempDir('content-virtual-mod-build-store-test-');
+			const settings = createMinimalSettings(root, { config: { legacy: {} } });
+			if (prerenderer) settings.prerenderer = prerenderer as typeof settings.prerenderer;
+			const dataStoreFile = getDataStoreFile(settings, false);
+			await nodeFs.promises.mkdir(new URL('./', dataStoreFile), { recursive: true });
+			await nodeFs.promises.writeFile(dataStoreFile, JSON.stringify(store));
+
+			const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
+			// @ts-expect-error - mock args are sufficient for this test
+			plugin.config?.({}, { command: 'build' });
+			assert.ok(plugin.load && typeof plugin.load === 'object');
+			const context = {
+				environment: { name: environmentName },
+				error(message: string) {
+					throw new Error(message);
+				},
+			};
+			// @ts-expect-error - mock context supplies the hook behavior this path uses
+			const result = await plugin.load.handler.call(context, '\0astro:data-layer-content');
+			assert.ok(result && typeof result === 'object' && 'code' in result);
+			const mod = await import(
+				`data:text/javascript;base64,${Buffer.from(result.code).toString('base64')}`
+			);
+			return { code: result.code, value: mod.default };
+		}
+
+		it('reads the store from disk when prerendering with the default prerenderer', async () => {
+			const { code, value } = await loadDataStore('prerender');
+			assert.match(code, /readFileSync/);
+			assert.doesNotMatch(code, /posts/);
+			assert.deepEqual(value, store);
+		});
+
+		it('inlines the store in the server bundle', async () => {
+			const { code, value } = await loadDataStore('ssr');
+			assert.doesNotMatch(code, /readFileSync/);
+			assert.deepEqual(value, store);
+		});
+
+		it('inlines the store when an adapter provides a custom prerenderer', async () => {
+			const { code, value } = await loadDataStore('prerender', { name: 'custom' });
+			assert.doesNotMatch(code, /readFileSync/);
+			assert.deepEqual(value, store);
+		});
+	});
+
 	it('does not send full-reload to client during buildStart', () => {
 		const root = createTempDir('content-virtual-mod-test-');
 		const settings = createMinimalSettings(root, {
