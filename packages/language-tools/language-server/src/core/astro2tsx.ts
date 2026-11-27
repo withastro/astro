@@ -9,7 +9,9 @@ import type { CodeMapping, VirtualCode } from '@volar/language-core';
 import { Range } from '@volar/language-server';
 import { TextDocument } from 'vscode-html-languageservice';
 
+const SPAN_MAP_KIND_VERBATIM = 0;
 const SPAN_MAP_KIND_ATOM = 1;
+const SPAN_MAP_FEATURE_DOCUMENT_SYMBOLS = 1 << 18;
 
 export interface LSPTSXRanges {
 	frontmatter: Range;
@@ -17,6 +19,8 @@ export interface LSPTSXRanges {
 	scripts: ExtractedScript[];
 	styles: ExtractedStyle[];
 	generatedComponentExport?: Range;
+	/** Generated name of the render scope, whose symbol stands for the whole frontmatter. */
+	renderScopeLabel?: Range;
 }
 
 export function safeConvertToTSX(
@@ -66,7 +70,20 @@ export function getTSXRangesAsLSPRanges(tsx: ConvertToTsxResult): LSPTSXRanges {
 		),
 		scripts: tsx.scripts,
 		styles: tsx.styles,
+		renderScopeLabel: renderScopeLabel(tsx, textDocument),
 	};
+}
+
+function renderScopeLabel(tsx: ConvertToTsxResult, textDocument: TextDocument): Range | undefined {
+	const label = tsx.mappings.find(
+		([, , , , kind, features]) =>
+			kind === SPAN_MAP_KIND_ATOM && features === SPAN_MAP_FEATURE_DOCUMENT_SYMBOLS,
+	);
+	if (!label) return undefined;
+	return Range.create(
+		textDocument.positionAt(label[0]),
+		textDocument.positionAt(label[0] + label[1]),
+	);
 }
 
 export function astro2tsx(input: string, fileName: string) {
@@ -85,27 +102,36 @@ export function astro2tsx(input: string, fileName: string) {
 function getVirtualCodeTSX(tsx: ConvertToTsxResult) {
 	const code = tsx.code;
 	const mapped = tsx.mappings
-		.filter(([, generatedLength, , sourceLength]) => generatedLength > 0 && sourceLength > 0)
+		.filter(
+			([, generatedLength, , sourceLength, kind]) =>
+				kind === SPAN_MAP_KIND_VERBATIM && generatedLength > 0 && sourceLength > 0,
+		)
 		.map(([generatedOffset, generatedLength, sourceOffset, sourceLength]) => ({
 			generatedOffset,
 			sourceOffset,
 			length: Math.min(generatedLength, sourceLength),
 		}));
-	const mappings: CodeMapping[] = [
-		{
-			sourceOffsets: mapped.map(({ sourceOffset }) => sourceOffset),
-			generatedOffsets: mapped.map(({ generatedOffset }) => generatedOffset),
-			lengths: mapped.map(({ length }) => length),
-			data: {
-				verification: true,
-				completion: true,
-				semantic: true,
-				navigation: true,
-				structure: true,
-				format: false,
-			},
+	// Volar searches each mapping's source offsets in order, so reordered spans need their own.
+	const runs: (typeof mapped)[] = [];
+	for (const mapping of mapped) {
+		const run = runs.at(-1);
+		const last = run?.at(-1);
+		if (run && last && mapping.sourceOffset >= last.sourceOffset + last.length) run.push(mapping);
+		else runs.push([mapping]);
+	}
+	const mappings: CodeMapping[] = runs.map((run) => ({
+		sourceOffsets: run.map(({ sourceOffset }) => sourceOffset),
+		generatedOffsets: run.map(({ generatedOffset }) => generatedOffset),
+		lengths: run.map(({ length }) => length),
+		data: {
+			verification: true,
+			completion: true,
+			semantic: true,
+			navigation: true,
+			structure: true,
+			format: false,
 		},
-	];
+	}));
 	for (const [
 		generatedOffset,
 		generatedLength,
@@ -125,12 +151,8 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult) {
 
 		const previous = [...mapped]
 			.reverse()
-			.find(
-				(mapping) =>
-					mapping.sourceOffset + mapping.length === sourceOffset &&
-					mapping.generatedOffset + mapping.length <= generatedOffset,
-			);
-		if (!previous) continue;
+			.find((mapping) => mapping.generatedOffset + mapping.length <= generatedOffset);
+		if (!previous || previous.sourceOffset + previous.length !== sourceOffset) continue;
 
 		// The terminator exists only in generated TSX. Extend the preceding mapping over it
 		// so edits that include it still map back to the end of the Astro frontmatter.

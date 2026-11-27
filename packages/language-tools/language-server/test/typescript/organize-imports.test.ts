@@ -83,7 +83,7 @@ describe('TypeScript - Organize & Sort Imports', () => {
 		assert.deepStrictEqual(edits, [
 			{
 				newText:
-					"import Hello from '../components/Hello.astro';\nimport Layout from '../layouts/Layout.astro';\n",
+					"import Hello from '../components/Hello.astro'\nimport Layout from '../layouts/Layout.astro'\n",
 				range: Range.create(1, 0, 2, 0),
 			},
 			{
@@ -95,7 +95,7 @@ describe('TypeScript - Organize & Sort Imports', () => {
 		const updated = TextDocument.applyEdits(document, edits);
 		assert.equal(
 			updated,
-			`---\nimport Hello from '../components/Hello.astro';\nimport Layout from '../layouts/Layout.astro';\n---\n<Layout><Hello /></Layout>`,
+			`---\nimport Hello from '../components/Hello.astro'\nimport Layout from '../layouts/Layout.astro'\n---\n<Layout><Hello /></Layout>`,
 		);
 		const repeated = await getOrganizeEdits(updated);
 		assert.equal(

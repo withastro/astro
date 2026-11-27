@@ -87,7 +87,8 @@ describe('Utilities', async () => {
 			Range.create(2, 0, 2, 0),
 		);
 
-		const outsideFrontmatterRange = Range.create(6, 0, 6, 0);
+		const outsideLine = tsxRanges.frontmatter.end.line + 1;
+		const outsideFrontmatterRange = Range.create(outsideLine, 0, outsideLine, 0);
 		assert.deepStrictEqual(
 			utils.ensureRangeIsInFrontmatter(outsideFrontmatterRange, astroMetadata),
 			Range.create(2, 0, 2, 0),
