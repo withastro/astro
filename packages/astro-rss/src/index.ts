@@ -172,6 +172,10 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		// https://github.com/withastro/astro/issues/5794
 		suppressEmptyNode: true,
 		suppressBooleanAttributes: false,
+		// Keep `customData` text as written instead of coercing numeric-looking
+		// values (`007` -> `7`)
+		// https://github.com/withastro/astro/issues/18830
+		parseTagValue: false,
 	};
 	const parser = new XMLParser(xmlOptions);
 	const root: any = { '?xml': { '@_version': '1.0', '@_encoding': 'UTF-8' } };
