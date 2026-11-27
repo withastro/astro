@@ -5,6 +5,7 @@ import {
 	isParentDirectory,
 	isRemotePath,
 	normalizePathname,
+	removeQueryString,
 } from '../dist/path.js';
 
 describe('isRemotePath', () => {
@@ -882,5 +883,11 @@ describe('isInternalPath', () => {
 	it('does not flag paths that are only slashes', () => {
 		assert.equal(isInternalPath('//'), false);
 		assert.equal(isInternalPath('///'), false);
+	});
+});
+
+describe('removeQueryString', () => {
+	it('strips at the first question mark when a query value contains another', () => {
+		assert.equal(removeQueryString('/img.png?next=/page?tab=1'), '/img.png');
 	});
 });
