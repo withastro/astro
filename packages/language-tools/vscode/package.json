@@ -265,7 +265,7 @@
     "yaml": "^2.9.1"
   },
   "dependencies": {
-    "@astrojs/astro2tsx": "^0.1.4",
+    "@astrojs/astro2tsx": "^0.1.5",
     "prettier": "^3.10.1",
     "prettier-plugin-astro": "^1.1.2"
   }

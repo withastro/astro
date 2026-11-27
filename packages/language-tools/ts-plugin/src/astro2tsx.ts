@@ -33,6 +33,12 @@ function safeConvertToTSX(content: string, filename: string): ConvertToTsxResult
 	}
 }
 
+/**
+ * Renames the generated default export to the component's public name and removes the
+ * compiler's named re-export, so the component only has a default export, like at runtime.
+ */
+// The named re-export only exists for the language server's auto-import. tsserver would offer it
+// as a named import and accept `import { X }` without errors (https://github.com/withastro/astro/issues/18749).
 function usePublicComponentName(tsx: ConvertToTsxResult): ConvertToTsxResult {
 	const range = tsx.generatedComponentExport;
 	if (!range) return tsx;
@@ -55,9 +61,9 @@ function usePublicComponentName(tsx: ConvertToTsxResult): ConvertToTsxResult {
 			text: publicName,
 		},
 		{
-			start: range.start + exportStatement.indexOf(generatedName),
-			length: generatedName.length,
-			text: publicName,
+			start: range.start,
+			length: exportStatement.length,
+			text: '',
 		},
 	].sort((a, b) => a.start - b.start);
 
@@ -92,10 +98,7 @@ function usePublicComponentName(tsx: ConvertToTsxResult): ConvertToTsxResult {
 			const end = mapOffset(generatedOffset + generatedLength);
 			return [start, end - start, ...rest] as ConvertToTsxResult['mappings'][number];
 		}),
-		generatedComponentExport: {
-			start: mapOffset(range.start),
-			end: mapOffset(range.end),
-		},
+		generatedComponentExport: undefined,
 	};
 }
 

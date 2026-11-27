@@ -123,4 +123,47 @@ describe('TypeScript - Diagnostics', async () => {
 			[],
 		);
 	});
+
+	it('reports named imports of components that keep a named re-export', async () => {
+		const document = await languageServer.openFakeDocument(
+			"---\nimport { Picture } from './src/components/Picture.astro';\n---\n<Picture />",
+			'astro',
+		);
+		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
+			document.uri,
+		)) as FullDocumentDiagnosticReport;
+
+		assert.deepStrictEqual(
+			diagnostics.items
+				.filter((diagnostic) => diagnostic.severity === DiagnosticSeverity.Error)
+				.map((diagnostic) => ({ ...diagnostic, data: {} })),
+			[
+				{
+					data: {},
+					message:
+						"Astro components only have a default export. Use `import Picture from './src/components/Picture.astro'` instead.",
+					range: Range.create(1, 9, 1, 16),
+					severity: DiagnosticSeverity.Error,
+					source: 'astro',
+				},
+			],
+		);
+	});
+
+	it('only reports TypeScript errors for named imports of other components', async () => {
+		const document = await languageServer.openFakeDocument(
+			"---\nimport { BlogPost } from './src/components/BlogPost.astro';\nimport Picture from './src/components/Picture.astro';\n---\n<BlogPost /><Picture />",
+			'astro',
+		);
+		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
+			document.uri,
+		)) as FullDocumentDiagnosticReport;
+
+		assert.deepStrictEqual(
+			diagnostics.items
+				.filter((diagnostic) => diagnostic.severity === DiagnosticSeverity.Error)
+				.map((diagnostic) => [diagnostic.source, diagnostic.code]),
+			[['ts', 2614]],
+		);
+	});
 });

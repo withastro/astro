@@ -7039,8 +7039,8 @@ importers:
   packages/language-tools/language-server:
     dependencies:
       '@astrojs/astro2tsx':
-        specifier: ^0.1.4
-        version: 0.1.4
+        specifier: ^0.1.5
+        version: 0.1.5
       '@astrojs/yaml2ts':
         specifier: ^0.2.4
         version: link:../yaml2ts
@@ -7143,8 +7143,8 @@ importers:
   packages/language-tools/ts-content-mapper:
     dependencies:
       '@astrojs/astro2tsx':
-        specifier: ^0.1.4
-        version: 0.1.4
+        specifier: ^0.1.5
+        version: 0.1.5
       vscode-jsonrpc:
         specifier: ^10.0.1
         version: 10.0.1
@@ -7165,8 +7165,8 @@ importers:
   packages/language-tools/ts-plugin:
     dependencies:
       '@astrojs/astro2tsx':
-        specifier: ^0.1.4
-        version: 0.1.4
+        specifier: ^0.1.5
+        version: 0.1.5
       '@astrojs/yaml2ts':
         specifier: ^0.2.4
         version: link:../yaml2ts
@@ -7208,8 +7208,8 @@ importers:
   packages/language-tools/vscode:
     dependencies:
       '@astrojs/astro2tsx':
-        specifier: ^0.1.4
-        version: 0.1.4
+        specifier: ^0.1.5
+        version: 0.1.5
       prettier:
         specifier: ^3.10.1
         version: 3.10.1
@@ -7941,8 +7941,8 @@ packages:
   '@astro-community/astro-embed-youtube@0.5.10':
     resolution: {integrity: sha512-hVlx77KQLjKzElVQnrU5znQ5/E60keVSAPrhuWvQQHuqva5auJtt8YBpOThkwDMuEKXjQybEF1/3C07RZ8MAOQ==}
 
-  '@astrojs/astro2tsx@0.1.4':
-    resolution: {integrity: sha512-5dJqY4i1AlXxcsSFHkaegnrgdVs9J4U93y/YF0xmvmSOcNYVQnf4db3IhvqHZ5v8biLPlPlFmlYsqHj0c4/ZSA==}
+  '@astrojs/astro2tsx@0.1.5':
+    resolution: {integrity: sha512-nr5F1A+mQK5jJifwVNMXrfEDd9cGT+cZfG2+ceMYqubuAdHsr6dX0wzEF1m+zaajqyYyS7XaHDK2Y5x1AzTzmA==}
     engines: {node: ^20.19.0 || >=22.12.0}
 
   '@astrojs/cli-kit@0.4.1':
@@ -17559,7 +17559,7 @@ snapshots:
     dependencies:
       lite-youtube-embed: 0.3.4
 
-  '@astrojs/astro2tsx@0.1.4':
+  '@astrojs/astro2tsx@0.1.5':
     dependencies:
       '@emnapi/core': 1.11.3
       '@emnapi/runtime': 1.11.3
