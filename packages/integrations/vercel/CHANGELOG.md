@@ -1,5 +1,29 @@
 # @astrojs/vercel
 
+## 12.0.0
+
+### Major Changes
+
+- [#18555](https://github.com/withastro/astro/pull/18555) [`ebcaf69`](https://github.com/withastro/astro/commit/ebcaf69d3d7b9b2ac1879d08b45ffcdc70e4cfaf) Thanks [@ali-vercel](https://github.com/ali-vercel)! - Marks Node.js 20 as deprecated
+  
+  Vercel deprecated Node.js 20 for builds and functions on October 1, 2026. Building with Node.js 20 now logs a deprecation warning that suggests upgrading to Node.js 26. Functions built with Node.js 20 still target `nodejs20.x`.
+
+- [#18555](https://github.com/withastro/astro/pull/18555) [`ebcaf69`](https://github.com/withastro/astro/commit/ebcaf69d3d7b9b2ac1879d08b45ffcdc70e4cfaf) Thanks [@ali-vercel](https://github.com/ali-vercel)! - Makes Node.js 26 the default runtime for Vercel functions
+  
+  Building with Node.js 26 now deploys functions on `nodejs26.x`. Previously, the adapter warned that Node.js 26 is unsupported and deployed functions on `nodejs24.x`. This includes Vercel builds that run on Node.js 26 because of an open `engines.node` range, such as `>=22`.
+  
+  Building with a Node.js version the adapter does not list, such as 23, 25 or 27, now falls back to `nodejs26.x` instead of `nodejs24.x`.
+  
+  Builds on Node.js 22 and 24 are unchanged. To keep functions on Node.js 24, build with Node.js 24, for example by setting `"engines": { "node": "24.x" }` in your `package.json`.
+
+### Minor Changes
+
+- [#18846](https://github.com/withastro/astro/pull/18846) [`c40c446`](https://github.com/withastro/astro/commit/c40c4461632299091a23f3f3407fa3b32e708bd9) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Adds an `isr.exposeErrBody` option that writes `exposeErrBody` to the ISR prerender configuration, so Vercel serves error responses rendered by Astro (such as a custom `500` page) instead of replacing them with its own error page
+
+### Patch Changes
+
+- [#18829](https://github.com/withastro/astro/pull/18829) [`1e0f317`](https://github.com/withastro/astro/commit/1e0f31760161e80a33c696e1032d479e911db5c8) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes edge middleware (`middlewareMode: 'edge'`) following redirects returned by pages and endpoints instead of sending them to the client
+
 ## 11.0.22
 
 ### Patch Changes

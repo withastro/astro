@@ -1,5 +1,15 @@
 # @astrojs/runtime
 
+## 0.1.3
+
+### Patch Changes
+
+- [#18826](https://github.com/withastro/astro/pull/18826) [`d5af08b`](https://github.com/withastro/astro/commit/d5af08b89ffd1dd0bafe6eb08be8cb7d821a021b) Thanks [@ChrolloKyber](https://github.com/ChrolloKyber)! - Updates homepage URL in `package.json`
+
+- [#18823](https://github.com/withastro/astro/pull/18823) [`791d0ad`](https://github.com/withastro/astro/commit/791d0ad39b4f9a69b581730d49340aa1df2f5201) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a `moveBefore` `TypeError` and an empty island after client-side navigation when a `transition:persist` framework component renders the persist attribute on its own root element
+
+- [#18776](https://github.com/withastro/astro/pull/18776) [`db5e3ec`](https://github.com/withastro/astro/commit/db5e3ec560df8bf81fb5a13f01bd7ca23f302107) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes an unclear `Cannot find package 'esbuild'` build failure when `vite.build.cssMinify` or `vite.build.minify` is set to `'esbuild'`. Astro now reports that `esbuild` must be installed in your project to use these options.
+
 ## 0.1.2
 
 ### Patch Changes

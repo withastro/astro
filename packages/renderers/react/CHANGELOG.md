@@ -1,5 +1,17 @@
 # @astrojs/react-renderer
 
+## 0.1.4
+
+### Patch Changes
+
+- [#18786](https://github.com/withastro/astro/pull/18786) [`f70283d`](https://github.com/withastro/astro/commit/f70283dc70c05ef862bc3c5d115efd273cab8cd7) Thanks [@prkomb](https://github.com/prkomb)! - Fixes text and attribute values in children being escaped twice with `experimentalReactChildren`
+
+- [#18826](https://github.com/withastro/astro/pull/18826) [`d5af08b`](https://github.com/withastro/astro/commit/d5af08b89ffd1dd0bafe6eb08be8cb7d821a021b) Thanks [@ChrolloKyber](https://github.com/ChrolloKyber)! - Updates homepage URL in `package.json`
+
+- [#18848](https://github.com/withastro/astro/pull/18848) [`3e3e70f`](https://github.com/withastro/astro/commit/3e3e70fbe143f34ae69cf63711c34a7e8c54fb47) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes React 19 `<Suspense>` content being hidden behind its fallback under `security.csp` or without JavaScript, by rendering suspended and large boundaries in place instead of revealing them with inline scripts
+- Updated dependencies [[`d5af08b`](https://github.com/withastro/astro/commit/d5af08b89ffd1dd0bafe6eb08be8cb7d821a021b), [`791d0ad`](https://github.com/withastro/astro/commit/791d0ad39b4f9a69b581730d49340aa1df2f5201), [`db5e3ec`](https://github.com/withastro/astro/commit/db5e3ec560df8bf81fb5a13f01bd7ca23f302107)]:
+  - @astrojs/runtime@0.1.3
+
 ## 0.1.3
 
 ### Patch Changes

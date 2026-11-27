@@ -1,5 +1,11 @@
 # @astrojs/underscore-redirects
 
+## 1.0.5
+
+### Patch Changes
+
+- [#18188](https://github.com/withastro/astro/pull/18188) [`d2b3c96`](https://github.com/withastro/astro/commit/d2b3c9656279d451b5cd831fdb1ca08fff171d72) Thanks [@Kjubikstronk](https://github.com/Kjubikstronk)! - Fixes dynamic redirects in the generated `_redirects` file pointing at the prerendered HTML file with a literal `*`, such as `/team/articles/*/index.html`. A redirect now targets the destination page and writes a spread as `:splat`, which Netlify and Cloudflare substitute. Cloudflare previously rejected these rules as an infinite loop.
+
 ## 1.0.4
 
 ### Patch Changes
