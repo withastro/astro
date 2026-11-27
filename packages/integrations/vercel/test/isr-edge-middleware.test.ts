@@ -137,6 +137,22 @@ describe('ISR with edge middleware', () => {
 		// only holds if it is checked before the ISR patterns.
 		const url = await forwardedUrl('/live');
 		assert.equal(url.pathname, '/_render');
+		assert.equal(url.searchParams.get('x_astro_path'), '/live');
+	});
+
+	it('gives each path rendered by the serverless function its own CDN cache key', {
+		timeout: 30000,
+	}, async () => {
+		// The CDN caches `Astro.cache.set()` responses by the forwarded URL. A bare
+		// `/_render` served one page's cached response for every path.
+		// https://github.com/withastro/astro/issues/18808
+		const url = await forwardedUrl('/live?foo=1');
+		assert.equal(url.pathname, '/_render');
+		assert.equal(url.searchParams.get('x_astro_path'), '/live?foo=1');
+		assert.ok(
+			url.searchParams.get('x_astro_path_token'),
+			'without the token, a direct request could fill the cache entry',
+		);
 	});
 
 	it('still caches the dynamic route the exclusion overlaps', {
@@ -154,6 +170,7 @@ describe('ISR with edge middleware', () => {
 		// would give every unmatched URL a cache entry.
 		const url = await forwardedUrl('/no/such/page');
 		assert.equal(url.pathname, '/_render');
+		assert.equal(url.searchParams.get('x_astro_path'), '/no/such/page');
 	});
 
 	it('keeps the query string out of the cache key', { timeout: 30000 }, async () => {

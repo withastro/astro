@@ -174,13 +174,18 @@ const isCached = (pathname) =>
 
 // Cached routes go back through \`_isr\`, or every request would re-render.
 // Keep in step with \`getIsrPath\`.
-function forwardPath(pathname) {
-	if (!isCached(pathname)) return '/${NODE_PATH}';
+// The CDN caches responses by the forwarded URL, so it carries the path: under a
+// bare \`/${NODE_PATH}\`, every path would share the entry of the first page that
+// called \`Astro.cache.set()\` (https://github.com/withastro/astro/issues/18808).
+// It carries the query too, as a rendered page can depend on it. The token keeps
+// a direct request from filling the same entry.
+function forwardPath(pathname, search) {
+	const cached = isCached(pathname);
 	const params = new URLSearchParams({
-		'${ASTRO_PATH_PARAM}': pathname,
+		'${ASTRO_PATH_PARAM}': cached ? pathname : pathname + search,
 		'${ASTRO_PATH_TOKEN_PARAM}': '${middlewareSecret}',
 	});
-	return '/_isr?' + params.toString();
+	return (cached ? '/_isr?' : '/${NODE_PATH}?') + params.toString();
 }
 
 export default async function middleware(request, context) {
@@ -190,10 +195,10 @@ export default async function middleware(request, context) {
 		clientAddress: request.headers.get('x-real-ip') || undefined,
 	});
 	Object.assign(ctx.locals, { vercel: { edge: context }, ...${handlerTemplateCall} });
-	const { origin, pathname } = new URL(request.url);
+	const { origin, pathname, search } = new URL(request.url);
 	const next = async () => {
 		const { vercel, ...locals } = ctx.locals;
-		const response = await fetch(new URL(forwardPath(pathname), request.url), {
+		const response = await fetch(new URL(forwardPath(pathname, search), request.url), {
 			method: request.method,
 			// Redirects from the rendered route must reach the client, not be followed here.
 			redirect: 'manual',

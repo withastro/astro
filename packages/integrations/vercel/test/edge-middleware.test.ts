@@ -82,7 +82,7 @@ describe('Vercel edge middleware', () => {
 		const requestedPaths: string[] = [];
 		const server = http.createServer((req, res) => {
 			requestedPaths.push(req.url!);
-			if (req.url === '/_render') {
+			if (req.url!.startsWith('/_render?')) {
 				res.writeHead(302, { Location: '/target' });
 				res.end();
 				return;
@@ -95,7 +95,10 @@ describe('Vercel edge middleware', () => {
 			const response = await module.default(new Request(`http://127.0.0.1:${port}/foo`), {});
 			assert.equal(response.status, 302);
 			assert.equal(response.headers.get('location'), '/target');
-			assert.deepEqual(requestedPaths, ['/_render']);
+			assert.equal(requestedPaths.length, 1);
+			const forwarded = new URL(requestedPaths[0], 'http://127.0.0.1');
+			assert.equal(forwarded.pathname, '/_render');
+			assert.equal(forwarded.searchParams.get('x_astro_path'), '/foo');
 		} finally {
 			server.close();
 		}
