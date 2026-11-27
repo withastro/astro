@@ -167,10 +167,15 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 
 				const existingEntry = store.get(id);
 
-				const digest = generateDigest(contents);
 				const filePath = fileURLToPath(fileUrl);
+				const relativePath = posixRelative(fileURLToPath(config.root), filePath);
+				const digest = generateDigest(contents);
 
-				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
+				if (
+					existingEntry &&
+					existingEntry.digest === digest &&
+					existingEntry.filePath === relativePath
+				) {
 					if (existingEntry.deferredRender) {
 						store.addModuleImport(existingEntry.filePath);
 					}
@@ -183,8 +188,6 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					fileToIdMap.set(filePath, id);
 					return;
 				}
-
-				const relativePath = posixRelative(fileURLToPath(config.root), filePath);
 
 				const parsedData = await parseData({
 					id,
