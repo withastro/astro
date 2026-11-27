@@ -127,7 +127,12 @@ async function renderToStaticMarkup(
 		attrs['data-action-key'] = formState[1];
 		attrs['data-action-name'] = formState[2];
 	}
-	const vnode = React.createElement(Component, newProps);
+	// Every island is its own React root, so React derives the same `$ACTION_KEY` for each
+	// `useActionState()` in islands of the same component unless their root keys differ.
+	// Keying the root by the island's prefix applies a no-JS form result only to the island that
+	// rendered the submitted form. A user-provided `key` takes precedence.
+	// See https://github.com/withastro/astro/issues/18874
+	const vnode = React.createElement(Component, { key: prefix, ...newProps });
 	const renderOptions = {
 		identifierPrefix: prefix,
 		formState,
