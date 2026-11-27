@@ -59,6 +59,12 @@ export default (element: HTMLElement) =>
 
 			let dispose: () => void;
 			if (isHydrate) {
+				// Solid tracks hydration completion in a single page-wide `_$HY.done` flag and
+				// `hydrate()` falls back to a fresh client render once it is set. Each Astro
+				// island is its own hydration root, so islands that hydrate after another one
+				// finished would otherwise discard their server-rendered DOM.
+				// See https://github.com/withastro/astro/issues/18810
+				if ((globalThis as any)._$HY) (globalThis as any)._$HY.done = false;
 				dispose = hydrate(fn, element, { renderId });
 			} else {
 				// For client:only, clear the fallback content before rendering.
