@@ -6,6 +6,7 @@ import { STATIC_HEADERS_FILE } from './shared.js';
 import type { NodeAppHeadersJson, Options, UserOptions } from './types.js';
 import { sessionDrivers } from 'astro/config';
 import { createConfigPlugin } from './vite-plugin-config.js';
+import { createConfigPluginEnv } from './vite-plugin-config-env.js';
 
 export function getAdapter({ staticHeaders }: Pick<Options, 'staticHeaders'>): AstroAdapter {
 	return {
@@ -78,6 +79,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 								bodySizeLimit: userOptions.bodySizeLimit ?? 1024 * 1024 * 1024,
 								experimentalDisableStreaming: userOptions.experimentalDisableStreaming ?? false,
 							}),
+							createConfigPluginEnv(config?.env?.schema ?? {}, userOptions),
 						],
 					},
 				});

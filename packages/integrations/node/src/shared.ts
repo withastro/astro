@@ -3,7 +3,15 @@ import url from 'node:url';
 import fs from 'node:fs';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { NodeAppHeadersJson, Options } from './types.js';
-
+import {
+	createInvalidVariablesError,
+	getEnv,
+	getEnvFieldType,
+	validateEnvVariable,
+} from 'astro/env/runtime';
+import type { AstroConfig } from '../../../astro/dist/types/public/config.js';
+import type { BaseApp } from 'astro/app';
+import { exit } from 'node:process';
 export const STATIC_HEADERS_FILE = '_headers.json';
 
 /**
@@ -67,4 +75,31 @@ export function readHeadersJson(outDir: string | URL): NodeAppHeadersJson | unde
 		}
 	}
 	return headersMap;
+}
+
+/**
+ * TODO
+ */
+export function checkEnv(
+	logger: BaseApp['adapterLogger'],
+	schema: AstroConfig['env']['schema'],
+	fatal: boolean,
+) {
+	let fail = false;
+	for (const [name, option] of Object.entries(schema)) {
+		const res = validateEnvVariable(getEnv(name), option);
+		if (!res.ok) {
+			fail = true;
+			const type = getEnvFieldType(option);
+			const err = createInvalidVariablesError(name, type, res);
+			logger.error(err.message);
+		}
+	}
+	if (fail) {
+		logger.flush();
+		if (fatal) {
+			logger.close();
+			exit(1);
+		}
+	}
 }
