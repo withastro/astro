@@ -450,6 +450,82 @@ describe('routing - createRoutesList', () => {
 		]);
 	});
 
+	it('reports only colliding routes, in route priority order', async () => {
+		const prerendered = `---\nexport const prerender = true;\n---\n<h1>test</h1>`;
+		const fixture = await createFixture({
+			// Collide: duplicate static route, dynamic SSR routes, and rest SSR routes
+			'/src/pages/contributing.astro': `<h1>test</h1>`,
+			'/src/entrypoint.astro': `<h1>test</h1>`,
+			'/src/pages/[foo].astro': `<h1>test</h1>`,
+			'/src/pages/[bar].astro': `<h1>test</h1>`,
+			'/src/pages/docs/[...a].astro': `<h1>test</h1>`,
+			'/src/pages/docs/[...b].astro': `<h1>test</h1>`,
+			// Same shape, but at least one route is prerendered
+			'/src/pages/prerendered/[x].astro': prerendered,
+			'/src/pages/prerendered/[y].astro': prerendered,
+			'/src/pages/mixed/[x].astro': prerendered,
+			'/src/pages/mixed/[y].astro': `<h1>test</h1>`,
+			// Look alike, but do not collide
+			'/src/pages/blog/[slug].astro': `<h1>test</h1>`,
+			'/src/pages/blog-[slug].astro': `<h1>test</h1>`,
+			'/src/pages/item/[id]/edit.astro': `<h1>test</h1>`,
+			'/src/pages/item/[id]/view.astro': `<h1>test</h1>`,
+			'/src/pages/[...rest].astro': `<h1>test</h1>`,
+		});
+		const settings = await createBasicSettings({
+			root: fixture.path,
+			output: 'server',
+			base: '/search',
+			trailingSlash: 'never',
+			integrations: [],
+		});
+
+		settings.injectedRoutes = [
+			{
+				pattern: '/contributing',
+				entrypoint: 'src/entrypoint.astro',
+				origin: 'external',
+			},
+		];
+
+		const { logger, logs } = getLogger();
+
+		await createRoutesList({ cwd: fixture.path, settings }, logger);
+
+		const hardErrorWarning = {
+			label: 'router',
+			level: 'warn',
+			message: 'A collision will result in a hard error in following versions of Astro.',
+			newLine: true,
+		};
+		assert.deepEqual(logs, [
+			{
+				label: 'router',
+				level: 'warn',
+				message:
+					'The route "/contributing" is defined in both "src/pages/contributing.astro" and "src/entrypoint.astro". A static route cannot be defined more than once.',
+				newLine: true,
+			},
+			hardErrorWarning,
+			{
+				label: 'router',
+				level: 'warn',
+				message:
+					'The route "/docs/[...a]" is defined in both "src/pages/docs/[...a].astro" and "src/pages/docs/[...b].astro" using SSR mode. A dynamic SSR route cannot be defined more than once.',
+				newLine: true,
+			},
+			hardErrorWarning,
+			{
+				label: 'router',
+				level: 'warn',
+				message:
+					'The route "/[bar]" is defined in both "src/pages/[bar].astro" and "src/pages/[foo].astro" using SSR mode. A dynamic SSR route cannot be defined more than once.',
+				newLine: true,
+			},
+			hardErrorWarning,
+		]);
+	});
+
 	it('pages with dots in filenames respect trailingSlash config. issues#16140', async () => {
 		const fixture = await createFixture({
 			'/src/pages/hello.world.astro': `<h1>test</h1>`,
