@@ -46,4 +46,4 @@
 
 'docs pr':
 - packages/astro/src/types/public/**
-- packages/runtime/src/core/errors/errors-data.ts
+- packages/runtime/src/internal/core/errors/errors-data.ts
