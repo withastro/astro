@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
 import { describe, it } from 'node:test';
+import { pathToFileURL } from 'node:url';
+import { generateImagesForPath } from '../../../dist/assets/build/generate.js';
 import { loadRemoteImage, revalidateRemoteImage } from '../../../dist/assets/build/remote.js';
+import { createBasicSettings, createFixture, defaultLogger } from '../test-utils.ts';
 
 function makeFetchMock(
 	status: number,
@@ -243,4 +247,63 @@ describe('loadRemoteImage', () => {
 		// Should have hit the redirect limit (10 by default)
 		assert.ok(fetchCallCount >= 10);
 	});
+});
+
+describe('generateImagesForPath remote image revalidation', () => {
+	const src = 'https://images.example.com/redirect.png';
+	const destination = 'https://cdn.example.com/image.png';
+
+	for (const [name, image] of Object.entries({
+		domains: { domains: ['images.example.com', 'cdn.example.com'], remotePatterns: [] },
+		remotePatterns: { domains: [], remotePatterns: [{ hostname: '*.example.com' }] },
+	})) {
+		it(`revalidates redirected images allowed by image.${name}`, async (t) => {
+			const fixture = await createFixture({
+				'/cache/image.png': 'cached image',
+				'/cache/image.png.json': JSON.stringify({ expires: 0, etag: '"cached-image"' }),
+			});
+			t.after(() => fixture.rm());
+			const root = pathToFileURL(fixture.path + '/');
+			const { config } = await createBasicSettings({ image });
+			const fetch = t.mock.method(globalThis, 'fetch', async (request: Request) => {
+				if (request.url === src) {
+					return new Response(null, { status: 302, headers: { Location: destination } });
+				}
+				assert.equal(request.url, destination);
+				return new Response(null, {
+					status: 304,
+					headers: { 'Cache-Control': 'public, max-age=3600' },
+				});
+			});
+
+			await generateImagesForPath(
+				src,
+				{
+					originalSrcPath: undefined,
+					transforms: new Map([
+						['image', { finalPath: '/_astro/image.png', transform: { src, format: 'png' } }],
+					]),
+				},
+				{
+					logger: defaultLogger,
+					getImageService: async () => assert.fail('A 304 response should reuse the cached image'),
+					referencedImages: new Set(),
+					isSSR: false,
+					count: { total: 1, current: 1 },
+					useCache: true,
+					assetsCacheDir: new URL('./cache/', root),
+					serverRoot: new URL('./dist/', root),
+					clientRoot: new URL('./dist/', root),
+					imageConfig: { ...config.image, service: { entrypoint: 'test', config: {} } },
+					assetsFolder: '_astro',
+				},
+			);
+
+			assert.equal(fetch.mock.callCount(), 2);
+			const metadata = JSON.parse(
+				await fs.readFile(fixture.getPath('cache/image.png.json'), 'utf-8'),
+			);
+			assert.ok(metadata.expires > Date.now());
+		});
+	}
 });
