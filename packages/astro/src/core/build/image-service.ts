@@ -63,7 +63,12 @@ export async function loadBuildImageService(
 		const output = await builder.build(builder.environments[IMAGE_SERVICE_ENVIRONMENT_NAME]);
 		const entry = viteBuildReturnToRolldownOutputs(output)
 			.flatMap((o) => o.output)
-			.find((chunk) => chunk.type === 'chunk' && chunk.isEntry);
+			.find(
+				(chunk) =>
+					chunk.type === 'chunk' &&
+					chunk.isEntry &&
+					chunk.facadeModuleId === RESOLVED_IMAGE_SERVICE_ENTRY_ID,
+			);
 		if (!entry) throw new Error('The image service build produced no entry chunk.');
 		const url = new URL(entry.fileName, getImageServiceOutputDirectory(settings));
 		service = (await import(url.href)).default;

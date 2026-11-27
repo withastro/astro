@@ -2,7 +2,7 @@ import type { AstroCompilePluginOptions } from './vite-plugin-astro/index.js';
 import type { HeadPluginOptions } from './vite-plugin-head/index.js';
 import type { HmrReloadPluginOptions } from './vite-plugin-hmr-reload/index.js';
 import type { RenderersPluginOptions } from './vite-plugin-renderers/index.js';
-import type { InjectedScript } from './vite-plugin-scripts/index.js';
+import type { InjectedScript, ScriptsPluginOptions } from './vite-plugin-scripts/index.js';
 
 /**
  * What the `astro` CLI passes to `astro()` besides its options: the values a plain Vite project
@@ -27,6 +27,8 @@ export interface AstroPluginCli
 	skipRenderers?: RenderersPluginOptions['skipRenderers'];
 	/** See `HeadPluginOptions.environments`. */
 	headEnvironments?: HeadPluginOptions['environments'];
+	/** See `ScriptsPluginOptions.environments`. */
+	scriptEnvironments?: ScriptsPluginOptions['environments'];
 	/** See `HmrReloadPluginOptions.getDevCssModuleId`. */
 	getDevCssModuleId?: HmrReloadPluginOptions['getDevCssModuleId'];
 	/**

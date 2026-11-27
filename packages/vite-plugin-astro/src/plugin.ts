@@ -164,7 +164,7 @@ export default function astro(options: AstroPluginOptions = {}, cli?: AstroPlugi
 					}),
 					renderSetupPlugin({ renderers }),
 				]),
-		scriptsPlugin({ scripts: cli?.scripts ?? [] }),
+		scriptsPlugin({ scripts: cli?.scripts ?? [], environments: cli?.scriptEnvironments }),
 		headPlugin({ environments: cli?.headEnvironments }),
 		fileUrlPlugin(),
 		hmrReloadPlugin({ getDevCssModuleId: cli?.getDevCssModuleId }),

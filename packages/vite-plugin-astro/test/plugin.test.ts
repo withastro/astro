@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createServer, type ResolvedConfig, resolveConfig } from 'vite';
+import { createBuilder, createServer, type ResolvedConfig, resolveConfig } from 'vite';
 import astro, { getAstroApi } from '../dist/index.js';
 
 const root = new URL('./fixtures/', import.meta.url);
@@ -288,6 +288,90 @@ describe('astro()', () => {
 			assert.doesNotMatch(result!.code, /globalThis\.page/);
 		} finally {
 			await server.close();
+		}
+	});
+
+	it('limits before-hydration chunk emission to configured scriptEnvironments on build', async () => {
+		const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'vite-plugin-astro-scripts-'));
+		try {
+			const dummyEntry = 'virtual:dummy-entry';
+			const builder = await createBuilder({
+				configFile: false,
+				logLevel: 'silent',
+				root: rootPath,
+				plugins: [
+					...astro(
+						{},
+						{
+							compileConfig: {} as any,
+							logger: { debug() {} },
+							toolbarEnabled: () => false,
+							scripts: [{ stage: 'before-hydration', content: 'globalThis.before = 1;' }],
+							scriptEnvironments: ['client', 'ssr'],
+						},
+					),
+					{
+						name: 'test:dummy-entry',
+						resolveId(id) {
+							if (id === dummyEntry) return `\0${dummyEntry}`;
+						},
+						load(id) {
+							if (id === `\0${dummyEntry}`) return 'export default 1;';
+						},
+					},
+				],
+				environments: {
+					client: {
+						build: {
+							outDir: path.join(outDir, 'client'),
+							rolldownOptions: { input: dummyEntry },
+						},
+					},
+					ssr: {
+						consumer: 'server',
+						build: {
+							ssr: true,
+							outDir: path.join(outDir, 'ssr'),
+							rolldownOptions: { input: dummyEntry },
+						},
+					},
+					astroImageService: {
+						consumer: 'server',
+						build: {
+							ssr: true,
+							outDir: path.join(outDir, 'image-service'),
+							rolldownOptions: { input: dummyEntry },
+						},
+					},
+				},
+			});
+
+			const getEntryFacadeIds = async (envName: string) => {
+				const result = await builder.build(builder.environments[envName]);
+				const outputs = Array.isArray(result) ? result : [result];
+				return outputs.flatMap((o) =>
+					'output' in o
+						? o.output.flatMap((c) => (c.type === 'chunk' && c.isEntry ? [c.facadeModuleId] : []))
+						: [],
+				);
+			};
+
+			assert.equal(
+				(await getEntryFacadeIds('client')).includes('astro:scripts/before-hydration.js'),
+				true,
+			);
+			assert.equal(
+				(await getEntryFacadeIds('ssr')).includes('astro:scripts/before-hydration.js'),
+				true,
+			);
+			assert.equal(
+				(await getEntryFacadeIds('astroImageService')).includes(
+					'astro:scripts/before-hydration.js',
+				),
+				false,
+			);
+		} finally {
+			await fs.rm(outDir, { recursive: true, force: true });
 		}
 	});
 
