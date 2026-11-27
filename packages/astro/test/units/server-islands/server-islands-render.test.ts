@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createKey } from '@astrojs/runtime/_internal/core/encryption.js';
+import { createKey, generateCspDigest } from '@astrojs/runtime/_internal/core/encryption.js';
 import {
 	ServerIslandComponent,
 	containsServerDirective,
@@ -224,6 +224,54 @@ describe('ServerIslandComponent', () => {
 			]);
 			// Two separate instances with identical props should produce different encrypted values
 			assert.notEqual(contentA, contentB, 'encrypted values should differ due to unique IVs');
+		});
+
+		it('produces identical output for identical islands on prerendered pages', async () => {
+			const key = await createKey();
+			const render = async () => {
+				const result = await createStubResult({ key: Promise.resolve(key), prerender: true });
+				const props = islandProps({ value: 'test' });
+				const slots = { default: () => renderTemplate`slot content` };
+				const component = new ServerIslandComponent(result, props, slots, 'Island');
+				const { destination, output } = createDestination();
+				await component.render(destination);
+				return { html: output(), head: result._metadata.extraHead.join('') };
+			};
+			const first = await render();
+			const second = await render();
+			assert.match(first.head, /\?e=/);
+			assert.deepEqual(first, second);
+		});
+
+		it('gives islands with different props different ids on prerendered pages', async () => {
+			const result = await createStubResult({ prerender: true });
+			const compA = new ServerIslandComponent(result, islandProps({ v: 'a' }), {}, 'Island');
+			const compB = new ServerIslandComponent(result, islandProps({ v: 'b' }), {}, 'Island');
+			await Promise.all([compA.getIslandContent(), compB.getIslandContent()]);
+			assert.notEqual(compA.hostId, compB.hostId);
+		});
+
+		it('gives identical islands distinct ids and one preload link on prerendered pages', async () => {
+			const result = await createStubResult({ prerender: true });
+			const compA = new ServerIslandComponent(result, islandProps({ v: 'a' }), {}, 'Island');
+			const compB = new ServerIslandComponent(result, islandProps({ v: 'a' }), {}, 'Island');
+			await compA.getIslandContent();
+			await compB.getIslandContent();
+			assert.notEqual(compA.hostId, compB.hostId);
+			assert.equal(result._metadata.extraHead.length, 1);
+		});
+
+		it('renders the same island content that init() hashed when both run concurrently', async () => {
+			const result = await createStubResult();
+			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
+			const { destination, output } = createDestination();
+			await Promise.all([component.init(), component.render(destination)]);
+			const html = output();
+			const [, tagId, content] = /data-island-id="([^"]+)">(.*)<\/script>/s.exec(html) ?? [];
+			assert.ok(content, `expected an island script, got: ${html}`);
+			assert.ok(content.includes(`replaceServerIsland("${tagId}"`), `id mismatch in: ${html}`);
+			const digest = await generateCspDigest(content, 'SHA-256');
+			assert.ok(result._metadata.extraScriptHashes.includes(digest));
 		});
 
 		it('uses a GET request for small payloads (under 2048 chars)', async () => {

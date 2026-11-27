@@ -96,14 +96,55 @@ const decoder = new TextDecoder();
 const IV_LENGTH = 24;
 
 /**
+ * Derives the IV from the key, additionalData and plaintext (a synthetic IV, as in AES-SIV).
+ * The same inputs always give the same IV, and different inputs give different IVs with the
+ * same collision odds as random ones, so AES-GCM never reuses an IV for a different message.
+ * The HMAC key is derived from the AES key with HKDF so that the two keys stay independent.
+ */
+async function deriveSyntheticIv(key: CryptoKey, data: Uint8Array, additionalData: Uint8Array) {
+	const rawKey = await crypto.subtle.exportKey('raw', key);
+	const hkdfKey = await crypto.subtle.importKey('raw', rawKey, 'HKDF', false, ['deriveKey']);
+	const hmacKey = await crypto.subtle.deriveKey(
+		{
+			name: 'HKDF',
+			hash: 'SHA-256',
+			salt: new Uint8Array(),
+			info: encoder.encode('astro server island iv'),
+		},
+		hkdfKey,
+		{ name: 'HMAC', hash: 'SHA-256' },
+		false,
+		['sign'],
+	);
+	// Prefixing the additionalData length keeps different (additionalData, plaintext) splits of
+	// the same bytes apart.
+	const message = new Uint8Array(4 + additionalData.length + data.length);
+	new DataView(message.buffer).setUint32(0, additionalData.length);
+	message.set(additionalData, 4);
+	message.set(data, 4 + additionalData.length);
+	const mac = await crypto.subtle.sign('HMAC', hmacKey, message);
+	return new Uint8Array(mac, 0, IV_LENGTH / 2);
+}
+
+/**
  * Using a CryptoKey, encrypt a string into a base64 string.
  * @param additionalData Optional authenticated context (e.g. "props:ComponentName") that is
  *   verified during decryption but not included in the ciphertext. Both sides must agree on
  *   the same value or decryption will fail.
+ * @param options.deterministic When `true`, the same key, plaintext and additionalData always
+ *   produce the same ciphertext. This reveals when two ciphertexts hold the same plaintext, so
+ *   only use it where that is already public (e.g. prerendered pages). Defaults to a random IV.
  */
-export async function encryptString(key: CryptoKey, raw: string, additionalData?: string) {
-	const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH / 2));
+export async function encryptString(
+	key: CryptoKey,
+	raw: string,
+	additionalData?: string,
+	options?: { deterministic?: boolean },
+) {
 	const data = encoder.encode(raw);
+	const iv = options?.deterministic
+		? await deriveSyntheticIv(key, data, encoder.encode(additionalData ?? ''))
+		: crypto.getRandomValues(new Uint8Array(IV_LENGTH / 2));
 	const params: AesGcmParams = { name: ALGORITHM, iv };
 	if (additionalData) {
 		params.additionalData = encoder.encode(additionalData);

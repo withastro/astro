@@ -1,3 +1,4 @@
+import { encodeHexLowerCase } from '@oslojs/encoding';
 import { encryptString, generateCspDigest } from '../../core/encryption.js';
 import type { SSRResult } from '../../../types.js';
 import { markHTMLString, stringifyForScript } from '../escape.js';
@@ -39,6 +40,9 @@ function isWithinURLLimit(pathname: string, params: URLSearchParams) {
 	return chars < 2048;
 }
 
+// How many islands on each page have used each request digest, to keep host ids unique per page.
+const hostIdDigestCounts = new WeakMap<SSRResult, Map<string, number>>();
+
 export class ServerIslandComponent {
 	result: SSRResult;
 	props: Record<string | number, any>;
@@ -50,6 +54,7 @@ export class ServerIslandComponent {
 	componentExport: string | undefined;
 	componentId: string | undefined;
 	private initPromise: Promise<ThinHead> | undefined;
+	private islandContentPromise: Promise<string> | undefined;
 	constructor(
 		result: SSRResult,
 		props: Record<string | number, any>,
@@ -86,8 +91,8 @@ export class ServerIslandComponent {
 		return createThinHead();
 	}
 	async render(destination: RenderDestination) {
-		const hostId = await this.getHostId();
 		const islandContent = await this.getIslandContent();
+		const hostId = this.hostId;
 		destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
 		destination.write(`<!--${SERVER_ISLAND_START}-->`);
 		// Render the slots
@@ -125,18 +130,16 @@ export class ServerIslandComponent {
 		return componentExport;
 	}
 
-	async getHostId() {
-		if (!this.hostId) {
-			this.hostId = await crypto.randomUUID();
-		}
-		return this.hostId;
+	/**
+	 * Builds the inline script that fetches the island and sets `hostId` to match it. Runs once;
+	 * concurrent and later calls share the first result.
+	 */
+	getIslandContent(): Promise<string> {
+		this.islandContentPromise ??= this.computeIslandContent();
+		return this.islandContentPromise;
 	}
 
-	async getIslandContent() {
-		if (this.islandContent) {
-			return this.islandContent;
-		}
-
+	private async computeIslandContent(): Promise<string> {
 		const componentPath = this.getComponentPath();
 		const componentExport = this.getComponentExport();
 		const serverIslandNameMap = await this.result.getServerIslandNameMap();
@@ -175,26 +178,37 @@ export class ServerIslandComponent {
 		}
 
 		const key = await this.result.key;
+		const encryptOptions = { deterministic: this.result.prerender };
 
 		// Encrypt componentExport
 		const componentExportEncrypted = await encryptString(
 			key,
 			componentExport,
 			`export:${componentId}`,
+			encryptOptions,
 		);
 
 		const propsEncrypted =
 			Object.keys(this.props).length === 0
 				? ''
-				: await encryptString(key, JSON.stringify(this.props), `props:${componentId}`);
+				: await encryptString(
+						key,
+						JSON.stringify(this.props),
+						`props:${componentId}`,
+						encryptOptions,
+					);
 
 		// Encrypt slots
 		const slotsEncrypted =
 			Object.keys(renderedSlots).length === 0
 				? ''
-				: await encryptString(key, JSON.stringify(renderedSlots), `slots:${componentId}`);
+				: await encryptString(
+						key,
+						JSON.stringify(renderedSlots),
+						`slots:${componentId}`,
+						encryptOptions,
+					);
 
-		const hostId = await this.getHostId();
 		const slash = this.result.base.endsWith('/') ? '' : '/';
 		let serverIslandUrl = `${this.result.base}${slash}_server-islands/${componentId}${this.result.trailingSlash === 'always' ? '/' : ''}`;
 
@@ -208,11 +222,6 @@ export class ServerIslandComponent {
 
 		if (useGETRequest) {
 			serverIslandUrl += '?' + potentialSearchParams.toString();
-			this.result._metadata.extraHead.push(
-				markHTMLString(
-					`<link rel="preload" as="fetch" href="${toAttributeString(serverIslandUrl)}" crossorigin="anonymous">`,
-				),
-			);
 		}
 
 		// Get adapter headers for inline script
@@ -237,6 +246,30 @@ let response = await fetch(${serverIslandUrlJson}, {
 	headers,
 }).catch(() => {});`;
 
+		// Derived from the request, which holds the encrypted island data, so that prerendered pages
+		// get the same id on every build. The count tells apart identical islands on one page:
+		// `replaceServerIsland` fills the first script with a matching id, so a shared id would let
+		// one island's response fill another.
+		const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(method));
+		const requestDigest = encodeHexLowerCase(new Uint8Array(digest)).slice(0, 32);
+		let digestCounts = hostIdDigestCounts.get(this.result);
+		if (!digestCounts) {
+			digestCounts = new Map();
+			hostIdDigestCounts.set(this.result, digestCounts);
+		}
+		const index = digestCounts.get(requestDigest) ?? 0;
+		digestCounts.set(requestDigest, index + 1);
+		const hostId = `${requestDigest}-${index}`;
+		this.hostId = hostId;
+
+		// Identical islands fetch the same URL, so only the first one preloads it.
+		if (useGETRequest && index === 0) {
+			this.result._metadata.extraHead.push(
+				markHTMLString(
+					`<link rel="preload" as="fetch" href="${toAttributeString(serverIslandUrl)}" crossorigin="anonymous">`,
+				),
+			);
+		}
 		this.islandContent = `${method}replaceServerIsland(${stringifyForScript(hostId)}, response);`;
 		return this.islandContent;
 	}

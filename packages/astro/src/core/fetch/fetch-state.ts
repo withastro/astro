@@ -519,6 +519,7 @@ export class FetchState implements AstroFetchState {
 				return serverIslands.serverIslandNameMap ?? new Map();
 			},
 			key: manifest.key,
+			prerender: routeData.prerender,
 			trailingSlash: manifest.trailingSlash,
 			_metadata: {
 				hasHydrationScript: false,

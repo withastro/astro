@@ -77,6 +77,37 @@ describe('encryption', () => {
 				'ciphertext bound to one component/purpose must not decrypt with a different one',
 			);
 		});
+
+		it('produces the same ciphertext for the same input when deterministic', async () => {
+			const key = await createKey();
+			const options = { deterministic: true };
+			const first = await encryptString(key, 'same input', 'props:TestComponent', options);
+			const second = await encryptString(key, 'same input', 'props:TestComponent', options);
+			assert.equal(first, second);
+			assert.equal(await decryptString(key, first, 'props:TestComponent'), 'same input');
+		});
+
+		it('uses a different IV for each plaintext and additionalData when deterministic', async () => {
+			const key = await createKey();
+			const options = { deterministic: true };
+			const ivs = new Set(
+				await Promise.all([
+					encryptString(key, 'a', 'props:TestComponent', options),
+					encryptString(key, 'b', 'props:TestComponent', options),
+					encryptString(key, 'a', 'slots:TestComponent', options),
+					// Same bytes overall as the first, split differently between additionalData and plaintext.
+					encryptString(key, 'TestComponenta', 'props:', options),
+				]).then((encrypted) => encrypted.map((value) => value.slice(0, 24))),
+			);
+			assert.equal(ivs.size, 4);
+		});
+
+		it('produces different ciphertexts for different keys when deterministic', async () => {
+			const options = { deterministic: true };
+			const first = await encryptString(await createKey(), 'same', 'props:Test', options);
+			const second = await encryptString(await createKey(), 'same', 'props:Test', options);
+			assert.notEqual(first, second);
+		});
 	});
 	// #endregion
 
