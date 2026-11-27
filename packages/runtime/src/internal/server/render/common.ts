@@ -1,3 +1,4 @@
+import { isResponse } from '../util.js';
 import type { SSRResult } from '../../../types.js';
 import type { HTMLBytes, HTMLString } from '../escape.js';
 import { markHTMLString } from '../escape.js';
@@ -148,7 +149,7 @@ function stringifyChunk(
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);
 			}
 		}
-	} else if (chunk instanceof Response) {
+	} else if (isResponse(chunk)) {
 		return '';
 	} else if (isSlotString(chunk as string)) {
 		let out = '';

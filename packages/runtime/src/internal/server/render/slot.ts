@@ -1,3 +1,4 @@
+import { isResponse } from '../util.js';
 import type { SSRResult } from '../../../types.js';
 import { HTMLString, markHTMLString, unescapeHTML } from '../escape.js';
 import { renderChild } from './any.js';
@@ -115,7 +116,7 @@ export async function renderSlotToString(
 					chunks.push(...chunk.chunks);
 				}
 				instructions = mergeSlotInstructions(instructions, chunk);
-			} else if (chunk instanceof Response) return;
+			} else if (isResponse(chunk)) return;
 			else if (typeof chunk === 'object' && 'type' in chunk && typeof chunk.type === 'string') {
 				// Scripts are position-sensitive, so keep them inline in the content
 				// stream at their original location. Other instructions (head,
