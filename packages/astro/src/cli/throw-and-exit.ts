@@ -1,7 +1,7 @@
-import { collectErrorMetadata } from '../core/errors/dev/index.js';
+import { collectErrorMetadata } from '@astrojs/vite-plugin-router/_internal/core/errors/dev/index.js';
 import { isAstroConfigZodError } from '@astrojs/vite-plugin-astro/_internal/core/errors/errors.js';
 import { createSafeError } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { debug } from '../core/logger/core.js';
+import { debug } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { formatErrorMessage } from '../core/messages/runtime.js';
 import { eventError, telemetry } from '../events/index.js';
 

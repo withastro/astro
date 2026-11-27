@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import nodeFs from 'node:fs';
 import { IncomingMessage } from 'node:http';
+import { getRouterRegistry } from '../registry.js';
 import type * as vite from 'vite';
 import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import type { RouteInfo, SSRManifest } from '../core/app/types.js';
@@ -14,27 +14,30 @@ import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/erro
 import type { AstroLogger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { matchAllRoutes } from '../core/routing/match.js';
-import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
-import type { AstroSettings } from '../types/astro.js';
-import { kickOffContentConfigLoad } from '../content/config-prewarm.js';
-import { ASTRO_DEV_SERVER_APP_ID } from '../vite-plugin-app/index.js';
+import { SERIALIZED_MANIFEST_ID } from '../core/constants.js';
+import { ASTRO_DEV_SERVER_APP_ID } from '../vite-plugin-app/server-app.js';
 import { baseMiddleware } from './base.js';
-import { createController } from './controller.js';
-import { recordServerError } from './error.js';
-import { setRouteError } from './server-state.js';
+import { createController } from '../../vite-plugin-astro-server/controller.js';
+import { recordServerError } from '../../vite-plugin-astro-server/error.js';
+import { setRouteError } from '../../vite-plugin-astro-server/server-state.js';
 import { routeGuardMiddleware } from './route-guard.js';
 import { secFetchMiddleware } from './sec-fetch.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
+import type { RunnableEnvironmentOptions } from '../vite-plugin-app/environment.js';
 
-interface AstroPluginOptions {
-	settings: AstroSettings;
+export interface DevServerPluginOptions
+	extends Pick<RunnableEnvironmentOptions, 'isPage' | 'renderers' | 'headElements'> {
 	logger: AstroLogger;
+	/** Awaited before the dev server apps are created; runs once when the server starts. */
+	prepare?: (server: vite.ViteDevServer) => Promise<void>;
 }
 
+/** Serves the routes from the runnable server environments of the dev server. */
 export default function createVitePluginAstroServer({
-	settings,
 	logger,
-}: AstroPluginOptions): vite.Plugin {
+	prepare,
+	...appOptions
+}: DevServerPluginOptions): vite.Plugin {
 	const disposers = new WeakMap<vite.Environment, () => void>();
 
 	return {
@@ -72,10 +75,18 @@ export default function createVitePluginAstroServer({
 				const loader = createViteLoader(viteServer, environment);
 				const { default: createAstroServerApp } =
 					await environment.runner.import<
-						typeof import('../vite-plugin-app/createAstroServerApp.js')
+						typeof import('../../vite-plugin-app/createAstroServerApp.js')
 					>(ASTRO_DEV_SERVER_APP_ID);
+				const registry = getRouterRegistry(viteServer.config);
 				const controller = createController({ loader });
-				const { handler } = await createAstroServerApp(controller, settings, loader, logger);
+				const { handler } = await createAstroServerApp({
+					...appOptions,
+					controller,
+					loader,
+					logger,
+					serverHeaders: registry.config.serverHeaders,
+					pageScripts: registry.getPageScripts('dev'),
+				});
 				const { manifest } = await environment.runner.import<{
 					manifest: SSRManifest;
 				}>(SERIALIZED_MANIFEST_ID);
@@ -87,18 +98,7 @@ export default function createVitePluginAstroServer({
 			// middleware synchronously and let request handlers await the in-flight
 			// results without blocking server creation. Serialize the app compile
 			// after the config load so they do not contend for the main thread.
-			const astroEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.astro];
-			const runnableAstroEnvironment = isRunnableDevEnvironment(astroEnvironment)
-				? (astroEnvironment as RunnableDevEnvironment)
-				: undefined;
-			const contentConfigLoad = runnableAstroEnvironment
-				? kickOffContentConfigLoad({
-						settings,
-						fs: nodeFs,
-						logger,
-						environment: runnableAstroEnvironment,
-					})
-				: Promise.resolve();
+			const contentConfigLoad = prepare?.(viteServer) ?? Promise.resolve();
 
 			let ssrHandlerPromise = runnableSsrEnvironment
 				? contentConfigLoad.then(() => createHandler(runnableSsrEnvironment))
@@ -167,6 +167,7 @@ export default function createVitePluginAstroServer({
 			}
 
 			return () => {
+				const { config } = getRouterRegistry(viteServer.config);
 				const shouldHandlePrerenderInCore = Boolean(
 					(viteServer as any)[devPrerenderMiddlewareSymbol],
 				);
@@ -175,21 +176,21 @@ export default function createVitePluginAstroServer({
 				// fix(#6067): always inject this to ensure zombie base handling is killed after restarts
 				viteServer.middlewares.stack.unshift({
 					route: '',
-					handle: baseMiddleware(settings, logger),
+					handle: baseMiddleware(config, logger),
 				});
 				viteServer.middlewares.stack.unshift({
 					route: '',
-					handle: trailingSlashMiddleware(settings),
+					handle: trailingSlashMiddleware(config),
 				});
 				// Prevent serving files outside srcDir/publicDir (e.g., /README.md at project root)
 				viteServer.middlewares.stack.unshift({
 					route: '',
-					handle: routeGuardMiddleware(settings),
+					handle: routeGuardMiddleware(config),
 				});
 				// Validate Sec-Fetch metadata headers to restrict cross-origin subresource requests
 				viteServer.middlewares.stack.unshift({
 					route: '',
-					handle: secFetchMiddleware(logger, settings.config.security?.allowedDomains),
+					handle: secFetchMiddleware(logger, config.security.allowedDomains),
 				});
 
 				if (runnablePrerenderEnvironment && shouldHandlePrerenderInCore) {

@@ -6,13 +6,16 @@ import {
 	renderComponent,
 	Fragment,
 } from '../../../dist/runtime/server/index.js';
-import { App } from '../../../dist/core/app/app.js';
+import { App } from '@astrojs/vite-plugin-router/_internal/core/app/app.js';
 import { createTestApp, createPage, createRouteData } from '../mocks.ts';
 import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
-import { setLogger } from '../../../dist/core/logger/manifest-logger.js';
+import { setLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/manifest-logger.js';
 import { SpyLogger } from '../test-utils.ts';
 
-import type { SSRManifest, RouteInfo } from '../../../dist/core/app/types.js';
+import type {
+	SSRManifest,
+	RouteInfo,
+} from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import type { AstroComponentFactory } from '@astrojs/runtime/_internal/server/render/index.js';
 
 // #region Helpers

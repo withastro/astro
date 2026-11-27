@@ -2,7 +2,7 @@
 import * as config from 'astro:config/client';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
-import type { SSRManifest } from '../core/app/types.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import {
 	IncorrectStrategyForI18n,
 	InvalidI18nMiddlewareConfiguration,

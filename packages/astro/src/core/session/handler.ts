@@ -1,37 +1,41 @@
-import { getEnvironment } from '../environment/index.js';
-import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
-import type { FetchState } from '../fetch/fetch-state.js';
-import type { SSRManifest } from '../app/types.js';
+import type { ContextProvider } from '@astrojs/vite-plugin-router';
+import { getEnvironment } from '@astrojs/vite-plugin-router/_internal/core/environment/index.js';
+import { markHandlerUsed } from '@astrojs/vite-plugin-router/_internal/core/fetch/features.js';
+import type { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
+import type { SSRManifest } from '@astrojs/vite-plugin-router/_internal/core/app/types.js';
 import { getSessionDriver } from './driver.js';
+import { createMissingSessionProvider } from './missing-provider.js';
 import { AstroSession, PERSIST_SYMBOL } from './runtime.js';
 
 const SESSION_KEY = 'session';
 
 /**
- * Registers a session provider on the given `FetchState`. When
- * `state.resolve('session')` is first called, the `AstroSession` is
- * created lazily. When `state.finalizeAll()` runs, any mutations are
- * persisted.
+ * Creates the provider of `Astro.session` / `context.session`. The
+ * `AstroSession` is created lazily on first access and its mutations are
+ * persisted by `state.finalizeAll()`.
  *
- * No-op (returns synchronously) if sessions are not configured on the
- * manifest, avoiding promise allocation on the hot path.
+ * When sessions are not configured (or no driver is available) the provider
+ * yields `undefined` and warns once on access, so users learn they need to
+ * configure session storage. Returns synchronously in that case, avoiding
+ * promise allocation on the hot path.
  */
-export function provideSession(state: FetchState): Promise<void> | void {
-	markFeatureUsed(state.manifest, FetchFeatures.sessions);
+export function createSessionProvider(
+	state: FetchState,
+): ContextProvider<AstroSession | undefined> | Promise<ContextProvider<AstroSession | undefined>> {
 	const config = state.manifest.sessionConfig;
-	if (!config) return;
+	if (!config) return createMissingSessionProvider(state);
 
-	return provideSessionAsync(state, config);
+	return createSessionProviderAsync(state, config);
 }
 
-async function provideSessionAsync(
+async function createSessionProviderAsync(
 	state: FetchState,
 	config: NonNullable<SSRManifest['sessionConfig']>,
-): Promise<void> {
+): Promise<ContextProvider<AstroSession | undefined>> {
 	const driverFactory = await getSessionDriver(state.manifest);
-	if (!driverFactory) return;
+	if (!driverFactory) return createMissingSessionProvider(state);
 
-	state.provide<AstroSession>(SESSION_KEY, {
+	return {
 		create() {
 			const cookies = state.cookies!;
 			return new AstroSession({
@@ -44,7 +48,20 @@ async function provideSessionAsync(
 			});
 		},
 		finalize(session) {
-			return session[PERSIST_SYMBOL]();
+			return session?.[PERSIST_SYMBOL]();
 		},
-	});
+	};
+}
+
+/**
+ * Registers the session provider on the given `FetchState` (the
+ * `astro/fetch` `sessions()` handler).
+ */
+export function provideSession(state: FetchState): Promise<void> | void {
+	markHandlerUsed(state.manifest, 'sessions');
+	const provider = createSessionProvider(state);
+	if (provider instanceof Promise) {
+		return provider.then((p) => state.provide(SESSION_KEY, p));
+	}
+	state.provide(SESSION_KEY, provider);
 }

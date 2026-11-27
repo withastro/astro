@@ -1,7 +1,9 @@
-import type { ComponentInstance } from '../../types/astro.js';
-import type { RewritePayload } from '../../types/public/common.js';
-import type { RouteData, SSRElement, SSRManifest } from '../../types/public/internal.js';
-import type { SinglePageBuiltModule } from '../build/types.js';
+import type { ComponentInstance } from '../../../index.js';
+import type { RewritePayload } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
+import type { SSRElement } from '@astrojs/vite-plugin-astro';
+import type { SSRManifest } from '../app/types.js';
+import type { SinglePageBuiltModule } from '../../../index.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import {
 	createAssetLink,

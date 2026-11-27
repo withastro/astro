@@ -4,11 +4,12 @@ import {
 	markHTMLString,
 	renderComponent,
 	renderTemplate,
-} from '../../runtime/server/index.js';
+} from '@astrojs/runtime/server';
 import { isAstroComponentFactory } from '@astrojs/runtime/_internal/server/render/astro/factory.js';
 import { createSlotValueFromString } from '@astrojs/runtime/_internal/server/render/slot.js';
-import type { ComponentInstance, RoutesList } from '../../types/astro.js';
-import type { RouteData, SSRManifest } from '../../types/public/internal.js';
+import type { ComponentInstance, RoutesList } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
+import type { SSRManifest } from '../app/types.js';
 import { decryptString } from '@astrojs/runtime/_internal/core/encryption.js';
 import { BodySizeLimitError, readBodyWithLimit } from '../request-body.js';
 import { getPattern } from '../routing/pattern.js';

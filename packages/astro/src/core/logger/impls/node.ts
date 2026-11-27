@@ -4,10 +4,10 @@ import {
 	type AstroLoggerLevel,
 	getEventPrefix,
 	levels,
-} from '../core.js';
+} from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { Writable } from 'node:stream';
 import type { AstroInlineConfig } from '../../../types/public/index.js';
-import { matchesLevel } from '../public.js';
+import { matchesLevel } from '@astrojs/vite-plugin-router/_internal/core/logger/public.js';
 
 type ConsoleStream = Writable & {
 	fd: 1 | 2;

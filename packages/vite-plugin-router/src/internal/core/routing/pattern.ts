@@ -1,10 +1,9 @@
-import type { AstroConfig } from '../../types/public/config.js';
-import type { RoutePart } from '../../types/public/internal.js';
+import type { RoutePart } from '../../../types.js';
 
 export function getPattern(
 	segments: RoutePart[][],
-	base: AstroConfig['base'],
-	addTrailingSlash: AstroConfig['trailingSlash'],
+	base: string,
+	addTrailingSlash: 'always' | 'never' | 'ignore',
 ) {
 	const pathname = segments
 		.map((segment) => {
@@ -46,7 +45,7 @@ export function getPattern(
 	return new RegExp(`^${pathname || initial}${trailing}`);
 }
 
-function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash']): string {
+function getTrailingSlashPattern(addTrailingSlash: 'always' | 'never' | 'ignore'): string {
 	if (addTrailingSlash === 'always') {
 		return '\\/$';
 	}

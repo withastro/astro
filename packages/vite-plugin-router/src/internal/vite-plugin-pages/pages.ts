@@ -1,16 +1,16 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { DEFAULT_COMPONENTS } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/helpers.js';
-import type { RoutesList } from '../types/astro.js';
-import type { RouteData } from '../types/public/internal.js';
+import type { RoutesList } from '../../index.js';
+import type { RouteData } from '../../index.js';
 import { VIRTUAL_PAGE_MODULE_ID } from './const.js';
-import { getVirtualModulePageName } from './util.js';
+import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 export const VIRTUAL_PAGES_MODULE_ID = 'virtual:astro:pages';
 const VIRTUAL_PAGES_RESOLVED_MODULE_ID = '\0' + VIRTUAL_PAGES_MODULE_ID;
 
-interface PagesPluginOptions {
+interface RouterPluginOptions {
 	routesList: RoutesList;
 }
 
@@ -33,7 +33,7 @@ export function getRoutesForEnvironment(routes: RouteData[], isPrerender: boolea
 	return result;
 }
 
-export function pluginPages({ routesList }: PagesPluginOptions): VitePlugin {
+export function pluginPages({ routesList }: RouterPluginOptions): VitePlugin {
 	return {
 		name: '@astro/plugin-pages',
 		enforce: 'post',

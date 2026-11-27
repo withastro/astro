@@ -9,7 +9,7 @@ import type { RuntimeMode } from '../../../dist/types/public/config.js';
 import type {
 	AstroCookieSetOptions,
 	AstroCookieDeleteOptions,
-} from '../../../dist/core/cookies/cookies.js';
+} from '@astrojs/vite-plugin-router/_internal/core/cookies/cookies.js';
 import type { SessionDriverFactory } from '../../../dist/core/session/types.js';
 import { SpyLogger } from '../test-utils.ts';
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
-import { callMiddleware } from '../../../dist/core/middleware/callMiddleware.js';
-import { sequence } from '../../../dist/core/middleware/sequence.js';
+import { callMiddleware } from '@astrojs/vite-plugin-router/_internal/core/middleware/callMiddleware.js';
+import { sequence } from '@astrojs/vite-plugin-router/_internal/core/middleware/sequence.js';
 import { createMockAPIContext, createResponseFunction } from '../mocks.ts';
 
 import type { APIContext, MiddlewareHandler } from 'astro';

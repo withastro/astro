@@ -1,6 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { validateForwardedHeaders, validateHost } from '../../../dist/core/app/validate-headers.js';
+import {
+	validateForwardedHeaders,
+	validateHost,
+} from '@astrojs/vite-plugin-router/_internal/core/app/validate-headers.js';
 
 type AllowedDomains = Parameters<typeof validateForwardedHeaders>[3];
 

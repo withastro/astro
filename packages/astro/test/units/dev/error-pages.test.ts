@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { ensure404Route } from '../../../dist/core/routing/astro-designed-error-pages.js';
+import { ensure404Route } from '@astrojs/vite-plugin-router/_internal/core/routing/astro-designed-error-pages.js';
 
 describe('ensure404Route', () => {
 	it('adds the default /404 route when none exists in the manifest', () => {

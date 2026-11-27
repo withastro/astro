@@ -5,7 +5,7 @@ import {
 	redirectIsExternal,
 	renderRedirect,
 	resolveRedirectTarget,
-} from '../../../dist/core/redirects/render.js';
+} from '@astrojs/vite-plugin-router/_internal/core/redirects/render.js';
 import { createMockFetchState } from '../mocks.ts';
 
 import type { RouteData } from '../../../dist/types/public/internal.js';

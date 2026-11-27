@@ -1,7 +1,8 @@
-import type { SSRResult } from '../../types/public/internal.js';
+import type { SSRResult } from '@astrojs/vite-plugin-astro';
+import type { RouterRegistry } from '../../registry.js';
 import type { AstroEnvironmentNames } from '../constants.js';
-import { prependForwardSlash, removeFileExtension } from '../path.js';
-import { viteID } from '../util.js';
+import { prependForwardSlash, removeFileExtension } from '@astrojs/internal-helpers/path';
+import { viteID } from '@astrojs/vite-plugin-astro/_internal/core/vite-id.js';
 import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
@@ -134,6 +135,8 @@ export interface BuildInternals {
 	 * Chunks extracted during build that need post-build injection (manifest, content).
 	 * Populated by top-level buildApp, consumed by post plugin.
 	 */
+	/** The `api.astroRouter` registry of the build's Vite config, set once the build ran. */
+	routerRegistry?: RouterRegistry;
 	extractedChunks?: Array<{
 		fileName: string;
 		code: string;
@@ -170,9 +173,6 @@ export interface BuildInternals {
 	 * cache only reuses them while the encryption key is unchanged.
 	 */
 	serverIslandPageComponents?: Set<string>;
-
-	/** Images kept in the output even without a transform. */
-	referencedImages?: ReadonlySet<string>;
 }
 
 /**

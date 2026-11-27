@@ -1,4 +1,4 @@
-import type { ResolvedRenderOptions } from './base.js';
+import type { ResolvedRenderOptions } from '../../internal/core/app/base.js';
 
 /**
  * Symbol used to attach `ResolvedRenderOptions` to a `Request` object so

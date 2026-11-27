@@ -1,5 +1,5 @@
 import type { PageBuildData, StylesheetAsset } from './types.js';
-import { makePageDataKey } from './plugins/util.js';
+import { makePageDataKey } from '../../../core/build/plugins/util.js';
 
 /**
  * From its route and component, get the page data from the build internals.

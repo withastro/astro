@@ -7,7 +7,7 @@ import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { resolveEntryData } from '../../../dist/content/runtime.js';
-import { AstroLogger } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { createMinimalSettings, createTempDir, createTestConfigObserver } from './test-helpers.ts';
 
 const FILE_PATH = 'src/data/posts/shuttle/index.md';

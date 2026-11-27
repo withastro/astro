@@ -3,7 +3,7 @@ import { normalizePath, type Plugin as VitePlugin } from 'vite';
 import { isPage } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import { PAGE_SSR_SCRIPT_ID } from './index.js';
-import { isAstroServerEnvironment } from '../environments.js';
+import { isAstroServerEnvironment } from '@astrojs/vite-plugin-router/_internal/environments.js';
 
 export default function astroScriptsPostPlugin({
 	settings,

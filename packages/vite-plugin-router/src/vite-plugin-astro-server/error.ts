@@ -1,8 +1,8 @@
-import type { SSRManifest } from '../core/app/types.js';
-import { collectErrorMetadata } from '../core/errors/dev/index.js';
-import type { AstroLogger } from '../core/logger/core.js';
-import { formatErrorMessage } from '../core/messages/runtime.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
+import type { SSRManifest } from '../internal/core/app/types.js';
+import { collectErrorMetadata } from '../internal/core/errors/dev/index.js';
+import type { AstroLogger } from '../internal/core/logger/core.js';
+import { formatErrorMessage } from '../internal/core/messages/error.js';
+import type { ModuleLoader } from '../internal/core/module-loader/index.js';
 
 export function recordServerError(
 	loader: ModuleLoader,

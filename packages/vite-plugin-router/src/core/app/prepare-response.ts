@@ -1,5 +1,5 @@
-import { responseSentSymbol } from '../constants.js';
-import { getSetCookiesFromResponse } from '../cookies/index.js';
+import { responseSentSymbol } from '../../internal/core/constants.js';
+import { getSetCookiesFromResponse } from '../../internal/core/cookies/index.js';
 
 /**
  * Appends cookies written via `Astro.cookie.set()` to the `Set-Cookie` header

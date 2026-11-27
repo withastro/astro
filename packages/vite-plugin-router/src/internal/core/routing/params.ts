@@ -1,10 +1,10 @@
+import type { TrailingSlash } from '../../../index.js';
 import { hasFileExtension } from '@astrojs/internal-helpers/path';
-import type { GetStaticPathsItem } from '../../types/public/common.js';
-import type { AstroConfig } from '../../types/public/index.js';
-import type { RouteData } from '../../types/public/internal.js';
-import { trimSlashes } from '../path.js';
+import type { GetStaticPathsItem } from '../../../index.js';
+import type { RouteData } from '../../../index.js';
+import { trimSlashes } from '@astrojs/internal-helpers/path';
 import { getRouteGenerator } from './generator.js';
-import { validateGetStaticPathsParameter } from './internal/validation.js';
+import { validateGetStaticPathsParameter } from '../../../core/routing/internal/validation.js';
 
 /**
  * given a route's Params object, validate parameter
@@ -14,7 +14,7 @@ import { validateGetStaticPathsParameter } from './internal/validation.js';
 export function stringifyParams(
 	params: GetStaticPathsItem['params'],
 	route: RouteData,
-	trailingSlash: AstroConfig['trailingSlash'],
+	trailingSlash: TrailingSlash,
 ) {
 	// Endpoint routes with file extensions (e.g. [slug].png.ts) should never
 	// append a trailing slash, matching the pattern generated in create-manifest.ts

@@ -1,4 +1,4 @@
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { createNodeLoggerFromFlags } from '../core/logger/impls/node.js';
 import { createJsonLoggerFromFlags } from '../core/logger/impls/json.js';
 import type { AstroInlineConfig } from '../types/public/config.js';

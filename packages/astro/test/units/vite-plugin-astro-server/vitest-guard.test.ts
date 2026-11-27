@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
-import createVitePluginAstroServer from '../../../dist/vite-plugin-astro-server/plugin.js';
-import { createBasicSettings } from '../test-utils.ts';
+import createVitePluginAstroServer from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/plugin.js';
 import { defaultLogger } from '../test-utils.ts';
 
 describe('astro:server configureServer vitest guard', () => {
@@ -17,8 +16,11 @@ describe('astro:server configureServer vitest guard', () => {
 
 	it('skips server setup when process.env.VITEST is set', async () => {
 		process.env.VITEST = 'true';
-		const settings = await createBasicSettings({});
-		const plugin = createVitePluginAstroServer({ settings, logger: defaultLogger });
+		const plugin = createVitePluginAstroServer({
+			logger: defaultLogger,
+			isPage: () => true,
+			renderers: [],
+		});
 
 		// configureServer should return early without throwing when VITEST is set,
 		// even with a fake viteServer that has no environments
@@ -31,8 +33,11 @@ describe('astro:server configureServer vitest guard', () => {
 
 	it('attempts server setup when process.env.VITEST is not set', async () => {
 		delete process.env.VITEST;
-		const settings = await createBasicSettings({});
-		const plugin = createVitePluginAstroServer({ settings, logger: defaultLogger });
+		const plugin = createVitePluginAstroServer({
+			logger: defaultLogger,
+			isPage: () => true,
+			renderers: [],
+		});
 
 		// Without VITEST, configureServer should try to access viteServer.environments
 		// and fail because our fake server has none

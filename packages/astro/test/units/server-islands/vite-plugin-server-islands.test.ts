@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { vitePluginServerIslands } from '../../../dist/core/server-islands/vite-plugin-server-islands.js';
-import { ServerIslandsState } from '../../../dist/core/server-islands/shared-state.js';
+import { vitePluginServerIslands } from '@astrojs/vite-plugin-router/_internal/core/server-islands/vite-plugin-server-islands.js';
+import { ServerIslandsState } from '@astrojs/vite-plugin-router/_internal/core/server-islands/shared-state.js';
 
 const RESOLVED_MANIFEST_ID = '\0virtual:astro:server-island-manifest';
 const ASTRO_FILE_ID = '/src/pages/index.astro';
@@ -24,9 +24,9 @@ describe('astro:server-islands invalidation', () => {
 		});
 
 		const plugin = vitePluginServerIslands({
-			settings: { adapter: { name: 'test' } } as any,
 			serverIslandsState,
-		} as any) as any;
+			canRenderOnDemand: () => true,
+		}) as any;
 
 		plugin.config({}, { command: 'serve' });
 

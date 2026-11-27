@@ -11,6 +11,11 @@ import type { MarkdownProcessor } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import { AstroPluginOptionsSchema } from '@astrojs/vite-plugin-astro';
+import {
+	RouterBuildOptionsSchema,
+	RouterPluginOptionsSchema,
+	RouterSecurityOptionsSchema,
+} from '@astrojs/vite-plugin-router';
 import * as z from 'zod/v4';
 import { FontFamilySchema } from '../../../assets/fonts/config.js';
 import { SvgOptimizerSchema } from '../../../assets/svg/config.js';
@@ -148,33 +153,19 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.integrations),
 	build: z
 		.object({
-			format: z
-				.union([z.literal('file'), z.literal('directory'), z.literal('preserve')])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.build.format),
-			client: z
-				.string()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.build.client)
-				.transform((val) => new URL(val)),
-			server: z
-				.string()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.build.server)
-				.transform((val) => new URL(val)),
-			assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
+			format: RouterBuildOptionsSchema.shape.format,
+			client: RouterBuildOptionsSchema.shape.client.transform((val) => new URL(val)),
+			server: RouterBuildOptionsSchema.shape.server.transform((val) => new URL(val)),
+			assets: RouterBuildOptionsSchema.shape.assets,
 			assetsPrefix: z
 				.string()
 				.optional()
 				.or(z.object({ fallback: z.string() }).and(z.record(z.string(), z.string())))
 				.optional(),
-			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
-			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
-			inlineStylesheets: z
-				.enum(['always', 'auto', 'never'])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-			concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
+			serverEntry: RouterBuildOptionsSchema.shape.serverEntry,
+			redirects: RouterBuildOptionsSchema.shape.redirects,
+			inlineStylesheets: RouterBuildOptionsSchema.shape.inlineStylesheets,
+			concurrency: RouterBuildOptionsSchema.shape.concurrency,
 		})
 		.prefault({}),
 	server: z
@@ -202,26 +193,7 @@ export const AstroConfigSchema = z.object({
 			}),
 		)
 		.prefault({}),
-	redirects: z
-		.record(
-			z.string(),
-			z.union([
-				z.string(),
-				z.object({
-					status: z.union([
-						z.literal(300),
-						z.literal(301),
-						z.literal(302),
-						z.literal(303),
-						z.literal(304),
-						z.literal(307),
-						z.literal(308),
-					]),
-					destination: z.string(),
-				}),
-			]),
-		)
-		.default(ASTRO_CONFIG_DEFAULTS.redirects),
+	redirects: RouterPluginOptionsSchema.shape.redirects,
 	prefetch: z
 		.union([
 			z.boolean(),
@@ -434,25 +406,13 @@ export const AstroConfigSchema = z.object({
 	),
 	security: z
 		.object({
-			checkOrigin: z.boolean().default(ASTRO_CONFIG_DEFAULTS.security.checkOrigin),
-			allowedDomains: z
-				.array(
-					z.object({
-						hostname: z.string().optional(),
-						protocol: z.string().optional(),
-						port: z.string().optional(),
-					}),
-				)
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.security.allowedDomains),
+			checkOrigin: RouterSecurityOptionsSchema.shape.checkOrigin,
+			allowedDomains: RouterSecurityOptionsSchema.shape.allowedDomains,
 			actionBodySizeLimit: z
 				.number()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.security.actionBodySizeLimit),
-			serverIslandBodySizeLimit: z
-				.number()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.security.serverIslandBodySizeLimit),
+			serverIslandBodySizeLimit: RouterSecurityOptionsSchema.shape.serverIslandBodySizeLimit,
 			csp: z
 				.union([
 					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.security.csp),

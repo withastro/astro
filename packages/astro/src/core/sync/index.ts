@@ -17,7 +17,7 @@ import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import { getTimeStat } from '../build/util.js';
+import { getTimeStat } from '@astrojs/vite-plugin-router/_internal/core/build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { loadOrCreateNodeLogger } from '../logger/load.js';
 import { createSettings } from '../config/settings.js';
@@ -30,10 +30,10 @@ import {
 	type ErrorWithMetadata,
 	isAstroError,
 } from '@astrojs/runtime/_internal/core/errors/index.js';
-import type { AstroLogger } from '../logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { normalizePath } from '../viteUtils.js';
+import { normalizePath } from '@astrojs/vite-plugin-router/_internal/core/viteUtils.js';
 
 type SyncOptions = {
 	mode: string;

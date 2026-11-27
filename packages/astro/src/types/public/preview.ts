@@ -1,6 +1,6 @@
 import type { OutgoingHttpHeaders } from 'node:http';
 import type { ResolvedServerUrls } from 'vite';
-import type { AstroIntegrationLogger } from '../../core/logger/core.js';
+import type { AstroIntegrationLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 
 export interface PreviewServer {
 	host?: string;

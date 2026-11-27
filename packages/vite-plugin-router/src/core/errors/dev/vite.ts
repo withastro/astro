@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 import type { ShikiTransformer } from 'shiki';
 import { codeToHtml, createCssVariablesTheme } from 'shiki';
 import type { ErrorPayload } from 'vite';
-import type { SSRLoadedRenderer } from '../../../types/public/internal.js';
-import type { ModuleLoader } from '../../module-loader/index.js';
+import type { SSRLoadedRenderer } from '@astrojs/vite-plugin-astro';
+import type { ModuleLoader } from '../../../internal/core/module-loader/index.js';
 import {
 	AstroError,
 	type ErrorWithMetadata,
@@ -14,7 +14,7 @@ import {
 	MdxIntegrationMissingError,
 } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import { createSafeError } from '@astrojs/runtime/_internal/core/errors/utils.js';
-import { getDocsForError, renderErrorMarkdown } from './runtime.js';
+import { getDocsForError, renderErrorMarkdown } from '../../../internal/core/errors/dev/runtime.js';
 
 export function enhanceViteSSRError({
 	error,

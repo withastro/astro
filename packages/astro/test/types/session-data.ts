@@ -2,7 +2,7 @@ import './session-env.d.ts';
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
 import { AstroSession } from '../../dist/core/session/runtime.js';
-import { AstroLogger } from '../../dist/core/logger/core.js';
+import { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import type { AstroCookies } from '../../dist/types/public/index.js';
 
 const defaultMockCookies = {

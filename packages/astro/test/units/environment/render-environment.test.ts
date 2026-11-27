@@ -4,8 +4,8 @@ import {
 	getEnvironment,
 	setEnvironment,
 	type RenderEnvironment,
-} from '../../../dist/core/environment/index.js';
-import { productionEnvironment } from '../../../dist/core/environment/production.js';
+} from '@astrojs/vite-plugin-router/_internal/core/environment/index.js';
+import { productionEnvironment } from '@astrojs/vite-plugin-router/_internal/core/environment/production.js';
 import type { SSRLoadedRenderer } from '../../../dist/types/public/internal.js';
 import { createManifest } from '../app/test-helpers.ts';
 

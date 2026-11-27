@@ -1,7 +1,7 @@
 import type { LoggerHandlerConfig } from './config.js';
 import type { JsonHandlerConfig } from './impls/json.js';
 import type { NodeHandlerConfig } from './impls/node.js';
-import type { ConsoleHandlerConfig } from './impls/console.js';
+import type { ConsoleHandlerConfig } from '@astrojs/vite-plugin-router/_internal/core/logger/impls/console.js';
 
 export const logHandlers = {
 	/**

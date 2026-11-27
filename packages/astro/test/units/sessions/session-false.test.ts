@@ -6,7 +6,7 @@ import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { SessionSchema } from '../../../dist/core/session/config.js';
 import { sessionConfigToManifest } from '../../../dist/core/session/utils.js';
-import { getUsedFeatures } from '../../../dist/core/fetch/features.js';
+import { isHandlerUsed } from '@astrojs/vite-plugin-router/_internal/core/fetch/features.js';
 import { provideSession } from '../../../dist/core/session/provider-disabled.js';
 import { vitePluginSessionProvider } from '../../../dist/core/session/vite-plugin.js';
 
@@ -39,18 +39,21 @@ describe('session: false', () => {
 	});
 
 	describe('disabled provider', () => {
-		it('registers no session provider, leaving Astro.session undefined', () => {
-			let provideCalled = false;
+		it('provides an undefined session that warns on access', () => {
+			let provided: { create: () => unknown } | undefined;
+			const warnings: string[] = [];
 			const manifest = {} as never;
 			const fakeState = {
 				manifest,
-				provide() {
-					provideCalled = true;
+				logger: { warn: (_label: string, message: string) => warnings.push(message) },
+				provide(_key: string, provider: { create: () => unknown }) {
+					provided = provider;
 				},
 			};
 			provideSession(fakeState as never);
-			assert.equal(provideCalled, false, 'disabled provider should not register a session');
-			assert.notEqual(getUsedFeatures(manifest), 0, 'sessions feature should be marked used');
+			assert.equal(provided?.create(), undefined, 'Astro.session should be undefined');
+			assert.equal(warnings.length, 1, 'accessing Astro.session should warn');
+			assert.equal(isHandlerUsed(manifest, 'sessions'), true, 'sessions should be marked used');
 		});
 	});
 

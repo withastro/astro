@@ -1,7 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { makeAstroPageEntryPointFileName } from '../../../dist/core/build/static-build.js';
-import { cleanChunkName, getTimeStat } from '../../../dist/core/build/util.js';
+import { makeAstroPageEntryPointFileName } from '@astrojs/vite-plugin-router/_internal/core/build/static-build.js';
+import {
+	cleanChunkName,
+	getTimeStat,
+} from '@astrojs/vite-plugin-router/_internal/core/build/util.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 
 describe('astro/src/core/build', () => {

@@ -18,7 +18,9 @@ describe('emptyDir', () => {
 
 	it('removes a directory recursively when fs.rmSync fails with EPERM on Windows', async () => {
 		// `isWindows` is evaluated at module load, so import a fresh copy while `process.platform` is faked.
-		const { emptyDir } = await import(`../../../dist/core/fs/index.js?win32=${Date.now()}`);
+		const { emptyDir } = await import(
+			`${import.meta.resolve('@astrojs/vite-plugin-router/_internal/core/fs/index.js')}?win32=${Date.now()}`
+		);
 
 		const fixture = await createFixture({
 			'/dist/_astro/nested/file.txt': 'x',

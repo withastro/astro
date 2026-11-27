@@ -1,20 +1,20 @@
-import type { RenderErrorOptions } from '../app/base.js';
-import type { SSRManifest } from '../app/types.js';
-import { provideCache } from '../cache/handler.js';
-import { getEnvironment } from '../environment/index.js';
-import { FetchState } from '../fetch/fetch-state.js';
-import type { RouteData } from '../../types/public/index.js';
-import { getLogger } from '../logger/manifest-logger.js';
-import { handleMiddleware } from '../middleware/astro-middleware.js';
-import { handlePages } from '../pages/handler.js';
-import { getCustom404Route, getCustom500Route } from '../routing/helpers.js';
-import { getRouteTable } from '../routing/route-table.js';
+import type { RenderErrorOptions } from '../../internal/core/app/base.js';
+import type { SSRManifest } from '../../internal/core/app/types.js';
+import { applyRenderContextExtensions, loadPipeline } from '../../internal/core/fetch/pipeline.js';
+import { getEnvironment } from '../../internal/core/environment/index.js';
+import { FetchState } from '../../internal/core/fetch/fetch-state.js';
+import type { RouteData } from '../../index.js';
+import { getLogger } from '../../internal/core/logger/manifest-logger.js';
+import { handleMiddleware } from '../../internal/core/middleware/astro-middleware.js';
+import { handlePages } from '../../internal/core/pages/handler.js';
+import { getCustom404Route, getCustom500Route } from '../../internal/core/routing/helpers.js';
+import { getRouteTable } from '../../internal/core/routing/route-table.js';
 import { type AstroError, isAstroError } from '@astrojs/runtime/_internal/core/errors/index.js';
 import {
 	MiddlewareNoDataOrNextCalled,
 	MiddlewareNotAResponse,
 } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
-import { rewroteToEmptyErrorResponse } from './handler.js';
+import { rewroteToEmptyErrorResponse } from '../../internal/core/errors/handler.js';
 
 export interface DevErrorHandlerOptions {
 	/**
@@ -70,7 +70,7 @@ export async function renderDevError(
 			errorState.componentInstance = preloadedComponent;
 			errorState.locals = resolvedRenderOptions.locals ?? ({} as App.Locals);
 			errorState.initialProps = { error };
-			await provideCache(errorState);
+			await applyRenderContextExtensions(errorState, await loadPipeline(manifest));
 			const response = await handleMiddleware(errorState, handlePages);
 
 			// A middleware rewrite issued while rendering the error page swaps the

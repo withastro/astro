@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createOutgoingHttpHeaders } from '../../../dist/core/app/createOutgoingHttpHeaders.js';
+import { createOutgoingHttpHeaders } from '@astrojs/vite-plugin-router/_internal/core/app/createOutgoingHttpHeaders.js';
 
 describe('createOutgoingHttpHeaders', () => {
 	it('undefined input headers', async () => {

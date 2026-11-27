@@ -21,7 +21,7 @@ import {
 	presets,
 	updateTSConfigForFramework,
 } from '../../core/config/tsconfig.js';
-import type { AstroLogger } from '../../core/logger/core.js';
+import type { AstroLogger } from '@astrojs/vite-plugin-router/_internal/core/logger/core.js';
 import * as msg from '../../core/messages/runtime.js';
 import { printHelp } from '../../core/messages/runtime.js';
 import { appendForwardSlash } from '../../core/path.js';

@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import {
 	MultiLevelEncodingError,
 	validateAndDecodePathname,
-} from '../../../dist/core/util/pathname.js';
+} from '@astrojs/vite-plugin-router/_internal/core/util/pathname.js';
 
 describe('validateAndDecodePathname', () => {
 	// #region Plain paths (no encoding)

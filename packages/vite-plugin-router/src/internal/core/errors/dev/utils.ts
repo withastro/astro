@@ -5,8 +5,8 @@ import { stripVTControlCharacters } from 'node:util';
 import { escape } from 'html-escaper';
 import colors from 'piccolore';
 import type { transformWithOxc } from 'vite';
-import type { SSRError } from '../../../types/public/internal.js';
-import { removeLeadingForwardSlashWindows } from '../../path.js';
+import type { SSRError } from '../../../../index.js';
+import { removeLeadingForwardSlashWindows } from '@astrojs/internal-helpers/path';
 import { normalizePath } from '../../viteUtils.js';
 import {
 	AggregateError,

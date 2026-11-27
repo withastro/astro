@@ -1,0 +1,9 @@
+{
+	"name": "@test/router-api",
+	"version": "0.0.0",
+	"private": true,
+	"dependencies": {
+		"@astrojs/vite-plugin-router": "workspace:*",
+		"astro": "workspace:*"
+	}
+}

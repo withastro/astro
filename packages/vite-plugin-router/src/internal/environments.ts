@@ -1,5 +1,5 @@
 import type { Environment } from 'vite';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from './core/constants.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../environment-names.js';
 
 export function isAstroServerEnvironment(environment: Environment) {
 	return (

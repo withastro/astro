@@ -1,6 +1,6 @@
 import picomatch from 'picomatch';
-import type { AstroCookies } from '../cookies/cookies.js';
-import { getCookiesFromResponse } from '../cookies/response.js';
+import type { AstroCookies } from '@astrojs/vite-plugin-router/_internal/core/cookies/cookies.js';
+import { getCookiesFromResponse } from '@astrojs/vite-plugin-router/_internal/core/cookies/response.js';
 import { REROUTABLE_STATUS_CODES } from '../constants.js';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { CacheQueryConfigConflict } from '@astrojs/runtime/_internal/core/errors/errors-data.js';

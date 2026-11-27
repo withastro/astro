@@ -1,5 +1,5 @@
-import type { MiddlewareHandler, RewritePayload } from '../../types/public/common.js';
-import type { APIContext } from '../../types/public/context.js';
+import type { MiddlewareHandler, RewritePayload } from '../../../index.js';
+import type { APIContext } from '../../../index.js';
 import { fetchStateSymbol } from '../constants.js';
 import { getEnvironment } from '../environment/index.js';
 import { ForbiddenRewrite } from '@astrojs/runtime/_internal/core/errors/errors-data.js';

@@ -3,9 +3,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
-import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
+import { FetchState } from '@astrojs/vite-plugin-router/_internal/core/fetch/fetch-state.js';
 import { createRoutesList as _createRoutesList } from '../../../dist/core/routing/create-manifest.js';
-import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
+import type { StaticBuildOptions } from '@astrojs/vite-plugin-router/_internal/core/build/types.js';
 import type { TestPipeline } from '../test-utils.ts';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import type { AstroInlineConfig } from '../../../dist/types/public/config.js';
@@ -17,7 +17,8 @@ import {
 	renderThroughMiddleware,
 } from '../test-utils.ts';
 
-export function createSettings({
+/** The output layout of a build: where it writes its files. */
+export function createOutputLayout({
 	buildOutput,
 	preserveBuildClientDir = false,
 	outDir = new URL('file:///project/dist/'),
@@ -35,9 +36,14 @@ export function createSettings({
 		adapter: preserveBuildClientDir
 			? { adapterFeatures: { preserveBuildClientDir: true } }
 			: undefined,
+		host: {
+			adapter: preserveBuildClientDir
+				? { name: 'test', adapterFeatures: { preserveBuildClientDir: true } }
+				: undefined,
+		},
 		config: {
 			outDir,
-			build: { client: clientDir, format: buildFormat },
+			build: { client: clientDir, server: new URL('server/', outDir), format: buildFormat },
 		},
 	};
 }
@@ -150,11 +156,9 @@ export async function createStaticBuildOptions({
 		origin: 'http://localhost:4321',
 		pageNames: [],
 		routesList,
-		settings: {
-			buildOutput,
-			adapter,
-			config: resolvedConfig,
-		},
+		buildOutput,
+		host: { adapter },
+		config: resolvedConfig,
 		logger: { info() {}, warn() {}, error() {}, debug() {} },
 		outputDirectories: {
 			client: resolvedConfig.outDir,

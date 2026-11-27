@@ -5,8 +5,11 @@ import {
 } from '@astrojs/internal-helpers/path';
 import type * as vite from 'vite';
 import { trailingSlashMismatchTemplate } from '../template/4xx.js';
-import type { AstroSettings } from '../types/astro.js';
-import { writeHtmlResponse, writeRedirectResponse } from './response.js';
+import type { RouterConfig } from '../../index.js';
+import {
+	writeHtmlResponse,
+	writeRedirectResponse,
+} from '../../vite-plugin-astro-server/response.js';
 
 /**
  * Outcome of the trailing-slash evaluation for a dev-server request.
@@ -59,9 +62,9 @@ export function evaluateTrailingSlash(
 	return { action: 'next' };
 }
 
-export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.NextHandleFunction {
-	const { trailingSlash } = settings.config;
-
+export function trailingSlashMiddleware({
+	trailingSlash,
+}: RouterConfig): vite.Connect.NextHandleFunction {
 	return function devTrailingSlash(req, res, next) {
 		const url = new URL(`http://localhost${req.url}`);
 		let pathname: string;

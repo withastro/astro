@@ -1,7 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { baseMiddleware } from '../../../dist/vite-plugin-astro-server/base.js';
-import { trailingSlashMiddleware } from '../../../dist/vite-plugin-astro-server/trailing-slash.js';
+import { baseMiddleware } from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/base.js';
+import { trailingSlashMiddleware } from '@astrojs/vite-plugin-router/_internal/vite-plugin-astro-server/trailing-slash.js';
+import { toRouterConfig } from '../../../dist/core/router-config.js';
 import { createBasicSettings, createRequestAndResponse, defaultLogger } from '../test-utils.ts';
 
 const malformedPaths = ['/%', '/%C0%AF'];
@@ -36,7 +37,7 @@ async function runMiddleware(
 describe('dev middleware — malformed percent-encoding', () => {
 	it('baseMiddleware returns 400 for malformed paths', async () => {
 		const settings = await createBasicSettings({});
-		const middleware = baseMiddleware(settings, defaultLogger);
+		const middleware = baseMiddleware(toRouterConfig(settings), defaultLogger);
 
 		for (const url of malformedPaths) {
 			const result = await runMiddleware(middleware, url);
@@ -47,7 +48,7 @@ describe('dev middleware — malformed percent-encoding', () => {
 
 	it('trailingSlashMiddleware returns 400 for malformed paths', async () => {
 		const settings = await createBasicSettings({});
-		const middleware = trailingSlashMiddleware(settings);
+		const middleware = trailingSlashMiddleware(toRouterConfig(settings));
 
 		for (const url of malformedPaths) {
 			const result = await runMiddleware(middleware, url);
