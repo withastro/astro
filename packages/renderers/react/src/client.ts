@@ -1,5 +1,6 @@
 import { createElement, startTransition } from 'react';
 import { createRoot, hydrateRoot, type Root } from 'react-dom/client';
+import { toReactProps } from './attributes.js';
 import StaticHtml from './static-html.js';
 
 function isAlreadyHydrated(element: HTMLElement) {
@@ -10,11 +11,6 @@ function isAlreadyHydrated(element: HTMLElement) {
 	}
 }
 
-const reactPropsMap: Record<string, string> = {
-	class: 'className',
-	for: 'htmlFor',
-};
-
 let clientIds = 0;
 
 function createReactElementFromDOMElement(element: any, id?: number, key?: number): any {
@@ -24,11 +20,10 @@ function createReactElementFromDOMElement(element: any, id?: number, key?: numbe
 		key = 0;
 	}
 
-	let attrs: Record<string, string> = {};
-	for (const attr of element.attributes) {
-		const propName = reactPropsMap[attr.name] || attr.name;
-		attrs[propName] = attr.value;
-	}
+	let attrs: Record<string, string | boolean> = toReactProps(
+		element.localName,
+		Array.from(element.attributes as NamedNodeMap, (attr) => [attr.name, attr.value]),
+	);
 
 	attrs.key = `${id}-${key}`;
 
