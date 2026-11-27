@@ -1,0 +1,14 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import HydrationCounter from '../../components/HydrationCounter.jsx';
+---
+
+<html lang="en">
+	<head>
+		<title>Counter</title>
+		<ClientRouter />
+	</head>
+	<body>
+		<HydrationCounter client:load />
+	</body>
+</html>

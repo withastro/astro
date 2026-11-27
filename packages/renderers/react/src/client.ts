@@ -1,4 +1,5 @@
 import { createElement, startTransition } from 'react';
+import { flushSync } from 'react-dom';
 import { createRoot, hydrateRoot, type Root } from 'react-dom/client';
 import StaticHtml from './static-html.js';
 
@@ -128,12 +129,13 @@ export default (element: HTMLElement) =>
 				root.render(componentEl);
 			});
 		}
-		startTransition(() => {
-			const root = getOrCreateRoot(element, () => {
-				const r = hydrateRoot(element, componentEl, renderOptions as any);
-				element.addEventListener('astro:unmount', () => r.unmount(), { once: true });
-				return r;
-			});
-			root.render(componentEl);
-		});
+		const existingRoot = rootMap.get(element);
+		if (existingRoot) {
+			return startTransition(() => existingRoot.render(componentEl));
+		}
+
+		// Astro can unmount the island as soon as the renderer returns.
+		const root = flushSync(() => hydrateRoot(element, componentEl, renderOptions as any));
+		rootMap.set(element, root);
+		element.addEventListener('astro:unmount', () => root.unmount(), { once: true });
 	};
