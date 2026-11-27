@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.3.3
+
+### Patch Changes
+
+- [#18806](https://github.com/withastro/astro/pull/18806) [`4c72ca5`](https://github.com/withastro/astro/commit/4c72ca58f95c3f78fd51747a027184e711ba200e) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `create astro` overwriting an `AGENTS.md` file shipped by the selected template. The default `AGENTS.md` is now only written when the template does not provide one.
+
 ## 5.3.2
 
 ### Patch Changes

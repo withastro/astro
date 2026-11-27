@@ -1,5 +1,13 @@
 # @astrojs/node
 
+## 11.1.15
+
+### Patch Changes
+
+- [#18838](https://github.com/withastro/astro/pull/18838) [`f892267`](https://github.com/withastro/astro/commit/f892267c8134b6c3820f3032e29b6e786ba68434) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `Astro.locals` being empty on the 404 page when the middleware-mode handler is called with `locals` but without a `next` callback
+
+- [#18666](https://github.com/withastro/astro/pull/18666) [`88ae47e`](https://github.com/withastro/astro/commit/88ae47e4d05b26e8d6ca620ea5228b6a4b3f0c2a) Thanks [@jp-knj](https://github.com/jp-knj)! - Removes the `server-destroy` dependency from the standalone server
+
 ## 11.1.14
 
 ### Patch Changes
