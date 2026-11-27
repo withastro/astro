@@ -29,6 +29,29 @@ function createMockEnv(
 }
 
 /**
+ * Creates a mock ASSETS binding that answers per URL and, like the real binding with `redirect: 'manual'`, returns
+ * redirects without following them. Unknown URLs are a 404.
+ */
+function createRedirectEnv(routes: Record<string, { status: number; location?: string }>) {
+	const fetched: string[] = [];
+	return {
+		fetched,
+		ASSETS: {
+			fetch(url: string, init?: RequestInit) {
+				assert.equal(init?.redirect, 'manual');
+				fetched.push(url);
+				const route = routes[url] ?? { status: 404 };
+				const headers: Record<string, string> = { 'x-fetched-url': url };
+				if (route.location) {
+					headers.location = route.location;
+				}
+				return Promise.resolve(new Response(null, { status: route.status, headers }));
+			},
+		},
+	};
+}
+
+/**
  * Creates a mock ExecutionContext.
  */
 function createMockCtx() {
@@ -164,6 +187,46 @@ describe('fallbackToAssets', () => {
 		const result = await fallbackToAssets('http://example.com/about/index.html', env as any);
 		assert.ok(result);
 		assert.equal(result!.headers.get('x-fetched-url'), 'http://example.com/about/');
+	});
+
+	it('returns a _redirects rule to another host instead of following it', async () => {
+		const env = createRedirectEnv({
+			'http://example.com/login': { status: 301, location: 'https://app.example.com/login' },
+		});
+		const result = await fallbackToAssets('http://example.com/login', env as any);
+		assert.equal(result!.status, 301);
+		assert.equal(result!.headers.get('location'), 'https://app.example.com/login');
+		assert.deepEqual(env.fetched, ['http://example.com/login']);
+	});
+
+	it('returns a _redirects rule to another page instead of serving that page', async () => {
+		const env = createRedirectEnv({
+			'http://example.com/old': { status: 301, location: '/new' },
+			'http://example.com/new': { status: 200 },
+		});
+		const result = await fallbackToAssets('http://example.com/old', env as any);
+		assert.equal(result!.status, 301);
+		assert.equal(result!.headers.get('location'), '/new');
+	});
+
+	it('follows html_handling redirects to the same page', async () => {
+		const env = createRedirectEnv({
+			'http://example.com/about?ref=1': { status: 307, location: '/about/?ref=1' },
+			'http://example.com/about/?ref=1': { status: 200 },
+		});
+		const result = await fallbackToAssets('http://example.com/about?ref=1', env as any);
+		assert.equal(result!.status, 200);
+		assert.equal(result!.headers.get('x-fetched-url'), 'http://example.com/about/?ref=1');
+	});
+
+	it('follows at most one redirect', async () => {
+		const env = createRedirectEnv({
+			'http://example.com/about': { status: 307, location: '/about/' },
+			'http://example.com/about/': { status: 307, location: '/about' },
+		});
+		const result = await fallbackToAssets('http://example.com/about', env as any);
+		assert.equal(result!.status, 307);
+		assert.equal(env.fetched.length, 2);
 	});
 });
 
