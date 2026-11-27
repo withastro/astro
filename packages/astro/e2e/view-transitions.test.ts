@@ -6,6 +6,7 @@ declare global {
 		preloads: string[];
 		restoredScrollY?: number;
 		initialScrollRestoration?: ScrollRestoration;
+		scriptEvents?: string[];
 		clientSideRouterForTestsParkedHere?: (
 			url: string,
 			options?: { history?: 'auto' | 'replace' | 'push' },
@@ -1961,6 +1962,25 @@ test.describe('View Transitions', () => {
 		await expect(page).toHaveTitle('Page 1');
 		expect(lines.join('')).toBe('312233');
 	});
+
+	for (const [order, handler] of [
+		['load-src-first', 'onload'],
+		['load-attr-first', 'onload'],
+		['error-src-first', 'onerror'],
+		['error-attr-first', 'onerror'],
+	]) {
+		test(`runs a script's ${handler} attribute before astro:page-load (${order})`, async ({
+			page,
+			astro,
+		}) => {
+			const expectLoads = collectLoads(page);
+			await page.goto(astro.resolveUrl('/script-onload'));
+			await page.click(`#${order}`);
+			await expect(page.locator('#page-load')).toHaveText('fired');
+			expect(await page.evaluate(() => window.scriptEvents)).toEqual([handler, 'page-load']);
+			await expectLoads(1);
+		});
+	}
 
 	test('initial scripts are not re-executed after partial swap', async ({ page, astro }) => {
 		const consoleErrors: string[] = [];
