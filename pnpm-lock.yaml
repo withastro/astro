@@ -1614,6 +1614,21 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/e2e/fixtures/react-children:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^19.3.1
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.3.1
+        version: 19.3.1(react@19.3.1)
+
   packages/astro/e2e/fixtures/react-compiler:
     dependencies:
       '@astrojs/react':

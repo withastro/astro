@@ -1,6 +1,7 @@
 import { createElement, startTransition } from 'react';
 import { createRoot, hydrateRoot, type Root } from 'react-dom/client';
 import StaticHtml from './static-html.js';
+import { isSkippedTopLevelText } from './whitespace.js';
 
 function isAlreadyHydrated(element: HTMLElement) {
 	for (const key in element) {
@@ -60,8 +61,16 @@ function getChildren(childString: string, experimentalReactChildren: boolean) {
 		let children = [];
 		let template = document.createElement('template');
 		template.innerHTML = childString;
-		for (let child of template.content.children) {
-			children.push(createReactElementFromDOMElement(child));
+		for (let child of template.content.childNodes) {
+			if (child.nodeType === Node.TEXT_NODE) {
+				// Skipped by the same rule as in `vnode-children.ts`, so hydration matches
+				const text = (child as Text).data;
+				if (!isSkippedTopLevelText(text, !child.previousSibling, !child.nextSibling)) {
+					children.push(text);
+				}
+			} else if (child.nodeType === Node.ELEMENT_NODE) {
+				children.push(createReactElementFromDOMElement(child));
+			}
 		}
 		return children;
 	} else if (childString) {
