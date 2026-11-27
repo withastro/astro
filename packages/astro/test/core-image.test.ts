@@ -49,15 +49,10 @@ describe('astro:image', () => {
 						{
 							protocol: 'data',
 						},
-						...(redirectUrl
-							? [
-									{
-										protocol: 'http',
-										hostname: '127.0.0.1',
-										port: new URL(redirectUrl).port,
-									},
-								]
-							: []),
+						{
+							protocol: 'http',
+							hostname: '127.0.0.1',
+						},
 					],
 				},
 				outDir: './dist/core-image-dev/',
@@ -532,6 +527,33 @@ describe('astro:image', () => {
 					const src = `/_image?href=${encodeURIComponent(redirectUrl)}&w=1&h=1&f=png`;
 					const imageRequest = await fixture.fetch(src);
 					assert.ok(imageRequest.status >= 400);
+				});
+
+				it('returns 404 and logs the source when a remote image responds with 404', async () => {
+					assert.ok(redirectUrl, 'Expected redirect URL to be set');
+					logs.length = 0;
+					const missing = new URL('/does-not-exist.png', redirectUrl).href;
+					const src = `/_image?href=${encodeURIComponent(missing)}&w=420&h=236&q=90&f=webp`;
+					const imageRequest = await fixture.fetch(src);
+					assert.equal(imageRequest.status, 404);
+					assert.ok(
+						logs.some((entry) =>
+							String(entry.message).includes(`Could not fetch remote image ${missing}: received status 404.`),
+						),
+					);
+				});
+
+				it('returns 502 and logs the source when a remote image cannot be reached', async () => {
+					logs.length = 0;
+					const unreachable = 'http://127.0.0.1:1/x.png';
+					const src = `/_image?href=${encodeURIComponent(unreachable)}&w=420&h=236&q=90&f=webp`;
+					const imageRequest = await fixture.fetch(src);
+					assert.equal(imageRequest.status, 502);
+					assert.ok(
+						logs.some((entry) =>
+							String(entry.message).includes(`Could not fetch remote image ${unreachable}:`),
+						),
+					);
 				});
 
 				it('rejects f=svg for a non-SVG data: URI', async () => {
