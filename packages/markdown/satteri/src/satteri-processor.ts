@@ -12,6 +12,7 @@ import type {
 	HastPluginDefinition,
 	HastPluginEntry,
 	HastPluginList,
+	MdastContent,
 	MdastPluginDefinition,
 	MdastPluginEntry,
 	MdastPluginList,
@@ -66,6 +67,33 @@ export function createCollectImagesPlugin(
 			} else if (!url.startsWith('/')) {
 				astro?.localImagePaths.add(url);
 			}
+		},
+	};
+}
+
+/**
+ * Turns text directives that no plugin claimed (no `data.hName`) back into
+ * their source text, e.g. `:name[label]{key="value"}`. Without this, Sätteri
+ * renders unclaimed directives as nothing, so ordinary text such as `12:30`
+ * loses everything after the colon when `features.directive` is enabled.
+ * See https://github.com/withastro/astro/issues/18804
+ */
+export function createRestoreTextDirectivesPlugin(): MdastPluginDefinition {
+	return {
+		name: 'restore-text-directives',
+		textDirective(node, ctx) {
+			if ((node.data as { hName?: string } | undefined)?.hName) return;
+			const parts: MdastContent[] = [{ type: 'text', value: `:${node.name}` }];
+			if (node.children.length) {
+				parts.push({ type: 'text', value: '[' }, ...node.children, { type: 'text', value: ']' });
+			}
+			const attributes = Object.entries(node.attributes ?? {}).map(([key, value]) =>
+				value ? `${key}="${value}"` : key,
+			);
+			if (attributes.length) {
+				parts.push({ type: 'text', value: `{${attributes.join(' ')}}` });
+			}
+			ctx.replaceNode(node, parts);
 		},
 	};
 }
@@ -312,6 +340,7 @@ export async function createSatteriMarkdownProcessor(
 			// Collect last so image-URL rewrites by user plugins are captured.
 			const allMdastPlugins: MdastPluginEntry[] = [
 				...userMdastPlugins,
+				createRestoreTextDirectivesPlugin(),
 				createCollectImagesPlugin(opts?.image),
 			];
 

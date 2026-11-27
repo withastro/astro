@@ -27,6 +27,7 @@ import {
 	createHeadingIdsPlugin,
 	createHighlightFn,
 	createHighlightPlugin,
+	createRestoreTextDirectivesPlugin,
 	type SatteriAstroData,
 } from '../satteri-processor.js';
 import { shouldAddCharset } from './charset.js';
@@ -94,7 +95,11 @@ export function createSatteriMdxProcessor(
 				typeof syntaxHighlight === 'object' ? syntaxHighlight.excludeLangs : undefined;
 
 			// Collect last so image-URL rewrites by user plugins are captured.
-			const allMdastPlugins: MdastPluginEntry[] = [...satteriOptions.mdastPlugins, collectImages];
+			const allMdastPlugins: MdastPluginEntry[] = [
+				...satteriOptions.mdastPlugins,
+				createRestoreTextDirectivesPlugin(),
+				collectImages,
+			];
 
 			const hastPlugins: HastPluginEntry[] = [];
 			if (highlightFn) {
