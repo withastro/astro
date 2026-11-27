@@ -9,9 +9,11 @@ let overlay: AstroDevToolbar;
 
 // The audit app reads image sizes from resource timing entries. The browser stops recording them
 // after 250 entries by default, which Vite's per-module requests and soft navigations quickly exceed.
-performance.addEventListener('resourcetimingbufferfull', () => {
-	performance.setResourceTimingBufferSize(performance.getEntriesByType('resource').length * 2);
-});
+if (typeof performance.addEventListener === 'function') {
+	performance.addEventListener('resourcetimingbufferfull', () => {
+		performance.setResourceTimingBufferSize(performance.getEntriesByType('resource').length * 2);
+	});
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const [
