@@ -12,6 +12,16 @@ import { defaultSetHeaders, isLiveDataEntry } from './utils.js';
 const APPLY_HEADERS = Symbol.for('astro:cache:apply');
 const IS_ACTIVE = Symbol.for('astro:cache:active');
 
+function hasCacheOptions(options: CacheOptions): boolean {
+	return (
+		options.maxAge !== undefined ||
+		options.swr !== undefined ||
+		options.lastModified !== undefined ||
+		options.etag !== undefined ||
+		(options.tags?.length ?? 0) > 0
+	);
+}
+
 export interface CacheLike {
 	/**
 	 * Whether caching is enabled. `false` when no cache provider is configured
@@ -115,7 +125,7 @@ export class AstroCache implements CacheLike {
 	[APPLY_HEADERS](response: Response, request: Request): void {
 		if (this.#disabled) return;
 		const finalOptions: CacheOptions = { ...this.#options, tags: this.tags };
-		if (finalOptions.maxAge === undefined && !finalOptions.tags?.length) return;
+		if (!hasCacheOptions(finalOptions)) return;
 
 		const headers =
 			this.#provider?.setHeaders?.(finalOptions, request) ?? defaultSetHeaders(finalOptions);
@@ -135,7 +145,7 @@ export class AstroCache implements CacheLike {
 
 	/** @internal */
 	get [IS_ACTIVE](): boolean {
-		return !this.#disabled && (this.#options.maxAge !== undefined || this.#tags.size > 0);
+		return !this.#disabled && hasCacheOptions(this.options);
 	}
 }
 
