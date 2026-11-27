@@ -26,11 +26,13 @@ test('leaves a React island without a hydration error', async ({ astro, page }) 
 		window.MessageChannel = class extends MessageChannel {
 			constructor() {
 				super();
-				const post = this.port2.postMessage.bind(this.port2);
-				this.port2.postMessage = (...args: Parameters<MessagePort['postMessage']>) => {
-					if (phase === 'restored') post(...args);
-					else pendingTasks.push(() => post(...args));
-				};
+				this.port2.postMessage = new Proxy(this.port2.postMessage, {
+					apply(post, port, args) {
+						const send = () => Reflect.apply(post, port, args);
+						if (phase === 'restored') send();
+						else pendingTasks.push(send);
+					},
+				});
 			}
 		};
 
