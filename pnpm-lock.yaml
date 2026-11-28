@@ -5938,6 +5938,9 @@ importers:
       send:
         specifier: ^1.2.1
         version: 1.2.1(supports-color@10.2.2)
+      ws:
+        specifier: ^8.22.0
+        version: 8.22.0
     devDependencies:
       '@fastify/middie':
         specifier: ^9.3.9
@@ -5954,6 +5957,9 @@ importers:
       '@types/send':
         specifier: ^1.2.1
         version: 1.2.1
+      '@types/ws':
+        specifier: ^8.18.2
+        version: 8.18.2
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6151,6 +6157,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/node/test/fixtures/url:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/node/test/fixtures/websocket:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
@@ -11863,6 +11878,9 @@ packages:
 
   '@types/vscode@1.109.0':
     resolution: {integrity: sha512-0Pf95rnwEIwDbmXGC08r0B4TQhAbsHQ5UyTIgVgoieDe4cOnf92usuR5dEczb6bTKEp7ziZH4TV1TRGPPCExtw==}
+
+  '@types/ws@8.18.2':
+    resolution: {integrity: sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==}
 
   '@types/xml2js@0.4.14':
     resolution: {integrity: sha512-4YnrRemBShWRO2QjvUin8ESA41rH+9nQGLUGZV/1IDhi3SL9OhdpNC/MrulTWuptXKwhx/aDxE7toV0f/ypIXQ==}
@@ -21418,6 +21436,10 @@ snapshots:
   '@types/unist@3.0.3': {}
 
   '@types/vscode@1.109.0': {}
+
+  '@types/ws@8.18.2':
+    dependencies:
+      '@types/node': 22.19.19
 
   '@types/xml2js@0.4.14':
     dependencies:

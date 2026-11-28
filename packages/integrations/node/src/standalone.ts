@@ -8,6 +8,7 @@ import { logListeningOn } from './log-listening-on.js';
 import { createAppHandler } from './serve-app.js';
 import { createStaticHandler } from './serve-static.js';
 import type { NodeAppHeadersJson, Options } from './types.js';
+import { createUpgradeHandler } from './websocket.js';
 
 // Used to get Host Value at Runtime
 export const hostOptions = (host: Options['host']): string => {
@@ -30,6 +31,9 @@ export default function standalone(
 	const resolvedOptions = { ...options, port };
 	const handler = createStandaloneHandler(app, resolvedOptions, headersMap);
 	const server = createServer(handler, host, port);
+	if (options.experimentalWebSocket) {
+		server.server.on('upgrade', createUpgradeHandler(app, resolvedOptions));
+	}
 	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
 		// Resolve the logger before the 'listening' event fires so the startup message

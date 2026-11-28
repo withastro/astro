@@ -3,6 +3,7 @@ import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHashEntry, CspResourceEntry } from '../../core/csp/config.js';
 import type { CacheLike } from '../../core/cache/runtime/cache.js';
 import type { AstroSession } from '../../core/session/runtime.js';
+import type { AstroWebSocket } from '../../core/websocket/types.js';
 import type { RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
 
@@ -125,6 +126,15 @@ export interface APIContext<
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#session)
 	 */
 	session: AstroSession | undefined;
+
+	/**
+	 * Accepts WebSocket connections in on-demand routes. Requires `experimental.websocket` and an
+	 * adapter that can hold WebSocket connections; `undefined` otherwise.
+	 *
+	 * Use `websocket.isUpgradeRequest()` to check whether the client asked to upgrade, and
+	 * `websocket.upgrade()` to accept the connection and get the response to return.
+	 */
+	websocket?: AstroWebSocket;
 
 	/**
 	 * An object for controlling route-level caching of SSR responses.

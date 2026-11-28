@@ -15,6 +15,7 @@ import { handlePages } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
 import { redirectDelayFor, renderRedirectPage } from './redirect-page.js';
 import { provideSession } from '../session/provider.js';
+import { provideWebSocket } from '../websocket/handler.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import { getDefaultStatusCode } from './helpers.js';
@@ -144,6 +145,7 @@ async function render(state: FetchState): Promise<Response> {
 		// is no equivalent disabled-shim contract for sessions.
 		const sessionP = state.manifest.sessionConfig ? provideSession(state) : undefined;
 		const cacheP = provideCache(state);
+		provideWebSocket(state);
 		if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);
 		// Track feature usage even when skipped.
 		markFeatureUsed(state.manifest, FetchFeatures.sessions);

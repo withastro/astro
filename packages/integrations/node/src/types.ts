@@ -39,6 +39,8 @@ export interface Options extends UserOptions {
 	client: string;
 	staticHeaders: boolean;
 	bodySizeLimit: number;
+	/** Set from the Astro config's `experimental.websocket` flag. */
+	experimentalWebSocket?: boolean;
 }
 
 export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;
