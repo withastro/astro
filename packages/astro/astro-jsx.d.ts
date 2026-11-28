@@ -21,6 +21,34 @@ declare namespace astroHTML.JSX {
 		children?: Children;
 	}
 
+	/**
+	 * Resolves the props of Svelte components typed by compiled `.svelte.d.ts` files (e.g. libraries built
+	 * with `svelte-package`). Their call signature is `(internals, props)`, so TypeScript would otherwise check
+	 * JSX attributes against the first argument (Svelte 5 `ComponentInternals`) or, for svelte2tsx's legacy
+	 * isomorphic components, against the `ComponentConstructorOptions` of the construct signature.
+	 *
+	 * Components callable with props alone (Astro, React, local `.svelte` files rewritten by `@astrojs/svelte`, etc.)
+	 * keep `P`. The first argument is matched structurally because `astro` cannot depend on `svelte` types:
+	 * Svelte 5 brands it with a symbol key whose value is `'ComponentInternals'`, svelte2tsx types it as `unknown`.
+	 * A first argument without keys (e.g. `{}`) is not treated as the brand, since `keyof {}` is `never`.
+	 * @see https://github.com/withastro/astro/issues/18855
+	 */
+	type LibraryManagedAttributes<C, P> = C extends (props: any) => any
+		? P
+		: C extends (internals: infer I, props: infer Props) => any
+			? unknown extends I
+				? 0 extends 1 & I
+					? P
+					: Props
+				: [keyof I] extends [never]
+					? P
+					: [keyof I] extends [symbol]
+						? [I[keyof I]] extends ['ComponentInternals']
+							? Props
+							: P
+						: P
+			: P;
+
 	// biome-ignore format: bug
 	type AstroComponentDirectives = import('./dist/types/public/elements.js').AstroComponentDirectives;
 	type AstroBuiltinAttributes = import('./dist/types/public/elements.js').AstroBuiltinAttributes;
