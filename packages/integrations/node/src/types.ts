@@ -30,6 +30,14 @@ export interface UserOptions {
 	 * @default {1073741824} 1GB
 	 */
 	bodySizeLimit?: number;
+
+	/**
+	 * Maximum size in bytes of a single WebSocket message when `experimental.websocket` is enabled.
+	 * Larger messages close the connection with code 1009 (Message Too Big).
+	 *
+	 * @default {1048576} 1 MiB
+	 */
+	experimentalWebSocketMaxPayload?: number;
 }
 
 export interface Options extends UserOptions {

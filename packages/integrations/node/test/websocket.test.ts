@@ -3,6 +3,7 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { after, before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
+import type { UpgradeHandler } from '../dist/websocket.js';
 import { type AdapterServer, type Fixture, loadFixture, waitServerListen } from './test-utils.ts';
 
 /** Sends a raw upgrade request and resolves with the HTTP response or the 101 upgrade. */
@@ -59,8 +60,13 @@ describe('WebSockets', () => {
 	let fixture: Fixture;
 	let server: AdapterServer;
 	let base: string;
+	// The server runs in this process, so a crash in the adapter surfaces here
+	// instead of stopping a real server.
+	const uncaught: unknown[] = [];
+	const recordUncaught = (error: unknown) => uncaught.push(error);
 
 	before(async () => {
+		process.on('uncaughtException', recordUncaught);
 		fixture = await loadFixture({
 			root: './fixtures/websocket/',
 			output: 'server',
@@ -75,6 +81,7 @@ describe('WebSockets', () => {
 	});
 
 	after(async () => {
+		process.off('uncaughtException', recordUncaught);
 		await server.stop();
 		await fixture.clean();
 	});
@@ -130,6 +137,61 @@ describe('WebSockets', () => {
 		assert.equal(res.status, 404);
 	});
 
+	it('rejects upgrades sent by a page on another site', async () => {
+		const res = await rawUpgrade(server, '/echo', {
+			Origin: 'https://evil.example',
+			Cookie: 'user=ada',
+		});
+		assert.equal(res.status, 403);
+		assert.equal(res.headers['set-cookie'], undefined, 'middleware must not run');
+	});
+
+	it('rejects upgrades marked cross-site by Sec-Fetch-Site', async () => {
+		const res = await rawUpgrade(server, '/echo', { 'Sec-Fetch-Site': 'cross-site' });
+		assert.equal(res.status, 403);
+	});
+
+	it('accepts upgrades sent by a page on the same site', async () => {
+		const res = await rawUpgrade(server, '/echo', {
+			Origin: `http://${server.host}:${server.port}`,
+			'Sec-Fetch-Site': 'same-origin',
+		});
+		assert.equal(res.status, 101);
+	});
+
+	it('closes the connection with 1009 when a message is over the size limit', {
+		timeout: 5000,
+	}, async () => {
+		const socket = await open(`${base}/echo`);
+		const closed = new Promise<CloseEvent>((resolve) =>
+			socket.addEventListener('close', (event) => resolve(event), { once: true }),
+		);
+		socket.send('x'.repeat(2 * 1024 * 1024));
+		assert.equal((await closed).code, 1009);
+	});
+
+	it('closes only the affected connection when a listener throws', { timeout: 5000 }, async () => {
+		const bystander = await open(`${base}/echo`);
+		const socket = await open(`${base}/json`);
+		const closed = new Promise<CloseEvent>((resolve) =>
+			socket.addEventListener('close', (event) => resolve(event), { once: true }),
+		);
+		socket.send('this is not json');
+		assert.equal((await closed).code, 1011);
+
+		bystander.send('still here');
+		assert.equal((await nextMessage(bystander)).data, 'still here');
+		const fresh = await open(`${base}/echo`);
+		fresh.close();
+		bystander.close();
+	});
+
+	it('raises no uncaught exceptions while handling hostile clients', async () => {
+		// Errors are reported on a later tick, so let them surface first.
+		await new Promise((resolve) => setTimeout(resolve, 50));
+		assert.deepEqual(uncaught, []);
+	});
+
 	it('closes open sockets when the server stops', async () => {
 		const socket = await open(`${base}/echo`);
 		const closed = new Promise<CloseEvent>((resolve) =>
@@ -156,7 +218,10 @@ describe('WebSockets in middleware mode', () => {
 			adapter: nodejs({ mode: 'middleware' }),
 		});
 		await fixture.build();
-		const { handler, upgradeHandler } = await fixture.loadAdapterEntryModule();
+		const { handler, upgradeHandler } = (await fixture.loadAdapterEntryModule()) as unknown as {
+			handler: http.RequestListener;
+			upgradeHandler: UpgradeHandler;
+		};
 		server = http.createServer(handler);
 		server.on('upgrade', upgradeHandler);
 		await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));

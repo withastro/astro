@@ -44,6 +44,8 @@ export const GET: APIRoute = ({ websocket, locals }) => {
 
 Returning any response other than the one from `websocket.upgrade()` rejects the connection, and the client receives that response instead. Cookies set during the request are sent with the handshake.
 
+Upgrade requests sent by a page on another site are rejected with a `403` before middleware runs, so other sites cannot open connections as your signed-in users.
+
 `context.websocket` is `undefined` when the adapter cannot accept WebSocket connections. Adapters add support by passing an `upgradeWebSocket` function to `app.render()`.
 
 #### `@astrojs/node`
@@ -62,3 +64,5 @@ const server = http.createServer(app);
 server.on('upgrade', upgradeHandler);
 server.listen(8080);
 ```
+
+Messages larger than 1 MiB close the connection. Use the `experimentalWebSocketMaxPayload` adapter option to change the limit. An error thrown by a socket listener closes that connection and is logged, without affecting other connections.

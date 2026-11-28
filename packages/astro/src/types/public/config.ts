@@ -3719,6 +3719,15 @@ export interface AstroUserConfig<
 		 *
 		 * `context.websocket` is `undefined` when the adapter cannot accept WebSocket connections, for
 		 * example on serverless functions.
+		 *
+		 * Upgrade requests sent by a page on another site are rejected with a `403` before middleware
+		 * runs, whatever `security.checkOrigin` is set to. Browsers apply no CORS rules to WebSockets
+		 * and can attach the user's cookies to them, so this stops other sites from connecting as
+		 * your signed-in users. Clients that send no `Origin` header, such as servers and mobile apps,
+		 * are not affected.
+		 *
+		 * The session is saved when the upgrade request finishes, so changes made to
+		 * `context.session` inside a socket listener are not persisted.
 		 */
 		websocket?: boolean;
 

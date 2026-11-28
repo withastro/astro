@@ -15,7 +15,7 @@ import { handlePages } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
 import { redirectDelayFor, renderRedirectPage } from './redirect-page.js';
 import { provideSession } from '../session/provider.js';
-import { provideWebSocket } from '../websocket/handler.js';
+import { provideWebSocket, rejectCrossSiteWebSocket } from '../websocket/handler.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import { getDefaultStatusCode } from './helpers.js';
@@ -165,6 +165,19 @@ async function render(state: FetchState): Promise<Response> {
 			prepareResponse(redirectResponse, { addCookieHeader });
 			state.logger.flush();
 			return redirectResponse;
+		}
+
+		const crossSiteWebSocket = rejectCrossSiteWebSocket(state);
+		if (crossSiteWebSocket) {
+			logRequestFromState(state, {
+				pathname,
+				method: request.method,
+				statusCode: crossSiteWebSocket.status,
+				isRewrite: false,
+				timeStart: state.timeStart,
+			});
+			state.logger.flush();
+			return crossSiteWebSocket;
 		}
 
 		// `null` when i18n is unset or the strategy is `manual` — for the

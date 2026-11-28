@@ -38,6 +38,32 @@ function createAstroWebSocket(request: Request, hook: UpgradeWebSocketHook): Ast
 	};
 }
 
+/**
+ * Returns a `403` response for a WebSocket upgrade request sent by a page on
+ * another site, or `undefined` to let the request continue. Runs only when
+ * the adapter can accept upgrades, before middleware, and regardless of
+ * `security.checkOrigin`.
+ *
+ * Browsers apply no CORS rules to WebSocket handshakes and can attach the
+ * user's cookies to them, so without this check any site could open a
+ * connection as the signed-in user (cross-site WebSocket hijacking).
+ */
+export function rejectCrossSiteWebSocket(state: FetchState): Response | undefined {
+	if (!state.renderOptions.upgradeWebSocket) return;
+	if (!isWebSocketUpgradeRequest(state.request)) return;
+	if (!isCrossSiteRequest(state.request, state.url)) return;
+	return new Response('Cross-site WebSocket connections are forbidden', { status: 403 });
+}
+
+function isCrossSiteRequest(request: Request, url: URL): boolean {
+	const fetchSite = request.headers.get('sec-fetch-site');
+	if (fetchSite) return fetchSite !== 'same-origin';
+	// Browsers always send `Origin` on WebSocket handshakes. Clients that omit it
+	// are not browsers, so they cannot carry another site's user's cookies.
+	const origin = request.headers.get('origin');
+	return origin !== null && origin !== url.origin;
+}
+
 export function isWebSocketUpgradeRequest(request: Request): boolean {
 	if (request.method !== 'GET') return false;
 	const upgrade = request.headers.get('upgrade');

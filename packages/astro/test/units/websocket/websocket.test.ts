@@ -121,3 +121,74 @@ describe('context.websocket', () => {
 		assert.equal(calls.length, 1);
 	});
 });
+
+describe('cross-site WebSocket upgrades', () => {
+	/** Renders an upgrade request and reports the status and whether user code ran. */
+	async function attempt(headers: Record<string, string>, manifestOverrides = {}) {
+		const { hook, calls } = createHook();
+		let routeRan = false;
+		const app = createTestApp(
+			[
+				createEndpoint(
+					{
+						GET: (ctx) => {
+							routeRan = true;
+							return ctx.websocket!.upgrade().response;
+						},
+					},
+					{ route: '/socket' },
+				),
+			],
+			manifestOverrides,
+		);
+		const response = await app.render(upgradeRequest({ upgrade: 'websocket', ...headers }), {
+			upgradeWebSocket: hook,
+		});
+		return { status: response.status, routeRan, hookCalls: calls.length };
+	}
+
+	it('rejects a different Origin with 403 before the route runs', async () => {
+		const result = await attempt({ origin: 'https://evil.example' });
+		assert.deepEqual(result, { status: 403, routeRan: false, hookCalls: 0 });
+	});
+
+	it('rejects Sec-Fetch-Site values other than same-origin', async () => {
+		for (const site of ['cross-site', 'same-site', 'none']) {
+			const result = await attempt({ 'sec-fetch-site': site });
+			assert.equal(result.status, 403, `sec-fetch-site: ${site}`);
+		}
+	});
+
+	it('rejects the opaque `null` origin of sandboxed frames', async () => {
+		const result = await attempt({ origin: 'null' });
+		assert.equal(result.status, 403);
+	});
+
+	it('accepts the same origin', async () => {
+		const result = await attempt({ origin: 'http://example.com', 'sec-fetch-site': 'same-origin' });
+		assert.deepEqual(result, { status: 200, routeRan: true, hookCalls: 1 });
+	});
+
+	it('accepts clients that send no Origin', async () => {
+		const result = await attempt({});
+		assert.equal(result.routeRan, true);
+	});
+
+	it('still rejects cross-site upgrades when security.checkOrigin is disabled', async () => {
+		const result = await attempt({ origin: 'https://evil.example' }, { checkOrigin: false });
+		assert.equal(result.status, 403);
+	});
+
+	it('does not check origins when the adapter cannot upgrade', async () => {
+		let ran = false;
+		const app = createSocketApp(() => {
+			ran = true;
+			return new Response('ok');
+		});
+		const response = await app.render(
+			upgradeRequest({ upgrade: 'websocket', origin: 'https://evil.example' }),
+		);
+		assert.equal(response.status, 200);
+		assert.equal(ran, true);
+	});
+});

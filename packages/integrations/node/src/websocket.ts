@@ -26,6 +26,11 @@ const FRAMING_HEADERS = new Set([
 	'upgrade',
 ]);
 
+/** Default for `experimentalWebSocketMaxPayload`: 1 MiB. */
+const DEFAULT_MAX_PAYLOAD = 1024 * 1024;
+
+type Logger = { error: (message: string) => void };
+
 /**
  * Creates a listener for the Node.js server's `upgrade` event. The upgrade
  * request runs through `app.render()` like any other request, with an
@@ -42,7 +47,11 @@ const FRAMING_HEADERS = new Set([
  */
 export function createUpgradeHandler(app: BaseApp, options: Options): UpgradeHandler {
 	const logger = app.adapterLogger;
-	const wss = new WebSocketServer({ noServer: true });
+	// `ws` accepts 100 MiB messages by default, which lets a few clients exhaust memory.
+	const wss = new WebSocketServer({
+		noServer: true,
+		maxPayload: options.experimentalWebSocketMaxPayload ?? DEFAULT_MAX_PAYLOAD,
+	});
 	const handshakeHeaders = new WeakMap<IncomingMessage, string[]>();
 	wss.on('headers', (headers, req) => {
 		const extra = handshakeHeaders.get(req);
@@ -84,7 +93,7 @@ export function createUpgradeHandler(app: BaseApp, options: Options): UpgradeHan
 				routeData,
 				upgradeWebSocket(upgradeRequest) {
 					accepted = {
-						socket: new ServerWebSocket(upgradeRequest.url),
+						socket: new ServerWebSocket(upgradeRequest.url, logger),
 						response: new Response(null, { status: 200 }),
 					};
 					return { socket: accepted.socket as unknown as WebSocket, response: accepted.response };
@@ -164,12 +173,18 @@ const CloseEventImpl: typeof CloseEvent =
 	};
 
 type EventHandler = ((event: any) => void) | null;
+type Listener = EventListenerOrEventListenerObject;
 
 /**
  * The server side of a WebSocket connection, implementing the standard
  * `WebSocket` interface. It is created in the `CONNECTING` state while the
  * route runs, and attaches to the `ws` connection once the handshake
  * completes.
+ *
+ * An error thrown by a listener (or a rejected promise it returns) closes this
+ * connection with code 1011 and is logged. Node.js would otherwise treat it as
+ * an uncaught exception and stop the whole server, so one malformed message
+ * from one client could disconnect every client.
  */
 class ServerWebSocket extends EventTarget {
 	static readonly CONNECTING = 0;
@@ -187,10 +202,52 @@ class ServerWebSocket extends EventTarget {
 	#readyState = 0;
 	#pendingClose: { code?: number; reason?: string } | undefined;
 	#handlers: Record<string, EventHandler> = {};
+	#wrappers = new Map<string, Map<Listener, EventListener>>();
+	#logger: Logger;
 
-	constructor(url: string) {
+	constructor(url: string, logger: Logger) {
 		super();
 		this.url = url.replace(/^http/, 'ws');
+		this.#logger = logger;
+	}
+
+	override addEventListener(
+		type: string,
+		listener: Listener | null,
+		options?: AddEventListenerOptions | boolean,
+	): void {
+		if (!listener) return;
+		let byListener = this.#wrappers.get(type);
+		if (!byListener) {
+			byListener = new Map();
+			this.#wrappers.set(type, byListener);
+		}
+		let wrapper = byListener.get(listener);
+		if (!wrapper) {
+			wrapper = (event) => {
+				try {
+					const result: unknown =
+						typeof listener === 'function'
+							? listener.call(this, event)
+							: listener.handleEvent(event);
+					if (result instanceof Promise) result.catch((error) => this.#onListenerError(error));
+				} catch (error) {
+					this.#onListenerError(error);
+				}
+			};
+			byListener.set(listener, wrapper);
+		}
+		super.addEventListener(type, wrapper, options);
+	}
+
+	override removeEventListener(
+		type: string,
+		listener: Listener | null,
+		options?: EventListenerOptions | boolean,
+	): void {
+		if (!listener) return;
+		const wrapper = this.#wrappers.get(type)?.get(listener);
+		if (wrapper) super.removeEventListener(type, wrapper, options);
 	}
 
 	get readyState(): number {
@@ -264,7 +321,8 @@ class ServerWebSocket extends EventTarget {
 			else payload = new Blob([new Uint8Array(data)]);
 			this.dispatchEvent(new MessageEvent('message', { data: payload }));
 		});
-		ws.on('error', (error) => this.dispatchEvent(new ErrorEvent('error', { error })));
+		// A plain `Event`, as in browsers. Node.js has no global `ErrorEvent`.
+		ws.on('error', () => this.dispatchEvent(new Event('error')));
 		ws.on('close', (code: number, reason: Buffer) =>
 			this.dispatchEvent(
 				new CloseEventImpl('close', { code, reason: reason.toString(), wasClean: code !== 1006 }),
@@ -280,6 +338,13 @@ class ServerWebSocket extends EventTarget {
 		this.#readyState = this.CLOSED;
 		this.dispatchEvent(new Event('error'));
 		this.dispatchEvent(new CloseEventImpl('close', { code: 1006, wasClean: false }));
+	}
+
+	#onListenerError(error: unknown): void {
+		const message = error instanceof Error ? error.stack || error.message : String(error);
+		this.#logger.error(`Uncaught error in a WebSocket listener for ${this.url}\n${message}`);
+		// 1011: the server hit an unexpected condition (RFC 6455 §7.4.1).
+		this.close(1011, 'Internal Error');
 	}
 
 	#setHandler(type: string, handler: EventHandler): void {
