@@ -17,6 +17,35 @@ export const create = (
 	});
 
 	return tsServicePlugins.map<LanguageServicePlugin>((plugin) => {
+		if (plugin.name === 'typescript-syntactic') {
+			return {
+				...plugin,
+				create(context): LanguageServicePluginInstance {
+					const typeScriptPlugin = plugin.create(context);
+					return {
+						...typeScriptPlugin,
+						async provideDocumentSymbols(document, token) {
+							const symbols = await typeScriptPlugin.provideDocumentSymbols!(document, token);
+							const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
+							const root = decoded && context.language.scripts.get(decoded[0])?.generated?.root;
+							const label =
+								root instanceof AstroVirtualCode
+									? root.astroMeta.tsxRanges.renderScopeLabel
+									: undefined;
+							if (!symbols || !label) return symbols;
+
+							// The render scope holds the frontmatter, so its symbols belong at the top level.
+							return symbols.flatMap((symbol) =>
+								symbol.selectionRange.start.line === label.start.line &&
+								symbol.selectionRange.start.character === label.start.character
+									? (symbol.children ?? [])
+									: [symbol],
+							);
+						},
+					};
+				},
+			};
+		}
 		if (plugin.name === 'typescript-semantic') {
 			return {
 				...plugin,
