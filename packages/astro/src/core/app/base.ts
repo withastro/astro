@@ -26,6 +26,7 @@ import { validateAndDecodePathname } from '../util/pathname.js';
 import { setRenderOptions } from './render-options.js';
 import { validateHost } from './validate-headers.js';
 import type { WaitUntilHook } from '../wait-until.js';
+import type { UpgradeWebSocketHook } from '../websocket/types.js';
 import type { SSRManifest } from './types.js';
 
 export interface DevMatch {
@@ -80,6 +81,13 @@ export interface RenderOptions {
 	waitUntil?: WaitUntilHook;
 
 	/**
+	 * Accepts a WebSocket upgrade for the request. Adapters that can hold WebSocket connections
+	 * pass this so on-demand routes can use `context.websocket`. Without it,
+	 * `context.websocket` is `undefined`.
+	 */
+	upgradeWebSocket?: UpgradeWebSocketHook;
+
+	/**
 	 * **Advanced API**: you probably do not need to use this.
 	 *
 	 * Default: `app.match(request)`
@@ -96,6 +104,7 @@ export interface ResolvedRenderOptions {
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
 	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;
+	upgradeWebSocket?: RenderOptions['upgradeWebSocket'];
 }
 
 export interface RenderErrorOptions extends ResolvedRenderOptions {
@@ -348,6 +357,7 @@ export abstract class BaseApp {
 			prerenderedErrorPageFetch = fetch,
 			routeData,
 			waitUntil,
+			upgradeWebSocket,
 		}: RenderOptions = {},
 	): Promise<Response> {
 		// Lazily resolve the logger destination from the manifest on the first request.
@@ -398,6 +408,7 @@ export abstract class BaseApp {
 			locals,
 			routeData,
 			waitUntil,
+			upgradeWebSocket,
 		};
 
 		let response: Response;

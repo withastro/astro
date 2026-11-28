@@ -3680,6 +3680,58 @@ export interface AstroUserConfig<
 		redirectPage?: boolean;
 
 		/**
+		 * @name experimental.websocket
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 7.5
+		 * @description
+		 *
+		 * Lets on-demand endpoints accept WebSocket connections through `context.websocket`, when the
+		 * adapter supports it. The upgrade request runs through middleware like any other request, so
+		 * `locals`, cookies and sessions are available before the connection is accepted.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     websocket: true,
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * ```ts
+		 * // src/pages/api/echo.ts
+		 * import type { APIRoute } from 'astro';
+		 *
+		 * export const prerender = false;
+		 *
+		 * export const GET: APIRoute = ({ websocket }) => {
+		 *   if (!websocket?.isUpgradeRequest()) {
+		 *     return new Response('Expected a WebSocket upgrade', { status: 426 });
+		 *   }
+		 *   const { socket, response } = websocket.upgrade();
+		 *   socket.addEventListener('message', (event) => socket.send(event.data));
+		 *   return response;
+		 * };
+		 * ```
+		 *
+		 * `context.websocket` is `undefined` when the adapter cannot accept WebSocket connections, for
+		 * example on serverless functions.
+		 *
+		 * Upgrade requests sent by a page on another site are rejected with a `403` before middleware
+		 * runs, whatever `security.checkOrigin` is set to. Browsers apply no CORS rules to WebSockets
+		 * and can attach the user's cookies to them, so this stops other sites from connecting as
+		 * your signed-in users. Clients that send no `Origin` header, such as servers and mobile apps,
+		 * are not affected.
+		 *
+		 * The session is saved when the upgrade request finishes, so changes made to
+		 * `context.session` inside a socket listener are not persisted.
+		 */
+		websocket?: boolean;
+
+		/**
 		 * @name experimental.parallelPrerender
 		 * @type {boolean | { workers?: number }}
 		 * @default `false`

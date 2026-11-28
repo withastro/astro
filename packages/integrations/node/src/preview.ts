@@ -9,11 +9,13 @@ type MaybeServerModule = Partial<ServerModule>;
 
 const createPreviewServer: CreatePreviewServer = async (preview) => {
 	let ssrHandler: ServerModule['handler'];
+	let upgradeHandler: ServerModule['upgradeHandler'];
 	try {
 		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 		const ssrModule: MaybeServerModule = await import(preview.serverEntrypoint.toString());
 		if (typeof ssrModule.handler === 'function') {
 			ssrHandler = ssrModule.handler;
+			upgradeHandler = ssrModule.upgradeHandler;
 		} else {
 			throw new AstroError(
 				`The server entrypoint doesn't have a handler. Are you sure this is the right file?`,
@@ -42,6 +44,7 @@ const createPreviewServer: CreatePreviewServer = async (preview) => {
 
 	const port = preview.port ?? 4321;
 	const server = createServer(ssrHandler, host, port);
+	if (upgradeHandler) server.server.on('upgrade', upgradeHandler);
 
 	// If user specified custom headers append a listener
 	// to the server to add those headers to response

@@ -521,6 +521,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.incrementalBuild),
 			redirectPage: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.redirectPage),
+			websocket: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.websocket),
 			parallelPrerender: z
 				.union([
 					z.boolean(),

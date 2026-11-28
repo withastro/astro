@@ -2228,6 +2228,38 @@ export const ActionsCantBeLoaded = {
 /**
  * @docs
  * @kind heading
+ * @name WebSocket Errors
+ */
+// WebSocket Errors
+/**
+ * @docs
+ * @message `context.websocket.upgrade()` was called for a request that is not a WebSocket upgrade request.
+ * @description
+ * Thrown when `context.websocket.upgrade()` is called for a request that did not ask to upgrade to a WebSocket. Check `context.websocket.isUpgradeRequest()` first, and return a normal response when it is `false`.
+ */
+export const WebSocketNotUpgradeRequest = {
+	name: 'WebSocketNotUpgradeRequest',
+	title: 'Request is not a WebSocket upgrade request.',
+	message:
+		'`context.websocket.upgrade()` was called for a request that is not a WebSocket upgrade request.',
+	hint: 'Check `context.websocket.isUpgradeRequest()` before calling `context.websocket.upgrade()`.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message `context.websocket.upgrade()` can only be called once per request.
+ * @description
+ * Thrown when `context.websocket.upgrade()` is called more than once while handling the same request. Each upgrade request opens a single connection.
+ */
+export const WebSocketAlreadyUpgraded = {
+	name: 'WebSocketAlreadyUpgraded',
+	title: 'WebSocket upgrade already accepted.',
+	message: '`context.websocket.upgrade()` can only be called once per request.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @kind heading
  * @name Session Errors
  */
 // Session Errors

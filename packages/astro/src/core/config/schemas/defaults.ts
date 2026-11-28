@@ -60,6 +60,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		chromeDevtoolsWorkspace: false,
 		incrementalBuild: false,
 		redirectPage: false,
+		websocket: false,
 		parallelPrerender: false,
 		collectionStorage: 'single-file',
 	},

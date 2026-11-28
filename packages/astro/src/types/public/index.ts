@@ -36,6 +36,11 @@ export type {
 export type { AstroIntegrationLogger } from '../../core/logger/core.js';
 export type { RedirectPageProps } from '../../core/routing/redirect-page.js';
 export type { AstroSession } from '../../core/session/runtime.js';
+export type {
+	AstroWebSocket,
+	UpgradeWebSocketHook,
+	WebSocketUpgrade,
+} from '../../core/websocket/types.js';
 export type { ToolbarServerHelpers } from '../../runtime/client/dev-toolbar/helpers.js';
 export type { AstroEnvironmentNames } from '../../core/constants.js';
 export type { Fetchable } from '../../core/fetch/types.js';

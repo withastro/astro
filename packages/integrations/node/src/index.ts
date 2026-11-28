@@ -77,6 +77,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 								staticHeaders: userOptions.staticHeaders ?? false,
 								bodySizeLimit: userOptions.bodySizeLimit ?? 1024 * 1024 * 1024,
 								experimentalDisableStreaming: userOptions.experimentalDisableStreaming ?? false,
+								experimentalWebSocket: config.experimental?.websocket ?? false,
 							}),
 						],
 					},
