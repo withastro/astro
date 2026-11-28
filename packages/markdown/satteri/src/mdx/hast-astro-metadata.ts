@@ -158,29 +158,33 @@ function processJsxNode(
 	}
 }
 
-export function createAstroMetadataPlugin(filePath: string): HastPluginDefinition {
+export function createAstroMetadataPlugin(filePath: string): HastPluginDefinition[] {
 	const imports = new Map<string, Set<ImportSpecifier>>();
-	return defineHastPlugin({
-		name: 'astro-metadata',
-		mdxjsEsm(node) {
-			const program = node.parseExpression();
-			if (program) {
-				collectImportsFromEsm(program, imports);
-			}
-		},
-
-		mdxJsxFlowElement: {
-			filter: [],
-			visit(node, ctx) {
-				processJsxNode(node, ctx, imports, filePath);
+	return [
+		defineHastPlugin({
+			name: 'astro-metadata-imports',
+			mdxjsEsm(node) {
+				const program = node.parseExpression();
+				if (program) {
+					collectImportsFromEsm(program, imports);
+				}
 			},
-		},
-
-		mdxJsxTextElement: {
-			filter: [],
-			visit(node, ctx) {
-				processJsxNode(node, ctx, imports, filePath);
+		}),
+		defineHastPlugin({
+			name: 'astro-metadata',
+			mdxJsxFlowElement: {
+				filter: [],
+				visit(node, ctx) {
+					processJsxNode(node, ctx, imports, filePath);
+				},
 			},
-		},
-	});
+
+			mdxJsxTextElement: {
+				filter: [],
+				visit(node, ctx) {
+					processJsxNode(node, ctx, imports, filePath);
+				},
+			},
+		}),
+	];
 }

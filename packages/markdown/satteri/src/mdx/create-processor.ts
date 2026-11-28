@@ -106,7 +106,7 @@ export function createSatteriMdxProcessor(
 			hastPlugins.push(
 				imageToComponent,
 				headingIds,
-				astroMeta,
+				...astroMeta,
 				literalizeScriptStyleExpression,
 				collapseScriptStyleText,
 			);
