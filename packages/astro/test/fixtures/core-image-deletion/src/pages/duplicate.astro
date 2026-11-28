@@ -1,0 +1,8 @@
+---
+import { Image } from "astro:assets";
+import duplicate from "../assets/duplicate.jpg";
+import duplicateCopy from "../assets/duplicateCopy.jpg";
+---
+
+<img id="duplicate" src={duplicate.src} alt="I'm kept, even though my identical copy is only optimized" />
+<Image id="duplicate-copy" src={duplicateCopy} alt="I have the same content as duplicate.jpg" />

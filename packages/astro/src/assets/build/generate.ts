@@ -399,6 +399,16 @@ export class StaticImageRegistry {
 		}
 	}
 
+	/** Marks every source image that shares an output file with a referenced image as referenced. */
+	addSharedReferences(
+		sharedImageFiles: ReadonlyMap<string, ReadonlySet<string>> | undefined,
+	): void {
+		if (!sharedImageFiles) return;
+		for (const fsPath of [...this.referencedImages]) {
+			this.addReferencedImages(sharedImageFiles.get(fsPath));
+		}
+	}
+
 	addMetadata(
 		metadata: { staticImages?: SerializedStaticImage[]; referencedImages?: string[] } | undefined,
 	): void {

@@ -339,6 +339,7 @@ async function generatePagesInBuildScope(
 				.map((x) => x.transforms.size)
 				.reduce((a, b) => a + b, 0);
 			const cpuCount = os.availableParallelism();
+			images.addSharedReferences(internals.sharedImageFiles);
 			const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount, {
 				loadImageService: () => loadBuildImageService(builder, options.settings),
 				referencedImages: images.referencedImages,

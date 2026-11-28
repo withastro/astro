@@ -53,6 +53,8 @@ export const ASSETS_ESM_PLUGIN_NAME = 'astro:assets:esm';
 export interface AssetsPluginApi {
 	markReferenced(fsPath: string): void;
 	readonly referencedImages: ReadonlySet<string>;
+	/** Maps a source image path to every source image path emitted to the same output file. */
+	readonly sharedImageFiles: ReadonlyMap<string, ReadonlySet<string>>;
 }
 
 export function getAssetsPluginApi(
