@@ -20,9 +20,15 @@ export function getOrigQueryParams(
 		return undefined;
 	}
 
+	const parsedWidth = Number(width);
+	const parsedHeight = Number(height);
+	if (!Number.isInteger(parsedWidth) || !Number.isInteger(parsedHeight)) {
+		return undefined;
+	}
+
 	return {
-		width: Number.parseInt(width),
-		height: Number.parseInt(height),
+		width: parsedWidth,
+		height: parsedHeight,
 		format: format as ImageInputFormat,
 	};
 }

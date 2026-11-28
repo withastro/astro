@@ -169,6 +169,11 @@ describe('getOrigQueryParams', () => {
 	it('returns undefined for empty params', () => {
 		assert.equal(getOrigQueryParams(new URLSearchParams()), undefined);
 	});
+
+	it('returns undefined for non-numeric dimensions', () => {
+		const params = new URLSearchParams('origWidth=abc&origHeight=600&origFormat=png');
+		assert.equal(getOrigQueryParams(params), undefined);
+	});
 });
 // #endregion
 
