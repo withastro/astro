@@ -30,6 +30,15 @@ describe('satteri createMdxRenderer', () => {
 
 		assert.match(code, /charset/);
 	});
+
+	it('resolves a hydrated component imported after its usage', async () => {
+		const renderer = await satteri().createMdxRenderer!(SHARED, { optimize: false } as any);
+		const source = "<Counter client:load />\n\nimport Counter from '../components/Counter.jsx';\n";
+		const { astroMetadata } = await renderer.process(source, PAGE_PATH, {});
+
+		assert.equal(astroMetadata.hydratedComponents.length, 1);
+		assert.equal(astroMetadata.hydratedComponents[0].specifier, 'Counter');
+	});
 });
 
 describe('satteri createMdxRenderer with optimize', () => {

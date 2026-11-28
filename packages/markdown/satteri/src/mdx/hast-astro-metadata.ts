@@ -158,17 +158,24 @@ function processJsxNode(
 	}
 }
 
-export function createAstroMetadataPlugin(filePath: string): HastPluginDefinition {
+/**
+ * Returns two plugins sharing one import map: the first collects every ESM import, the second
+ * matches island components against them. Each plugin is a separate satteri pass, so components
+ * used before their `import` statement still resolve.
+ */
+export function createAstroMetadataPlugin(filePath: string): HastPluginDefinition[] {
 	const imports = new Map<string, Set<ImportSpecifier>>();
-	return defineHastPlugin({
-		name: 'astro-metadata',
+	const collectImports = defineHastPlugin({
+		name: 'astro-metadata-imports',
 		mdxjsEsm(node) {
 			const program = node.parseExpression();
 			if (program) {
 				collectImportsFromEsm(program, imports);
 			}
 		},
-
+	});
+	const analyzeComponents = defineHastPlugin({
+		name: 'astro-metadata',
 		mdxJsxFlowElement: {
 			filter: [],
 			visit(node, ctx) {
@@ -183,4 +190,5 @@ export function createAstroMetadataPlugin(filePath: string): HastPluginDefinitio
 			},
 		},
 	});
+	return [collectImports, analyzeComponents];
 }
