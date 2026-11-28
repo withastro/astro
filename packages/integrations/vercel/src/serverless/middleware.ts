@@ -205,17 +205,18 @@ export default async function middleware(request, context) {
 			},
 			...(request.body ? { body: request.body, duplex: 'half' } : {}),
 		});
+
+		// Relay response headers with useful cache status details to the client
+		response.headers.set("X-Astro-Vercel-Age", response.headers.get("Age"));
+		response.headers.set("X-Astro-Vercel-Cache", response.headers.get("X-Vercel-Cache"));
+		response.headers.set("X-Astro-Vercel-Id", response.headers.get("X-Vercel-Id"));
+
 		return new Response(response.body, {
 			status: response.status,
 			statusText: response.statusText,
 			headers: response.headers,
 		});
 	};
-
-	// Relay response headers with useful cache status details to the client
-	response.headers.set("X-Astro-Vercel-Age", response.headers.get("Age"));
-	response.headers.set("X-Astro-Vercel-Cache", response.headers.get("X-Vercel-Cache"));
-	response.headers.set("X-Astro-Vercel-Id", response.headers.get("X-Vercel-Id"));
 
 	const response = await onRequest(ctx, next);
 	// Append cookies from Astro.cookies
