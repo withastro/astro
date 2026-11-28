@@ -4,7 +4,13 @@ import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import astro from '@astrojs/vite-plugin-astro';
 import viteVue from '@vitejs/plugin-vue';
-import { createBuilder, createServer, type InlineConfig, type ViteDevServer } from 'vite';
+import {
+	createBuilder,
+	createServer,
+	resolveConfig,
+	type InlineConfig,
+	type ViteDevServer,
+} from 'vite';
 import vue from '../dist/index.js';
 
 const root = new URL('./fixtures/renderer/', import.meta.url);
@@ -91,5 +97,29 @@ describe('@astrojs/vue-renderer: build', () => {
 		const rendererUrl = /renderer-url="([^"]+)"/.exec(html)?.[1];
 		assert.match(rendererUrl ?? '', /^\/assets\/.+\.js$/);
 		await fs.access(new URL(`./dist/client${rendererUrl}`, root));
+	});
+});
+
+describe('@astrojs/vue-renderer: optimizeDeps', () => {
+	// https://github.com/withastro/astro/issues/18842
+	it('pre-bundles `vue/server-renderer` with `vue` in server environments that run the optimizer', async () => {
+		const config = await resolveConfig(
+			{
+				configFile: false,
+				logLevel: 'silent',
+				root: fileURLToPath(root),
+				plugins: [astro({ renderers: [vue()] }), viteVue()],
+				// What adapters for non-Node runtimes (e.g. `@astrojs/cloudflare`) set in dev.
+				environments: { workerd: { consumer: 'server', optimizeDeps: { noDiscovery: false } } },
+			},
+			'serve',
+		);
+		const { client, ssr, workerd } = config.environments;
+		assert.ok(workerd.optimizeDeps.include?.includes('vue'));
+		assert.ok(workerd.optimizeDeps.include?.includes('vue/server-renderer'));
+		assert.equal(workerd.optimizeDeps.exclude?.includes('vue/server-renderer'), false);
+		// Unchanged elsewhere: the client pre-bundle still leaves it out, and `ssr` does not run the optimizer.
+		assert.ok(client.optimizeDeps.exclude?.includes('vue/server-renderer'));
+		assert.equal(ssr.optimizeDeps.include?.includes('vue/server-renderer'), false);
 	});
 });
