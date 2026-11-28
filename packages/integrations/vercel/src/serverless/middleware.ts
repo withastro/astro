@@ -193,7 +193,7 @@ export default async function middleware(request, context) {
 	const { origin, pathname } = new URL(request.url);
 	const next = async () => {
 		const { vercel, ...locals } = ctx.locals;
-		const response = await fetch(new URL(forwardPath(pathname), request.url), {
+		const innerResponse = await fetch(new URL(forwardPath(pathname), request.url), {
 			method: request.method,
 			// Redirects from the rendered route must reach the client, not be followed here.
 			redirect: 'manual',
@@ -205,11 +205,19 @@ export default async function middleware(request, context) {
 			},
 			...(request.body ? { body: request.body, duplex: 'half' } : {}),
 		});
-		return new Response(response.body, {
-			status: response.status,
-			statusText: response.statusText,
-			headers: response.headers,
+
+		const response = new Response(innerResponse.body, {
+			status: innerResponse.status,
+			statusText: innerResponse.statusText,
+			headers: innerResponse.headers,
 		});
+
+		// Relay response headers with useful cache status details to the client
+		response.headers.set("X-Astro-Vercel-Age", response.headers.get("Age"));
+		response.headers.set("X-Astro-Vercel-Cache", response.headers.get("X-Vercel-Cache"));
+		response.headers.set("X-Astro-Vercel-Id", response.headers.get("X-Vercel-Id"));
+
+		return response;
 	};
 
 	const response = await onRequest(ctx, next);
