@@ -24,11 +24,15 @@ export interface ErrorHandler {
  * request, dispatching to the strategy the manifest's environment selects:
  * production/container default, dev (overlay + custom error routes, with or
  * without CSP meta-tag injection), or build (500s throw so the build fails).
+ *
+ * @param streaming The app's streaming flag for the production default
+ *   strategy. When `undefined`, the environment default applies.
  */
 export function renderErrorPage(
 	manifest: SSRManifest,
 	request: Request,
 	options: RenderErrorOptions,
+	streaming?: boolean,
 ): Promise<Response> {
 	const env = getEnvironment(manifest);
 	switch (env.errorStrategy) {
@@ -39,7 +43,7 @@ export function renderErrorPage(
 		case 'build':
 			return renderBuildError(manifest, request, options);
 		case 'default':
-			return renderDefaultError(manifest, request, options);
+			return renderDefaultError(manifest, request, options, streaming);
 	}
 }
 

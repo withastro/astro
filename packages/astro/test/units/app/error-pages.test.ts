@@ -353,6 +353,72 @@ describe('App render error pages', () => {
 		assert.match(await response.text(), /This is an error page/);
 	});
 
+	it('renders the 500 page without streaming when the app has streaming disabled', async () => {
+		const errorRouteData = makeRouteData({
+			route: '/causes-error',
+			component: 'src/pages/causes-error.astro',
+			params: [],
+			pathname: '/causes-error',
+			distURL: [],
+			pattern: /^\/causes-error\/?$/,
+			segments: [[{ content: 'causes-error', dynamic: false, spread: false }]],
+			type: 'page',
+			prerender: false,
+			fallbackRoutes: [],
+			isIndex: false,
+			origin: 'project',
+		});
+
+		const internalErrorRouteData = makeRouteData({
+			route: '/500',
+			component: 'src/pages/500.astro',
+			params: [],
+			pathname: '/500',
+			distURL: [],
+			pattern: /^\/500\/?$/,
+			segments: [[{ content: '500', dynamic: false, spread: false }]],
+			type: 'page',
+			prerender: false,
+			fallbackRoutes: [],
+			isIndex: false,
+			origin: 'project',
+		});
+
+		const pageMap = new Map([
+			[
+				errorRouteData.component,
+				async () => ({
+					page: async () => ({
+						default: createComponent(() => {
+							throw new Error('oops');
+						}),
+					}),
+				}),
+			],
+			[
+				internalErrorRouteData.component,
+				async () => ({
+					page: async () => ({
+						default: createComponent(() => render`<h1>This is an error page</h1>`),
+					}),
+				}),
+			],
+		]);
+
+		const manifest = createManifest({
+			routes: [{ routeData: errorRouteData }, { routeData: internalErrorRouteData }],
+			pageMap,
+		} as any) as unknown as SSRManifest;
+		const app = new App(manifest, false);
+		const request = new Request('http://example.com/causes-error');
+		const response = await app.render(request, { routeData: errorRouteData });
+
+		assert.equal(response.status, 500);
+		const body = await response.text();
+		assert.match(body, /This is an error page/);
+		assert.equal(response.headers.get('content-length'), String(Buffer.byteLength(body)));
+	});
+
 	it('renders the 404 page when an API route lacks a handler in production', async () => {
 		const apiRouteData = makeRouteData({
 			route: '/api/route',

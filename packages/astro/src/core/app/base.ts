@@ -233,7 +233,8 @@ export abstract class BaseApp {
 	 */
 	protected createErrorHandler(): ErrorHandler {
 		return {
-			renderError: (request, options) => renderErrorPage(this.manifest, request, options),
+			renderError: (request, options) =>
+				renderErrorPage(this.manifest, request, options, this.resolveStreaming()),
 		};
 	}
 
