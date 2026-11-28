@@ -1,0 +1,67 @@
+import * as assert from 'node:assert/strict';
+import * as path from 'node:path';
+import { describe, it } from 'node:test';
+import { pathToFileURL } from 'node:url';
+import { resolveConfig } from 'vite';
+import { compileAstro } from '@astrojs/vite-plugin-astro/_internal/vite-plugin-astro/compile.js';
+import type { AstroConfig } from '../../../dist/types/public/config.js';
+import type { CompileProps } from '@astrojs/vite-plugin-astro/_internal/core/compile/compile.js';
+
+const source = `<p class="box">Hi</p><style>.box { color: red; }</style>`;
+
+/** Compile `source` as `filename` within `root` and return the scope id used by the HTML and CSS. */
+async function compileScope(root: string, filename: string) {
+	const viteConfig = await resolveConfig({ configFile: false }, 'serve');
+	const props: CompileProps = {
+		astroConfig: {
+			root: pathToFileURL(root + path.sep),
+			base: '/',
+			experimental: {},
+			build: { format: 'directory' },
+			trailingSlash: 'ignore',
+		} as AstroConfig,
+		viteConfig,
+		toolbarEnabled: false,
+		filename: filename.replaceAll(path.sep, '/'),
+		source,
+	};
+	const result = await compileAstro({
+		compileProps: props as any,
+		astroFileToCompileMetadata: new Map(),
+	});
+	return {
+		html: /astro-[a-z0-9]{8}/.exec(result.code)?.[0],
+		css: /astro-[a-z0-9]{8}/.exec(result.css[0].code)?.[0],
+	};
+}
+
+const isCaseInsensitiveFs = process.platform === 'win32' || process.platform === 'darwin';
+
+describe('Scoped style hash', () => {
+	const root = path.resolve('/tmp/my-site');
+	const mismatchedRoot = path.resolve('/TMP/my-site');
+	const filename = path.join(root, 'src/components/Box.astro');
+
+	it('is the same when the root casing differs from the file path casing', {
+		skip: !isCaseInsensitiveFs,
+	}, async () => {
+		const matching = await compileScope(root, filename);
+		const mismatched = await compileScope(mismatchedRoot, filename);
+
+		assert.ok(matching.html);
+		assert.equal(matching.css, matching.html);
+		assert.equal(mismatched.html, matching.html);
+		assert.equal(mismatched.css, matching.html);
+	});
+
+	it('treats a root with different casing as a different directory on case-sensitive filesystems', {
+		skip: isCaseInsensitiveFs,
+	}, async () => {
+		const matching = await compileScope(root, filename);
+		const mismatched = await compileScope(mismatchedRoot, filename);
+
+		assert.ok(matching.html);
+		assert.equal(mismatched.css, mismatched.html);
+		assert.notEqual(mismatched.html, matching.html);
+	});
+});
