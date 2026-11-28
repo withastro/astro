@@ -103,7 +103,7 @@ describe('@astrojs/vue-renderer: build', () => {
 describe('@astrojs/vue-renderer: optimizeDeps', () => {
 	// https://github.com/withastro/astro/issues/18842
 	it('pre-bundles `vue/server-renderer` with `vue` in server environments that run the optimizer', async () => {
-		const config = await resolveConfig(
+		const resolvedConfig = await resolveConfig(
 			{
 				configFile: false,
 				logLevel: 'silent',
@@ -114,7 +114,7 @@ describe('@astrojs/vue-renderer: optimizeDeps', () => {
 			},
 			'serve',
 		);
-		const { client, ssr, workerd } = config.environments;
+		const { client, ssr, workerd } = resolvedConfig.environments;
 		assert.ok(workerd.optimizeDeps.include?.includes('vue'));
 		assert.ok(workerd.optimizeDeps.include?.includes('vue/server-renderer'));
 		assert.equal(workerd.optimizeDeps.exclude?.includes('vue/server-renderer'), false);
