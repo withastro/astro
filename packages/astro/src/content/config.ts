@@ -1,3 +1,4 @@
+import type { StandardJSONSchemaV1, StandardSchemaV1 } from '@standard-schema/spec';
 import type * as zCore from 'zod/v4/core';
 import type * as z from 'zod/v4';
 import {
@@ -5,6 +6,7 @@ import {
 	AstroErrorData,
 	AstroUserError,
 } from '@astrojs/runtime/_internal/core/errors/index.js';
+import { isSchemaFactory } from '../core/errors/standard-schema.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
 
@@ -73,11 +75,48 @@ export interface MetaStore {
 	has: (key: string) => boolean;
 }
 
-export type BaseSchema = zCore.$ZodType;
+/**
+ * A [Standard Schema](https://standardschema.dev/) validator for collection entries.
+ * The schema's output determines the type of `entry.data`.
+ */
+export type BaseSchema = StandardSchemaV1;
+
+/**
+ * A schema that can additionally describe itself as JSON Schema, per
+ * https://standardschema.dev/json-schema. Astro uses this to generate the `.schema.json`
+ * files that give data collections autocompletion and validation in editors.
+ *
+ * This is a capability, not a requirement: a collection schema is only ever typed as
+ * `BaseSchema`, and the extra methods are detected at runtime. Validators that do not
+ * implement the JSON Schema spec still work; only the generated JSON Schema is skipped.
+ */
+export type JSONSchemaCapableSchema = StandardSchemaV1 & StandardJSONSchemaV1;
+
+/** The type an entry has once it has been validated by `S`. */
+export type InferSchemaOutput<S> = S extends StandardSchemaV1
+	? StandardSchemaV1.InferOutput<S>
+	: never;
 
 export type { ImageFunction };
 
-export type SchemaContext = { image: ImageFunction };
+/** @deprecated Pass the schema directly to `defineCollection()` and import `image` from `astro/content/fields`. This type will be removed in Astro 8. */
+export interface SchemaContext {
+	/**
+	 * @deprecated Import `image` from `astro/content/fields` and call it with the image
+	 * path in a schema transform. The context helper will be removed in Astro 8.
+	 * Local image metadata is available after validation:
+	 *
+	 * ```js
+	 * schema: z.object({
+	 *   cover: z.string().transform((src) => image(src)),
+	 * })
+	 * ```
+	 */
+	image: ImageFunction;
+}
+
+/** @deprecated Use a static Standard Schema validator instead. Schema factories will be removed in Astro 8. */
+type SchemaFactory<S extends BaseSchema> = (context: SchemaContext) => S;
 
 type LoaderConstraint<TData extends { id: string }> =
 	| Loader
@@ -89,18 +128,18 @@ type LoaderConstraint<TData extends { id: string }> =
 
 type ContentLayerConfig<S extends BaseSchema, TLoader extends LoaderConstraint<{ id: string }>> = {
 	type?: 'content_layer';
-	schema?: S | ((context: SchemaContext) => S);
+	schema?: S | SchemaFactory<S>;
 	loader: TLoader;
 };
 
 type DataCollectionConfig<S extends BaseSchema> = {
 	type: 'data';
-	schema?: S | ((context: SchemaContext) => S);
+	schema?: S | SchemaFactory<S>;
 };
 
 type ContentCollectionConfig<S extends BaseSchema> = {
 	type?: 'content';
-	schema?: S | ((context: SchemaContext) => S);
+	schema?: S | SchemaFactory<S>;
 	loader?: never;
 };
 
@@ -109,12 +148,13 @@ export type LiveCollectionConfig<
 	S extends BaseSchema | undefined = undefined,
 > = {
 	type?: 'live';
+	/** Validates entries at query time. Its parsed output takes precedence over the loader's data type. */
 	schema?: S;
 	loader: L;
 };
 
 export type CollectionConfig<
-	S extends BaseSchema,
+	S extends BaseSchema = BaseSchema,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
 > = ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S, TLoader>;
 
@@ -165,11 +205,11 @@ export function defineLiveCollection<
 		});
 	}
 
-	if (typeof config.schema === 'function') {
+	if (isSchemaFactory(config.schema)) {
 		throw new AstroError({
 			...AstroErrorData.LiveContentConfigError,
 			message: AstroErrorData.LiveContentConfigError.message(
-				'The schema cannot be a function for live collections. Please use a schema object instead.',
+				'Live collections do not support schema factories. Pass the schema directly.',
 				importerFilename,
 			),
 		});
@@ -178,10 +218,12 @@ export function defineLiveCollection<
 	return config;
 }
 
+export function defineCollection<T extends CollectionConfig>(config: T): T;
 export function defineCollection<
 	S extends BaseSchema,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
->(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader> {
+>(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader>;
+export function defineCollection(config: CollectionConfig): CollectionConfig {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {
@@ -214,3 +256,94 @@ export function defineCollection<
 	if (!config.type) config.type = 'content';
 	return config;
 }
+
+type Defined<T> = Exclude<T, undefined>;
+
+type HasSchema<S> = [Defined<S>] extends [never] ? false : true;
+
+type ResolveSchema<S> = S extends BaseSchema ? S : S extends SchemaFactory<infer R> ? R : never;
+
+type CollectionSchema<TCollection> = 'schema' extends keyof TCollection
+	? ResolveSchema<Defined<TCollection['schema']>>
+	: never;
+
+type LoaderSchema<TCollection> = TCollection extends { loader: { schema: infer S } }
+	? Extract<S, BaseSchema>
+	: never;
+
+type InferSchemaData<TCollection> =
+	HasSchema<CollectionSchema<TCollection>> extends true
+		? InferSchemaOutput<Defined<CollectionSchema<TCollection>>>
+		: HasSchema<LoaderSchema<TCollection>> extends true
+			? InferSchemaOutput<Defined<LoaderSchema<TCollection>>>
+			: any;
+
+/**
+ * The type of an entry's `data` in the `TName` collection of a content config. `astro sync`
+ * writes one of these per collection, so that the names in `DataMap` are known without
+ * resolving the config it reads them from — see {@link InferData}.
+ */
+export type InferCollectionData<TConfig, TName extends string> = [TConfig] extends [never]
+	? any
+	: TConfig extends { collections: infer TCollections }
+		? TName extends keyof TCollections
+			? InferSchemaData<TCollections[TName]>
+			: any
+		: any;
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+type EmptyDataMap = {};
+
+/**
+ * Map every collection in a content config to the type of its entry data:
+ *
+ * ```ts
+ * declare module 'astro:content' {
+ *   type ContentConfig = typeof import('../src/content.config.js');
+ *   interface DataMap extends InferData<ContentConfig> {}
+ * }
+ * ```
+ *
+ * This is not how `astro sync` writes `DataMap`, because the whole map cannot be resolved
+ * without resolving the config, and the config resolves `reference()`, which needs the
+ * collection names. It writes {@link InferCollectionData} per collection instead, so the names
+ * are declared up front and only the data behind each one is inferred. Use this when writing
+ * a `DataMap` by hand for a config that does not call `reference()`.
+ */
+export type InferData<TConfig> = [TConfig] extends [never]
+	? EmptyDataMap
+	: TConfig extends { collections: infer TCollections }
+		? { [K in keyof TCollections & string]: InferSchemaData<TCollections[K]> }
+		: EmptyDataMap;
+
+type LiveLoaderOf<TCollection> = TCollection extends { loader: infer L } ? L : never;
+
+type InferLiveLoaderTypes<TLoader> =
+	TLoader extends LiveLoader<infer TData, infer TEntryFilter, infer TCollectionFilter, infer TError>
+		? {
+				data: TData;
+				entryFilter: TEntryFilter;
+				collectionFilter: TCollectionFilter;
+				error: TError;
+			}
+		: { data: never; entryFilter: never; collectionFilter: never; error: never };
+
+/**
+ * Everything a live collection is typed by: the data its loader returns (or its schema
+ * produces, when it has one) plus the filters and error type the loader accepts.
+ */
+export type InferLiveCollectionTypes<TCollection> = {
+	data: HasSchema<CollectionSchema<TCollection>> extends true
+		? InferSchemaOutput<Defined<CollectionSchema<TCollection>>>
+		: InferLiveLoaderTypes<LiveLoaderOf<TCollection>>['data'];
+	entryFilter: InferLiveLoaderTypes<LiveLoaderOf<TCollection>>['entryFilter'];
+	collectionFilter: InferLiveLoaderTypes<LiveLoaderOf<TCollection>>['collectionFilter'];
+	error: InferLiveLoaderTypes<LiveLoaderOf<TCollection>>['error'];
+};
+
+/** The `InferData` of live collections: every collection in a live config, fully typed. */
+export type InferLiveData<TConfig> = [TConfig] extends [never]
+	? EmptyDataMap
+	: TConfig extends { collections: infer TCollections }
+		? { [K in keyof TCollections & string]: InferLiveCollectionTypes<TCollections[K]> }
+		: EmptyDataMap;

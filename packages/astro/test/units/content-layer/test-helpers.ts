@@ -82,7 +82,7 @@ export function parseSimpleMarkdownFrontmatter(contents: string, fileUrl: string
 	if (frontmatterStart === -1 || frontmatterEnd === -1) {
 		const pathname = typeof fileUrl === 'string' ? fileUrl : fileUrl.pathname;
 		const slug = path.basename(pathname, '.md');
-		return { data: {} as Record<string, any>, body: contents, slug, rawData: {} };
+		return { data: {} as Record<string, any>, body: contents, slug, rawData: '' };
 	}
 
 	const frontmatterLines = lines.slice(frontmatterStart + 1, frontmatterEnd);
@@ -109,7 +109,7 @@ export function parseSimpleMarkdownFrontmatter(contents: string, fileUrl: string
 
 	const pathname = typeof fileUrl === 'string' ? fileUrl : fileUrl.pathname;
 	const slug = path.basename(pathname, '.md');
-	return { data, body, slug, rawData: data };
+	return { data, body, slug, rawData: '\n' + frontmatterLines.join('\n') };
 }
 
 /**

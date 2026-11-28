@@ -1,7 +1,7 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { escape } from 'html-escaper';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import * as z from 'zod/v4';
-import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
@@ -26,7 +26,7 @@ import type {
 	LiveDataEntryResult,
 } from '../types/public/content.js';
 import { defineCollection as defineCollectionOrig } from './config.js';
-import type { LIVE_CONTENT_TYPE } from './consts.js';
+import { type LIVE_CONTENT_TYPE, REFERENCE_FIELD_MARKER } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import {
 	LiveCollectionCacheHintError,
@@ -45,7 +45,7 @@ export {
 type LazyImport = () => Promise<any>;
 type LiveCollectionConfigMap = Record<
 	string,
-	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: zCore.$ZodType }
+	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: StandardSchemaV1 }
 >;
 
 const cacheHintSchema = z.object({
@@ -55,14 +55,14 @@ const cacheHintSchema = z.object({
 
 async function parseLiveEntry(
 	entry: LiveDataEntry,
-	schema: zCore.$ZodType,
+	schema: StandardSchemaV1,
 	collection: string,
 ): Promise<{ entry?: LiveDataEntry; error?: LiveCollectionError }> {
 	try {
-		const parsed = await z.safeParseAsync(schema, entry.data);
-		if (!parsed.success) {
+		const parsed = await schema['~standard'].validate(entry.data);
+		if (parsed.issues) {
 			return {
-				error: new LiveCollectionValidationError(collection, entry.id, parsed.error),
+				error: new LiveCollectionValidationError(collection, entry.id, parsed.issues),
 			};
 		}
 		if (entry.cacheHint) {
@@ -70,7 +70,7 @@ async function parseLiveEntry(
 
 			if (!cacheHint.success) {
 				return {
-					error: new LiveCollectionCacheHintError(collection, entry.id, cacheHint.error),
+					error: new LiveCollectionCacheHintError(collection, entry.id, cacheHint.error.issues),
 				};
 			}
 			entry.cacheHint = cacheHint.data;
@@ -78,7 +78,7 @@ async function parseLiveEntry(
 		return {
 			entry: {
 				...entry,
-				data: parsed.data as Record<string, unknown>,
+				data: parsed.value as Record<string, unknown>,
 			},
 		};
 	} catch (error) {
@@ -331,7 +331,11 @@ export function createGetLiveCollection({
 
 				if (!cacheHintResult.success) {
 					return {
-						error: new LiveCollectionCacheHintError(collection, undefined, cacheHintResult.error),
+						error: new LiveCollectionCacheHintError(
+							collection,
+							undefined,
+							cacheHintResult.error.issues,
+						),
 					};
 				}
 				cacheHint = cacheHintResult.data;
@@ -543,7 +547,7 @@ function resolveImageAtPath(
 	src: string,
 	fileName: string | undefined,
 	imageAssetMap: Map<string, ImageMetadata> | undefined,
-): unknown {
+) {
 	const id = imageSrcToImportId(src, fileName);
 	if (!id) {
 		return undefined;
@@ -603,16 +607,37 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	}
 	let result = data;
 	for (const path of imageImports) {
-		let src: unknown = result;
+		let current: unknown = result;
 		for (const key of path) {
-			src = (src as Record<string | number, unknown>)?.[key];
+			current = (current as Record<string | number, unknown>)?.[key];
 		}
-		if (typeof src !== 'string') {
+
+		if (typeof current === 'string') {
+			const resolved = resolveImageAtPath(current, fileName, imageAssetMap);
+			if (resolved !== undefined) {
+				result = setAtPathCopying(result, path, resolved);
+			}
 			continue;
 		}
-		const resolved = resolveImageAtPath(src, fileName, imageAssetMap);
-		if (resolved !== undefined) {
-			result = setAtPathCopying(result, path, resolved);
+
+		// Schema transforms can add fields to the image object. Preserve them when merging metadata.
+		if (current && typeof current === 'object' && typeof (current as any).src === 'string') {
+			const src = (current as any).src;
+			const resolved = resolveImageAtPath(src, fileName, imageAssetMap);
+			if (resolved === undefined) {
+				if (isRemotePath(src)) {
+					result = setAtPathCopying(result, path, src);
+				}
+				continue;
+			}
+			result = setAtPathCopying(
+				result,
+				path,
+				// An SVG import can resolve to a component factory.
+				typeof resolved === 'function'
+					? resolved
+					: Object.defineProperties({ ...current }, Object.getOwnPropertyDescriptors(resolved)),
+			);
 		}
 	}
 	return result;
@@ -758,11 +783,73 @@ async function render({
 	}
 }
 
+export type EntryReference<C extends string, Id extends string = string> = {
+	collection: C;
+	id: Id;
+};
+export type ReferenceField<C extends string = string> =
+	| EntryReference<C>
+	| { collection: C; slug: string };
+export type ReferenceLookup<C extends string = string> = string | number | ReferenceField<C>;
+
+// The referenced collection might not have loaded yet. ContentLayer.validateReferences checks
+// that the entry exists after all loaders finish.
+function resolveReference<C extends string>(
+	collection: C,
+	lookup: unknown,
+): { ok: true; value: ReferenceField<C> } | { ok: false; message: string } {
+	if (typeof lookup === 'number') {
+		return { ok: true, value: { id: lookup.toString(10), collection } };
+	}
+	if (typeof lookup === 'string') {
+		return { ok: true, value: { id: lookup, collection } };
+	}
+	if (lookup !== null && typeof lookup === 'object') {
+		const entry = lookup as { collection?: unknown; id?: unknown; slug?: unknown };
+		if (typeof entry.collection === 'string') {
+			if (entry.collection !== collection) {
+				return {
+					ok: false,
+					message: `expected a reference to \`${collection}\`, but received one to \`${entry.collection}\`.`,
+				};
+			}
+			if (typeof entry.id === 'string') {
+				return { ok: true, value: { id: entry.id, collection } };
+			}
+			if (typeof entry.slug === 'string') {
+				return { ok: true, value: { slug: entry.slug, collection } };
+			}
+		}
+	}
+	return {
+		ok: false,
+		message: `expected an entry id, as a string or a number, but received ${JSON.stringify(lookup) ?? typeof lookup}.`,
+	};
+}
+
+/** Converts an entry ID or reference object to a normalized reference for the given collection. */
+export function reference<C extends string>(
+	collection: C,
+	lookup: ReferenceLookup<C>,
+): EntryReference<C> {
+	const resolved = resolveReference(collection, lookup);
+	if (!resolved.ok) {
+		throw new AstroError({
+			...AstroErrorData.InvalidContentReferenceError,
+			message: AstroErrorData.InvalidContentReferenceError.message(collection, resolved.message),
+		});
+	}
+	const value = resolved.value;
+	const entry = 'id' in value ? value : { collection, id: value.slug };
+	return Object.defineProperty(entry, REFERENCE_FIELD_MARKER, { value: true });
+}
+
+/** Creates the Zod schema factory used by `astro:content` for reference fields. */
 export function createReference() {
-	return function reference(collection: string) {
+	return (collection: string) => {
 		return z
 			.union([
-				z.number().transform((num) => num.toString(10)),
+				z.number(),
 				z.string(),
 				z.object({
 					id: z.string(),
@@ -774,22 +861,12 @@ export function createReference() {
 				}),
 			])
 			.transform((lookup, ctx) => {
-				if (typeof lookup === 'object') {
-					// If these don't match then something is wrong with the reference
-					if (lookup.collection !== collection) {
-						const flattenedErrorPath = ctx.issues[0]?.path?.join('.');
-
-						ctx.addIssue({
-							code: 'custom',
-							message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
-						});
-						return;
-					}
-					// If it is an object then we're validating later in the build, so we can check the collection at that point.
-					return lookup;
+				const resolved = resolveReference(collection, lookup);
+				if (!resolved.ok) {
+					ctx.addIssue({ code: 'custom', message: resolved.message });
+					return z.NEVER;
 				}
-
-				return { id: lookup, collection };
+				return Object.defineProperty(resolved.value, REFERENCE_FIELD_MARKER, { value: true });
 			});
 	};
 }

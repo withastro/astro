@@ -1,4 +1,5 @@
 import { defineCollection } from 'astro:content';
+import { image } from 'astro/content/fields';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
@@ -6,6 +7,8 @@ const blog = defineCollection({
 	loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
 	schema: z.object({
 		title: z.string(),
+		// A root-absolute path requires Vite's resolver after a dev server restart.
+		cover: z.string().transform((src) => image(src)),
 	}),
 });
 

@@ -52,6 +52,42 @@ describe('updateImageReferencesInData', () => {
 		assert.equal(result.image, './missing.png');
 	});
 
+	it('reads a remote image object back as the URL string', () => {
+		const data = { cover: { src: 'https://example.com/cover.jpg' } };
+		const result = updateImageReferencesInData(data, FILE_NAME, new Map(), [['cover']]);
+		assert.equal(result.cover, 'https://example.com/cover.jpg');
+	});
+
+	it('keeps local image metadata and defers tracking until the resolved src is read', () => {
+		let reads = 0;
+		const asset = Object.defineProperties(
+			{ ...heroMeta },
+			{
+				src: {
+					get() {
+						reads++;
+						return heroMeta.src;
+					},
+					enumerable: true,
+				},
+				fsPath: { value: '/images/hero.png', enumerable: false },
+			},
+		);
+		const data = { cover: { src: './hero.png', alt: 'Hero' } };
+		const result = updateImageReferencesInData(data, FILE_NAME, makeImageMap('./hero.png', asset), [
+			['cover'],
+		]);
+		assert.equal(reads, 0);
+		assert.equal(result.cover.alt, 'Hero');
+		assert.equal(
+			Object.getOwnPropertyDescriptor(result.cover, 'fsPath')?.value,
+			'/images/hero.png',
+		);
+		assert.equal(Object.keys(result.cover).includes('fsPath'), false);
+		assert.equal(result.cover.src, heroMeta.src);
+		assert.equal(reads, 1);
+	});
+
 	it('returns the data unchanged when there are no image imports', () => {
 		const data = { title: 'Hello', slug: 'hello-world' };
 		const result = updateImageReferencesInData(data, FILE_NAME, new Map(), undefined);

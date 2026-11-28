@@ -1,5 +1,5 @@
 import type { FSWatcher } from 'vite';
-import type * as z from 'zod/v4/core';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type {
@@ -24,6 +24,8 @@ export interface ParseDataOptions<TData extends Record<string, unknown>> {
 	data: TData;
 	/** An optional file path, where the entry represents a local file. */
 	filePath?: string;
+	/** Unparsed entry data with its original line breaks, used to locate validation errors. */
+	rawData?: string;
 }
 
 export interface LoaderContext {
@@ -61,13 +63,17 @@ export type Loader = {
 	load: (context: LoaderContext) => Promise<void>;
 } & (
 	| {
-			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-			schema?: z.$ZodType;
+			/** Default Standard Schema validator for entries. A schema in the collection config takes precedence. */
+			schema?: StandardSchemaV1;
 	  }
 	| {
-			/** Optionally, provide a function to dynamically provide a schema. Will be overridden by user-defined schema */
+			/**
+			 * Builds a default validator and TypeScript source that exports an `Entry` type.
+			 * Use this when the schema depends on data fetched at build time. A schema in the
+			 * collection config takes precedence.
+			 */
 			createSchema?: () => Promise<{
-				schema: z.$ZodType;
+				schema: StandardSchemaV1;
 				types: string;
 			}>;
 	  }

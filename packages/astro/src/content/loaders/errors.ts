@@ -1,8 +1,7 @@
-import type * as z from 'zod/v4/core';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
+import { formatSchemaIssues } from '../../core/errors/standard-schema.js';
 
-function formatZodError(error: z.$ZodError): string[] {
-	return error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`);
-}
+type ValidationIssues = StandardSchemaV1.FailureResult | readonly StandardSchemaV1.Issue[];
 
 export class LiveCollectionError extends Error {
 	public readonly collection: string;
@@ -38,12 +37,12 @@ export class LiveEntryNotFoundError extends LiveCollectionError {
 }
 
 export class LiveCollectionValidationError extends LiveCollectionError {
-	constructor(collection: string, entryId: string, error: z.$ZodError) {
+	constructor(collection: string, entryId: string, issues: ValidationIssues) {
 		super(
 			collection,
 			[
 				`**${collection} → ${entryId}** data does not match the collection schema.\n`,
-				...formatZodError(error),
+				...formatSchemaIssues('issues' in issues ? issues.issues : issues),
 				'',
 			].join('\n'),
 		);
@@ -55,12 +54,12 @@ export class LiveCollectionValidationError extends LiveCollectionError {
 }
 
 export class LiveCollectionCacheHintError extends LiveCollectionError {
-	constructor(collection: string, entryId: string | undefined, error: z.$ZodError) {
+	constructor(collection: string, entryId: string | undefined, issues: ValidationIssues) {
 		super(
 			collection,
 			[
 				`**${String(collection)}${entryId ? ` → ${String(entryId)}` : ''}** returned an invalid cache hint.\n`,
-				...formatZodError(error),
+				...formatSchemaIssues('issues' in issues ? issues.issues : issues),
 				'',
 			].join('\n'),
 		);

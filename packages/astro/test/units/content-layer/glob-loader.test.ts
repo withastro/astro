@@ -9,6 +9,8 @@ import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
+import { markdownContentEntryType } from '../../../dist/vite-plugin-markdown/content-entry-type.js';
+import { defaultLogger } from '../test-utils.ts';
 import {
 	createTempDir,
 	createTestConfigObserver,
@@ -32,6 +34,35 @@ function createRenderableMarkdownEntryType() {
 
 describe('Glob Loader', () => {
 	const root = new URL('../../fixtures/content-layer/', import.meta.url);
+
+	it('reports the source line of the first invalid Markdown frontmatter field', async (t) => {
+		const project = createTempDir();
+		t.after(() => rmSync(project, { recursive: true, force: true }));
+		const file = new URL('post.md', project);
+		writeFileSync(file, '\n---\ntitle: Hello\nauthors:\n  - "display.name": 42\n---\n');
+		const posts = defineCollection({
+			loader: glob({ pattern: '*.md' }),
+			schema: {
+				'~standard': {
+					version: 1,
+					vendor: 'test',
+					validate: () => ({
+						issues: [{ message: 'Expected a name', path: ['authors', 0, { key: 'display.name' }] }],
+					}),
+				},
+			},
+		});
+		const layer = new ContentLayer({
+			settings: createMinimalSettings(project, { contentEntryTypes: [markdownContentEntryType] }),
+			store: new MutableDataStore(),
+			logger: defaultLogger,
+			contentConfigObserver: createTestConfigObserver({ posts }),
+		});
+		await assert.rejects(layer.sync(), {
+			name: 'InvalidContentEntryDataError',
+			loc: { file: fileURLToPath(file), line: 5, column: 0 },
+		});
+	});
 
 	it('loads markdown files with glob pattern', async () => {
 		const store = new MutableDataStore();

@@ -9,9 +9,12 @@ import {
 	type RunnableDevEnvironment,
 	type ViteDevServer,
 } from 'vite';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import * as z from 'zod/v4';
+import type { JSONSchemaCapableSchema } from './config.js';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
 import { AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
+import { isSchemaFactory } from '../core/errors/standard-schema.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -370,10 +373,10 @@ function normalizeConfigPath(from: string, to: string) {
 	// on windows `path.relative` will use backslashes, these must be replaced with forward slashes
 	const normalizedPath = configPath.replaceAll('\\', '/');
 
-	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
+	return `"${isRelativePath(normalizedPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
-const createSchemaResultCache = new Map<string, { schema: z.ZodSchema; types: string }>();
+const createSchemaResultCache = new Map<string, { schema: StandardSchemaV1; types: string }>();
 
 async function getCreateSchemaResult<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
@@ -399,7 +402,7 @@ async function getCreateSchemaResult<T extends keyof ContentConfig['collections'
 async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
 	collectionKey: T,
-): Promise<z.ZodSchema | undefined> {
+): Promise<StandardSchemaV1 | undefined> {
 	if (collection?.type !== CONTENT_LAYER_TYPE || typeof collection.loader === 'function') {
 		return;
 	}
@@ -414,18 +417,22 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T] | undefined,
 	collectionKey: T,
 ): Promise<{ type: string; injectedType?: InjectedType }> {
-	if (collection?.schema) {
-		return { type: `InferEntrySchema<${collectionKey}>` };
-	}
-	if (!collection?.type || typeof collection.loader === 'function' || !collection.loader) {
+	if (!collection) {
 		return { type: 'any' };
 	}
-	if (typeof collection.loader === 'object' && collection.loader.schema) {
-		return { type: `InferLoaderSchema<${collectionKey}>` };
+	const inferred = { type: `InferCollectionData<ContentConfig, ${collectionKey}>` };
+	if (
+		collection.schema ||
+		!collection.type ||
+		typeof collection.loader === 'function' ||
+		!collection.loader ||
+		collection.loader.schema
+	) {
+		return inferred;
 	}
 	const result = await getCreateSchemaResult(collection, collectionKey);
 	if (!result) {
-		return { type: 'any' };
+		return inferred;
 	}
 	const base = `loaders/${collectionKey.slice(1, -1)}`;
 	return {
@@ -458,7 +465,7 @@ async function writeContentFiles({
 	logger: AstroLogger;
 	settings: AstroSettings;
 }) {
-	let dataTypesStr = '';
+	const dataMapEntries: string[] = [];
 
 	const collectionSchemasDir = new URL(COLLECTIONS_DIR, settings.dotAstroDir);
 	fs.mkdirSync(collectionSchemasDir, { recursive: true });
@@ -501,10 +508,7 @@ async function writeContentFiles({
 			return;
 		}
 
-		const { type: dataType, injectedType } = await typeForCollection(
-			collectionConfig,
-			collectionKey,
-		);
+		const { type, injectedType } = await typeForCollection(collectionConfig, collectionKey);
 
 		if (injectedType) {
 			if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
@@ -517,7 +521,7 @@ async function writeContentFiles({
 			}
 		}
 
-		dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  body?: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n  digest?: string | number;\n}>;\n`;
+		dataMapEntries.push(`${collectionKey}: ${type};`);
 
 		if (
 			collectionConfig &&
@@ -587,7 +591,12 @@ async function writeContentFiles({
 		}
 	}
 	typeTemplateContent = typeTemplateContent
-		.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr)
+		.replace('// @@DATA_MAP@@', dataMapEntries.join('\n\t\t'))
+		// Sync doesn't load the live config, so TypeScript must infer live collection names.
+		.replace(
+			' /* @@LIVE_DATA_MAP_BASE@@ */',
+			liveConfigPathRelativeToCacheDir ? ' extends InferLiveData<LiveContentConfig>' : '',
+		)
 		.replace(
 			"'@@CONTENT_CONFIG_TYPE@@'",
 			contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never',
@@ -614,6 +623,47 @@ async function writeContentFiles({
 	}
 }
 
+const JSON_SCHEMA_TARGET = 'draft-2020-12';
+
+function hasJsonSchema(schema: unknown): schema is JSONSchemaCapableSchema {
+	return typeof (schema as any)?.['~standard']?.jsonSchema?.input === 'function';
+}
+
+// Data files store dates as strings. Fields without a JSON representation must not
+// prevent editors from validating the rest of the collection.
+function getLibraryOptions(vendor: string): Record<string, unknown> | undefined {
+	switch (vendor) {
+		// https://zod.dev/json-schema#ztojsonschema
+		case 'zod':
+			return {
+				unrepresentable: 'any',
+				override: (ctx: any) => {
+					if (ctx.zodSchema?._zod?.def?.type === 'date') {
+						ctx.jsonSchema.type = 'string';
+						ctx.jsonSchema.format = 'date-time';
+					}
+				},
+			};
+		// https://github.com/open-circle/valibot/blob/main/packages/to-json-schema/README.md#configurations
+		case 'valibot':
+			return {
+				errorMode: 'ignore',
+				overrideSchema: (ctx: any) =>
+					ctx.valibotSchema?.type === 'date' ? { type: 'string', format: 'date-time' } : undefined,
+			};
+		// https://arktype.io/docs/configuration#tojsonschema
+		case 'arktype':
+			return {
+				fallback: {
+					default: (ctx: any) => ctx.base,
+					date: (ctx: any) => ({ ...ctx.base, type: 'string', format: 'date-time' }),
+				},
+			};
+		default:
+			return undefined;
+	}
+}
+
 async function generateJSONSchema(
 	fsMod: typeof import('node:fs'),
 	collectionConfig: CollectionConfig,
@@ -621,62 +671,78 @@ async function generateJSONSchema(
 	collectionSchemasDir: URL,
 	logger: AstroLogger,
 ) {
-	let zodSchemaForJson =
-		typeof collectionConfig.schema === 'function'
-			? collectionConfig.schema({ image: () => z.string() })
-			: collectionConfig.schema;
+	let collectionSchema = isSchemaFactory(collectionConfig.schema)
+		? collectionConfig.schema({
+				// The input schema describes the image path in the data file, before validation.
+				image: () => z.string() as any,
+			})
+		: collectionConfig.schema;
 
-	if (!zodSchemaForJson && collectionConfig.type === CONTENT_LAYER_TYPE) {
-		zodSchemaForJson = await getContentLayerSchema(collectionConfig, collectionKey);
+	if (!collectionSchema && collectionConfig.type === CONTENT_LAYER_TYPE) {
+		collectionSchema = await getContentLayerSchema(collectionConfig, collectionKey);
 	}
 
-	// The `file()` loader uses a schema which applies to every item in the file rather than a schema
-	// for the whole file. We special case this to provide the correct JSON schema to users.
-	// TODO: it would be nice if loaders could indicate this behavior so it wasn't unique to the built-in loader.
-	if (
-		collectionConfig.type === CONTENT_LAYER_TYPE &&
-		collectionConfig.loader.name === 'file-loader'
-	) {
-		// `file()` supports both top-level arrays and record objects. Generate an anyOf schema
-		// so VS Code validates correctly regardless of which shape the source file uses.
-		// `$schema` is injected into the object branch only — top-level array JSON files cannot
-		// reference a schema property per the JSON Schema spec.
-		const itemSchema = zodSchemaForJson;
-		zodSchemaForJson = z.union([
-			z.array(itemSchema),
-			z.object({ $schema: z.string().optional() }).catchall(itemSchema),
-		]);
-	}
-
-	if (zodSchemaForJson instanceof z.ZodObject) {
-		const existingMeta = z.globalRegistry.get(zodSchemaForJson);
-		zodSchemaForJson = zodSchemaForJson.extend({
-			$schema: z.string().optional(),
-		});
-		if (existingMeta) {
-			z.globalRegistry.add(zodSchemaForJson, existingMeta);
+	const schemaJsonPath = new URL(
+		`./${collectionKey.replace(/"/g, '')}.schema.json`,
+		collectionSchemasDir,
+	);
+	if (!hasJsonSchema(collectionSchema)) {
+		if (
+			new URL('.', schemaJsonPath).href === collectionSchemasDir.href &&
+			schemaJsonPath.pathname.endsWith('.schema.json')
+		) {
+			await fsMod.promises.rm(schemaJsonPath, { force: true });
 		}
+		logger.warn(
+			'content',
+			`The schema for the ${collectionKey} collection cannot be converted to JSON Schema, so no \`.schema.json\` file was generated for it. Its validator does not implement https://standardschema.dev/json-schema.`,
+		);
+		return;
 	}
 
 	try {
-		const schema = z.toJSONSchema(zodSchemaForJson, {
-			unrepresentable: 'any',
-			override: (ctx) => {
-				const def = ctx.zodSchema._zod.def;
-				if (def.type === 'date') {
-					ctx.jsonSchema.type = 'string';
-					ctx.jsonSchema.format = 'date-time';
-				}
-			},
-			// Collection schemas are used for parsing collection input, so we need to tell Zod to use the
-			// input shape when generating a JSON schema.
-			io: 'input',
+		// Keep the dialect and definitions at the document root so local references still resolve.
+		const {
+			$schema: dialect,
+			$defs,
+			...jsonSchema
+		} = collectionSchema['~standard'].jsonSchema.input({
+			target: JSON_SCHEMA_TARGET,
+			libraryOptions: getLibraryOptions(collectionSchema['~standard'].vendor),
 		});
+
+		let schema: Record<string, any>;
+		if (
+			collectionConfig.type === CONTENT_LAYER_TYPE &&
+			collectionConfig.loader.name === 'file-loader'
+		) {
+			// The file loader validates individual entries, but editors validate the whole file.
+			// TODO: Let loaders declare when their schema describes an entry in a larger file.
+			schema = {
+				anyOf: [
+					{ type: 'array', items: jsonSchema },
+					{
+						type: 'object',
+						properties: { $schema: { type: 'string' } },
+						additionalProperties: jsonSchema,
+					},
+				],
+			};
+		} else {
+			schema = jsonSchema;
+			if (schema.type === 'object') {
+				schema.properties = { ...schema.properties, $schema: { type: 'string' } };
+			}
+		}
+
+		if ($defs) {
+			schema = { $defs, ...schema };
+		}
+		if (dialect) {
+			schema = { $schema: dialect, ...schema };
+		}
+
 		const schemaStr = JSON.stringify(schema, null, 2);
-		const schemaJsonPath = new URL(
-			`./${collectionKey.replace(/"/g, '')}.schema.json`,
-			collectionSchemasDir,
-		);
 		await fsMod.promises.writeFile(schemaJsonPath, schemaStr);
 	} catch (err) {
 		// This should error gracefully and not crash the dev server

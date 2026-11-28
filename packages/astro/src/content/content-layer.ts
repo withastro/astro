@@ -2,7 +2,7 @@ import { existsSync, promises as fs } from 'node:fs';
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
 import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
-import type { FSWatcher } from 'vite';
+import type { FSWatcher, ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
@@ -26,6 +26,7 @@ import {
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
+import { createViteImageSourceResolver } from './image.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
 export interface ContentLayerOptions {
@@ -34,6 +35,7 @@ export interface ContentLayerOptions {
 	logger: AstroLogger;
 	watcher?: FSWatcher;
 	contentConfigObserver?: ContentObservable;
+	viteServer?: ViteDevServer;
 }
 
 type CollectionLoader<TData> = () =>
@@ -52,6 +54,7 @@ export class ContentLayer {
 	#markdownRenderer?: MarkdownRenderer;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
+	#viteServer?: ViteDevServer;
 
 	#queue: PQueue;
 
@@ -60,12 +63,14 @@ export class ContentLayer {
 		logger,
 		store,
 		watcher,
+		viteServer,
 		contentConfigObserver = globalContentConfigObserver,
 	}: ContentLayerOptions) {
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;
 		this.#contentConfigObserver = contentConfigObserver;
+		this.#viteServer = viteServer;
 		if (watcher) {
 			this.#watcher = createWatcherWrapper(watcher);
 		}
@@ -190,6 +195,9 @@ export class ContentLayer {
 	}
 
 	async #doSync(options: RefreshContentOptions) {
+		const imageResolver = this.#viteServer
+			? createViteImageSourceResolver(this.#viteServer)
+			: undefined;
 		let contentConfig = this.#contentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 
@@ -320,16 +328,13 @@ export class ContentLayer {
 
 				const context = await this.#getLoaderContext({
 					collectionName: name,
-					parseData: ({ id, data, filePath = '' }) =>
+					parseData: ({ id, data, filePath = '', rawData }) =>
 						getEntryData(
 							{
 								id,
 								collection: name,
 								unvalidatedData: data,
-								_internal: {
-									rawData: undefined,
-									filePath,
-								},
+								_internal: { rawData, filePath, imageResolver },
 							},
 							{ ...collection, schema },
 							false,
@@ -374,6 +379,13 @@ export class ContentLayer {
 		const collectionNames = new Set(Object.keys(collections));
 		for (const collectionName of collectionNames) {
 			for (const entry of this.#store.values(collectionName)) {
+				for (const target of entry?.referencedCollections ?? []) {
+					if (!collectionNames.has(target)) {
+						logger.error(
+							`Invalid content reference: entry "${entry.id}" in collection "${collectionName}" references collection "${target}", but that collection does not exist.`,
+						);
+					}
+				}
 				if (entry?.data) {
 					this.#findInvalidReferences(
 						entry.data,

@@ -5,7 +5,12 @@ import { forEach } from 'neotraverse';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '@astrojs/runtime/_internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
-import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
+import {
+	DATA_STORE_MANIFEST_FILE,
+	IMAGE_FIELD_MARKER,
+	IMAGE_IMPORT_PREFIX,
+	REFERENCE_FIELD_MARKER,
+} from './consts.js';
 import {
 	ChunkedWriter,
 	type DataStoreManifest,
@@ -406,6 +411,7 @@ export default new Map([\n${lines.join(',\n')}]);
 				rendered,
 				assetImports,
 				imageImports: incomingImageImports,
+				referencedCollections: incomingReferencedCollections,
 			}) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
@@ -418,6 +424,7 @@ export default new Map([\n${lines.join(',\n')}]);
 					}
 				}
 				const foundAssets = new Set<string>(assetImports);
+				const referencedCollections = new Set<string>();
 				const imageImports: (string | number)[][] = [];
 				const seenImageImportPaths = new Set();
 				const recordImageImport = (imagePath: (string | number)[]) => {
@@ -431,11 +438,28 @@ export default new Map([\n${lines.join(',\n')}]);
 				for (const existingImagePath of incomingImageImports ?? []) {
 					recordImageImport([...existingImagePath]);
 				}
-				// Image fields are prefixed during schema parsing. Record their locations and
-				// strip the prefix so the stored data holds a plain, devalue-serializable src
-				// string. The recorded paths let read-time resolution rewrite only these fields
-				// without traversing or cloning the rest of the data.
+				// Recorded paths let read-time resolution update image fields without
+				// traversing or cloning the rest of the entry.
 				forEach(data, function (ctx, val) {
+					if (
+						val &&
+						typeof val === 'object' &&
+						typeof val.collection === 'string' &&
+						(REFERENCE_FIELD_MARKER in val ||
+							incomingReferencedCollections?.includes(val.collection)) &&
+						(typeof val.id === 'string' || typeof val.slug === 'string')
+					) {
+						referencedCollections.add(val.collection);
+						return;
+					}
+					if (val && typeof val === 'object' && IMAGE_FIELD_MARKER in val) {
+						const { [IMAGE_FIELD_MARKER]: _marker, ...rest } = val;
+						const src = String(rest.src).replace(IMAGE_IMPORT_PREFIX, '');
+						foundAssets.add(src);
+						recordImageImport(ctx.path.map((segment) => segment as string | number));
+						ctx.update({ ...rest, src }, true);
+						return;
+					}
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
@@ -467,6 +491,9 @@ export default new Map([\n${lines.join(',\n')}]);
 
 				if (imageImports.length) {
 					entry.imageImports = imageImports;
+				}
+				if (referencedCollections.size) {
+					entry.referencedCollections = [...referencedCollections];
 				}
 
 				if (digest) {

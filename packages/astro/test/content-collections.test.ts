@@ -5,6 +5,7 @@ import * as devalue from 'devalue';
 import testAdapter from './test-adapter.ts';
 import { preventNodeBuiltinDependencyPlugin } from './test-plugins.ts';
 import { type App, type Fixture, loadFixture } from './test-utils.ts';
+import { createFixture } from './units/test-utils.ts';
 
 type WithSchemaConfigEntry = {
 	id: string;
@@ -283,7 +284,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = (e as Error).message;
 			}
-			assert.match(error!, /\*\*title\*\*: Required/);
+			assert.match(error!, /\*\*title\*\*: Invalid input: expected string, received undefined/);
 		});
 	});
 
@@ -325,6 +326,42 @@ describe('Content Collections', () => {
 		});
 	});
 
+	describe('With an invalid schema', () => {
+		it('Throws for a collection schema that is not a Standard Schema validator', async (t) => {
+			const project = await createFixture({
+				'src/content.config.ts': `export const collections = {
+					blog: { type: 'content_layer', loader: () => [], schema: { title: 'string' } },
+				};`,
+			});
+			t.after(() => project.rm());
+			const fixture = await loadFixture({ root: project.path, outDir: './dist/invalid-schema/' });
+			await assert.rejects(
+				fixture.build({ force: true }),
+				/\*\*blog\*\* collection is not a valid schema/,
+			);
+		});
+
+		it('Throws for a loader schema that is not a Standard Schema validator', async (t) => {
+			const project = await createFixture({
+				'src/content.config.ts': `export const collections = {
+					posts: {
+						type: 'content_layer',
+						loader: { name: 'invalid-schema-loader', load: async () => {}, schema: { title: 'string' } },
+					},
+				};`,
+			});
+			t.after(() => project.rm());
+			const fixture = await loadFixture({
+				root: project.path,
+				outDir: './dist/invalid-loader-schema/',
+			});
+			await assert.rejects(
+				fixture.build({ force: true }),
+				/\*\*posts\*\* collection is not a valid schema/,
+			);
+		});
+	});
+
 	describe('SSR integration', () => {
 		let app: App;
 
@@ -357,6 +394,18 @@ describe('Content Collections', () => {
 				const body = await response.text();
 				const $ = cheerio.load(body);
 				assert.equal($('h1').text(), blogSlugToContents[slug].title);
+			}
+		});
+
+		it('Resolves image() fields at sync time without bundling Node builtins', async () => {
+			for (const slug of Object.keys(blogSlugToContents)) {
+				const request = new Request('http://example.com/posts/' + slug);
+				const response = await app.render(request);
+				const body = await response.text();
+				const $ = cheerio.load(body);
+				assert.equal($('#hero').attr('data-width'), '1');
+				assert.equal($('#hero').attr('data-height'), '1');
+				assert.equal($('#hero').attr('data-format'), 'png');
 			}
 		});
 

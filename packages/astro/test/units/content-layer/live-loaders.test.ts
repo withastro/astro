@@ -1,14 +1,44 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import { z } from 'zod';
-import { defineCollection } from '../../../dist/content/config.js';
+import { defineCollection, defineLiveCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
+import {
+	LiveCollectionCacheHintError,
+	LiveCollectionValidationError,
+} from '../../../dist/content/loaders/errors.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
 describe('Content Layer - Live Loaders', () => {
 	const root = createTempDir();
+
+	it('accepts a callable live collection schema', () => {
+		const schema = Object.assign(() => assert.fail('Expected a static schema'), {
+			'~standard': z.string()['~standard'],
+		});
+		const collection = defineLiveCollection({
+			loader: {
+				name: 'live-loader',
+				loadEntry: async () => undefined,
+				loadCollection: async () => ({ entries: [] }),
+			},
+			schema,
+		});
+		assert.equal(collection.schema, schema);
+	});
+
+	it('formats Zod errors and Standard Schema issues in live collection errors', () => {
+		const result = z.object({ title: z.string() }).safeParse({ title: false });
+		assert.ok(!result.success);
+		for (const ErrorType of [LiveCollectionValidationError, LiveCollectionCacheHintError]) {
+			const fromZod: Error = new ErrorType('posts', 'one', result.error);
+			const fromIssues: Error = new ErrorType('posts', 'one', result.error.issues);
+			assert.match(fromZod.message, /\*\*title\*\*:/);
+			assert.equal(fromZod.message, fromIssues.message);
+		}
+	});
 
 	it('loads initial data through sync', async () => {
 		const store = new MutableDataStore();

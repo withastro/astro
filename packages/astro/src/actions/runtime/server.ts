@@ -1,5 +1,6 @@
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { stringify as devalueStringify } from 'devalue';
-import * as z from 'zod/v4/core';
+import type * as z from 'zod/v4/core';
 import { shouldAppendForwardSlash } from '../../core/build/util.js';
 import { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import { getFetchStateFromAPIContext } from '../../core/fetch/fetch-state.js';
@@ -7,9 +8,11 @@ import { getAction } from '../load.js';
 import {
 	ActionCalledFromServerError,
 	ActionNotFoundError,
+	ActionsInvalidInputSchemaError,
 	ActionsReturnedInvalidDataError,
 } from '@astrojs/runtime/_internal/core/errors/errors-data.js';
 import { AstroError } from '@astrojs/runtime/_internal/core/errors/errors.js';
+import { isStandardSchema } from '../../core/errors/standard-schema.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { BodySizeLimitError, readBodyWithLimit } from '../../core/request-body.js';
 import type { APIContext } from '../../types/public/index.js';
@@ -26,30 +29,133 @@ import type {
 	ActionClient,
 	ActionHandler,
 	ActionsLocals,
+	ErrorInferenceObject,
 	MaybePromise,
 	SafeResult,
 	SerializedActionResult,
 } from './types.js';
 
+/**
+ * Defines an action that accepts `FormData`. Omit `input` to read and validate the
+ * submitted fields in your handler.
+ *
+ * @see https://docs.astro.build/en/guides/actions/#using-validators-with-form-inputs
+ *
+ * @example
+ * ```ts
+ * import { defineAction } from 'astro:actions';
+ *
+ * export const server = {
+ * 	comment: defineAction({
+ * 		accept: 'form',
+ * 		handler: async (formData) => {
+ * 			const comment = formData.get('comment');
+ * 			// ...
+ * 		},
+ * 	}),
+ * };
+ * ```
+ */
 export function defineAction<
 	TOutput,
-	TAccept extends ActionAccept | undefined = undefined,
+	TInputSchema extends z.$ZodType = z.$ZodType<FormData>,
+>(params: {
+	accept: 'form';
+	/**
+	 * @deprecated Omit `input` and validate the submitted `FormData` in your handler.
+	 * This option accepts only Zod schemas and will be removed in Astro 8.
+	 * To report field errors, throw an `ActionInputError` with your validator's issues:
+	 *
+	 * ```ts
+	 * import { parseFormData } from '@standard-community/standard-form';
+	 * import { ActionInputError, defineAction } from 'astro:actions';
+	 * import { z } from 'astro/zod';
+	 *
+	 * const schema = z.object({ email: z.email() });
+	 *
+	 * defineAction({
+	 * 	accept: 'form',
+	 * 	handler: async (formData) => {
+	 * 		const result = await parseFormData(schema, formData);
+	 * 		if (result.issues) throw new ActionInputError(result.issues);
+	 * 		return result.value;
+	 * 	},
+	 * });
+	 * ```
+	 */
+	input?: TInputSchema;
+	handler: ActionHandler<TInputSchema, TOutput>;
+}): ActionClient<TOutput, 'form', TInputSchema> & string;
+/**
+ * Defines an action called with JSON, the default.
+ *
+ * Pass a [Standard Schema](https://standardschema.dev/) validator as `input` to validate
+ * the payload. The handler receives the parsed output. If validation fails, Astro returns
+ * an `ActionInputError` to the caller without running the handler.
+ *
+ * @see https://docs.astro.build/en/reference/modules/astro-actions/#input-validator
+ *
+ * @example
+ * ```ts
+ * import { defineAction } from 'astro:actions';
+ * import * as v from 'valibot';
+ *
+ * export const server = {
+ * 	subscribe: defineAction({
+ * 		input: v.object({ channel: v.string() }),
+ * 		handler: async ({ channel }) => {
+ * 			// ...
+ * 		},
+ * 	}),
+ * };
+ * ```
+ */
+export function defineAction<
+	TOutput,
+	TInputSchema extends StandardSchemaV1 | undefined = undefined,
+>(params: {
+	accept?: 'json';
+	input?: TInputSchema;
+	handler: ActionHandler<TInputSchema, TOutput>;
+}): ActionClient<TOutput, 'json', TInputSchema> & string;
+/**
+ * Defines an action, resolving `accept` at runtime.
+ *
+ * @see https://docs.astro.build/en/guides/actions/
+ */
+// TODO: remove in Astro 8, once form actions no longer take an input schema
+export function defineAction<
+	TOutput,
+	TAccept extends ActionAccept | undefined,
 	TInputSchema extends z.$ZodType | undefined = TAccept extends 'form'
-		? // If `input` is omitted, default to `FormData` for forms and `any` for JSON.
-			z.$ZodType<FormData>
+		? z.$ZodType<FormData>
 		: undefined,
->({
+>(params: {
+	accept?: TAccept;
+	input?: TInputSchema;
+	handler: ActionHandler<TInputSchema, TOutput>;
+}): ActionClient<TOutput, TAccept, TInputSchema> & string;
+export function defineAction<TOutput>({
 	accept,
 	input: inputSchema,
 	handler,
 }: {
-	input?: TInputSchema;
-	accept?: TAccept;
-	handler: ActionHandler<TInputSchema, TOutput>;
-}): ActionClient<TOutput, TAccept, TInputSchema> & string {
+	input?: StandardSchemaV1;
+	accept?: ActionAccept;
+	handler: ActionHandler<any, TOutput>;
+}): ActionClient<TOutput, ActionAccept, any> & string {
+	if (inputSchema !== undefined) {
+		if (!isStandardSchema(inputSchema)) {
+			throwInvalidInputSchema();
+		}
+		if (accept === 'form' && inputSchema['~standard'].vendor !== 'zod') {
+			throwInvalidInputSchema(inputSchema['~standard'].vendor);
+		}
+	}
+
 	const serverHandler =
 		accept === 'form'
-			? getFormServerHandler(handler, inputSchema)
+			? getFormServerHandler(handler, inputSchema as z.$ZodType | undefined)
 			: getJsonServerHandler(handler, inputSchema);
 
 	async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
@@ -69,7 +175,22 @@ export function defineAction<
 		},
 	});
 
-	return safeServerHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
+	return safeServerHandler as ActionClient<TOutput, ActionAccept, any> & string;
+}
+
+function throwInvalidInputSchema(vendor?: string): never {
+	throw new AstroError({
+		...ActionsInvalidInputSchemaError,
+		message: ActionsInvalidInputSchemaError.message(vendor),
+		hint: ActionsInvalidInputSchemaError.hint(vendor),
+	});
+}
+
+function createActionInputError(issues: readonly StandardSchemaV1.Issue[], vendor: string) {
+	if (vendor === 'zod') return new ActionInputError(issues);
+	// Other validators can use the same issue codes as Zod. Passing only the Standard Schema
+	// fields lets ActionInputError report these issues as `custom` without guessing their origin.
+	return new ActionInputError(issues.map(({ message, path }) => ({ message, path })));
 }
 
 function getFormServerHandler<TOutput, TInputSchema extends z.$ZodType>(
@@ -86,27 +207,17 @@ function getFormServerHandler<TOutput, TInputSchema extends z.$ZodType>(
 
 		if (!inputSchema) return await handler(unparsedInput, context);
 
-		const parsed = await parseFormInput(inputSchema, unparsedInput);
+		const { parseFormData } = await import('@standard-community/standard-form');
+		const parsed = await parseFormData(inputSchema, unparsedInput);
 
-		if (!parsed.success) {
-			throw new ActionInputError(parsed.error.issues);
+		if (parsed.issues) {
+			throw createActionInputError(parsed.issues, inputSchema['~standard'].vendor);
 		}
-		return await handler(parsed.data, context);
+		return await handler(parsed.value, context);
 	};
 }
 
-async function parseFormInput(inputSchema: z.$ZodType, unparsedInput: FormData) {
-	const baseSchema = unwrapBaseZ4ObjectSchema(inputSchema, unparsedInput);
-	const input =
-		baseSchema instanceof z.$ZodObject
-			? formDataToObject(unparsedInput, baseSchema)
-			: unparsedInput;
-
-	const parsed = await z.safeParseAsync(inputSchema, input);
-	return parsed;
-}
-
-function getJsonServerHandler<TOutput, TInputSchema extends z.$ZodType>(
+function getJsonServerHandler<TOutput, TInputSchema extends StandardSchemaV1>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
 ) {
@@ -119,11 +230,11 @@ function getJsonServerHandler<TOutput, TInputSchema extends z.$ZodType>(
 		}
 
 		if (!inputSchema) return await handler(unparsedInput, context);
-		const parsed = await z.safeParseAsync(inputSchema, unparsedInput);
-		if (!parsed.success) {
-			throw new ActionInputError(parsed.error.issues);
+		const parsed = await inputSchema['~standard'].validate(unparsedInput);
+		if (parsed.issues) {
+			throw createActionInputError(parsed.issues, inputSchema['~standard'].vendor);
 		}
-		return await handler(parsed.data, context);
+		return await handler(parsed.value, context);
 	};
 }
 
@@ -331,135 +442,9 @@ function isActionAPIContext(ctx: ActionAPIContext): boolean {
 	return symbol === true;
 }
 
-/** Transform form data to an object based on a Zod schema. */
-export function formDataToObject<T extends z.$ZodObject>(
-	formData: FormData,
-	schema: T,
-	/** @internal */
-	prefix = '',
-): Record<string, unknown> {
-	const formKeys = [...formData.keys()];
-	const obj: Record<string, unknown> = schema._zod.def.catchall
-		? Object.fromEntries(
-				[...formData.entries()]
-					.filter(([k]) => k.startsWith(prefix))
-					.map(([k, v]) => [k.slice(prefix.length), v]),
-			)
-		: {};
-	for (const [key, baseValidator] of Object.entries(schema._zod.def.shape)) {
-		const prefixedKey = prefix + key;
-		let validator = baseValidator;
-
-		while (
-			validator instanceof z.$ZodOptional ||
-			validator instanceof z.$ZodNullable ||
-			validator instanceof z.$ZodDefault
-		) {
-			// use default value when key is undefined
-			if (validator instanceof z.$ZodDefault && !formDataHasKeyOrPrefix(formKeys, prefixedKey)) {
-				obj[key] =
-					validator._zod.def.defaultValue instanceof Function
-						? validator._zod.def.defaultValue()
-						: validator._zod.def.defaultValue;
-			}
-			validator = validator._zod.def.innerType;
-		}
-
-		// Unwrap pipe (from .transform() / .pipe()) to find nested objects
-		while (validator instanceof z.$ZodPipe) {
-			validator = validator._zod.def.in;
-		}
-
-		// Resolve nested discriminatedUnion to the matching variant
-		if (validator instanceof z.$ZodDiscriminatedUnion) {
-			const typeKey = validator._zod.def.discriminator;
-			const typeValue = formData.get(prefixedKey + '.' + typeKey);
-			if (typeof typeValue === 'string') {
-				const match = validator._zod.def.options.find((option: any) =>
-					option.def.shape[typeKey].values.has(typeValue),
-				);
-				if (match) {
-					validator = match;
-				}
-			}
-		}
-
-		if (validator instanceof z.$ZodObject) {
-			const nestedPrefix = prefixedKey + '.';
-			const hasNestedKeys = formKeys.some((k) => k.startsWith(nestedPrefix));
-			if (hasNestedKeys) {
-				obj[key] = formDataToObject(formData, validator, nestedPrefix);
-			} else if (!(key in obj)) {
-				// No nested keys and no default was set — respect optional/nullable
-				obj[key] = baseValidator instanceof z.$ZodNullable ? null : undefined;
-			}
-		} else if (!formData.has(prefixedKey) && key in obj) {
-			// continue loop if form input is not found and default value is set
-			continue;
-		} else if (validator instanceof z.$ZodBoolean) {
-			const val = formData.get(prefixedKey);
-			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(prefixedKey);
-		} else if (validator instanceof z.$ZodArray) {
-			obj[key] = handleFormDataGetAll(prefixedKey, formData, validator);
-		} else {
-			obj[key] = handleFormDataGet(prefixedKey, formData, validator, baseValidator);
-		}
-	}
-	return obj;
-}
-
-/** Check if formKeys contains an exact key or any keys with the given prefix (for nested objects). */
-function formDataHasKeyOrPrefix(formKeys: string[], key: string): boolean {
-	const prefix = key + '.';
-	return formKeys.some((k) => k === key || k.startsWith(prefix));
-}
-
-function handleFormDataGetAll(key: string, formData: FormData, validator: z.$ZodArray) {
-	const entries = Array.from(formData.getAll(key));
-	const elementValidator = validator._zod.def.element;
-	if (elementValidator instanceof z.$ZodNumber) {
-		return entries.map(Number);
-	} else if (elementValidator instanceof z.$ZodBoolean) {
-		return entries.map((v) => (v === 'true' ? true : v === 'false' ? false : Boolean(v)));
-	}
-	return entries;
-}
-
-function handleFormDataGet(
-	key: string,
-	formData: FormData,
-	validator: unknown,
-	baseValidator: unknown,
-) {
-	const value = formData.get(key);
-	if (!value) {
-		return baseValidator instanceof z.$ZodOptional ? undefined : null;
-	}
-	return validator instanceof z.$ZodNumber ? Number(value) : value;
-}
-
-function unwrapBaseZ4ObjectSchema(schema: z.$ZodType, unparsedInput: FormData) {
-	if (schema instanceof z.$ZodPipe) {
-		return unwrapBaseZ4ObjectSchema(schema._zod.def.in, unparsedInput);
-	}
-	if (schema instanceof z.$ZodDiscriminatedUnion) {
-		const typeKey = schema._zod.def.discriminator;
-		const typeValue = unparsedInput.get(typeKey);
-		if (typeof typeValue !== 'string') return schema;
-
-		const objSchema = schema._zod.def.options.find((option) =>
-			(option as any).def.shape[typeKey].values.has(typeValue),
-		);
-		if (!objSchema) return schema;
-
-		return objSchema;
-	}
-	return schema;
-}
-
 async function callSafely<TOutput>(
 	handler: () => MaybePromise<TOutput>,
-): Promise<SafeResult<z.$ZodType, TOutput>> {
+): Promise<SafeResult<ErrorInferenceObject, TOutput>> {
 	try {
 		const data = await handler();
 		return { data, error: undefined };

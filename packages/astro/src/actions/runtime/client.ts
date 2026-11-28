@@ -1,7 +1,9 @@
 // It's safe to import this file on both server and client
 
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { parse as devalueParse } from 'devalue';
 import type * as z from 'zod/v4/core';
+import { getIssuePathKeys } from '../../core/errors/standard-schema.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
 import type {
 	ActionClient,
@@ -124,6 +126,10 @@ export function isInputError<T extends ErrorInferenceObject>(
 	);
 }
 
+/**
+ * Reports invalid action input as a `BAD_REQUEST` error. Throw this from a handler with
+ * your validator's issues. Callers can use {@link isInputError} to read the result.
+ */
 export class ActionInputError<T extends ErrorInferenceObject> extends ActionError {
 	type = 'AstroActionInputError';
 
@@ -131,24 +137,61 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 	// Not all properties will serialize from server to client,
 	// and we don't want to import the full ZodError object into the client.
 
+	// TODO: type as `StandardSchemaV1.Issue[]` in Astro 8
 	issues: z.$ZodIssue[];
+	/** Messages grouped by the first segment of each issue's path. Pathless issues appear only in `issues`. */
 	fields: { [P in keyof T]?: string[] | undefined };
 
-	constructor(issues: z.$ZodIssue[]) {
+	// TODO: type as `StandardSchemaV1.Issue[]` in Astro 8
+	constructor(issues: ReadonlyArray<z.$ZodIssue | StandardSchemaV1.Issue>) {
+		const zodIssues = issues.map(toZodIssue);
 		super({
-			message: `Failed to validate: ${JSON.stringify(issues, null, 2)}`,
+			message: `Failed to validate: ${JSON.stringify(zodIssues, null, 2)}`,
 			code: 'BAD_REQUEST',
 		});
-		this.issues = issues;
-		this.fields = {};
-		for (const issue of issues) {
-			if (issue.path.length > 0) {
-				const key = issue.path[0].toString() as keyof typeof this.fields;
-				this.fields[key] ??= [];
-				this.fields[key]?.push(issue.message);
-			}
+		this.issues = zodIssues;
+		const fields = new Map<string, string[]>();
+		for (const issue of zodIssues) {
+			const segment = issue.path?.[0];
+			if (segment === undefined) continue;
+			const key = String(segment);
+			const messages = fields.get(key);
+			if (messages) messages.push(issue.message);
+			else fields.set(key, [issue.message]);
 		}
+		this.fields = Object.fromEntries(fields) as typeof this.fields;
 	}
+}
+
+const zodIssueFields = {
+	invalid_type: 'expected',
+	too_big: 'maximum',
+	too_small: 'minimum',
+	invalid_format: 'format',
+	not_multiple_of: 'divisor',
+	unrecognized_keys: 'keys',
+	invalid_union: 'errors',
+	invalid_key: 'issues',
+	invalid_element: 'key',
+	invalid_value: 'values',
+	custom: 'message',
+} satisfies { [C in z.$ZodIssue['code']]: keyof Extract<z.$ZodIssue, { code: C }> };
+
+// TODO: remove in Astro 8, when `ActionInputError#issues` becomes `StandardSchemaV1.Issue[]`
+function toZodIssue(issue: z.$ZodIssue | StandardSchemaV1.Issue): z.$ZodIssue {
+	if (
+		'code' in issue &&
+		Object.hasOwn(zodIssueFields, issue.code) &&
+		zodIssueFields[issue.code] in issue &&
+		issue.path?.every((segment) => typeof segment !== 'object')
+	) {
+		return issue;
+	}
+	return {
+		code: 'custom',
+		message: issue.message,
+		path: getIssuePathKeys(issue.path),
+	};
 }
 
 export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {

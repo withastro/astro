@@ -6,14 +6,23 @@ import { slug as githubSlug } from 'github-slugger';
 import colors from 'piccolore';
 import type { RunnableDevEnvironment, Rolldown } from 'vite';
 import xxhash from 'xxhash-wasm';
+import { forEach } from 'neotraverse';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import * as z from 'zod/v4';
 import {
 	AstroError,
 	AstroErrorData,
 	MarkdownError,
 } from '@astrojs/runtime/_internal/core/errors/index.js';
-import { errorMap } from '@astrojs/vite-plugin-astro/_internal/core/errors/index.js';
 import { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
+import { getYamlPathLine } from '@astrojs/internal-helpers/yaml';
+import type { ImageMetadata } from '../assets/types.js';
+import {
+	formatSchemaIssues,
+	getIssuePathKeys,
+	isSchemaFactory,
+	isStandardSchema,
+} from '../core/errors/standard-schema.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
@@ -25,9 +34,10 @@ import {
 	CONTENT_LAYER_TYPE,
 	CONTENT_MODULE_FLAG,
 	DEFERRED_MODULE,
-	IMAGE_IMPORT_PREFIX,
+	IMAGE_FIELD_MARKER,
 	LIVE_CONTENT_TYPE,
 } from './consts.js';
+import { image as createImageField, resolveImageField } from './image.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
@@ -56,6 +66,9 @@ export const loaderReturnSchema = z.union([
 			.passthrough(),
 	),
 ]);
+
+const INVALID_SCHEMA_MESSAGE =
+	'Invalid schema. Expected a Standard Schema validator (https://standardschema.dev), such as a Zod, Valibot or ArkType schema.';
 
 function contentConfigParser(logger: AstroLogger) {
 	return z.object({
@@ -89,7 +102,7 @@ function contentConfigParser(logger: AstroLogger) {
 							schema: z
 								.any()
 								.transform((v) => {
-									if (typeof v === 'function') {
+									if (isSchemaFactory(v)) {
 										logger.warn(
 											'content',
 											`Your loader's schema is defined using a function. This is no longer supported and the schema will be ignored. Please update your loader to use the \`createSchema()\` utility instead, or report this to the loader author. In a future major version, this will cause the loader to break entirely.`,
@@ -98,22 +111,13 @@ function contentConfigParser(logger: AstroLogger) {
 									}
 									return v;
 								})
-								.superRefine((v, ctx) => {
-									if (v !== undefined && !('_zod' in v)) {
-										ctx.addIssue({
-											code: z.ZodIssueCode.custom,
-											message: 'Invalid Zod schema',
-										});
-										return z.NEVER;
-									}
-								})
 								.optional(),
 							createSchema: z
 								.function({
 									input: [],
 									output: z.promise(
 										z.object({
-											schema: z.custom<z.ZodSchema>((v: any) => '_zod' in v),
+											schema: z.custom<StandardSchemaV1>(isStandardSchema, INVALID_SCHEMA_MESSAGE),
 											types: z.string(),
 										}),
 									),
@@ -135,7 +139,11 @@ function contentConfigParser(logger: AstroLogger) {
 export type ContentConfig = z.infer<ReturnType<typeof contentConfigParser>> & { digest?: string };
 export type CollectionConfig = ContentConfig['collections'][string];
 
-type EntryInternal = { rawData: string | undefined; filePath: string };
+type EntryInternal = {
+	rawData: string | undefined;
+	filePath: string;
+	imageResolver?: import('./image.js').ImageSourceResolver;
+};
 
 export function parseEntrySlug({
 	id,
@@ -175,79 +183,87 @@ export async function getEntryData<
 	let data = entry.unvalidatedData as TOutputData;
 
 	let schema = collectionConfig.schema;
+	const imageResolver = entry._internal.imageResolver;
 
-	if (typeof schema === 'function') {
+	if (isSchemaFactory(schema)) {
+		const { filePath } = entry._internal;
 		if (pluginContext) {
-			schema = schema({
-				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
-			});
+			const schemaContext = {
+				image: createImage(pluginContext, shouldEmitFile, filePath),
+			};
+			schema = schema(schemaContext);
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
-			schema = schema({
-				image: () =>
-					z.string().transform((val) => {
-						// Normalize bare filenames to relative paths for consistent resolution
-						// This ensures bare filenames like "cover.jpg" work the same way as in markdown frontmatter
-						let normalizedPath = val;
-
-						// Skip normalization for URLs, absolute paths, and already-relative paths
-						const isUrl = val.includes('://');
-						const isAbsolute = val.startsWith('/');
-						const isRelative = val.startsWith('.');
-
-						if (val && !isUrl && !isAbsolute && !isRelative) {
-							// Check if this is a local file or an alias
-							// Resolve relative to the entry's directory
-							const entryDir = path.dirname(entry._internal.filePath);
-							const resolvedPath = path.resolve(entryDir, val);
-
-							// If the file exists, normalize to relative path
-							// Otherwise, keep as-is (likely a Vite alias)
-							if (fsMod.existsSync(resolvedPath)) {
-								normalizedPath = `./${val}`;
-							}
-						}
-						return `${IMAGE_IMPORT_PREFIX}${normalizedPath}`;
-					}),
-			});
+			const schemaContext = {
+				image: () => z.string().transform((val) => createImageField(val)),
+			};
+			schema = schema(schemaContext);
 		}
 	}
 
-	if (schema) {
-		// Use `safeParseAsync` to allow async transforms
-		let formattedError;
-		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
-			error(issue) {
-				if (issue.code === 'custom' && issue.params?.isHoistedAstroError) {
-					formattedError = issue.params?.astroError;
-				}
-				return errorMap(issue);
-			},
-		});
-		if (parsed.success) {
-			data = parsed.data as TOutputData;
-		} else {
-			if (!formattedError) {
-				formattedError = new AstroError({
+	try {
+		if (schema) {
+			if (!isStandardSchema(schema)) {
+				throw new AstroError({
+					...AstroErrorData.InvalidCollectionSchemaError,
+					message: AstroErrorData.InvalidCollectionSchemaError.message(entry.collection),
+				});
+			}
+			const result = await schema['~standard'].validate(data);
+			if (result.issues) {
+				throw new AstroError({
 					...AstroErrorData.InvalidContentEntryDataError,
 					message: AstroErrorData.InvalidContentEntryDataError.message(
 						entry.collection,
 						entry.id,
-						parsed.error,
+						formatSchemaIssues(result.issues),
 					),
 					location: {
-						file: entry._internal?.filePath,
-						line: getYAMLErrorLine(
-							entry._internal?.rawData,
-							String(parsed.error.issues[0].path[0]),
-						),
+						file: entry._internal.filePath,
+						line: getEntryErrorLine(entry._internal.rawData, result.issues[0]?.path),
 						column: 0,
 					},
 				});
 			}
-			throw formattedError;
+			data = result.value as TOutputData;
 		}
+		return (await resolveImageFields(data, entry._internal.filePath, imageResolver)) as TOutputData;
+	} catch (error) {
+		if (error instanceof AstroError && error.name === AstroErrorData.ImageNotFound.name) {
+			throw new AstroError({
+				...AstroErrorData.ImageNotFound,
+				message: `**${entry.collection} → ${entry.id}** ${error.message}`,
+				location: {
+					file: entry._internal.filePath,
+					line: 0,
+					column: 0,
+				},
+			});
+		}
+		throw error;
 	}
+}
 
+async function resolveImageFields(
+	data: Record<string, unknown>,
+	filePath: string,
+	resolver?: import('./image.js').ImageSourceResolver,
+): Promise<Record<string, unknown>> {
+	const markers: { path: (string | number)[]; value: ImageMetadata }[] = [];
+	forEach(data, (ctx, value) => {
+		if (value && typeof value === 'object' && IMAGE_FIELD_MARKER in value) {
+			markers.push({
+				path: ctx.path.map((segment) => segment as string | number),
+				value: value as ImageMetadata,
+			});
+		}
+	});
+	for (const marker of markers) {
+		let parent: any = data;
+		for (const segment of marker.path.slice(0, -1)) {
+			parent = parent[segment];
+		}
+		parent[marker.path.at(-1)!] = await resolveImageField(marker.value, filePath, resolver);
+	}
 	return data;
 }
 
@@ -437,18 +453,18 @@ function hasUnderscoreBelowContentDirectoryPath(
 	return false;
 }
 
-function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
-	if (!rawData) return 0;
-	const indexOfObjectKey = rawData.search(
-		// Match key either at the top of the file or after a newline
-		// Ensures matching on top-level object keys only
-		new RegExp(`(\n|^)${objectKey}`),
+function getEntryErrorLine(rawData: string | undefined, issuePath: StandardSchemaV1.Issue['path']) {
+	if (!rawData || !issuePath?.length) return 0;
+	const keys = getIssuePathKeys(issuePath);
+	const yamlLine = getYamlPathLine(rawData, keys);
+	if (yamlLine !== undefined) return yamlLine;
+	// TOML frontmatter uses assignments instead of YAML mapping keys.
+	return (
+		rawData.split('\n').findIndex((line) => {
+			const equals = line.indexOf('=');
+			return equals !== -1 && line.slice(0, equals).trimEnd() === String(keys[0]);
+		}) + 1
 	);
-	if (indexOfObjectKey === -1) return 0;
-
-	const dataBeforeKey = rawData.substring(0, indexOfObjectKey + 1);
-	const numNewlinesBeforeKey = dataBeforeKey.split('\n').length;
-	return numNewlinesBeforeKey;
 }
 
 export function safeParseFrontmatter(source: string, id?: string) {
@@ -500,6 +516,28 @@ export function isDeferredModule(viteId: string): boolean {
 	return flags.has(CONTENT_MODULE_FLAG);
 }
 
+function firstInvalidCollectionSchema(
+	collections: ContentConfig['collections'],
+): string | undefined {
+	for (const [name, collection] of Object.entries(collections)) {
+		const schema = collection.schema;
+		if (schema !== undefined && !isStandardSchema(schema) && !isSchemaFactory(schema)) {
+			return name;
+		}
+		const loader = 'loader' in collection ? collection.loader : undefined;
+		if (
+			loader !== undefined &&
+			typeof loader === 'object' &&
+			'schema' in loader &&
+			loader.schema !== undefined &&
+			!isStandardSchema(loader.schema)
+		) {
+			return name;
+		}
+	}
+	return undefined;
+}
+
 async function loadContentConfig({
 	fs,
 	settings,
@@ -524,6 +562,13 @@ async function loadContentConfig({
 
 	const config = contentConfigParser(logger).safeParse(unparsedConfig);
 	if (config.success) {
+		const invalidCollection = firstInvalidCollectionSchema(config.data.collections);
+		if (invalidCollection !== undefined) {
+			throw new AstroError({
+				...AstroErrorData.InvalidCollectionSchemaError,
+				message: AstroErrorData.InvalidCollectionSchemaError.message(invalidCollection),
+			});
+		}
 		// Generate a digest of the config file so we can invalidate the cache if it changes
 		const hasher = await xxhash();
 		const digest = hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));

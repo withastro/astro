@@ -9,8 +9,10 @@ import type { SessionDriverConfigSchema } from '../../dist/core/session/config.j
 import type { SessionDriverConfig } from '../../dist/core/session/types.js';
 import type { SvgOptimizer } from '../../dist/assets/svg/types.js';
 import type { SvgOptimizerSchema } from '../../dist/assets/svg/config.js';
-import type { ImageInputFormat } from '../../dist/assets/types.js';
+import type { ImageInputFormat, ImageMetadata } from '../../dist/assets/types.js';
 import type { SchemaContext } from '../../dist/content/config.js';
+import { image } from 'astro/content/fields';
+import type { getImage } from '../../dist/assets/index.js';
 
 describe('fonts', () => {
 	it('FontFamily type matches FontFamilySchema', () => {
@@ -48,6 +50,13 @@ describe('svgOptimizer', () => {
 });
 
 describe('content image()', () => {
+	it('returns a type compatible with ImageMetadata', () => {
+		const cover = image('./cover.jpg');
+		expectTypeOf(cover).toEqualTypeOf<ImageMetadata>();
+		const options: Parameters<typeof getImage>[0] = { src: cover };
+		void options;
+	});
+
 	it('image() schema format matches ImageInputFormat', () => {
 		type ImageSchema = ReturnType<SchemaContext['image']>;
 		expectTypeOf<z.output<ImageSchema>['format']>().toEqualTypeOf<ImageInputFormat>();

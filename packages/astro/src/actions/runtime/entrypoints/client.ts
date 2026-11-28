@@ -12,6 +12,7 @@ import {
 export { ACTION_QUERY_PARAMS } from '../../consts.js';
 export {
 	ActionError,
+	ActionInputError,
 	isActionError,
 	isInputError,
 } from '../client.js';

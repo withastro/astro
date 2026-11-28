@@ -48,6 +48,12 @@ describe('Content layer dev restart', () => {
 			(await (await fixture.fetch('/')).text()).includes('Updated title'),
 		);
 		assert.ok(updated, 'Content entry edit was not picked up after restart');
+
+		const htmlAfterRestart = await (await fixture.fetch('/')).text();
+		assert.ok(
+			htmlAfterRestart.includes('600x400'),
+			'Image dimensions were not resolved after the config restart',
+		);
 	});
 
 	it('keeps serving when a loader throws after a config restart', async () => {

@@ -104,6 +104,24 @@ async function readFileWithRetry(url: URL, maxRetries = 5): Promise<Buffer> {
 	}
 }
 
+export async function readImageFile(id: string) {
+	let contents: Buffer;
+	try {
+		contents = await readFileWithRetry(pathToFileURL(id));
+	} catch (err) {
+		if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
+			return undefined;
+		}
+		throw err;
+	}
+
+	const metadata = await imageMetadata(contents, id);
+	if (path.extname(id).toLowerCase() === '.apng') {
+		metadata.format = 'apng';
+	}
+	return { contents, metadata };
+}
+
 /**
  * Processes an image file and emits its metadata and optionally its contents. This function supports both build and development modes.
  *
@@ -119,21 +137,12 @@ export async function emitImageMetadata(
 		return undefined;
 	}
 
+	const image = await readImageFile(id);
+	if (!image) {
+		return undefined;
+	}
+	const { contents: fileData, metadata: fileMetadata } = image;
 	const url = pathToFileURL(id);
-	let fileData: Buffer;
-	try {
-		fileData = await readFileWithRetry(url);
-	} catch (err) {
-		if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
-			return undefined;
-		}
-		throw err;
-	}
-
-	const fileMetadata = await imageMetadata(fileData, id);
-	if (path.extname(id).toLowerCase() === '.apng') {
-		fileMetadata.format = 'apng';
-	}
 
 	const emittedImage: Omit<ImageMetadataWithContents, 'fsPath'> = {
 		src: '',
