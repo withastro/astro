@@ -2,10 +2,7 @@ import type { MiddlewareNext } from '../../types/public/common.js';
 import type { AstroRuntimeLogger } from '../../types/public/context.js';
 import type { WaitUntilHook } from '../wait-until.js';
 
-export interface CacheOptions {
-	maxAge?: number;
-	swr?: number;
-	tags?: string[];
+export interface CacheOptions extends CachePolicy {
 	lastModified?: Date;
 	etag?: string;
 }
@@ -66,19 +63,27 @@ export interface SSRManifestCache {
 	routes?: Record<string, CacheOptions>;
 }
 
-export interface RouteRule {
+export interface RouteRule extends CachePolicy {}
+
+/** 
+ * Set cache lifetime and invalidation policy
+ * @property {number} maxAge?
+ * @property {number} swr?
+ * @property {string[]} tags?
+ */
+interface CachePolicy {
 	/**
-	 * Cache max-age in seconds.
+	 * Cache max-age in seconds before cache is invalidated.
 	 */
 	maxAge?: number;
 	/**
-	 * Stale-while-revalidate window in seconds.
+	 * Stale-while-revalidate window in seconds, allows stale content to be fed for up to specified timeframe past invalidation.
 	 */
 	swr?: number;
 	/**
-	 * Cache tags for invalidation.
+	 * Cache tags for grouped invalidation actions.
+	 * @example cache.invalidate({ tags:[ 'products', 'users:admin' ]})
 	 */
 	tags?: string[];
 }
-
 export type RouteRules = Record<string, RouteRule>;
